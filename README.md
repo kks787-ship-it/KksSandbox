@@ -13,10 +13,13 @@ Source code and documentation for the new Corner Stone Farm website and operatin
 | Path | Purpose |
 |---|---|
 | `wp-content/plugins/csf-emergency/` | **Corner Stone Farm Emergency Management** — horse emergency ID pages (`/h/{code}`), printable QR tags, farm emergency status, sitewide banner, `/emergency` page, event log. |
-| `wp-content/plugins/csf-core/` | Site foundations — Knowledge Library content model, configurable “Book a Lesson” button. |
+| `wp-content/plugins/csf-core/` | **The public website** — brand design system, block patterns and page layouts, repeatable site setup, Knowledge Library, horses, camps & clinics, farm contact details, booking buttons. |
 | `scripts/inspect-environment.sh` | Read-only report on the dev server (PHP, DB, web server, plugins, HTTPS, permissions…). |
 | `scripts/backup-dev.sh` | Database + `wp-content` backup of the dev site. |
 | `scripts/deploy-plugins.sh` | Copy the custom plugins to the dev site (dry run by default). |
+| `scripts/local-dev.sh` | Build/serve a disposable local WordPress (SQLite) for development and tests. |
+| `tests/e2e/` | Automated browser tests (accessibility, responsive, links, editor validity, emergency banner…). |
+| `tests/fixtures/themes/csf-kadence-standin/` | **Test-only** stand-in theme used when Kadence is unavailable. Never deploy. |
 | `docs/` | Architecture, roadmap, runbooks, and the list of facts the owners must confirm. |
 
 WordPress core, the Kadence theme, uploads, and `wp-config.php` are **not** committed.
@@ -29,7 +32,11 @@ WordPress core, the Kadence theme, uploads, and `wp-config.php` are **not** comm
 4. [`docs/02-roadmap.md`](docs/02-roadmap.md) — phased delivery plan.
 5. [`docs/04-emergency-plugin.md`](docs/04-emergency-plugin.md) — emergency system: what works today, what does not, and how to operate it.
 6. [`docs/05-backup-rollback-deploy.md`](docs/05-backup-rollback-deploy.md) — backups, rollback, and deployment.
-7. [`docs/06-brand-and-site-setup.md`](docs/06-brand-and-site-setup.md) — Kadence/Gutenberg configuration, brand system, page structure.
+7. [`docs/06-brand-and-site-setup.md`](docs/06-brand-and-site-setup.md) — brand system and page structure.
+8. [`docs/07-website-installation.md`](docs/07-website-installation.md) — installing the website on the dev site (Kadence steps).
+9. [`docs/08-content-and-asset-inventory.md`](docs/08-content-and-asset-inventory.md) — pages, content types, assets, photo shot list.
+10. [`docs/09-phase-2-status.md`](docs/09-phase-2-status.md) — Phase 2 status, limitations, incomplete features, owner decisions.
+11. [`docs/test-results/phase-2.md`](docs/test-results/phase-2.md) and [`docs/screenshots/`](docs/screenshots/) — test results and screenshots.
 
 ## Development
 
@@ -37,6 +44,9 @@ WordPress core, the Kadence theme, uploads, and `wp-config.php` are **not** comm
 composer install          # WordPress Coding Standards + PHPCompatibility
 composer lint             # php -l on every plugin file
 vendor/bin/phpcs          # coding standards (must report no errors)
+
+bash scripts/local-dev.sh install && bash scripts/local-dev.sh start   # local site on :8890
+npm install && npm run test:e2e                                        # browser tests
 ```
 
-Requirements: WordPress 6.4+, PHP 8.1+.
+Requirements: WordPress 6.5+ (csf-core), 6.4+ (csf-emergency), PHP 8.1+.

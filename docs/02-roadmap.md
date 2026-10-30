@@ -10,7 +10,7 @@ the production domain until the owners approve the replacement.
 - [x] Backup and dry-run-first deployment scripts for the dev site
 - [ ] **Run environment inspection on the VPS** and record findings
 - [ ] Owners complete the confirmation register (`03-owner-confirmation-register.md`)
-- [ ] Owners supply original logo source files and authentic photography
+- [ ] Owners supply original logo source files and authentic photography (still outstanding)
 
 ## Phase 1 — Emergency horse identification *(code complete for MVP; not operational)*
 
@@ -25,15 +25,22 @@ the production domain until the owners approve the replacement.
 - [ ] Tabletop drill: change status, verify banner, revert
 - [ ] Owner sign-off that it is operational (see `04-emergency-plugin.md`)
 
-## Phase 2 — Public website
+## Phase 2 — Public website *(code complete for review; not deployed)*
 
-- Kadence global palette, typography, header/footer; logo optimised from approved source
-- Homepage (14 sections from the specification) and primary navigation
-- Lessons, Training, Camps & Clinics, Horse Sales, About, Resources, Contact, Booking pages
-- Knowledge Library launch with initial articles
-- Verified Acuity booking buttons
-- Accessibility audit (WCAG 2.2 AA), performance budget, redirects from old URLs
-- Launch plan for switching the production domain (separate approval)
+- [x] Brand design system in `csf-core`: palette + self-hosted Playfair Display/Lato as editor presets, block styles, accessible colour pairings
+- [x] 14 section patterns and 21 page layouts (core blocks only; editable in Gutenberg)
+- [x] All pages from the sitemap, hierarchy, primary & footer menus, synced footer, via idempotent `wp csf setup` / Tools screen
+- [x] Knowledge Library: summary, topics, audiences, reading time, review date, updated date, related articles, `/library/`
+- [x] Horses (farm / sale / lease) and Camps & Clinics as structured content with listing blocks
+- [x] Single shared Acuity booking button; farm contact details block (empty until confirmed)
+- [x] Emergency banner verified on the new pages (independent plugin unchanged)
+- [x] Automated tests: accessibility (axe WCAG 2.2 AA), responsive, links, navigation, booking, block-editor validity, emergency, structured content, setup idempotency
+- [x] Repeatable local environment (`scripts/local-dev.sh`)
+- [ ] **Owner approval to install on the Plesk development site** (doc 07)
+- [ ] Verify on Kadence: Customizer palette, header, footer, page-layout settings
+- [ ] Logo, photographs, contact details, Acuity verification, resolve 23 owner notes (doc 09)
+- [ ] Phase 2b: contact/inquiry form with spam protection and tested delivery (owner picks approach)
+- [ ] Launch prep: SEO metadata, redirects from old URLs, privacy policy, production deployment plan (separate approval)
 
 ## Phase 3 — Notifications & evacuation assistance
 

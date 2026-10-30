@@ -65,13 +65,15 @@ About                         (Our Philosophy)
   ├─ Meet the Team
   ├─ Meet the Horses
   └─ Facilities
-Resources                     (Knowledge Library archive, /resources)
+Resources                     (curated landing page; articles live at /library/{article}/)
   └─ FAQ
 Contact
 Booking                       ← “Book a Lesson” header button
 ```
 
-The header button uses the shared booking URL (`[csf_book_button]`, Settings → Booking).
+The header "Book a Lesson" item links to `/booking/`; every booking button uses the shared Acuity
+URL (Settings → Booking). Implementation status and Kadence configuration steps: see
+`docs/07-website-installation.md` and `docs/09-phase-2-status.md`.
 The emergency pages (`/emergency`, `/h/…`) are **not** in navigation; `/emergency` is linked
 from the footer and the banner.
 

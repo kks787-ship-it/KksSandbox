@@ -1,0 +1,112 @@
+{
+ "hero-home": {
+  "description": "Horse and rider together at Corner Stone Farm \u2014 wide, calm, natural light",
+  "width": 1920,
+  "height": 1080
+ },
+ "lessons": {
+  "description": "Beth teaching a lesson in the arena",
+  "width": 1600,
+  "height": 1200
+ },
+ "youth-riders": {
+  "description": "Young rider with a lesson horse (photo permission from parent)",
+  "width": 1600,
+  "height": 1200
+ },
+ "adult-amateurs": {
+  "description": "Adult amateur rider schooling on the flat",
+  "width": 1600,
+  "height": 1200
+ },
+ "dressage": {
+  "description": "Horse and rider working on dressage foundations",
+  "width": 1600,
+  "height": 1200
+ },
+ "offsite": {
+  "description": "Off-site or haul-in lesson",
+  "width": 1600,
+  "height": 1200
+ },
+ "after-school": {
+  "description": "Young riders learning horsemanship on the ground",
+  "width": 1600,
+  "height": 1200
+ },
+ "training": {
+  "description": "Beth riding a young horse in training",
+  "width": 1600,
+  "height": 1200
+ },
+ "young-horse": {
+  "description": "Young horse development \u2014 groundwork or early rides",
+  "width": 1600,
+  "height": 1200
+ },
+ "camps": {
+  "description": "Camp group with horses (photo permission for every child)",
+  "width": 1600,
+  "height": 1200
+ },
+ "horse-sales": {
+  "description": "Sale horse \u2014 clear side-on conformation photo",
+  "width": 1600,
+  "height": 1200
+ },
+ "leasing": {
+  "description": "Rider with a lease horse",
+  "width": 1600,
+  "height": 1200
+ },
+ "beth-portrait": {
+  "description": "Portrait of Beth Siemon",
+  "width": 1200,
+  "height": 1500
+ },
+ "kris-portrait": {
+  "description": "Portrait of Kris Siemon",
+  "width": 1200,
+  "height": 1500
+ },
+ "philosophy": {
+  "description": "A quiet moment between horse and rider",
+  "width": 1600,
+  "height": 1200
+ },
+ "mentorship": {
+  "description": "Working students or youth mentorship in action",
+  "width": 1600,
+  "height": 1200
+ },
+ "herd": {
+  "description": "Corner Stone Farm horses (lesson and farm horses)",
+  "width": 1600,
+  "height": 1200
+ },
+ "facility-arena": {
+  "description": "The actual riding arena at Corner Stone Farm",
+  "width": 1600,
+  "height": 1200
+ },
+ "facility-barn": {
+  "description": "The actual barn and stabling",
+  "width": 1600,
+  "height": 1200
+ },
+ "facility-grounds": {
+  "description": "Pastures and the Okanogan landscape around the farm",
+  "width": 1600,
+  "height": 1200
+ },
+ "resources": {
+  "description": "Horsemanship detail \u2014 grooming, tack, or hands-on care",
+  "width": 1600,
+  "height": 1200
+ },
+ "contact": {
+  "description": "Farm entrance or landscape near Omak",
+  "width": 1600,
+  "height": 1200
+ }
+}

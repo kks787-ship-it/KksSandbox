@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-label="Photo placeholder: Horse and rider together at Corner Stone Farm — wide, calm, natural light">
+<defs><pattern id="p" width="28" height="28" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="28" height="28" fill="#D6C2A6"/><rect width="2" height="28" fill="#CDB696"/></pattern></defs>
+<rect width="1920" height="1080" fill="url(#p)"/>
+<rect x="700" y="930" width="520" height="110" rx="8" fill="#F5F2EE" stroke="#4A3C2F" stroke-width="3" stroke-dasharray="12 8"/>
+<text x="724" y="976" font-family="Helvetica, Arial, sans-serif" font-size="24" font-weight="700" letter-spacing="4" fill="#4A3C2F">PHOTO NEEDED (HERO)</text>
+<text x="724" y="1014" font-family="Georgia, serif" font-size="24" fill="#111111">Horse and rider at Corner Stone Farm</text>
+</svg>

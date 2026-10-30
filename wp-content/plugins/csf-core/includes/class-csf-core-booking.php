@@ -42,35 +42,56 @@ class CSF_Core_Booking {
 	}
 
 	/**
-	 * [csf_book_button label="…" url="…" style="primary|secondary"]
+	 * [csf_book_button label="…" style="primary|outline|light"]
 	 *
 	 * @param array|string $atts Attributes.
 	 * @return string
 	 */
 	public static function shortcode( $atts ) {
-		$settings = self::get();
-		$atts     = shortcode_atts(
+		$atts = shortcode_atts(
 			array(
-				'label' => $settings['label'],
-				'url'   => $settings['url'],
+				'label' => '',
 				'style' => 'primary',
 			),
 			$atts,
 			'csf_book_button'
 		);
-
-		$style = in_array( $atts['style'], array( 'primary', 'secondary' ), true ) ? $atts['style'] : 'primary';
-		$html  = sprintf(
-			'<a class="csf-book-button csf-book-button--%1$s wp-element-button" href="%2$s">%3$s</a>',
-			esc_attr( $style ),
-			esc_url( $atts['url'] ),
-			esc_html( $atts['label'] )
+		return self::render_button(
+			array(
+				'label'   => $atts['label'],
+				'variant' => $atts['style'],
+			)
 		);
+	}
 
-		if ( ! $settings['verified'] && current_user_can( 'manage_options' ) ) {
-			$html .= ' <small class="csf-book-unverified">' . esc_html__( '(booking link not yet verified — visible to admins only)', 'csf-core' ) . '</small>';
+	/**
+	 * The one place booking links are built. Used by the csf/book-button block, the shortcode,
+	 * and the header button, so changing provider means changing one setting.
+	 *
+	 * @param array $attrs { label, variant, align }.
+	 * @return string
+	 */
+	public static function render_button( $attrs ) {
+		$settings = self::get();
+		if ( ! $settings['url'] ) {
+			return current_user_can( 'manage_options' ) ? '<p class="csf-admin-hint">' . esc_html__( 'Admin note: no booking URL configured (Settings → Booking).', 'csf-core' ) . '</p>' : '';
 		}
-		return $html;
+
+		$label = ! empty( $attrs['label'] ) ? $attrs['label'] : $settings['label'];
+		$style = in_array( $attrs['variant'] ?? '', array( 'primary', 'outline', 'light' ), true ) ? $attrs['variant'] : 'primary';
+		$align = in_array( $attrs['align'] ?? '', array( 'left', 'center', 'right' ), true ) ? ' csf-book--' . $attrs['align'] : '';
+
+		$html = sprintf(
+			'<div class="csf-book%1$s"><a class="csf-book-button csf-book-button--%2$s" href="%3$s" data-csf-booking="1">%4$s</a>',
+			esc_attr( $align ),
+			esc_attr( $style ),
+			esc_url( $settings['url'] ),
+			esc_html( $label )
+		);
+		if ( ! $settings['verified'] && current_user_can( 'manage_options' ) ) {
+			$html .= '<small class="csf-admin-hint">' . esc_html__( 'Booking link not yet verified (admins only see this).', 'csf-core' ) . '</small>';
+		}
+		return $html . '</div>';
 	}
 
 	/**
@@ -119,7 +140,7 @@ class CSF_Core_Booking {
 					<tr><th><?php esc_html_e( 'Verified', 'csf-core' ); ?></th>
 						<td><label><input type="checkbox" name="<?php echo esc_attr( self::OPTION ); ?>[verified]" value="1" <?php checked( 1, (int) $s['verified'] ); ?>> <?php esc_html_e( 'I opened this link and confirmed it books the correct appointment type.', 'csf-core' ); ?></label></td></tr>
 				</table>
-				<p><?php esc_html_e( 'Use the shortcode [csf_book_button] anywhere (including a Shortcode block or Kadence header button) to show this button.', 'csf-core' ); ?></p>
+				<p><?php esc_html_e( 'Use the "Book a Lesson Button" block in the editor, or the [csf_book_button] shortcode (for example in a Kadence header HTML element). Every booking button on the site uses this URL.', 'csf-core' ); ?></p>
 				<?php submit_button(); ?>
 			</form>
 		</div>

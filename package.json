@@ -1,0 +1,12 @@
+{
+  "name": "csf-digital-ranch-tests",
+  "private": true,
+  "description": "Automated browser tests for the Corner Stone Farm website (local environment only).",
+  "scripts": {
+    "test:e2e": "node tests/e2e/run.js",
+    "test:e2e:screenshots": "node tests/e2e/run.js --screenshots"
+  },
+  "devDependencies": {
+    "axe-core": "4.10.3"
+  }
+}
