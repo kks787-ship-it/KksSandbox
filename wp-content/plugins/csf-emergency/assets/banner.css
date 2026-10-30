@@ -1,0 +1,19 @@
+/* Corner Stone Farm emergency banner. Severity colours prioritise legibility over branding;
+   every pairing meets WCAG AAA (7:1 or better) with white text. */
+.csf-banner { color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.4; position: relative; z-index: 99999; }
+.csf-banner__inner { margin: 0 auto; max-width: 72rem; padding: 0.875rem 1rem; }
+.csf-banner p { margin: 0 0 0.25rem; }
+.csf-banner__headline { font-size: 1.125rem; font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; }
+.csf-banner__message { font-size: 1rem; }
+.csf-banner__safety { background: rgba(0, 0, 0, 0.25); border-left: 4px solid #fff; font-weight: 700; padding: 0.5rem 0.75rem; }
+.csf-banner__meta { font-size: 0.875rem; opacity: 0.95; }
+.csf-banner__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem !important; }
+.csf-banner__actions a { background: #fff; border-radius: 4px; color: #111 !important; display: inline-block; font-weight: 700; min-height: 44px; padding: 0.625rem 1rem; text-decoration: none; text-transform: uppercase; font-size: 0.875rem; }
+.csf-banner__actions a:focus-visible { outline: 3px solid #ffd54a; outline-offset: 2px; }
+.csf-banner--fixed { bottom: 0; left: 0; position: fixed; right: 0; }
+.csf-sev-critical { background: #b00020; }
+.csf-sev-warning { background: #8a4500; }
+.csf-sev-notice { background: #1f4e79; }
+.csf-sev-success { background: #1e5e2f; }
+.csf-sev-none { background: #4a3c2f; }
+@media print { .csf-banner { background: #fff !important; border: 3px solid #000; color: #000; } .csf-banner__actions { display: none; } }

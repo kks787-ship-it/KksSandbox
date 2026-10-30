@@ -1,0 +1,32 @@
+.csf-public-warning { background: #fff8e5; border-left: 4px solid #8a4500; margin: 0 0 1rem; padding: 0.75rem 1rem; }
+.csf-photo-preview { display: flex; flex-wrap: wrap; gap: 4px; }
+.csf-photo-preview img { height: 60px; object-fit: cover; width: 60px; }
+.csf-current { border-left: 6px solid #4a3c2f; background: #fff; margin: 1rem 0; padding: 0.75rem 1rem; max-width: 50rem; }
+.csf-current.csf-sev-critical { border-color: #b00020; }
+.csf-current.csf-sev-warning { border-color: #8a4500; }
+.csf-current.csf-sev-notice { border-color: #1f4e79; }
+.csf-current.csf-sev-success { border-color: #1e5e2f; }
+.csf-status-options { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); max-width: 60rem; }
+.csf-status-options label { background: #fff; border: 2px solid #c3c4c7; border-radius: 6px; cursor: pointer; display: block; padding: 0.75rem; }
+.csf-status-options input:checked + span { font-weight: 700; }
+.csf-status-options label:has(input:checked) { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; }
+.csf-status-options .description { display: block; margin-top: 0.25rem; }
+.csf-review { background: #fff; border: 1px solid #c3c4c7; max-width: 50rem; padding: 1rem 1.25rem; }
+.csf-review dt { font-weight: 700; margin-top: 0.75rem; }
+.csf-review dd { margin-left: 0; }
+.csf-review .csf-banner { margin-top: 0.5rem; }
+.csf-big-button.button-primary { font-size: 1.125rem; min-height: 48px; padding: 0 1.5rem; }
+.csf-danger.button-primary { background: #b00020; border-color: #8a0019; }
+.csf-tag-sheet { display: flex; flex-wrap: wrap; gap: 1rem; }
+.csf-tag { background: #fff; border: 2px solid #111; border-radius: 8px; color: #111; font-family: system-ui, sans-serif; padding: 0.4in; text-align: center; width: 3in; }
+.csf-tag__qr svg { display: block; height: auto; margin: 0 auto; width: 100%; }
+.csf-tag__name { font-size: 20pt; font-weight: 800; margin: 0.1in 0 0; }
+.csf-tag__phone { font-size: 16pt; font-weight: 800; margin: 0.05in 0; }
+.csf-tag__url { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 10pt; margin: 0; word-break: break-all; }
+.csf-tag__farm { font-size: 10pt; margin: 0; text-transform: uppercase; letter-spacing: 0.1em; }
+@media print {
+	#adminmenumain, #wpadminbar, #wpfooter, .csf-no-print, .notice, .update-nag { display: none !important; }
+	#wpcontent, #wpbody-content { margin: 0 !important; padding: 0 !important; }
+	html.wp-toolbar { padding-top: 0 !important; }
+	body { background: #fff !important; }
+}

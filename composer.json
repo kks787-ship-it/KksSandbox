@@ -1,0 +1,20 @@
+{
+    "name": "cornerstonefarm/digital-ranch",
+    "description": "Corner Stone Farm Digital Ranch (CSF-OS) custom WordPress plugins.",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^3.1",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "scripts": {
+        "lint": "find wp-content/plugins/csf-* -name '*.php' -print0 | xargs -0 -n1 php -l",
+        "phpcs": "phpcs"
+    }
+}

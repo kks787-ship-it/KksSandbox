@@ -1,0 +1,11 @@
+# Never commit WordPress core, uploads, secrets, or local tooling output.
+/vendor/
+/node_modules/
+/.wp-local/
+wp-config.php
+.env
+*.sql
+*.sql.gz
+*.log
+.DS_Store
+/backups/

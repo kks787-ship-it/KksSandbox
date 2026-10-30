@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<ruleset name="CSF">
+	<description>Coding standards for Corner Stone Farm custom plugins.</description>
+	<file>wp-content/plugins/csf-emergency</file>
+	<file>wp-content/plugins/csf-core</file>
+	<exclude-pattern>*/assets/vendor/*</exclude-pattern>
+	<arg name="extensions" value="php"/>
+	<arg value="sp"/>
+	<config name="testVersion" value="8.1-"/>
+	<config name="minimum_wp_version" value="6.4"/>
+	<rule ref="WordPress">
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+	</rule>
+	<rule ref="PHPCompatibilityWP"/>
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="csf-emergency"/>
+				<element value="csf-core"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>
