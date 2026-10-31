@@ -2,8 +2,8 @@
 
 **Scope:** the separate sandbox on Plesk. Both plugin directories have been installed, and
 `csf-core` 0.2.0 has been **activated with owner approval**. `csf-emergency` 0.1.0 remains
-**inactive**. Website page/menu setup, emergency activation and permalink changes require
-separate owner approval. Production remains excluded.
+**inactive**. Website page/menu setup and clean permalinks are now completed with separate
+owner approval; emergency activation and production remain excluded.
 
 Estimated time: 45–60 minutes, most of it in the Kadence Customizer.
 
@@ -20,8 +20,8 @@ The immediate objective is csf-core/csf-emergency testing with **real Kadence 1.
 | A | Copy only the two new CSF plugin directories, **leave inactive** | **Completed with owner approval**, Gateway job `job_01M69NHGP200KW7JZK6HD2V9YZ`. Both plugins confirmed inactive, content identical; permissions normalized to 0755 dirs/0644 files. |
 | B1 | Activate `csf-core` only and verify effects | **Completed with owner approval**, Gateway `job_01M69P01SA00P66KZ43HJE6FC0`; active and loading; no pages generated. |
 | B2 | Activate `csf-emergency` | **Not authorized; inactive.** Emergency operational acceptance remains blocked. |
-| C | Generate/verify the website's 21 pages, menus and synced footer; configure Kadence | **Not authorized**; dry-run passed with 21 creates, footer pattern and plain-permalink warning. Permalink changes need explicit approval. |
-| D | Test the actual public build/editor/navigation/accessibility/emergency rendering on Kadence | Not started; authenticated sandbox checks within approved test scope |
+| C | Generate the website's 21 pages, menus, synced footer and clean permalinks | **Completed with approval**, Gateway `job_01M69QTN9Y00N8R62TCV7R23XT`. All pages published; footer pattern created but not yet placed in Kadence. Rewrite file configured separately, within approved permalink scope. |
+| D | Inspect actual Kadence desktop/mobile layout, editor, navigation, accessible links, footer and content | **Outstanding:** 21 pages pass WordPress rendering checks; password-protected browser DOM and visual acceptance not yet completed. Emergency plugin inactive; emergency rendering cannot be tested yet. |
 
 **Deployment mode follow-up:** The private Git checkout held `0700` directories/`0600` files; the original `rsync -a` copied those modes. Gateway normalized only the newly installed plugin trees to `0755` directories and `0644` files. Amend and review future deployment handling of destination permissions before subsequent releases; do not assume a fresh `rsync -a` preserves this correction.
 
@@ -37,7 +37,31 @@ content types and seeds taxonomy terms, and may flush rewrite rules. The stored 
 structure remains **plain**, and homepage setting remains **posts**. `csf-emergency` is still
 inactive; no emergency notifications or QR system is operational. `wp csf status` reports all
 21 planned pages missing and `wp csf setup --dry-run` previews the page/footer creations only.
-No page setup, footer placement, permalink changes or production deployment were performed.
+At that activation stage, no page setup, footer placement, permalink changes or production deployment had occurred. The separately approved page/permalink setup has **since completed**, as recorded below.
+
+### Approved sandbox page/permalink setup — October 31, 2026
+
+After separate owner approval, `wp csf setup --set-permalinks` generated all **21 published
+CSF pages**, established Home as the static front page (ID 6), created primary/footer menus
+(IDs 28/29) and synced footer pattern (ID 27), and assigned the Kadence primary/mobile/footer
+menu locations. Gateway setup job: `job_01M69QTN9Y00N8R62TCV7R23XT` (success).
+
+WordPress's rewrite flush produced 162 permalink rules. Because WP-CLI could not write an
+`.htaccess` automatically, the stock WordPress-generated rewrite stanza was created in the
+**sandbox root only**, mode 0644, owned by the subscription user. Apache configuration syntax
+passed. The permalink option is now `/%postname%/`.
+
+`wp csf status` confirms all 21 published pages, and WordPress `do_blocks` rendering verified
+all 21 have exactly one H1 and no rendering failures. The repeat setup dry run shows all
+pages and the footer as `ok`. **23 owner-confirmation notes** and labeled photo placeholders
+remain. No authentic branding assets have been installed and the synced footer pattern has
+not yet been placed in Kadence's footer builder.
+
+Unauthenticated HTTPS probes to `/`, `/lessons/`, and `/about/meet-beth/` return the
+expected Plesk password challenge (401). This confirms privacy protection, **not**
+authenticated end-to-end page routing or responsive browser rendering; those still need a
+user-accessible visual acceptance test. `csf-emergency` remains inactive and emergency links
+may not yet resolve. No production operations were performed.
 
 ## 0. Before you start
 
