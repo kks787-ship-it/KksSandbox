@@ -61,8 +61,16 @@ Plesk preflight and deployment dry run passed, proposing only two new CSF plugin
 Do not repeat full preparation, recreate scratch resources, restage source or move the pin
 because documentation advanced. Retrieve raw identifiers/output from existing Gateway records.
 
-Next: verify the existing backup's real age and target-bound script layout and prepare private
-restore evidence from completed records, retaining the functional-test qualification. Only
+Gateway supplied DB export capture October 31, 2026, 10:08:58 AM PDT (17:08:58 UTC) and
+full file archive capture 10:09:42 AM PDT (17:09:42 UTC). Existing scratch DB is
+csf_sandbox_restore_20261031; private restored files are not publicly served. Existing evidence:
+/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt.
+Reuse it; do not recreate the evidence/restore or request these known identifiers again.
+
+Next: prepare/verify the fresh target-bound gate bundle in the script's required format using
+existing records/evidence. The reported DB capture reaches 24 elapsed hours November 1, 2026,
+9:08:58 AM PST (17:08:58 UTC; DST ends overnight). Actual script artifact metadata/layout
+still needs checking. Retain the structural-pass/functional-test-not-run distinction. Only
 refresh a limited gate backup if actual staleness/incompatibility warrants it and is authorized.
 Do not touch timestamps to fake freshness. Files-only installation, activation, site setup,
 permalink changes and production deployment remain unauthorized; see the staged plan in

@@ -148,3 +148,19 @@ The next approval is files-only installation with both plugins left inactive. Ac
 target-bound script gate is still to be checked against existing artifacts; conditionally
 refresh a limited gate backup only for real staleness/incompatibility, not a blanket redo.
 No plugin/permalink/production operation was authorized or executed by this documentation task.
+
+
+## Retain exact Gateway capture and evidence identifiers — October 31, 2026
+
+Gateway supplied DB export 10:08:58 AM PDT (17:08:58 UTC), file archive 10:09:42 AM PDT
+(17:09:42 UTC), existing scratch DB csf_sandbox_restore_20261031 and evidence at
+/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt.
+The complete files include hardened wp-config. Structural recovery passed; functional
+login/rendering did not run. Record and reuse these facts instead of repeating work or
+recreating evidence. The 24-hour DB threshold falls November 1 at 9:08:58 AM PST
+(17:08:58 UTC), accounting for the DST transition.
+
+A fresh target-bound bundle in the existing verifier's required format is the next milestone,
+not a new full sandbox restoration. Format/age/integrity still require actual artifact checks.
+Source remains pinned d360dbf; plugin installation/testing needs separate explicit approval.
+No new remote operation is authorized by this documentation update.

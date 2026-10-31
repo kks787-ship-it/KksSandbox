@@ -102,3 +102,11 @@ Next: verify the real fresh target-bound backup/evidence gate, then review inact
 file copying. Activation, 21-page setup/permalinks and real Kadence testing are separate stages.
 No installation/activation/setup/permalink/production change is authorized by the documentation
 update. See the [current plan](07-website-installation.md#staged-installation-approval-boundaries).
+
+
+Gateway's subsequent execution detail records database export at October 31, 2026,
+10:08:58 AM PDT and file archive at 10:09:42 AM PDT. Scratch DB:
+csf_sandbox_restore_20261031. Existing private evidence:
+/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt.
+Reuse the completed operations/evidence; next is the fresh script-format backup gate and
+separate files-only installation approval, not a repeated backup/restore package.

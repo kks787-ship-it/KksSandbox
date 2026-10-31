@@ -58,8 +58,12 @@ Gateway's latest completion record states:
 
 - Full sandbox filesystem/config/database backup at
   /var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/; archives/checksums verified.
-- Scratch restoration: all 12 InnoDB tables and representative counts verified; 4,336 regular
-  files restored with zero mismatches. Functional WordPress login/page rendering **not run**.
+- DB export October 31, 2026, **10:08:58 AM PDT** (17:08:58 UTC); file archive **10:09:42 AM PDT**
+  (17:09:42 UTC), including current hardened configuration and complete sandbox files.
+- Scratch restoration in **csf_sandbox_restore_20261031**: all 12/12 InnoDB tables/count
+  samples verified; 4,336 regular files, zero mismatches. Files are private/not publicly served.
+  Functional WordPress login/page rendering **not run**.
+- Existing private evidence: /var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt; reuse it.
 - Existing private source pinned to d360dbfd5a0441fa142a3b963a4a42c5145d9738; plugin tree matches
   52401dcd9a90ca87ad074c1078ad6633df5be77e.
 - Exact-target Plesk preflight and deployment dry run passed; no plugin files copied/activated
@@ -70,11 +74,10 @@ source pin, backup and scratch evidence. Do not create new resources to repair s
 
 ## Remaining installation review
 
-Check the existing backup's actual target-bound script format and capture age, complete a
-private operator evidence record from existing Gateway logs, and review the files-only
-installation plan. A conditional limited backup refresh is justified only by an actual stale/
-incompatible artifact, not by repeating full preparation. Exact raw artifact/scratch/source
-paths and checksum values were not forwarded; recover them from completed records.
+Check/prepare the existing backup's actual target-bound script format and capture age,
+reuse the existing private operator evidence file, and review the files-only installation plan. A conditional limited backup refresh is justified only by an actual stale/
+incompatible artifact, not by repeating full preparation. Capture times, scratch DB and evidence path are now supplied; only raw dump/archive filenames,
+private scratch/source filesystem paths and hashes still need existing-record lookup.
 
 Follow the [gate procedure](05-backup-rollback-deploy.md#backups-and-verified-backup-gate-before-any-apply)
 and [staged plan](07-website-installation.md#staged-installation-approval-boundaries). No file

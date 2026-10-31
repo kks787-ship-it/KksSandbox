@@ -15,7 +15,7 @@ The immediate objective is csf-core/csf-emergency testing with **real Kadence 1.
 
 | Stage | Proposed action | Authorization/status |
 |---|---|---|
-| Final gate | Reuse completed backup/structural restore; verify actual fresh target-bound artifacts and prepare private evidence | Remote gate not run by this task; conditional limited refresh only if genuinely needed/approved |
+| Final gate | Reuse completed backup/structural restore and existing private restore-evidence.txt; verify actual fresh target-bound format | Remote gate not run by this task; conditional limited refresh only if genuinely needed/approved |
 | A | Copy only the two new CSF plugin directories, **leave inactive** | Separate files-only installation approval required; not started |
 | B | Activate csf-core and csf-emergency; verify activation effects | Separate activation approval required; not started |
 | C | Generate/verify the website's 21 pages, menus and synced footer; configure Kadence | Separate site-setup approval required; not started; permalink changes must be explicitly included if needed |
@@ -37,7 +37,8 @@ Current state is from the owner's completed Gateway report dated October 31, 202
 - [x] New isolated scratch DB restored; all 12 InnoDB tables/count samples and restored 4,336 files verified with zero mismatches.
 - [x] Private source staged at d360dbf, plugin trees matched to 52401dc.
 - [x] Exact-target Plesk preflight and deployment dry run passed; only two new plugin directories proposed.
-- [ ] Actual installation-time target-bound backup/evidence gate verified using existing artifact paths, timestamps and hashes.
+- [x] Capture times supplied: DB export October 31, 10:08:58 AM PDT; files 10:09:42 AM PDT; existing scratch DB csf_sandbox_restore_20261031 and private restore-evidence.txt path recorded.
+- [ ] Actual installation-time fresh target-bound format/gate verified against those existing artifacts and evidence; no new full preparation required.
 - [ ] Functional login/page-rendering test on isolated restoration (explicitly unrun; keep qualification).
 - [ ] Separate approval for Stage A file copying; later approvals for B/C and any permalink change.
 
@@ -53,8 +54,9 @@ URL `https://sandbox.cornerstonefarmomak.com`, DB `wp_mdf4x`. Only csf-core and 
 directories may be introduced. They must still be absent/inactive at the operation boundary;
 if target state has changed, stop for review instead of overwriting unexpected work.
 
-Before approval, use existing records to fill the actual private source/evidence/gate-bundle
-paths; this plan does not guess them. Preserve the existing full backup and functional restore
+Before approval, use existing records for the actual private source/gate-bundle paths; this
+plan does not guess them. The existing restoration evidence path is supplied below and must
+be reused, not regenerated. Preserve the existing full backup and functional restore
 qualification. Verify the final gate without changing file timestamps or weakening checks.
 Do not use the old config-only backup as the full-site/app gate bundle.
 
@@ -65,7 +67,7 @@ is explicitly approved, including its known functional-recovery limitation:
 set -euo pipefail
 : "${CSF_STAGED_SOURCE:?Use the existing private d360dbf checkout path from Gateway records}"
 : "${CSF_GATE_BACKUP:?Use the actual fresh script-compatible target-bound backup path}"
-: "${CSF_RESTORE_EVIDENCE:?Use the private operator-reviewed structural restore evidence path}"
+CSF_RESTORE_EVIDENCE='/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt'
 CSF_DEV_ROOT='/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'
 CSF_DEV_URL='https://sandbox.cornerstonefarmomak.com'
 cd "$CSF_STAGED_SOURCE"

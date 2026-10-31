@@ -18,7 +18,7 @@ separates copying inactive files from later activation, setup and real Kadence t
 | Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | No installation authorized; preparation reported complete |
 | Production | cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/httpdocs`; DB `wp_iacb7` | Excluded from changes |
 | Unassigned database | `wp_mdoaq` | Excluded, including as a scratch database |
-| Existing scratch | Isolated database/filesystem already restored by Gateway | Preserve; exact existing names are in Gateway records |
+| Existing scratch | DB `csf_sandbox_restore_20261031` and private/not-publicly-served restored filesystem | Preserve; filesystem path is in existing Gateway records |
 
 Both sites share a subscription. Never substitute production's httpdocs path, use an unscoped
 whole-subscription restore, or recreate a scratch resource merely to fix stale documentation.
@@ -55,7 +55,7 @@ Gateway report supersedes earlier pending-backup/restore/staging/dry-run entries
 |---|---|
 | Full sandbox filesystem/config/database backup | `/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/` |
 | Archive and checksum verification | Passed |
-| New isolated scratch DB restore | Complete; all **12 InnoDB tables** and representative record counts verified |
+| Isolated scratch DB restore | Complete in `csf_sandbox_restore_20261031`; all **12/12 InnoDB tables** and representative record counts verified |
 | Restored filesystem | **4,336 regular files**, **zero mismatches** |
 | Private source staging | Pinned to `d360dbfd5a0441fa142a3b963a4a42c5145d9738` |
 | Plugin source verification | Matches reviewed `52401dcd9a90ca87ad074c1078ad6633df5be77e` |
@@ -66,9 +66,9 @@ Gateway report supersedes earlier pending-backup/restore/staging/dry-run entries
 functional restored-site login/page rendering has **not** been tested. Record both facts.
 Do not describe all restoration as unperformed, or describe it as fully functionally tested.
 
-Recover exact scratch names, source checkout path, artifact filenames/checksums/capture times
-and preflight/dry-run output from **existing Gateway records**, not guesses or repeated work.
-The report did not forward those raw details. The server source stays pinned to **d360dbf**;
+Gateway now supplied the existing scratch DB name, evidence path and precise backup capture
+times below. Recover only remaining raw details (private scratch/source paths, artifact names/
+hashes and preflight/dry-run output) from existing Gateway records; do not guess or repeat work. The server source stays pinned to **d360dbf**;
 later documentation commits do not call for a git pull or new staging task. This Codex checkout
 also verified that d360dbf's plugin trees and three backup/deploy scripts match 52401dc exactly.
 
@@ -117,8 +117,17 @@ The completed full backup is:
 /var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/
 ```
 
-Keep its original verified artifacts/checksums and existing structural restore evidence.
-The old config-only backup remains separate. Neither should be overwritten or relabeled.
+Gateway recorded DB export at **October 31, 2026, 10:08:58 AM PDT (17:08:58 UTC)** and
+file archive at **10:09:42 AM PDT (17:09:42 UTC)**, including current hardened wp-config and
+complete sandbox files. Existing private restoration evidence is:
+
+```text
+/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt
+```
+
+Reuse that existing record and `csf_sandbox_restore_20261031`; do not recreate either.
+Keep original verified artifacts/checksums and the functional-test-not-run qualification.
+The old config-only backup remains separate. Neither backup should be overwritten/relabeled.
 
 ### Required target-bound gate bundle
 
@@ -135,8 +144,10 @@ The staged d360dbf script requires this exact layout:
 | SHA256SUMS | Exactly six entries for the six files above, derived from real bytes |
 | Separate restore-evidence file | Private operator-reviewed completed checks/identities/hashes, with functional login/rendering explicitly NOT RUN |
 
-Identify filenames and capture times from existing backup records; no raw artifact names,
-hashes or precise capture times were forwarded. A dated directory is not a freshness check.
+Precise capture times are now known. The reported DB capture reaches 24 elapsed hours at
+**November 1, 2026, 9:08:58 AM PST / 17:08:58 UTC** (DST ends overnight). Raw artifact
+filenames/hashes and their current metadata still need the existing-record check; do not
+claim the script gate passed from reported timestamps alone.
 Copy/recompression date or a touched mtime is not a new database capture. The script uses
 database.sql.gz's mtime; verify capture provenance too. Do not touch/recompress old data to
 make it look fresh, invent a checksum, or claim a passed gate without running it.
@@ -146,7 +157,8 @@ First reuse an existing compatible, current bundle and run its verifier read-onl
 ```bash
 CSF_DEV_ROOT='/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'
 CSF_DEV_URL='https://sandbox.cornerstonefarmomak.com'
-# Set both paths from existing Gateway records; do not guess or use an empty template.
+CSF_RESTORE_EVIDENCE='/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt'
+# CSF_GATE_BACKUP must be the actual compatible bundle; the full-backup directory's layout is not assumed.
 bash scripts/verify-dev-backup.sh "$CSF_GATE_BACKUP" "$CSF_DEV_ROOT" "$CSF_DEV_URL" "$CSF_RESTORE_EVIDENCE"
 ```
 
@@ -154,10 +166,10 @@ The verifier checks the six-entry manifest, compressed integrity/nonempty SQL, e
 age at most 24 hours, backup outside the site and a nonempty evidence file. It does **not**
 interpret that file, prove functional restoration, or grant installation approval.
 
-Use the truthful [restoration evidence record](test-results/sandbox-restoration-evidence.md)
-to prepare the final private record from existing Gateway logs. Record actual scratch names,
-source artifact hashes and capture/job identifiers without repeating the drill. A nonempty
-summary with missing provenance is not a new verification of the underlying artifacts.
+Use the [reconciled restoration record](test-results/sandbox-restoration-evidence.md) to
+review the existing private evidence file, not create a replacement. Scratch DB and capture
+times are known; obtain only remaining source hashes/private filesystem paths from existing
+records. Nonempty content is not a fresh verification of underlying artifacts.
 
 Only if existing artifacts are stale/incompatible/invalid, obtain approval for a **limited
 current target-bound application backup** with the existing helper:
@@ -175,8 +187,11 @@ old evidence, report that specific issue rather than silently transferring a pas
 repeating the whole package without justification. Preserve access controls and export
 only the sandbox database.
 
-This task prepares gate/evidence instructions only. It has not created a remote bundle,
-recorded missing metadata on the VPS, or executed remote age/checksum verification.
+The next milestone is a script-compatible fresh target-bound gate bundle, preserving the
+completed full backup and reusing the existing restore-evidence.txt. This documentation task
+records the supplied execution evidence only; it has not created that bundle, modified the
+private evidence file, or executed the remote gate. A formatting refresh must not be reported
+as a new structural restore or falsely renew old data's age.
 
 ## Deployment — future, separately approved
 
