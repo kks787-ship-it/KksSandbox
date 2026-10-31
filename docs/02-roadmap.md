@@ -49,7 +49,7 @@ the production domain until the owners approve the replacement.
 - [x] Sandbox permalink structure changed to `/%postname%/`; WordPress rewrite rules flushed and standard WordPress `.htaccess` created **only in sandbox** (Apache syntax OK)
 - [x] WP-CLI `csf status` shows all 21 pages published; programmatic block rendering validated 21/21 with one H1 per page; a second dry run reports all `ok` (no pending changes)
 - [ ] Authenticated HTTP/browser review of clean URLs and real Kadence responsive rendering; anonymous requests still return 401 from sandbox password protection
-- [ ] [Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1): Fix shared page-header lead-paragraph horizontal alignment. Confirmed on real Kadence at Meet Beth and Camps & Clinics; apply globally to shared header markup/CSS, check 390/768/1280px, and do not touch production.
+- [ ] **SITEWIDE confirmed layout defect — [Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1):** On real Kadence, shared introductory text reaches the viewport edge while nearby headings are inset (observed on Meet Beth and Camps & Clinics). This is **not a two-page fix**: identify and correct the shared constrained-content/gutter rules and inspect **all 21 pages** at 390/768/1280px, including other text sections and Gutenberg. Preserve full-bleed backgrounds, do not force-regenerate pages, and do not deploy without approval.
 - [ ] Verify on Kadence: Customizer palette, header, footer, page-layout settings
 - [ ] Logo, photographs, contact details, Acuity verification, resolve 23 owner notes (doc 09)
 - [ ] Phase 2b: contact/inquiry form with spam protection and tested delivery (owner picks approach)
