@@ -302,6 +302,33 @@ Real Kadence rendering and usability have not been validated. The completed back
 24-hour freshness must be rechecked before any subsequent mutation; if expired, create a
 new limited application backup without repeating the entire structural restore.
 
+
+## Approved sandbox page setup and permalink routing — October 31, 2026
+
+After separate owner approval, Gateway ran the real site setup under the sandbox Plesk user
+against the verified `wp_mdf4x` database. The existing fresh backup gate was checked before
+the operation. Setup job `job_01M69QTN9Y00N8R62TCV7R23XT` succeeded:
+
+- Created/published all 21 CSF pages and set Home as the static front page.
+- Created and assigned primary/footer menus and a synced footer pattern. The pattern still
+  needs placement/configuration in the Kadence Footer Builder.
+- Set `permalink_structure=/%postname%/`; WordPress subsequently generated 162 rewrite rules.
+  `wp rewrite flush --hard` warned that it could not generate a rewrite file automatically;
+  the exact standard WordPress rewrite stanza was therefore created as the sandbox-root
+  `.htaccess` under the subscription user, with mode 0644. Apache syntax checks passed.
+- WordPress-side block rendering verified all 21 pages have exactly one H1 and no failures;
+  a second setup dry run reported all pages/footer `ok`; **23 owner notes** remain.
+- Public unauthenticated HTTPS requests to Home, Lessons and Meet Beth still receive
+  **401 Basic Auth** as intended. These checks do **not** prove the page routes return HTTP 200
+  to an authenticated visitor or that real Kadence displays correctly on mobile/desktop.
+  Authenticated browser acceptance is the next gate.
+
+`csf-core` remains active, `csf-emergency` remains inactive. No production,
+unassigned-database, or emergency-service changes took place. The sandbox is now prepared for
+owner-authenticated **visual alpha review**, not operational launch. Earlier backup and
+scratch-restore evidence is retained; take a new sandbox backup before additional
+high-impact updates as warranted.
+
 ## Verified `csf-core` activation (October 31, 2026)
 
 Gateway checked the same sandbox-specific backup gate (fresh, six hashes valid, restored-evidence
