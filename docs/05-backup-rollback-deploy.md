@@ -187,11 +187,15 @@ old evidence, report that specific issue rather than silently transferring a pas
 repeating the whole package without justification. Preserve access controls and export
 only the sandbox database.
 
-The next milestone is a script-compatible fresh target-bound gate bundle, preserving the
-completed full backup and reusing the existing restore-evidence.txt. This documentation task
-records the supplied execution evidence only; it has not created that bundle, modified the
-private evidence file, or executed the remote gate. A formatting refresh must not be reported
-as a new structural restore or falsely renew old data's age.
+**Installation-specific backup gate completed October 31, 2026.** Gateway created a *new* script-format application backup at:
+
+```text
+/var/www/vhosts/cornerstonefarmomak.com/private/csf-dev-20261031-184634-36879/
+```
+
+The backup captures the sandbox database, `wp-content`, target URL/path, WordPress version and plugin inventory, with exactly six SHA-256 manifest entries. `scripts/verify-dev-backup.sh` completed successfully as Gateway job `job_01M69MJJ04000DFWPDVJ254SKY` and checked compressed integrity, exact target binding, the existing restore-evidence file and the age gate. Backup-creation job: `job_01M69MHBVD00VDBTS3X5MD49D3`.
+
+Captured at approximately **18:46 UTC / 11:46 AM PDT October 31, 2026**; the export's actual file mtime is the authoritative freshness value. **Re-run verification immediately before installation**: a new backup is needed if older than 24 hours, the sandbox has materially changed or integrity fails. The existing full backup and isolated structural restore were not repeated or replaced; a *functional* scratch-site login/rendering test remains unrun. Existing private restore evidence has not been modified. This documentation records the performed gate, **not** permission to install plugins. Inactive file copying remains a separate owner approval, followed by distinct activation and setup approvals.
 
 ## Deployment — future, separately approved
 
