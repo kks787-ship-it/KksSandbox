@@ -40,8 +40,10 @@ Current sandbox target is owner-confirmed as https://sandbox.cornerstonefarmomak
 Plesk-relative root sandbox.cornerstonefarmomak.com, assigned DB wp_mdf4x. Production DB
 wp_iacb7 and unassigned wp_mdoaq are excluded. Gateway-reported absolute root is
 /var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com; configured and
-connected DB are wp_mdf4x, options table TXGEh_options. Environment type is unverified and
-permalinks are plain; do not change them during inspection. Current scope
+connected DB are wp_mdf4x, options table TXGEh_options. Latest Gateway report finds no
+explicit WP_ENVIRONMENT_TYPE and no explicit WP_DEBUG_DISPLAY=false; permalink structure
+is plain. TLS/password protection pass per Gateway; source checkout, fresh backup and scratch
+restore are outstanding; do not change them during inspection. Current scope
 is read-only preflight/dry run only; use scripts/sandbox-preflight.py to avoid WordPress
 bootstrap writes. See docs/test-results/sandbox-preflight.md for unverified checks/access
 blockers. Test guards with PYTHONDONTWRITEBYTECODE=1 python3 tests/scripts/test_sandbox_preflight.py.

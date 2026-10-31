@@ -13,6 +13,9 @@ setup, backup creation, database writes or Plesk configuration changes are autho
 | Configured DB_NAME | `wp_mdf4x` |
 | SELECT DATABASE() | `wp_mdf4x` |
 | Database session | `tx_read_only = 1` |
+| MariaDB | 10.6.23; default engine InnoDB (individual future emergency tables still need engine verification) |
+| Production document root | `/var/www/vhosts/cornerstonefarmomak.com/httpdocs`; excluded from changes |
+| HTTPS and access protection | Gateway reports valid Let's Encrypt certificate, TLS 1.3, expiry January 29, 2027; HTTP 301 to HTTPS; unauthenticated HTTPS returns HTTP 401 |
 | Options table | `wp_mdf4x.TXGEh_options` |
 | Stored home/siteurl | Both `https://sandbox.cornerstonefarmomak.com` |
 | WordPress | Version file 7.1.4; DB schema version matches core file |
@@ -33,12 +36,13 @@ printed, WordPress/plugins/themes were not initialized, and no changes were made
 
 | Item | Status and next read-only action |
 |---|---|
-| Effective environment type | Unknown. DB_NAME-only inspection did not read wp-config's WP_ENVIRONMENT_TYPE; absence from domain PHP configuration alone is insufficient evidence. Inspect that named constant and the domain FPM/server WP_ENVIRONMENT_TYPE value without bootstrapping WP. |
+| Environment designation | Latest Gateway report finds WP_ENVIRONMENT_TYPE not explicitly defined. Existing guards must refuse deployment. Confirm any inherited/included source before concluding the effective runtime value; proposed development constant awaits approval. |
+| Debug display | Gateway reports WP_DEBUG enabled and WP_DEBUG_DISPLAY not explicitly disabled. Proposed WP_DEBUG_DISPLAY=false and DISALLOW_FILE_EDIT=true are not applied. Retain existing WP_DEBUG; inspect private logging separately. |
 | Effective URL overrides | Stored URLs match. Inspect only WP_HOME/WP_SITEURL definitions and their referenced sources, reporting literal/absent/dynamic without printing configuration files or other constants. |
 | Pretty permalinks | Not configured. Controlled future configuration/setup needs separate authorization; do not save permalinks now. |
 | Real Kadence behavior | Version and active theme identity pass; layouts, editor, navigation, accessibility and cache behavior remain untested. |
-| Backup and restore | No current verified backup or restore evidence supplied. Do not create one during the current read-only task. |
-| Exact-target file dry run | Not executed. A file-only comparison may proceed after exact filesystem/source validation, while reporting all installation blockers. It does not authorize or clear deployment. |
+| Backup and restore | Gateway found an older archive, not a verified current recovery point or completed scratch restore. A fresh pre-change backup and scratch restore require explicit authorization. |
+| Exact-target file dry run | Not executed. Gateway reports Git, WP-CLI and rsync available, but no application checkout on the VPS. Staging source requires authorization. A file-only comparison does not authorize plugin installation. |
 
 WordPress 7.1.4's `wp_get_environment_type()` checks the environment variable, then a nonempty
 constant (which takes precedence), and falls back to **production** for absent/invalid values.
@@ -79,3 +83,14 @@ Gateway's SSH execution tools are still not exposed in this Codex session. Its n
 network denied a prior sandbox HTTPS CONNECT request; that is not evidence of an origin/TLS
 failure. Continue the server commands in the working Gateway conversation and supply the
 non-secret results here. Real sandbox dry run and full installation readiness remain pending.
+
+## Proposed next authorization package
+
+The latest Gateway report recommends changes; it is not itself the owner's explicit approval.
+Current server scope remains read-only. The prepared [sandbox preparation package](../05-backup-rollback-deploy.md#sandbox-preparation-approval-package)
+puts a pre-change backup before configuration edits, isolates a scratch restore from all three
+existing databases, pins source, and ends at a reviewed file-only dry run. It excludes plugin
+installation/activation, permalink/site-setup changes and production operations. The strict
+preflight must continue reporting unresolved permalink/URL/backup gates rather than being
+weakened to obtain a passing result. Gateway remains unavailable as a callable tool in this
+Codex session; no direct execution capability is implied by receiving its reports here.

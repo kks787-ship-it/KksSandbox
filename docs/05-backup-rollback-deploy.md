@@ -373,3 +373,121 @@ After file comparison, installation still needs: confirmed development/staging d
 reviewed URL overrides, separately authorized pretty-permalink/setup changes, a fresh verified
 backup and restore evidence, actual Kadence acceptance and explicit apply approval. Do not
 reinterpret this inspection update as authorization for those changes.
+
+## Sandbox preparation approval package
+
+**Prepared for owner review; not executed or authorized by the forwarded Gateway report.**
+The prior owner instruction requires explicit authorization before VPS/configuration changes.
+This package is limited to preparation; plugin installation/activation remains a separate approval.
+
+Latest Gateway findings add: valid Let's Encrypt certificate (expires January 29, 2027),
+TLS 1.3, HTTP→HTTPS 301, HTTP 401 password protection, MariaDB 10.6.23 with InnoDB default,
+WP_DEBUG enabled, and neither an explicit development environment nor disabled debug display.
+Git, WP-CLI and rsync are available, but the application source checkout is absent. An older
+backup does not establish recoverability. These are forwarded Gateway observations, not commands
+executed by this Codex session. Stored pretty permalinks remain plain per the earlier report.
+
+### Exact boundaries
+
+- Sandbox root: `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`.
+- Sandbox DB to **read/export only** during preparation: `wp_mdf4x`; options table TXGEh_options.
+- Production root `/var/www/vhosts/cornerstonefarmomak.com/httpdocs` and DB `wp_iacb7` excluded.
+- Existing unassigned DB `wp_mdoaq` excluded, including for scratch restore.
+- No plugin copying/activation, site setup, permalink changes, updates, DNS, firewall or mail
+  changes. Do not copy production plugins, submissions, payment settings or client records.
+
+### Work sequence after explicit approval
+
+1. **Recheck identity and capture recovery material first.** Preserve sandbox wp-config and
+   its mode/owner securely; export only wp_mdf4x and archive the sandbox files/uploads.
+   Store in a newly created private, subscription-owned directory outside every document root,
+   with restrictive permissions, checksums and the exact source path/URL/DB recorded.
+   Include wp-config in protected recovery storage without printing credentials or putting it
+   in Git. Verify archive/compression integrity and nonempty SQL. No writes to the source DB.
+   Select only sandbox objects if using Plesk; a full subscription action may include production
+   because both sites share the same subscription. Do not use an unscoped subscription restore.
+
+   The existing backup-dev.sh intentionally rejects a production/default/unknown environment.
+   Do not weaken that guard or change the environment merely to make the initial backup pass.
+   Use an explicitly scoped Plesk backup/export facility or a reviewed native single-transaction
+   dump of wp_mdf4x for this **pre-change** capture. If no safe scoped backup method is available,
+   stop before editing configuration.
+
+2. **Perform the scratch restore and verify recovery before hardening.** Create a new disposable
+   private scratch directory and a new uniquely named database dedicated to the drill (proposed
+   prefix `csf_sandbox_restore_`). Do not reuse wp_mdf4x, wp_iacb7 or wp_mdoaq. Record the exact new
+   path/DB and test the restored database schema/options, file checksums and uploads. Keep the
+   restored site off public routing. Before any functional bootstrap, replace the restored
+   copy's DB settings with the scratch database and ensure mail/payments/webhooks/cron cannot
+   contact live services. Do not execute the restored wp-config while it still names wp_mdf4x.
+   If a functional restore test cannot be isolated, report the drill as incomplete.
+   Retain private evidence of operator/date/backup identity/target/checks/results; no automatic
+   success from an import exit code alone. Scratch cleanup needs the owner-approved exact targets.
+
+3. **Apply only these three sandbox configuration values**, preserving all other values,
+   credentials, ownership and permissions; update existing definitions without duplicates:
+
+   ```php
+   define( 'WP_ENVIRONMENT_TYPE', 'development' );
+   define( 'DISALLOW_FILE_EDIT', true );
+   define( 'WP_DEBUG_DISPLAY', false );
+   ```
+
+   These are PHP statements for the sandbox's wp-config, not SQL statements. Keep the existing
+   WP_DEBUG value. Do not enable/change WP_DEBUG_LOG until its current value, destination,
+   permissions and access policy are reviewed; this package does not silently add a public
+   wp-content/debug.log. The three values disable display/the built-in editor and declare
+   development; they do not prove all custom editor plugins or pre-bootstrap PHP errors are
+   controlled. Preserve a private protected copy of the original config for rollback.
+
+4. **Verify the changes without normal WordPress initialization.** Check PHP syntax, selected
+   literal constant definitions and relevant domain FPM/environment sources. Read only the
+   WP_HOME/WP_SITEURL override definitions and report literal/absent/dynamic values; never dump
+   configuration or arbitrary environment values. Recheck HTTP protection and certificate
+   through the existing authorized method. If dynamic config prevents a firm effective-value
+   conclusion, stop/report rather than claiming success from the text edit alone.
+
+5. **Stage the reviewed repository outside all public web roots.** Proposed private path:
+   `/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-source`, only after confirming
+   canonical containment, no symlinks and no pre-existing user files. Create it with the
+   subscription user; never overwrite a pre-existing checkout. Obtain source via the existing
+   authorized GitHub read mechanism or an owner-approved release transfer. Missing authentication
+   is a blocker; do not request tokens in chat or copy Gateway/platform credentials.
+   Pin a reviewed full commit on codex/takeover-audit and verify the plugin tree matches the
+   prepared `52401dcd9a90ca87ad074c1078ad6633df5be77e` release. No moving-branch deploy or main merge.
+   Existing-source checks must include unexpected untracked/ignored files inside plugin trees.
+
+6. **Run the exact-target file dry run.** Validate source and destination separately, refuse
+   symlinked content/plugin destinations and run rsync with --dry-run mandatory. Return source
+   commit, proposed added/changed/deleted files and underlying exit codes. Do not remove the
+   flag or activate/bootstrap plugins. Also run/report the strict readiness checks; expected
+   remaining permalink or unresolved override failures must stay failures, not be bypassed.
+   The current strict helpers use WP-CLI config/db commands; if evaluating custom wp-config
+   itself is outside the agreed safe inspection method, use the approved static/read-only
+   alternative and label which helper was not run.
+
+7. **Stop for review before installation.** Preserve all findings, recovery evidence and the
+   exact release/destination. No --apply, plugin upload/activation, csf setup, permalink save or
+   automatic tests that create/delete fixture records on this sandbox. Pretty permalinks and
+   actual Kadence functional acceptance remain future controlled steps. Take/reverify a fresh
+   post-hardening backup before a subsequently authorized installation (the apply gate requires
+   a current target-bound backup and recorded restore evidence).
+
+### Preparation rollback
+
+If a sandbox configuration edit fails syntax or selected-value verification, restore only its
+protected original wp-config with its recorded permissions/owner, then recheck. Do not restore
+production or import a database to undo these three constant changes; preparation does not
+write the existing WordPress DB. Record partial progress and stop if identity is uncertain.
+Never restore a whole shared subscription as a shortcut. The scratch DB and source checkout
+are new resources; retain them until their exact-target cleanup is separately authorized or
+included explicitly in the operator's approved execution scope.
+
+### Approval scope to request
+
+Request authorization for the scoped pre-change backup, isolated scratch restore/new scratch
+resources, the three sandbox constants above, private source staging and deployment **dry run
+only**. State that production, both existing assigned databases, wp_mdoaq, plugin installation,
+permalink changes and firewall settings are excluded from modification. Authorization does
+not by itself provide Gateway tools to this Codex session; execution must occur through the
+working authorized connection, and claims require its actual output.
