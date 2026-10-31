@@ -10,9 +10,11 @@ the production domain until the owners approve the replacement.
 - [x] Backup and dry-run-first deployment scripts for the dev site
 - [x] Gateway inspected the actual sandbox; owner supplied findings (current report: `test-results/sandbox-preflight.md`)
 - [x] October 31, 2026: original wp-config backed up; development/editing/debug-display constants applied and verified (configuration-only recovery evidence)
-- [ ] Full current sandbox files/config/database backup
-- [ ] Isolated scratch restore verification in a new database
-- [ ] Private pinned application source staging and exact-target deployment dry run
+- [x] Full sandbox backup/archive/checksum verification — Gateway, October 31; private csf-sandbox-backup-20261031 directory
+- [x] Isolated structural restore: 12 InnoDB tables/count samples and 4,336 regular files, zero mismatches
+- [ ] Functional WordPress login/page-rendering test on the isolated restoration (not part of the completed structural verification)
+- [x] Private source pinned d360dbf, verified against 52401dc; exact-target Plesk preflight/deployment dry run passed
+- [ ] Final installation-time fresh target-bound backup/evidence gate and files-only installation approval
 - [ ] Owners complete the confirmation register (`03-owner-confirmation-register.md`)
 - [ ] Owners supply original logo source files and authentic photography (still outstanding)
 
@@ -87,10 +89,16 @@ public wording and missing details remain in the owner confirmation register.
 
 ## Current Milestone B status — October 31, 2026
 
-Gateway's completed three-constant hardening must not be repeated. The original configuration
-backup is `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`; retain it as
-configuration-only evidence. The remaining execution sequence is full sandbox backup →
-isolated scratch restoration → private source staging → preflight/deployment dry run →
-review and separate installation approval. Those four preparation operations remain undone
-and require approval; plugin installation/activation, permalink changes and production
-changes remain unauthorized. See the current [preparation package](05-backup-rollback-deploy.md#sandbox-preparation-approval-package).
+Gateway completed hardening, full backup, structural/file restore, source staging and
+preflight/deployment dry run. Do not repeat them. Full backup:
+`/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/`.
+Staged source stays at d360dbf; plugin trees match 52401dc. The original config-only
+backup stays at `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`.
+
+Restoration qualification: 12 InnoDB tables/count samples and 4,336 regular files verified,
+zero mismatches; functional login/page-rendering on the restoration NOT RUN.
+
+Next: verify the real fresh target-bound backup/evidence gate, then review inactive plugin
+file copying. Activation, 21-page setup/permalinks and real Kadence testing are separate stages.
+No installation/activation/setup/permalink/production change is authorized by the documentation
+update. See the [current plan](07-website-installation.md#staged-installation-approval-boundaries).

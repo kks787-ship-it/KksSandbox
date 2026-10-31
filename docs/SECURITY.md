@@ -39,6 +39,5 @@ Per the owner's October 31, 2026 Gateway correction, WP_ENVIRONMENT_TYPE=develop
 DISALLOW_FILE_EDIT=true and WP_DEBUG_DISPLAY=false are applied/verified; syntax, ownership
 and live wp-config mode 0600 passed. Do not reapply them. Original configuration recovery
 artifact: `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`; preserve it
-privately. It is not a full backup or restore verification. Full backup/recovery, actual
-Kadence acceptance and the emergency release gates above remain outstanding. See
+privately. It is separate from the completed full backup at the private csf-sandbox-backup-20261031 directory. Gateway verified structural restoration of 12 InnoDB tables and 4,336 regular files with zero mismatches. Functional restored-site login/rendering, actual CSF/Kadence acceptance and the emergency release gates above remain untested/outstanding. See
 [the current report](test-results/sandbox-preflight.md) for provenance and scope.

@@ -126,8 +126,25 @@ applied and verified development environment, DISALLOW_FILE_EDIT=true and
 WP_DEBUG_DISPLAY=false, syntax, ownership and live mode 0600. Record this as completed;
 do not reapply constants or request approval for the same hardening again.
 
-Preserve that artifact as configuration-only recovery evidence. It cannot substitute for a
-full website/database backup or scratch restore. Remaining execution begins with a current
-full sandbox-only backup, then a new isolated scratch DB restore, private reviewed source
-staging and deployment dry run. These operations still require execution approval; the
-documentation reconciliation does not authorize them or any plugin/permalink/production change.
+Preserve that artifact as configuration-only recovery evidence; it is not the full site backup.
+The subsequent Gateway preparation completion below supersedes the earlier pending task list.
+
+## Record completed Gateway preparation and scoped installation plan — October 31, 2026
+
+The owner's latest report confirms the full backup/checksum verification at
+/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/, isolated structural
+restore (12 InnoDB tables/count samples, 4,336 regular files, zero mismatches), private source
+pin d360dbf with plugin trees matched to 52401dc, and passed exact-target Plesk preflight/dry
+run proposing only the two new plugin directories. Preserve those results; do not repeat
+preparation, recreate scratch resources or move the source pin to a documentation-only tip.
+
+Functional login/page rendering of the restoration is untested. Record the completed
+structural/file checks without converting them to a full functional recovery claim. The
+prepared evidence record and final gate procedure require actual artifact paths, capture
+times/hashes and private operator review from existing Gateway logs; do not fabricate them.
+
+The next approval is files-only installation with both plugins left inactive. Activation,
+21-page setup/permalinks and actual Kadence testing are separate stages. The actual fresh
+target-bound script gate is still to be checked against existing artifacts; conditionally
+refresh a limited gate backup only for real staleness/incompatibility, not a blanket redo.
+No plugin/permalink/production operation was authorized or executed by this documentation task.

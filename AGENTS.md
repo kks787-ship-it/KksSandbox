@@ -48,12 +48,29 @@ ownership and live file mode 0600. These changes are COMPLETE: do not reapply or
 hardening approval again. Preserve the backup privately as configuration-only recovery evidence;
 it is not a full website/database backup or restore test.
 
-Full sandbox backup, isolated scratch restore into a NEW database, private pinned source
-staging and exact-target deployment dry run remain NOT DONE and need their own execution
-approval. Begin the remaining sequence with full backup. No plugin installation/activation,
-permalink changes or production deployment is authorized. Permalinks are still plain per the
-last report; do not weaken the strict preflight to make it pass. See docs/test-results/sandbox-preflight.md
-and the current package in docs/05-backup-rollback-deploy.md. Use the safe non-bootstrap
-inspection method when runtime writes are outside scope. Gateway reports are owner-supplied
-evidence, not proof that this Codex session executed commands or has Gateway tools available.
-Test guards with PYTHONDONTWRITEBYTECODE=1 python3 tests/scripts/test_sandbox_preflight.py.
+Gateway completed preparation on October 31, 2026: full backup at
+/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/, archive/checksum
+verification, isolated scratch DB restoration (12 InnoDB tables plus representative counts),
+and filesystem restoration (4,336 regular files, zero mismatches). Functional WordPress
+login/page rendering on the restoration was NOT tested. Do not describe the structural/file
+restore as unperformed or claim functional recovery passed.
+
+Private source is already staged/pinned to d360dbfd5a0441fa142a3b963a4a42c5145d9738; plugin
+trees match reviewed 52401dcd9a90ca87ad074c1078ad6633df5be77e. Gateway reports exact-target
+Plesk preflight and deployment dry run passed, proposing only two new CSF plugin directories.
+Do not repeat full preparation, recreate scratch resources, restage source or move the pin
+because documentation advanced. Retrieve raw identifiers/output from existing Gateway records.
+
+Next: verify the existing backup's real age and target-bound script layout and prepare private
+restore evidence from completed records, retaining the functional-test qualification. Only
+refresh a limited gate backup if actual staleness/incompatibility warrants it and is authorized.
+Do not touch timestamps to fake freshness. Files-only installation, activation, site setup,
+permalink changes and production deployment remain unauthorized; see the staged plan in
+docs/07-website-installation.md. The latest preflight pass is Gateway-reported; its exact
+command was not supplied, so do not invent a particular helper's result or a permalink change.
+Gateway evidence is owner-supplied, not proof this Codex session executed remote commands.
+
+See docs/test-results/sandbox-preflight.md, docs/test-results/sandbox-restoration-evidence.md
+and docs/05-backup-rollback-deploy.md. Preserve deployment guards. No reapplication of the
+completed constants or redo of completed preparation. Test sandbox guards with
+PYTHONDONTWRITEBYTECODE=1 python3 tests/scripts/test_sandbox_preflight.py.

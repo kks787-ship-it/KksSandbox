@@ -1,240 +1,212 @@
 # 05 — Backup, Rollback & Deployment
 
-**Current state: October 31, 2026.** The owner reports completed Gateway SSH hardening on
-`serve1`. The three sandbox constants below have been applied and verified. **Do not reapply
-or request approval for those completed changes.** The remaining preparation begins with a
-full sandbox-only backup. No plugin installation, activation, site setup, permalink change
-or production deployment is authorized.
+**Current state: October 31, 2026.** Gateway completed sandbox hardening, full backup,
+structural/database and filesystem restore verification, private source staging, exact-target
+Plesk preflight and deployment dry run. **Do not repeat completed preparation.** Functional
+login/page rendering on the isolated restoration remains untested. The next step is final
+backup-gate verification/evidence and files-only installation review. No plugin installation,
+activation, site setup, permalink change or production deployment is authorized by this update.
 
-The [current preflight report](test-results/sandbox-preflight.md) records evidence provenance.
-Historical local test reports are not current server deployment results.
+The [current report](test-results/sandbox-preflight.md) records evidence provenance; the
+[installation plan](07-website-installation.md#staged-installation-approval-boundaries)
+separates copying inactive files from later activation, setup and real Kadence testing.
 
 ## Environments
 
 | Environment | Exact target | Boundary |
 |---|---|---|
-| Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | Preparation only within separately authorized operations |
+| Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | No installation authorized; preparation reported complete |
 | Production | cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/httpdocs`; DB `wp_iacb7` | Excluded from changes |
 | Unassigned database | `wp_mdoaq` | Excluded, including as a scratch database |
-| Local/scratch | Disposable development resources only | Must have their own database and isolated configuration |
+| Existing scratch | Isolated database/filesystem already restored by Gateway | Preserve; exact existing names are in Gateway records |
 
-Both sites share a subscription. Do not assume a whole-subscription Plesk backup/restore
-is sandbox-only. Never use production's httpdocs path as the sandbox destination.
+Both sites share a subscription. Never substitute production's httpdocs path, use an unscoped
+whole-subscription restore, or recreate a scratch resource merely to fix stale documentation.
 
 ## Milestone B — development deployment preparation
 
 ### Completed Gateway operations — October 31, 2026
 
-Before changing the sandbox configuration, Gateway backed up the original wp-config to:
+Before hardening, the original sandbox wp-config was preserved at:
 
 ```text
 /root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak
 ```
 
-Preserve this exact artifact as protected **configuration-only recovery evidence**. Do not
-print/copy its contents into chat, Git or a public directory, overwrite it, move it or relax
-its permissions to obtain access. It is not a database dump, full-site archive, completed
-scratch restore or deployment-gate backup. Its checksum has not been supplied here.
+Preserve this protected **configuration-only** artifact unchanged. Do not print/commit its
+contents, overwrite/move it or relax its permissions. It is distinct from the completed
+full site backup below, and must not be passed off as a database dump or full restoration.
 
-Gateway then applied and verified the effective WordPress values:
+Gateway applied and verified WP_ENVIRONMENT_TYPE=development, DISALLOW_FILE_EDIT=true and
+WP_DEBUG_DISPLAY=false; PHP syntax passed, ownership was preserved/verified and live config
+mode remained 0600. **Do not reapply the constants or request hardening approval again.**
+No new WP_DEBUG/WP_DEBUG_LOG setting or private log destination is implied.
 
-| Setting/check | Verified result reported by owner |
-|---|---|
-| WP_ENVIRONMENT_TYPE | `development` |
-| DISALLOW_FILE_EDIT | `true` |
-| WP_DEBUG_DISPLAY | `false` |
-| PHP syntax | Passed |
-| Ownership | Verified/preserved; no specific owner name supplied in this report |
-| Live wp-config permissions | Preserved at `0600` |
-| Production | Untouched |
-
-These are completed operations, not proposed edits. Preserve their values. No new change
-to WP_DEBUG or WP_DEBUG_LOG is included in the remaining package; do not infer a private
-logging destination from the debug-display check alone.
-
-Prior Gateway inspection also confirmed the sandbox path, configured/connected DB, WP 7.1.4,
-FPM PHP 8.3.36/extensions, active Kadence 1.5.2, MariaDB 10.6.23/InnoDB default, HTTPS/TLS 1.3,
-HTTP→HTTPS 301, HTTP 401 password protection and `blog_public=0`. Pretty permalinks were plain
-in the last supplied inspection and no subsequent permalink change has been reported.
+Prior inspection confirmed WP 7.1.4, FPM PHP 8.3.36/extensions, active Kadence 1.5.2, MariaDB
+10.6.23, HTTPS/TLS 1.3, HTTP 401 password protection and indexing disabled. No production
+changes, plugin copying, activation or site setup have been reported.
 
 ## Sandbox preparation approval package
 
-**Remaining work only; not yet executed or approved by a request to reconcile documentation.**
-This replaces the earlier package that proposed reapplying the three constants. The owner
-requires approval for the next operation because it creates backup files and new scratch
-resources. Do not request fresh approval for completed hardening.
+**The preparation package is complete, not awaiting execution.** The latest owner-supplied
+Gateway report supersedes earlier pending-backup/restore/staging/dry-run entries.
 
-### Remaining execution sequence after explicit approval
+| Completed item | Reported evidence |
+|---|---|
+| Full sandbox filesystem/config/database backup | `/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/` |
+| Archive and checksum verification | Passed |
+| New isolated scratch DB restore | Complete; all **12 InnoDB tables** and representative record counts verified |
+| Restored filesystem | **4,336 regular files**, **zero mismatches** |
+| Private source staging | Pinned to `d360dbfd5a0441fa142a3b963a4a42c5145d9738` |
+| Plugin source verification | Matches reviewed `52401dcd9a90ca87ad074c1078ad6633df5be77e` |
+| Exact-target Plesk preflight | Passed per Gateway |
+| Deployment dry run | Passed; only the two new CSF plugin directories proposed |
 
-1. **Full sandbox-only backup.** Recheck the exact path and connected database before export;
-   Plesk previously defaulted its connection to `psa`, so explicitly select `wp_mdf4x` before
-   querying its tables. Capture the current, already-hardened wp-config and its metadata,
-   all sandbox WordPress files/core, wp-content/uploads and relevant local rewrite files,
-   plus a consistent export of only `wp_mdf4x`. Store outside every web root in private,
-   access-controlled recovery storage. Record target URL/path/DB, timestamp, checksums and
-   export/archive exit statuses; verify compressed integrity and nonempty SQL. Preserve
-   source ownership/modes and protect credentials. Record any Plesk/web-server configuration
-   needed to reconstruct the sandbox without dumping secrets into the report.
+**Restore qualification:** structural database and file-integrity verification passed;
+functional restored-site login/page rendering has **not** been tested. Record both facts.
+Do not describe all restoration as unperformed, or describe it as fully functionally tested.
 
-   Use a sandbox-object-scoped Plesk facility or a reviewed single-transaction native DB
-   export; do not include or write production/unassigned databases. The existing
-   `backup-dev.sh` can provide a target-bound DB/wp-content backup after its guards pass,
-   but **does not include core, wp-config or server configuration**, so it cannot alone
-   satisfy this full-backup step. No guard needs to be weakened: development is now declared.
-   Take the recovery copy before source staging or any future installation changes.
+Recover exact scratch names, source checkout path, artifact filenames/checksums/capture times
+and preflight/dry-run output from **existing Gateway records**, not guesses or repeated work.
+The report did not forward those raw details. The server source stays pinned to **d360dbf**;
+later documentation commits do not call for a git pull or new staging task. This Codex checkout
+also verified that d360dbf's plugin trees and three backup/deploy scripts match 52401dc exactly.
 
-2. **Isolated scratch restoration.** Create a new private disposable scratch directory and
-   a new uniquely named database dedicated to the drill (proposed prefix
-   `csf_sandbox_restore_`). Do not reuse `wp_mdf4x`, `wp_iacb7` or `wp_mdoaq`. Restore the
-   full backup there and record exact new resource names. Replace the restored copy's DB
-   configuration with the scratch database **before any WordPress initialization**; never
-   execute the restored wp-config while it still names `wp_mdf4x`. Keep public routing,
-   cron, mail, payments and webhooks isolated from live services. Verify schema/options,
-   files/checksums, uploads and an appropriately isolated functional recovery check. A
-   successful SQL import alone is insufficient restore evidence. Record operator/date,
-   backup identity, scratch target, checks and result. If isolation/functional verification
-   cannot be established, mark the restore incomplete. Scratch cleanup requires its own
-   approved exact-target scope; never infer permission to remove unrelated resources.
+### Remaining review sequence
 
-3. **Private source staging.** Stage reviewed Codex source outside all web roots, proposed
-   path `/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-source`, only after
-   confirming canonical containment, no symlinks and no pre-existing files to overwrite.
-   Use the subscription user and existing authorized GitHub read access or an approved
-   release transfer; no credentials in chat or Git. Pin a reviewed full commit from
-   `codex/takeover-audit`, not a moving branch tip or main merge. Verify that the two plugin
-   trees match prepared release `52401dcd9a90ca87ad074c1078ad6633df5be77e` (later documentation
-   commits do not change that release). Reject unexpected untracked/ignored files in plugin
-   source directories. Missing source/authentication is a blocker, not authority to extract
-   platform or Gateway credentials.
-
-4. **Exact-target preflight and deployment dry run.** Reconfirm URL/path/database identity,
-   preserved development/debug constants, source SHA and non-symlinked target plugin paths.
-   Read WP_HOME/WP_SITEURL override definitions if still unresolved; do not print other
-   configuration values. Do not reapply the completed constants. Use the approved
-   non-bootstrap inspection method; unknown or failed checks remain failures. Strict
-   preflight is expected to stop while pretty permalinks are plain; do not weaken that
-   guard or change permalinks. A file-only rsync comparison may still be performed as a
-   separately identified preparation result; it does not clear installation readiness.
-   Return raw proposed added/changed/deleted files and underlying exit statuses.
-
-5. **Stop for review and separate installation approval.** Preserve backup/restore evidence,
-   source commit and dry-run output. No --apply, plugin upload/copying/activation, csf setup,
-   permalink save, update, DNS/firewall change, or fixture tests that mutate the sandbox.
-   Real Kadence functional acceptance remains pending. Reverify/take a fresh backup before
-   any subsequently authorized installation; the apply gate requires a current backup and
-   actual recorded restore evidence.
-
-### Approval scope to request
-
-Only the remaining full sandbox backup, isolated scratch restoration/new scratch resources,
-private source staging, preflight and deployment **dry run** need execution approval. The three
-constants are complete and excluded from this request. Production, both existing assigned
-DBs and `wp_mdoaq` remain excluded from modification; only read/export `wp_mdf4x` during backup.
-No plugin installation/activation, permalink change or production deployment is included.
-Documentation updates do not supply this execution approval or establish callable Gateway
-access. Execution claims must be backed by actual output from the authorized connection.
+1. Check the existing backup's actual target-bound layout and capture age using the gate below.
+   Prepare private operator evidence from the completed restore records, with the unrun
+   functional tests visible. Request a limited current application-backup refresh **only**
+   if actual artifacts are stale, incompatible or invalid; preserve the full backup.
+2. Review the [staged installation plan](07-website-installation.md#staged-installation-approval-boundaries).
+   First approval is for copying only the two plugin directories, left inactive, with the
+   functional restore limitation disclosed. A nonempty evidence file is not owner approval.
+3. Separate later approvals cover activation, 21-page setup/permalinks and real CSF/Kadence
+   testing. No such operations are authorized now.
 
 ## Sandbox read-only exact-target inspection
 
-Identity already verified by Gateway: the canonical root and configured/connected database
-match the sandbox in the environment table. Do not ask the owner to rediscover them or
-present completed environment hardening as an outstanding task. Recheck identity as a guard
-before a future operation without mutating configuration.
+The root, configured/connected DB and development constants are already verified through
+Gateway. Do not ask the owner to rediscover them or redo hardening. Recheck target identity
+as a final operation guard without treating completed preparation as unperformed.
 
-`scripts/sandbox-preflight.py` avoids wp-settings/plugin/theme initialization by using
-WP-CLI configuration commands and read-only DB transactions. Its strict permalink check
-will currently block full readiness; that is expected. WP-CLI db query still evaluates
-wp-config itself, so review custom configuration code before claiming absolute side-effect
-isolation. General `inspect-environment.sh` / `plesk-preflight.sh` commands may bootstrap
-must-use plugins/drop-ins even with --skip-plugins/--skip-themes; use the agreed safe method
-when database writes/normal WordPress initialization are outside scope.
+Gateway reports a passed Plesk preflight; its exact command/tool version was not forwarded.
+Do not claim the repository's particular sandbox-preflight.py helper passed: it requires
+/%postname%/, while earlier reports had plain URLs. No later permalink change is reported
+or authorized. Retain the Gateway pass and obtain its method from existing records; do not
+change permalinks or weaken a helper to manufacture agreement.
 
-If a reviewed tooling checkout already exists, this inspection prints to stdout:
-
-```bash
-python3 scripts/sandbox-preflight.py   '/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'
-```
-
-Do not print wp-config, passwords, salts or the full process environment. Use the domain PHP
-8.3 handler command-locally; do not change domain settings merely to match the CLI. A read-only
-inspection does not permit uploading/cloning a checkout unless source staging was authorized.
+The non-bootstrap helper uses WP-CLI config/read-only DB operations before wp-settings.php;
+wp-config itself is still evaluated. General WP-CLI helpers may initialize MU-plugins/drop-ins
+even with skip flags. Choose the authorized verification method; never dump configuration,
+credentials, salts or the process environment. Use the domain PHP 8.3 handler command-locally.
 
 ### Prepared file-only dry run
 
-After an authorized source staging step (or from an already-reviewed existing checkout),
-verify the source path/SHA and all target content/plugin path components. Refuse symlinks to
-another installation. From the source checkout run **only the comparison**:
-
-```bash
-CSF_DEV_ROOT='/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'
-for plugin in csf-core csf-emergency; do
-  rsync -a --delete --exclude=.git --itemize-changes --dry-run     "wp-content/plugins/$plugin/" "$CSF_DEV_ROOT/wp-content/plugins/$plugin/" || exit "$?"
-done
-```
-
-No comparison has yet been reported as run on the sandbox. `--dry-run` is mandatory; do not
-remove it or substitute production's httpdocs path. Missing rsync, missing parent directories,
-unknown source or symlinked destinations are blockers, not permission to install/create/copy.
-An existing secure local-to-remote rsync route with --dry-run is an alternative when sources
-are local; do not disable host-key verification. Capture the listing and actual exit codes.
+The Gateway dry run **already passed**. Preserve its listing and exit status. A justified
+future comparison following material source/target drift must retain --dry-run, the pinned
+source and the exact sandbox path; no full preparation repeat or source pull is needed.
+Unknown or symlinked content/plugin destinations are a stop, not permission to alter them.
+The actual installation command is provided in doc 07 for later approval only.
 
 ## Backups and verified backup gate before any apply
 
-A complete current website/DB backup and isolated restore are outstanding. The original
-`/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak` protects only the old
-configuration. It has no full DB/site content and must never be passed off as a full backup,
-restore drill or evidence satisfying deploy-plugins.sh/verify-dev-backup.sh.
+The completed full backup is:
 
-`backup-dev.sh` produces database.sql.gz, wp-content.tar.gz, target path/URL metadata,
-WordPress version, plugin inventory and SHA256SUMS. It uses restrictive permissions and
-accepts only successfully detected local/development/staging environments. Supplement it
-with the rest of the full sandbox capture above. Never expand scope to production objects.
-Keep recovery material access-controlled/encrypted off-server and record real restore results.
+```text
+/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/
+```
 
-For a future approved installation, the current gate requires six fixed checksum entries,
-compressed archive integrity, nonempty SQL, exact target path/URL, backup outside the site,
-database archive age at most 24 hours, and a nonempty owner-recorded restore-evidence file.
-Checksum success proves integrity, not successful restoration or provenance. Do not fabricate
-evidence. A future operator can verify a real current application backup with:
+Keep its original verified artifacts/checksums and existing structural restore evidence.
+The old config-only backup remains separate. Neither should be overwritten or relabeled.
+
+### Required target-bound gate bundle
+
+The staged d360dbf script requires this exact layout:
+
+| Required artifact | Contents / provenance |
+|---|---|
+| database.sql.gz | Nonempty valid gzip SQL export of wp_mdf4x; actual capture at most 24 hours old when files are copied |
+| wp-content.tar.gz | Valid archive of this sandbox's wp-content |
+| target-path.txt | Exact line `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com` |
+| target-url.txt | Exact line `https://sandbox.cornerstonefarmomak.com` |
+| wp-version.txt | Actual captured WordPress version; expected 7.1.4 |
+| plugins.csv | Actual captured plugin inventory |
+| SHA256SUMS | Exactly six entries for the six files above, derived from real bytes |
+| Separate restore-evidence file | Private operator-reviewed completed checks/identities/hashes, with functional login/rendering explicitly NOT RUN |
+
+Identify filenames and capture times from existing backup records; no raw artifact names,
+hashes or precise capture times were forwarded. A dated directory is not a freshness check.
+Copy/recompression date or a touched mtime is not a new database capture. The script uses
+database.sql.gz's mtime; verify capture provenance too. Do not touch/recompress old data to
+make it look fresh, invent a checksum, or claim a passed gate without running it.
+
+First reuse an existing compatible, current bundle and run its verifier read-only:
 
 ```bash
-bash scripts/verify-dev-backup.sh "$CSF_BACKUP"   '/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'   'https://sandbox.cornerstonefarmomak.com' "$CSF_RESTORE_EVIDENCE"
+CSF_DEV_ROOT='/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'
+CSF_DEV_URL='https://sandbox.cornerstonefarmomak.com'
+# Set both paths from existing Gateway records; do not guess or use an empty template.
+bash scripts/verify-dev-backup.sh "$CSF_GATE_BACKUP" "$CSF_DEV_ROOT" "$CSF_DEV_URL" "$CSF_RESTORE_EVIDENCE"
 ```
+
+The verifier checks the six-entry manifest, compressed integrity/nonempty SQL, exact path/URL,
+age at most 24 hours, backup outside the site and a nonempty evidence file. It does **not**
+interpret that file, prove functional restoration, or grant installation approval.
+
+Use the truthful [restoration evidence record](test-results/sandbox-restoration-evidence.md)
+to prepare the final private record from existing Gateway logs. Record actual scratch names,
+source artifact hashes and capture/job identifiers without repeating the drill. A nonempty
+summary with missing provenance is not a new verification of the underlying artifacts.
+
+Only if existing artifacts are stale/incompatible/invalid, obtain approval for a **limited
+current target-bound application backup** with the existing helper:
+
+```bash
+# Reference only: do not execute unless this specific gate refresh is needed and authorized.
+bash scripts/backup-dev.sh "$CSF_DEV_ROOT" "$CSF_APPROVED_PRIVATE_GATE_PARENT"
+```
+
+Record the actual new bundle printed by the command; do not overwrite the complete backup.
+This captures DB/wp-content/metadata, not a replacement full-site backup or a repeated
+scratch/source-staging package. It does not prove the new dump was itself restored; reference
+the original drill honestly. If material state/schema/recovery-method changes invalidate
+old evidence, report that specific issue rather than silently transferring a pass or
+repeating the whole package without justification. Preserve access controls and export
+only the sandbox database.
+
+This task prepares gate/evidence instructions only. It has not created a remote bundle,
+recorded missing metadata on the VPS, or executed remote age/checksum verification.
 
 ## Deployment — future, separately approved
 
-No installation is authorized. Before --apply, review this preparation's actual output,
-resolve any remaining URL/permalink guards through separately approved changes, and record
-the exact release, sandbox identity, full backup, current application backup, restore evidence
-and rollback point. --apply requires --expected-url, --backup and --restore-evidence.
-ZIP uploads require the same checks/approval and must not bypass the guard.
-Only csf-core/csf-emergency plugin directories may be copied. Activation and site setup are
-separate mutating steps. Follow [the installation guide](07-website-installation.md) only
-within their approved scope. No production changes, main merge, DNS/vhost changes or launch.
+The next stage copies csf-core/csf-emergency into the sandbox **left inactive**. Source stays
+pinned to d360dbf and matches reviewed 52401dc. Use the [final staged plan](07-website-installation.md#staged-installation-approval-boundaries).
+No installation is yet authorized. File-copy approval must acknowledge the functional restore
+limitation; evidence presence alone is not that approval.
+
+Activation and 21-page setup require later approvals covering their DB/rewrite/content
+changes. Do not change permalinks for file copying. No production change, main merge,
+DNS/vhost change or launch is part of this plan.
 
 ## Rollback
 
-For the remaining preparation, leave the live sandbox unchanged except for explicitly approved
-new recovery/source resources. If a preparation step fails, record partial results and stop;
-do not import a DB over the sandbox or production to undo creation of a scratch/source path.
+Keep the completed backup, existing scratch resources and staged checkout. No cleanup or
+restore over an existing site is authorized by this update. For the future files-only stage,
+record that both new plugin directories remain absent just before copying. If their state
+has changed, stop for review. Within that stage's explicit rollback scope, remove/rename only
+those two newly introduced **inactive** directories; do not import a DB or change other files.
 
-For a future authorized deployment, record previous plugin files/version, active theme/plugins,
-release SHA, same-point full backup and restore evidence. Recovery options are:
+If activation has occurred, removing files alone does not undo tables, roles or options.
+Record a current pre-activation rollback point and use a separately reviewed sandbox-only
+DB/files restore when needed, preserving later user changes. Never restore a shared
+subscription or production DB. Verify ownership, current hardened config/mode 0600, access
+protection, active theme/plugins, routes and cache behavior before calling recovery complete.
 
-1. For a PHP fatal, deactivate/rename only the failing sandbox CSF plugin using the approved
-   recovery method. Data is retained, but dynamic blocks/styles/emergency behavior may disappear.
-2. Restore exact prior plugin files; review/remove newly introduced files only within those
-   two approved plugin directories. Code rollback alone does not undo tables/roles/pages/options.
-3. If data/settings must be reverted, restore the **sandbox-only** DB/files from the same
-   verified backup point after preserving/reviewing later changes. Never restore a whole
-   shared subscription or select production's database. Recheck identities before import.
-4. Verify ownership, retained 0600 wp-config, effective configuration, login, HTTPS/access
-   protection, prior theme/plugins, routes and cache behavior. Do not claim success until checked.
-
-Keep the original pre-hardening config backup unchanged as historical recovery evidence.
-Restoring it would remove the completed hardening; do not automate that as a routine rollback.
-Use the forthcoming current/hardened full backup as the later deployment rollback point.
-Any restore of the original configuration requires a deliberate scoped recovery decision.
+Preserve the original pre-hardening config backup as historical recovery evidence. Restoring
+it removes completed hardening; do not automate that as a routine deployment rollback.
+Use the current verified hardened backup for subsequent release recovery. The original
+config artifact requires a deliberate scoped recovery decision before restoration.
 
 ### Required runtime and settings
 

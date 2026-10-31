@@ -1,10 +1,10 @@
 # 00 — Development Environment Inspection
 
-**Current status: Gateway inspection and sandbox configuration hardening completed, as
-reported by the owner on October 31, 2026.** The three constants below are verified. Do not
-reapply them. Full sandbox backup, isolated scratch restoration, source staging and deployment
-dry run remain incomplete; no installation is authorized. This replaces the prior
-not-yet-inspected/pending-hardening snapshot without changing the historical test reports.
+**Current status: Gateway completed sandbox infrastructure preparation on October 31, 2026.**
+Hardening, full backup, structural/file restore checks, private source staging, exact-target
+Plesk preflight and deployment dry run are complete. Do not repeat them. Functional login/
+rendering on the isolated restoration is untested. No plugin installation/activation, site
+setup, permalink change or production deployment is authorized.
 
 ## Observed sandbox identity
 
@@ -30,7 +30,8 @@ VPS commands executed by this documentation task. Full evidence and remaining li
 | DISALLOW_FILE_EDIT | true — applied and effective value verified |
 | WP_DEBUG_DISPLAY | false — applied and effective value verified |
 | Config validation | PHP syntax passed; ownership preserved/verified, live file mode 0600 |
-| Permalinks | Plain in latest supplied inspection; no later change reported |
+| Preflight / dry run | Latest Gateway report: passed; only the two new plugin directories proposed |
+| Permalinks | Earlier report: plain; no explicit change reported/authorized. Do not infer one from the passed preflight. |
 
 ## Completed configuration backup and hardening
 
@@ -51,25 +52,40 @@ Production: cornerstonefarmomak.com, root
 `/var/www/vhosts/cornerstonefarmomak.com/httpdocs`, database wp_iacb7. Unassigned DB wp_mdoaq
 is also excluded and must not be reused for the scratch restore.
 
-## Remaining work
+## Completed infrastructure preparation
 
-After separate approval, begin with a **full sandbox-only current files/config/DB backup**,
-then isolated restoration into a new scratch database, private reviewed source staging and
-exact-target deployment dry run. Follow [the revised runbook](05-backup-rollback-deploy.md#sandbox-preparation-approval-package).
-No plugin installation/activation, permalink changes or production deployment are authorized.
-Remaining functional acceptance includes actual Kadence rendering, cache/rewrites and recovery
-verification. Stored URLs are known; WP_HOME/WP_SITEURL override findings are still unsupplied.
+Gateway's latest completion record states:
 
-## Future inspection procedure
+- Full sandbox filesystem/config/database backup at
+  /var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/; archives/checksums verified.
+- Scratch restoration: all 12 InnoDB tables and representative counts verified; 4,336 regular
+  files restored with zero mismatches. Functional WordPress login/page rendering **not run**.
+- Existing private source pinned to d360dbfd5a0441fa142a3b963a4a42c5145d9738; plugin tree matches
+  52401dcd9a90ca87ad074c1078ad6633df5be77e.
+- Exact-target Plesk preflight and deployment dry run passed; no plugin files copied/activated
+  or pages generated, and no production changes.
 
-Use existing approved tooling and the exact target; recheck identities without reapplying
-verified values. scripts/sandbox-preflight.py uses pre-WordPress-load config/DB operations;
-its current strict permalink check will stop while URLs remain plain. Do not weaken guards.
-The general inspector/preflight helpers may bootstrap must-use plugins/drop-ins; select the
-safe non-bootstrap method when runtime side effects are outside scope. Review custom
-wp-config code before evaluating it. Never print credentials, salts or the process environment.
+These supersede earlier incomplete-backup/restore/staging/dry-run status. Preserve the existing
+source pin, backup and scratch evidence. Do not create new resources to repair stale docs.
 
-Git, WP-CLI and rsync are already available per Gateway. Their availability is not evidence
-that code has been staged or a deployment dry run completed. Preserve actual outputs and
-label unknown/unrun checks. No full backup, restore, staging or VPS change was executed by
-this documentation reconciliation.
+## Remaining installation review
+
+Check the existing backup's actual target-bound script format and capture age, complete a
+private operator evidence record from existing Gateway logs, and review the files-only
+installation plan. A conditional limited backup refresh is justified only by an actual stale/
+incompatible artifact, not by repeating full preparation. Exact raw artifact/scratch/source
+paths and checksum values were not forwarded; recover them from completed records.
+
+Follow the [gate procedure](05-backup-rollback-deploy.md#backups-and-verified-backup-gate-before-any-apply)
+and [staged plan](07-website-installation.md#staged-installation-approval-boundaries). No file
+installation, activation, setup or permalink change is approved. Actual CSF/Kadence functional
+testing and the functional restored-site test remain unrun.
+
+## Inspection limits
+
+Use the latest Gateway preflight pass as reported evidence; retain its actual method/output
+from existing records. Do not claim an unspecified repository helper was run. The strict
+sandbox helper requires pretty permalinks while earlier records had plain URLs; do not change
+settings or weaken checks to reconcile that difference. Current documentation work executes
+no server commands. Never print secrets, bootstrap unreviewed startup code under a read-only
+scope, or convert local mocked tests into claimed server results.

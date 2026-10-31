@@ -1,6 +1,6 @@
 # Milestone B preparation — current evidence
 
-**Historical milestone record.** For the current server state, including completed October 31, 2026 Gateway configuration hardening and the still-incomplete full backup/restore/staging/dry run, see [the reconciled sandbox report](sandbox-preflight.md). Earlier unrun/pending statements describe the earlier assessment, not current hardening status.
+**Historical milestone record.** For the current server state, including completed October 31, 2026 Gateway infrastructure preparation and the unrun functional restored-site test, see [the reconciled sandbox report](sandbox-preflight.md). Earlier unrun/pending statements describe the earlier assessment, not current hardening status.
 
 October 30, 2026 (America/Los_Angeles). Preparation branch: codex/takeover-audit.
 Baseline 676e149 was pushed and the remote SHA verified. No merge, VPS access or deployment.
