@@ -14,7 +14,8 @@ the production domain until the owners approve the replacement.
 - [x] Isolated structural restore: 12 InnoDB tables/count samples and 4,336 regular files, zero mismatches
 - [ ] Functional WordPress login/page-rendering test on the isolated restoration (not part of the completed structural verification)
 - [x] Private source pinned d360dbf, verified against 52401dc; exact-target Plesk preflight/deployment dry run passed
-- [ ] Final installation-time fresh target-bound backup/evidence gate and files-only installation approval
+- [x] Fresh installation-specific target-bound backup created and verifier passed October 31, 2026 (time-limited gate; recheck age at installation)
+- [ ] Separate owner approval for files-only sandbox plugin installation (inactive)
 - [ ] Owners complete the confirmation register (`03-owner-confirmation-register.md`)
 - [ ] Owners supply original logo source files and authentic photography (still outstanding)
 
@@ -98,8 +99,10 @@ backup stays at `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.
 Restoration qualification: 12 InnoDB tables/count samples and 4,336 regular files verified,
 zero mismatches; functional login/page-rendering on the restoration NOT RUN.
 
-Next: verify the real fresh target-bound backup/evidence gate, then review inactive plugin
-file copying. Activation, 21-page setup/permalinks and real Kadence testing are separate stages.
+The installation-specific gate backup was captured on October 31, 2026 at about 18:46 UTC
+(11:46 AM PDT), and `scripts/verify-dev-backup.sh` passed all six checks. Its age is
+limited to 24 hours and must be rechecked immediately before any installation.
+Next: review and explicitly authorize inactive plugin-file copying; installation is not authorized by this update. Activation, 21-page setup/permalinks and real Kadence testing are separate stages.
 No installation/activation/setup/permalink/production change is authorized by the documentation
 update. See the [current plan](07-website-installation.md#staged-installation-approval-boundaries).
 
@@ -108,5 +111,9 @@ Gateway's subsequent execution detail records database export at October 31, 202
 10:08:58 AM PDT and file archive at 10:09:42 AM PDT. Scratch DB:
 csf_sandbox_restore_20261031. Existing private evidence:
 /var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt.
-Reuse the completed operations/evidence; next is the fresh script-format backup gate and
-separate files-only installation approval, not a repeated backup/restore package.
+The completed full backup, scratch restore and pinned source were reused. A new script-format
+backup gate bundle was captured separately at:
+`/var/www/vhosts/cornerstonefarmomak.com/private/csf-dev-20261031-184634-36879/`.
+Verifier job: `job_01M69MJJ04000DFWPDVJ254SKY` (succeeded). The bundle is not a replacement
+for the full backup or a new restoration drill. No file-copy, activation, setup or permalink
+changes have been made. Next: separate files-only installation approval.
