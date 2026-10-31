@@ -3,6 +3,7 @@
 **0778176 review record.** Follow-up shared gutter correction, safe saved-Contact upgrade
 and downloaded-theme fixture evidence are in [kadence-layout.md](kadence-layout.md).
 Authenticated Plesk sandbox acceptance remains unrun; the historical counts below are retained.
+The latest [Issue #2 confirmation correction](#issue-2--confirmation-integrity-follow-up) is part of the same undeployed 0.3.0 candidate.
 
 Candidate: **csf-core 0.3.0**, prepared from 4635106, reconciled with newer shared-branch documentation through 457fffb.
 **Not deployed.** The owner reports core 0.2.0 and all 21 pages already active/published on
@@ -97,3 +98,46 @@ Emergency concurrency/audit/token permanence remains separate work in
 [DECISIONS](../DECISIONS.md#proposed-emergency-concurrency-fix--design-before-operational-approval)
 and [SECURITY](../SECURITY.md). That transactional state/command/audit/outbox proposal is
 not implemented by this public-site update. Emergency remains inactive and non-operational.
+
+## Issue #2 — confirmation integrity follow-up
+
+**Code/review only; not deployed.** The sandbox remains core 0.2.0. The owner identified that
+5570cc2 accepted the public `?csf_inquiry=submitted` flag as sufficient proof for an acknowledgment.
+This was a misleading confirmation, not evidence of unauthorized mail sending or data exposure.
+
+The candidate now issues a five-minute signed receipt **only after successful POST validation
+and wp_mail transport acceptance**. The HMAC purpose is separate from the public anti-spam
+challenge and includes this site's Contact URL. Rendering checks signature, age and request
+shape, then atomically claims a digest/expiry marker. Identical replay claims cannot succeed.
+No message, sender, recipient or contact details go into receipt URLs or stored marker values.
+Receipt responses send no-store/private cache policy and no-referrer; existing WP-Cron cleanup
+removes expired markers. Public form/CDN cache exclusions still require actual-site verification.
+
+The acknowledgment continues to say **accepted for sending**, not delivered. A rejected mail
+transport returns an error without issuing a receipt. Old flags, public challenges and invalid
+receipts cannot produce success. Form defaults and the delivery-verification gate are unchanged.
+
+Executed on the isolated local WordPress/SQLite fixture, with all mail intercepted:
+
+| Check | Result |
+|---|---|
+| Confirmation integrity | 17 checks passed: fabricated/malformed GETs, public challenge misuse, tampering, expiry, future/wrong-site tokens, one-use behavior, disabled form, marker privacy and no mail side effects |
+| Inquiry HTTP/browser | 25 passed: forged GET, POST→303→acknowledgment, receipt-only redirect, cache/referrer headers, refresh/cross-context replay, rejected POST and mail failure |
+| Existing setup / saved Contact / inquiry validation | 27 / 14 / 39 passed |
+| PHP syntax / WordPress coding standards | 69 plugin files passed / no errors or warnings |
+| Existing deployment guards / Plesk wrapper / Python target checks | 22 / 6 / 14 passed; wrapper runtime mocked |
+| Existing takeover / emergency HTTP privacy | 8 / 14 passed on disposable localhost only |
+
+The browser uses the test-only substitute theme for the inquiry HTTP workflow. The prior
+5570cc2 downloaded-Kadence layout/editor evidence is retained, not reported as a new rerun or
+actual sandbox acceptance. Reproduce the new tests with
+`CSF_INQUIRY_BROWSER=1 bash tests/integration/run-setup-reporting.sh` (installed local Chromium
+may require CSF_CHROMIUM_EXECUTABLE). No test email was sent to Beth.
+
+Next: review the resulting consolidated candidate, then Gateway can prepare the **current
+sandbox-only backup and --only-core dry run** under its authorized scope. Applying files,
+Contact content integration and form enablement remain separate approval boundaries. Keep
+inquiries disabled, emergency inactive, Issue #1 open pending actual site acceptance, and all
+production/excluded resources untouched. No new full infrastructure preparation or restoration
+was executed or rescheduled here. Real MariaDB receipt-claim/cache behavior and inbox delivery
+remain pre-enablement acceptance checks.

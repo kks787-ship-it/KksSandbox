@@ -115,3 +115,10 @@ Safe non-forced Contact upgrade is tested from the actual reviewed 0.2.0 templat
 page gains one block, edited/no-hash page is kept and warns for manual placement. No force,
 automatic enablement or live Contact mutation. See docs/test-results/kadence-layout.md and
 updated Contact integration in doc 07; any live content operation still needs approval.
+
+Issue #2 confirmation correction is part of the same undeployed 0.3.0 candidate: only an
+accepted POST issues a five-minute site-bound signed receipt. Public flags/challenges cannot
+acknowledge submissions, and a valid receipt can be claimed once. No PII in receipt URLs or
+stored expiry markers; never log raw proofs. Keep form disabled. New local integrity/HTTP
+checks do not establish Plesk/MariaDB acceptance or delivered mail. Before any later approved
+apply, Gateway needs current target-bound backup and a core-only comparison of the new SHA.

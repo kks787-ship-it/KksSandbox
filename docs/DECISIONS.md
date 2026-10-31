@@ -227,3 +227,14 @@ PHP/MariaDB or inbox delivery. Keep Issue #1 open and any deployment/content edi
 The local unconfigured Kadence tablet title fallback produced an unnamed brand link; test
 native Logo & Title configuration on the fixture and flag the actual header for manual
 review rather than adding theme workarounds to core or silently changing the sandbox.
+
+## Correct public inquiry acknowledgments before enablement — Issue #2
+
+Replace the untrusted submitted URL flag with a five-minute site-bound HMAC receipt minted
+only after validated POST and transport acceptance. Separate the signing purpose from the
+public form challenge. Claim each valid receipt once using a digest/expiry no-autoload option
+with identical competing values; reuse bounded cleanup. Receipt responses are no-store/private
+and no-referrer. Keep message/sender/recipient data out of URLs and markers. No delivery claim,
+automatic retry or form enablement follows from acknowledgment. Regression coverage includes
+forged GET, successful POST/303, replay, invalid receipts and transport failure. This is a
+local code correction in the consolidated 0.3.0 candidate, not sandbox deployment approval.

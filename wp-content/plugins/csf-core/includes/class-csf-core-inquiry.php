@@ -13,9 +13,10 @@ defined( 'ABSPATH' ) || exit;
  */
 class CSF_Core_Inquiry {
 
-	const OPTION = 'csf_core_inquiry';
-	const ACTION = 'csf_inquiry';
-	const PREFIX = 'csf_inquiry_limit_';
+	const OPTION      = 'csf_core_inquiry';
+	const ACTION      = 'csf_inquiry';
+	const PREFIX      = 'csf_inquiry_limit_';
+	const RECEIPT_TTL = 5 * MINUTE_IN_SECONDS;
 
 	/** Register the optional form and its maintenance/settings hooks. */
 	public static function init() {
@@ -24,6 +25,7 @@ class CSF_Core_Inquiry {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_setting' ) );
 		add_action( 'csf_inquiry_cleanup', array( __CLASS__, 'cleanup' ) );
+		add_action( 'template_redirect', array( __CLASS__, 'confirmation_headers' ) );
 	}
 
 	/**
@@ -124,6 +126,62 @@ class CSF_Core_Inquiry {
 	}
 
 	/**
+	 * Keep receipt responses out of shared caches and outgoing referrers.
+	 * Application headers supplement the required page/CDN cache exclusions.
+	 */
+	public static function confirmation_headers() {
+		if ( is_page( 'contact' ) && isset( $_GET['csf_inquiry'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- cache policy only, no data read or write.
+			nocache_headers();
+			header( 'Cache-Control: no-store, private, max-age=0' );
+			header( 'Referrer-Policy: no-referrer' );
+		}
+	}
+
+	/**
+	 * Separate confirmation proofs from the publicly issued anti-spam challenge, and
+	 * bind them to this site's Contact URL even when a clone shares WordPress salts.
+	 *
+	 * @param string $value Timestamp and random UUID.
+	 * @return string
+	 */
+	private static function receipt_signature( $value ) {
+		return hash_hmac( 'sha256', 'csf-inquiry-confirmation-v1|' . home_url( '/contact/' ) . '|' . $value, wp_salt( 'nonce' ) );
+	}
+
+	/**
+	 * Issue only after a successful POST's transport acceptance; never from the form renderer.
+	 *
+	 * @return string
+	 */
+	private static function success_receipt() {
+		$value = time() . ':' . wp_generate_uuid4();
+		return $value . ':' . self::receipt_signature( $value );
+	}
+
+	/**
+	 * Acknowledge a valid receipt once. Only a digest and expiry are retained; no PII.
+	 * Competing/replayed claims use identical values, so only one add_option can succeed.
+	 *
+	 * @param mixed $input Untrusted URL parameter.
+	 * @return bool
+	 */
+	private static function consume_receipt( $input ) {
+		if ( ! is_string( $input ) || strlen( $input ) > 128 ) {
+			return false;
+		}
+		$receipt = wp_unslash( $input );
+		$parts   = explode( ':', $receipt );
+		if ( 3 !== count( $parts ) || ! ctype_digit( $parts[0] ) || ! wp_is_uuid( $parts[1], 4 ) || strlen( $parts[2] ) !== 64 ) {
+			return false;
+		}
+		$issued = (int) $parts[0];
+		if ( $issued > time() || time() - $issued >= self::RECEIPT_TTL || ! hash_equals( self::receipt_signature( $parts[0] . ':' . $parts[1] ), $parts[2] ) ) {
+			return false;
+		}
+		return add_option( self::PREFIX . 'receipt_' . hash( 'sha256', $receipt ), (string) ( $issued + self::RECEIPT_TTL ), '', false );
+	}
+
+	/**
 	 * Render a native, keyboard-accessible form. No external CAPTCHA script or tracking.
 	 *
 	 * @return string
@@ -134,7 +192,7 @@ class CSF_Core_Inquiry {
 		}
 		$id   = wp_unique_id( 'csf-inquiry-' );
 		$html = '<div class="csf-inquiry" id="csf-inquiry">';
-		if ( isset( $_GET['csf_inquiry'] ) && 'submitted' === $_GET['csf_inquiry'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- static notice only; no submitted data is read.
+		if ( self::consume_receipt( $_GET['csf_inquiry'] ?? null ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput -- dedicated signed, expiring receipt validation; no submission data is read.
 			$html .= '<p role="status">' . esc_html__( 'Your inquiry was accepted for sending. If you need to follow up, please use the contact details on this page.', 'csf-core' ) . '</p>';
 		}
 		$html .= '<h2>' . esc_html__( 'Send an inquiry', 'csf-core' ) . '</h2>';
@@ -245,7 +303,8 @@ class CSF_Core_Inquiry {
 				)
 			);
 		}
-		wp_safe_redirect( home_url( '/contact/?csf_inquiry=submitted#csf-inquiry' ), 303 );
+		$confirmation_url = add_query_arg( 'csf_inquiry', self::success_receipt(), home_url( '/contact/' ) );
+		wp_safe_redirect( $confirmation_url . '#csf-inquiry', 303 );
 		exit;
 	}
 }

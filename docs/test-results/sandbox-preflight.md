@@ -76,3 +76,10 @@ in the existing gate format, evidence provenance and a core-only dry run. Preser
 source pin and preparation record; do not silently call their pass a test of 0.3.0. No rebuild,
 new setup, emergency activation, permalink change or production operation is part of this task.
 Separate WP_HOME/WP_SITEURL override findings have not been forwarded; do not invent them.
+
+Issue #2 is corrected in the consolidated local candidate: acknowledgment requires a signed,
+site-bound five-minute one-use receipt after transport acceptance. Forged flags and replays
+are rejected; the form stays disabled. [New local evidence](website-finishing.md#issue-2--confirmation-integrity-follow-up).
+No new backup, dry run, deployment, Contact edit or actual sandbox test was performed here.
+Gateway's next approved comparison must use the resulting reviewed source SHA, a current
+sandbox backup and --only-core; Issue #1 remains open pending actual-site acceptance.

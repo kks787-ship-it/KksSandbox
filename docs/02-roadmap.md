@@ -49,6 +49,7 @@ the production domain until the owners approve the replacement.
 - [ ] Verify on Kadence: Customizer palette, header, footer, page-layout settings
 - [ ] Logo, photographs, contact details, Acuity verification, resolve 23 owner notes (doc 09)
 - [x] Local 0.3.0 candidate: deployment permissions, failed-setup reporting, optional inquiry form with spam controls and mocked delivery tests
+- [x] Issue #2 code correction prepared: short-lived signed one-use acknowledgment, forged-URL/replay/mail-failure regressions (17 integrity and 25 HTTP/browser checks); not deployed
 - [ ] Deploy reviewed core update after separate approval/current backup gate; keep inquiry form disabled
 - [ ] Verify actual delivery to beth.siemon@cornerstonefarmomak.com and actual MariaDB/form behavior before approved enablement (provider unknown)
 - [ ] Launch prep: SEO metadata, redirects from old URLs, privacy policy, production deployment plan (separate approval)

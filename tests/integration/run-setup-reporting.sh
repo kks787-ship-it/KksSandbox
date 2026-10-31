@@ -34,6 +34,8 @@ CSF_SETUP_TEST_ROOT="$TMP" php "$ROOT/.wp-local/wp-cli.phar" --path="$TMP/site" 
 php "$ROOT/.wp-local/wp-cli.phar" --path="$TMP/site" eval '$p=get_page_by_path("contact",OBJECT,"page"); wp_update_post(array("ID"=>$p->ID,"post_content"=>CSF_Core_Patterns::page_content("contact")));' --quiet
 CSF_SETUP_TEST_ROOT="$TMP" php "$ROOT/.wp-local/wp-cli.phar" --path="$TMP/site" \
   eval-file "$ROOT/tests/integration/inquiry.php"
+CSF_SETUP_TEST_ROOT="$TMP" php "$ROOT/.wp-local/wp-cli.phar" --path="$TMP/site" \
+  eval-file "$ROOT/tests/integration/inquiry-confirmation.php"
 if [[ "${CSF_INQUIRY_BROWSER:-0}" == 1 ]]; then
   TEST_PORT="$(python3 - <<'PY'
 import socket
@@ -53,6 +55,7 @@ PY
 // This file exists only in the disposable fixture, never in the application release.
 add_filter('pre_wp_mail', static function () {
     if ('local' !== wp_get_environment_type() || 0 !== strpos(FQDB, '/tmp/csf-setup-regression.')) { return false; }
+    if (is_file(dirname(getenv('CSF_INQUIRY_TEST_MAIL_LOG')).'/mail-fail')) { return false; }
     file_put_contents(getenv('CSF_INQUIRY_TEST_MAIL_LOG'), "mock accepted\n", FILE_APPEND | LOCK_EX);
     return true;
 });

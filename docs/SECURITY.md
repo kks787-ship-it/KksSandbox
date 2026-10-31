@@ -60,3 +60,14 @@ Exclude form/submission routes from full-page caching. Real provider/inbox and a
 form acceptance, including error/replay behavior, are required before separately approved
 enablement. All local tests intercept mail; none establish delivery to Beth. Form delivery
 failure consumes the token and does not trigger an automatic retry or a success notice.
+
+### Inquiry confirmation integrity (Issue #2)
+
+A public URL flag is not proof of submission. Only a successful validated POST's accepted mail
+transport issues the new five-minute HMAC receipt, purpose-separated from the public challenge
+and bound to the site's Contact URL. Shape, signature and age checks precede an atomic identical-
+value claim; replay or claim failure produces no acknowledgment. Stored receipt markers contain
+only a digest key and expiry, never personal inquiry data. Cleanup reuses the existing bounded
+expiry job. No-store/private and no-referrer response headers protect receipt views; verify
+actual cache exclusions on Plesk before enablement. Accepted-for-sending does not mean delivered.
+The form stays disabled and no new provider, activation or deployment is authorized here.

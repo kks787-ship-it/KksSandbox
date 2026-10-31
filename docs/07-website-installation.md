@@ -158,6 +158,14 @@ Only after inbox verification and explicit enablement approval check Delivery ve
 Enable. Changing the saved recipient clears both. Use the safe Contact integration above
 for block placement; adding the block never grants permission to enable or send mail.
 
+Confirmation integrity (Issue #2) is included in this consolidated candidate. A successful POST
+now redirects with a signed, site-bound receipt, valid for five minutes and one acknowledgment.
+The old public submitted flag cannot acknowledge anything. Receipt URLs contain no sender or
+message data; only a digest/expiry marker is stored. Receipt responses use no-store/private
+and no-referrer headers. Check valid submission, refresh/replay, fabricated URL and mail failure
+in the separately approved enabled-form test; no email-delivery claim follows from the receipt.
+See [current regression evidence](test-results/website-finishing.md#issue-2--confirmation-integrity-follow-up).
+
 Exclude the form page and admin-post submission route from full-page/CDN caching; signed
 challenges last two hours and require three seconds before submission. Built-in spam controls:
 honeypot, nonce, signed timing challenge, atomic single-use claim, three attempts per client
