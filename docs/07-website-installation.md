@@ -1,9 +1,9 @@
 # 07 — Website Installation (Development Site)
 
-**Scope:** the separate sandbox on Plesk. Preparation is complete, and the two CSF plugin
-**directories are installed but both plugins remain inactive** (Gateway, October 31, 2026).
-Activation, website setup and permalink changes each require separate owner approval.
-The production site remains excluded.
+**Scope:** the separate sandbox on Plesk. Both plugin directories have been installed, and
+`csf-core` 0.2.0 has been **activated with owner approval**. `csf-emergency` 0.1.0 remains
+**inactive**. Website page/menu setup, emergency activation and permalink changes require
+separate owner approval. Production remains excluded.
 
 Estimated time: 45–60 minutes, most of it in the Kadence Customizer.
 
@@ -18,8 +18,9 @@ The immediate objective is csf-core/csf-emergency testing with **real Kadence 1.
 |---|---|---|
 | Final gate | Fresh target-bound backup + six-entry integrity check, existing restore evidence | **Passed:** `csf-dev-20261031-184634-36879` (time-limited, recheck before later mutations) |
 | A | Copy only the two new CSF plugin directories, **leave inactive** | **Completed with owner approval**, Gateway job `job_01M69NHGP200KW7JZK6HD2V9YZ`. Both plugins confirmed inactive, content identical; permissions normalized to 0755 dirs/0644 files. |
-| B | Activate csf-core and csf-emergency; verify activation effects | Separate activation approval required; not started |
-| C | Generate/verify the website's 21 pages, menus and synced footer; configure Kadence | Separate site-setup approval required; not started; permalink changes must be explicitly included if needed |
+| B1 | Activate `csf-core` only and verify effects | **Completed with owner approval**, Gateway `job_01M69P01SA00P66KZ43HJE6FC0`; active and loading; no pages generated. |
+| B2 | Activate `csf-emergency` | **Not authorized; inactive.** Emergency operational acceptance remains blocked. |
+| C | Generate/verify the website's 21 pages, menus and synced footer; configure Kadence | **Not authorized**; dry-run passed with 21 creates, footer pattern and plain-permalink warning. Permalink changes need explicit approval. |
 | D | Test the actual public build/editor/navigation/accessibility/emergency rendering on Kadence | Not started; authenticated sandbox checks within approved test scope |
 
 **Deployment mode follow-up:** The private Git checkout held `0700` directories/`0600` files; the original `rsync -a` copied those modes. Gateway normalized only the newly installed plugin trees to `0755` directories and `0644` files. Amend and review future deployment handling of destination permissions before subsequent releases; do not assume a fresh `rsync -a` preserves this correction.
@@ -27,6 +28,16 @@ The immediate objective is csf-core/csf-emergency testing with **real Kadence 1.
 The isolated restoration passed structural/file checks (12 InnoDB tables; 4,336 regular files,
 zero mismatches), **not functional WordPress login/page rendering**. Disclose this limitation
 in the files-only review; a nonempty restoration-evidence file is not a claim it passed.
+
+### Activation verification — October 31, 2026
+
+`csf-core` was activated on the sandbox as a separate approved action, with backup integrity
+checked immediately before activation. The normal activation routine registers structured
+content types and seeds taxonomy terms, and may flush rewrite rules. The stored permalink
+structure remains **plain**, and homepage setting remains **posts**. `csf-emergency` is still
+inactive; no emergency notifications or QR system is operational. `wp csf status` reports all
+21 planned pages missing and `wp csf setup --dry-run` previews the page/footer creations only.
+No page setup, footer placement, permalink changes or production deployment were performed.
 
 ## 0. Before you start
 
