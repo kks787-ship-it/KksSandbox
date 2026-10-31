@@ -35,3 +35,10 @@ Cloud tooling, if retained: export PATH=/workspace/tooling/bin:$PATH and
 PLAYWRIGHT_BROWSERS_PATH=/workspace/tooling/browsers. See saved environment startup instructions.
 No credentials or personal data in code, reports, commands, or commits. Use descriptive
 commits, review git diff, and keep test results and deployment blockers explicit.
+
+Current sandbox target is owner-confirmed as https://sandbox.cornerstonefarmomak.com,
+Plesk-relative root sandbox.cornerstonefarmomak.com, assigned DB wp_mdf4x. Production DB
+wp_iacb7 and unassigned wp_mdoaq are excluded. Do not guess the absolute root. Current scope
+is read-only preflight/dry run only; use scripts/sandbox-preflight.py to avoid WordPress
+bootstrap writes. See docs/test-results/sandbox-preflight.md for unverified checks/access
+blockers. Test guards with PYTHONDONTWRITEBYTECODE=1 python3 tests/scripts/test_sandbox_preflight.py.

@@ -236,3 +236,86 @@ smoke checks. Codex can prepare a restore plan and assist with an authorized scr
 it cannot certify an unperformed restore, real-device/tag behavior or owner sign-off.
 Plesk subscription selection, accurate production/dev isolation, secure access, backup storage,
 restore-drill sign-off, theme asset provision and deployment approval remain owner actions.
+
+## Sandbox read-only exact-target inspection
+
+Owner-confirmed target: **https://sandbox.cornerstonefarmomak.com**, relative root
+`sandbox.cornerstonefarmomak.com`, Plesk database **wp_mdf4x**. Production's **wp_iacb7** and
+unassigned **wp_mdoaq** are excluded. WP/PHP/Kadence are reported as 7.1.4 / 8.3.36 / 1.5.2.
+These supplied values replace earlier unknown URL/version placeholders; the absolute root
+and configured/connected database still need server evidence. No absolute path is assumed.
+
+Current authorization is **inspection and dry run only**, not deployment, installation of
+tooling, backups/restore, activation, setup, database updates or configuration edits. Do not
+run --apply, wp eval, wp option update, wp csf setup, wp core update-db or plugin activation.
+General WP-CLI commands that bootstrap WordPress may trigger plugin/MU-plugin writes; use the
+non-bootstrap inspection below instead. Review any custom wp-config.php code first because
+WP-CLI db query evaluates configuration before stopping short of wp-settings.php.
+
+### First obtain the absolute path and non-secret configured database
+
+In the **development subscription's existing SSH terminal**, from the subscription home
+(the folder containing the owner-confirmed relative root), run only:
+
+```bash
+cd -- sandbox.cornerstonefarmomak.com &&
+pwd -P &&
+wp --path="$PWD" config get DB_NAME --type=constant
+```
+
+This prints the resolved path and DB name only; it does not connect to the database.
+If the directory or WP-CLI is missing, report the error rather than searching production,
+installing tools or guessing a path. If the terminal is chrooted, report that too: its absolute
+path is in that shell's namespace and Plesk must confirm the host-path mapping before remote
+rsync. Never print wp-config.php, DB_PASSWORD, salts or the process environment.
+
+Expected DB_NAME: **wp_mdf4x**. Any other value is a stop. This verifies configured identity
+only; do not report the connected database as verified until the read-only SELECT also passes.
+
+### Full preflight without staging new files on the server
+
+If the reviewed checkout/tooling already exists **outside** the public web root on the server:
+
+```bash
+# Replace only after the canonical path was actually observed.
+python3 scripts/sandbox-preflight.py '/observed/absolute/path/sandbox.cornerstonefarmomak.com'
+```
+
+Use the existing domain PHP 8.3 handler on PATH for WP-CLI; a command-local PATH selection
+is sufficient and does not change the domain's Plesk settings. Report a missing handler or
+WP-CLI rather than installing/changing anything. Preflight output goes to stdout; no report
+file is written on the VPS unless separately authorized.
+
+If no tooling checkout exists, an operator with **existing secure SSH access** can pipe the
+reviewed script from the local checkout into Python's stdin without uploading a file:
+
+```bash
+# csf-sandbox is a placeholder for an already configured/verified SSH connection.
+# Run this on the local machine holding the reviewed repository, not in Plesk's terminal.
+ssh csf-sandbox 'python3 - sandbox.cornerstonefarmomak.com' < scripts/sandbox-preflight.py
+```
+
+Run as the development subscription user, not root. The relative argument assumes that
+account's initial directory contains the documented sandbox folder; use the observed absolute
+path if not. Do not disable SSH host-key verification. This command inspects only, not rsync.
+
+### Exact-target dry run after preflight passes
+
+With a reviewed, already-existing server checkout, the same script supports `--dry-run`.
+It cannot apply changes and rejects --apply. With no server checkout, use local-to-remote
+rsync from the reviewed checkout after the target has passed the full preflight:
+
+```bash
+# Replace with the real path from the passing preflight; do not run a placeholder.
+CSF_DEV_ROOT='/observed/absolute/path/sandbox.cornerstonefarmomak.com'
+for plugin in csf-core csf-emergency; do
+  rsync -a --delete --exclude=.git --itemize-changes --dry-run --secluded-args \
+    "wp-content/plugins/$plugin/" "csf-sandbox:$CSF_DEV_ROOT/wp-content/plugins/$plugin/"
+done
+```
+
+The destination must be the verified sandbox root, never production httpdocs. Inspect every
+proposed deletion/copy. Missing rsync or a missing target parent directory is a blocker, not
+authorization to install packages or create directories. This is a prepared command plan;
+it is not evidence a server comparison ran. Future apply still requires fresh verified
+backup/restore evidence and explicit authorization for the exact target/release.

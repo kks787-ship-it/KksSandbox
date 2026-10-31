@@ -57,3 +57,17 @@ Info → Copy site info to clipboard** in the dev site admin and attach that ins
 Record the findings in a new section at the bottom of this file once the report exists.
 
 See the current [Milestone B preflight and Plesk checklist](05-backup-rollback-deploy.md#milestone-b--development-deployment-preparation). The inspector now refuses production/unknown environments and reports failed checks. It skips ordinary plugins/themes but existing must-use plugins/drop-ins can still execute during WordPress bootstrap.
+
+## Owner-supplied sandbox identity (subsequent Milestone B preparation)
+
+The owner confirmed the development URL is `https://sandbox.cornerstonefarmomak.com`, its
+Plesk-relative document root is `sandbox.cornerstonefarmomak.com`, and its assigned database
+is `wp_mdf4x`. Reported stack: WP 7.1.4, PHP 8.3.36, Kadence 1.5.2, Let's Encrypt and
+HTTP→HTTPS 301 enabled. Production remains `cornerstonefarmomak.com` / `wp_iacb7`.
+`wp_mdoaq` is unassigned and must not be altered.
+
+These are owner/Plesk observations, not an independent wp-config or connected-database check.
+The absolute root remains unknown. Under the current prohibition on database writes, use the
+new **non-bootstrap** `scripts/sandbox-preflight.py`, not the general inspector above: normal
+WordPress bootstrap can write through plugins/MU-plugins even for nominally read commands.
+See [current evidence and blockers](test-results/sandbox-preflight.md).
