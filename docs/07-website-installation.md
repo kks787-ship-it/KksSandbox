@@ -7,13 +7,22 @@ Estimated time: 45–60 minutes, most of it in the Kadence Customizer.
 
 ## 0. Before you start
 
-- [ ] Environment inspection report exists (`docs/00-environment-inspection.md`) and confirms
-      WordPress ≥ 6.6 for this prepared release (current supported release preferred) and PHP ≥ 8.1.
-- [ ] Dev `wp-config.php` contains `define( 'WP_ENVIRONMENT_TYPE', 'development' );`
-- [ ] Dev site is not indexed (Settings → Reading → *Discourage search engines*) and ideally behind
-      Plesk password protection.
-- [ ] Kadence theme is active (it already is, per the spec).
-- [ ] Back up the dev site: `bash scripts/backup-dev.sh /var/www/vhosts/<dev>/httpdocs ~/csf-backups`
+Current checklist reflects the owner's October 31, 2026 Gateway report, not fresh commands
+executed by this Codex documentation task. Steps 1–6 below are **future installation
+instructions**, not authorization to execute them.
+
+- [x] Gateway inspection identifies the exact sandbox, WP 7.1.4 and PHP 8.3.36.
+- [x] WP_ENVIRONMENT_TYPE=development, DISALLOW_FILE_EDIT=true and WP_DEBUG_DISPLAY=false applied and effective values verified; PHP syntax passed, ownership and live config mode 0600 preserved. **Do not reapply.**
+- [x] Original pre-change configuration retained at `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak` (configuration only, not a full backup).
+- [x] Indexing disabled, HTTP password protection and valid HTTPS confirmed by Gateway.
+- [x] Real Kadence 1.5.2 is active; CSF functional compatibility testing remains pending.
+- [ ] Full current sandbox files/config/DB backup and isolated scratch restore verified.
+- [ ] Reviewed source staged privately; exact-target deployment dry run reviewed.
+- [ ] Plain permalinks and remaining URL override findings addressed through separately authorized work.
+- [ ] Explicit approval for plugin installation, activation and subsequent setup.
+
+Remaining preparation starts with a **full sandbox-only backup**, not another wp-config edit.
+Use the [current preparation package](05-backup-rollback-deploy.md#sandbox-preparation-approval-package).
 
 ## 1. Copy the plugins
 
@@ -34,7 +43,7 @@ identity checks and approval; it is not a shortcut around those safeguards.
 
 **Plugins** → activate **Corner Stone Farm Core** and **Corner Stone Farm Emergency Management**.
 
-Activation only registers content types. It does not create pages.
+Activation registers content types and creates/updates emergency tables, capabilities and rewrite rules. It does not create the public website pages; that requires separately approved site setup.
 
 ## 3. Run the site setup
 

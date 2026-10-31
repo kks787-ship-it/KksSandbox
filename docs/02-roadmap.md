@@ -8,7 +8,11 @@ the production domain until the owners approve the replacement.
 - [x] Git repository and coding standards (WPCS, PHPCompatibility)
 - [x] Read-only environment inspection script
 - [x] Backup and dry-run-first deployment scripts for the dev site
-- [ ] **Run environment inspection on the VPS** and record findings
+- [x] Gateway inspected the actual sandbox; owner supplied findings (current report: `test-results/sandbox-preflight.md`)
+- [x] October 31, 2026: original wp-config backed up; development/editing/debug-display constants applied and verified (configuration-only recovery evidence)
+- [ ] Full current sandbox files/config/database backup
+- [ ] Isolated scratch restore verification in a new database
+- [ ] Private pinned application source staging and exact-target deployment dry run
 - [ ] Owners complete the confirmation register (`03-owner-confirmation-register.md`)
 - [ ] Owners supply original logo source files and authentic photography (still outstanding)
 
@@ -80,3 +84,13 @@ milestones and evidence gates in [the takeover audit](10-takeover-audit.md):
 
 [Business context](CSF-BUSINESS-CONTEXT.md) records supplied operational requirements;
 public wording and missing details remain in the owner confirmation register.
+
+## Current Milestone B status — October 31, 2026
+
+Gateway's completed three-constant hardening must not be repeated. The original configuration
+backup is `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`; retain it as
+configuration-only evidence. The remaining execution sequence is full sandbox backup →
+isolated scratch restoration → private source staging → preflight/deployment dry run →
+review and separate installation approval. Those four preparation operations remain undone
+and require approval; plugin installation/activation, permalink changes and production
+changes remain unauthorized. See the current [preparation package](05-backup-rollback-deploy.md#sandbox-preparation-approval-package).

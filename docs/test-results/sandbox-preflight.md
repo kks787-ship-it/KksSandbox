@@ -1,96 +1,104 @@
-# Sandbox exact-target preflight — Gateway evidence received
+# Sandbox exact-target preflight — reconciled October 31, 2026
 
-Source: the owner's forwarded Gateway SSH report from `serve1`. These are Gateway-reported
-server observations, not commands independently executed by this Codex session.
-Scope remains read-only inspection and deployment dry run only. No apply, activation, site
-setup, backup creation, database writes or Plesk configuration changes are authorized.
+Source: the owner's forwarded Gateway SSH inspection reports and explicit correction of the
+completed October 31 configuration work. These are Gateway-reported server operations, not
+commands independently executed by this Codex session. This update supersedes earlier entries
+that called hardening pending. It is a documentation reconciliation, not VPS execution approval.
 
-## Verified in the supplied Gateway report
+## Completed and verified through Gateway
 
-| Check | Gateway-reported result |
+| Check | Latest supplied result |
 |---|---|
-| Document root and canonical path | `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; Plesk path equals resolved path |
-| Configured DB_NAME | `wp_mdf4x` |
-| SELECT DATABASE() | `wp_mdf4x` |
-| Database session | `tx_read_only = 1` |
-| MariaDB | 10.6.23; default engine InnoDB (individual future emergency tables still need engine verification) |
-| Production document root | `/var/www/vhosts/cornerstonefarmomak.com/httpdocs`; excluded from changes |
-| HTTPS and access protection | Gateway reports valid Let's Encrypt certificate, TLS 1.3, expiry January 29, 2027; HTTP 301 to HTTPS; unauthenticated HTTPS returns HTTP 401 |
-| Options table | `wp_mdf4x.TXGEh_options` |
-| Stored home/siteurl | Both `https://sandbox.cornerstonefarmomak.com` |
-| WordPress | Version file 7.1.4; DB schema version matches core file |
-| Domain PHP | 8.3.36; `plesk-php83-fpm`; FPM binary version confirmed |
+| Sandbox URL | https://sandbox.cornerstonefarmomak.com |
+| Document root and canonical path | `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; equal |
+| Configured DB_NAME and SELECT DATABASE() | Both `wp_mdf4x` |
+| Database session / options table | `tx_read_only=1`; `wp_mdf4x.TXGEh_options` |
+| MariaDB | 10.6.23; InnoDB default (verify actual future emergency-table engines separately) |
+| Stored home/siteurl | Both match sandbox HTTPS URL |
+| WordPress | 7.1.4; DB schema version matches core file |
+| Domain PHP | 8.3.36; plesk-php83-fpm; FPM binary confirmed |
 | PHP extensions | Required checks passed; mysqli, curl, mbstring, XML/DOM, ZIP, GD, Imagick, OpenSSL, sodium and intl present |
-| Real Kadence | 1.5.2; template and stylesheet both kadence (active parent theme) |
-| Indexing | blog_public = 0 |
-| Permalink structure | Empty; plain URLs |
+| Kadence | 1.5.2; template and stylesheet kadence (active) |
+| HTTPS | Valid Let's Encrypt certificate; TLS 1.3; expires January 29, 2027; HTTP 301 to HTTPS |
+| Sandbox access / indexing | HTTP 401 password protection; blog_public=0 |
+| WP_ENVIRONMENT_TYPE | **development — applied and effective WordPress value verified October 31** |
+| DISALLOW_FILE_EDIT | **true — applied and effective WordPress value verified October 31** |
+| WP_DEBUG_DISPLAY | **false — applied and effective WordPress value verified October 31** |
+| PHP syntax after hardening | Passed |
+| Live wp-config ownership / permissions | Verified/preserved; mode **0600** (specific owner name not supplied) |
+| Production | Untouched by reported hardening |
 
-Plesk's connection initially selected its own `psa` database. Gateway's identity guard stopped
-before any WordPress options query; explicitly selecting `wp_mdf4x` resolved the mismatch.
-Retain this guard on every new DB connection: never assume Plesk's default schema is WordPress.
-Use the explicit database and qualified `wp_mdf4x.TXGEh_options` for sandbox option reads.
-The report states that neither `wp_iacb7` nor `wp_mdoaq` was queried, no credentials were
-printed, WordPress/plugins/themes were not initialized, and no changes were made.
+## Original configuration recovery evidence
 
-## Outstanding gates
+Gateway created this backup **before applying the three constants**:
 
-| Item | Status and next read-only action |
+```text
+/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak
+```
+
+Preserve it without overwriting/moving it or publishing its contents. It is **configuration
+only**, not a full website backup, database export or completed restoration test. No checksum
+for this artifact has been supplied here. The live config permission result above must not
+be misrepresented as a newly verified permission/checksum of the backup itself.
+
+Do not reapply the constants, repeat a hardening approval request, or restore the original
+config as a normal deployment step. Its restoration would revert the completed hardening.
+
+## Still outstanding — no completion claim
+
+| Gate | Current state |
 |---|---|
-| Environment designation | Latest Gateway report finds WP_ENVIRONMENT_TYPE not explicitly defined. Existing guards must refuse deployment. Confirm any inherited/included source before concluding the effective runtime value; proposed development constant awaits approval. |
-| Debug display | Gateway reports WP_DEBUG enabled and WP_DEBUG_DISPLAY not explicitly disabled. Proposed WP_DEBUG_DISPLAY=false and DISALLOW_FILE_EDIT=true are not applied. Retain existing WP_DEBUG; inspect private logging separately. |
-| Effective URL overrides | Stored URLs match. Inspect only WP_HOME/WP_SITEURL definitions and their referenced sources, reporting literal/absent/dynamic without printing configuration files or other constants. |
-| Pretty permalinks | Not configured. Controlled future configuration/setup needs separate authorization; do not save permalinks now. |
-| Real Kadence behavior | Version and active theme identity pass; layouts, editor, navigation, accessibility and cache behavior remain untested. |
-| Backup and restore | Gateway found an older archive, not a verified current recovery point or completed scratch restore. A fresh pre-change backup and scratch restore require explicit authorization. |
-| Exact-target file dry run | Not executed. Gateway reports Git, WP-CLI and rsync available, but no application checkout on the VPS. Staging source requires authorization. A file-only comparison does not authorize plugin installation. |
+| Full sandbox files and database backup | **Not completed.** Capture current hardened config, full sandbox files and only wp_mdf4x, with integrity/target evidence. |
+| Isolated scratch restoration | **Not completed.** Requires a new scratch DB/path; never reuse wp_mdf4x, wp_iacb7 or wp_mdoaq. |
+| Private reviewed source staging | **Not completed.** Git/WP-CLI/rsync exist; the application checkout has not been staged on the VPS. |
+| Exact-target deployment dry run | **Not completed.** Return real added/changed/deleted listings, source SHA and exit status. Prior local rsync fixture output is not sandbox evidence. |
+| Pretty permalinks | Plain/empty in last inspection; **no change authorized or reported**. Strict preflight should retain this blocker. |
+| URL overrides | Stored values match; no later WP_HOME/WP_SITEURL override result supplied. Preserve this specific uncertainty rather than reopening the verified three constants. |
+| Real Kadence build behavior | Theme version/activation verified; CSF rendering, editor validity, navigation, accessibility and cache behavior remain untested. |
+| Plugin installation, activation and site setup | **Not authorized or performed** by the supplied reports. |
 
-WordPress 7.1.4's `wp_get_environment_type()` checks the environment variable, then a nonempty
-constant (which takes precedence), and falls back to **production** for absent/invalid values.
-This ordering was checked in the local same-version core source, not executed on the VPS.
-A sandbox hostname or `blog_public=0` does not establish a staging/development environment.
-If constant/environment sources are dynamic or unresolved, preserve status as unknown.
+Private logging remains a separate inspection item; WP_DEBUG_DISPLAY=false alone does not
+prove a private WP_DEBUG_LOG destination. Do not infer changes to WP_DEBUG/WP_DEBUG_LOG.
 
-The original authorization permits read-only predeployment inspection. Reading just the
-non-secret WP_ENVIRONMENT_TYPE, WP_HOME and WP_SITEURL keys does not require permission to
-change them; expand Gateway's self-imposed DB_NAME-only inspection to those named values.
-Do not dump wp-config, passwords, salts, arbitrary includes or the environment. No wp eval
-or normal WordPress initialization is needed for this follow-up.
+## Correct remaining sequence
 
-## Dry-run boundary
+1. After explicit execution approval, create a **full sandbox-only backup of current state**.
+2. Restore it into new isolated private scratch resources and record actual recovery evidence.
+3. Stage pinned reviewed Codex source outside all web roots, preserving existing user files.
+4. Run the exact-target preflight and a clearly labeled file-only deployment dry run.
+5. Review results and request separate plugin installation approval. Do not apply deployment.
 
-Use the exact canonical root above and only its csf-core/csf-emergency plugin directories.
-Confirm content/plugins paths are not symlinks to a different site. Compare against reviewed
-release commit `52401dcd9a90ca87ad074c1078ad6633df5be77e` (prepared plugin ZIPs remain unchanged).
-Do not clone/upload/extract sources onto the VPS under the current scope. An existing reviewed
-checkout outside web roots or an existing secure local-to-remote rsync path is needed.
-If neither is available, report the missing source/access prerequisite rather than staging files.
+The [preparation package](../05-backup-rollback-deploy.md#sandbox-preparation-approval-package)
+now begins with full backup, not configuration edits. Approval of new backup/scratch/source
+resources is still needed; the request to update GitHub documentation does not grant it.
+No plugin installation/activation, permalink/site-setup change or production deployment is
+included. Existing assigned databases are excluded from writes during preparation; only
+read/export the sandbox DB, and write restored data exclusively to the new scratch DB.
 
-Use mandatory `rsync --dry-run --itemize-changes --delete` and preserve its exit status/output;
-no plugin activation, setup or WordPress bootstrap. Record proposed added/changed/deleted
-files and source commit. Do not remove --dry-run. No actual server diff is claimed here.
-The strict deployment/preflight scripts remain unchanged and must continue to block unknown
-or production environment type and failed installation prerequisites. This file-only operation
-is distinct from installation readiness; it cannot satisfy the backup or environment gates.
+## Exact target and retained safeguards
 
-## Local validation and access limitations
+Use the canonical sandbox root above; production remains at
+`/var/www/vhosts/cornerstonefarmomak.com/httpdocs` with DB `wp_iacb7`. Existing unassigned DB
+`wp_mdoaq` remains excluded, including as a scratch DB. Both sites share a subscription, so
+an unscoped subscription restore is not an acceptable sandbox recovery method.
 
-The prior 14 sandbox guard unittest cases, 22 deployment/backup scenarios and six generic
-Plesk-preflight scenarios passed locally using fixtures/mocked outputs. They do not establish
-VPS behavior. Historical local rsync output remains a fixture, not a sandbox diff.
-This update changes documentation only; no application behavior or guards were weakened.
+Plesk initially selected `psa` during inspection. Gateway's DB identity guard stopped before
+any WordPress options query; explicit `wp_mdf4x` selection resolved it. Keep that guard for
+every connection. Neither excluded database was queried in that reported inspection.
 
-Gateway's SSH execution tools are still not exposed in this Codex session. Its native cloud
-network denied a prior sandbox HTTPS CONNECT request; that is not evidence of an origin/TLS
-failure. Continue the server commands in the working Gateway conversation and supply the
-non-secret results here. Real sandbox dry run and full installation readiness remain pending.
+Keep all deployment/backup guards; none is weakened by this reconciliation. The strict
+sandbox helper may still stop on plain permalinks or an unresolved check. A separate rsync
+--dry-run file comparison does not clear installation gates. Record actual command outputs,
+not merely a zero exit code from a partial check.
 
-## Proposed next authorization package
+## Evidence limits and local checks
 
-The latest Gateway report recommends changes; it is not itself the owner's explicit approval.
-Current server scope remains read-only. The prepared [sandbox preparation package](../05-backup-rollback-deploy.md#sandbox-preparation-approval-package)
-puts a pre-change backup before configuration edits, isolates a scratch restore from all three
-existing databases, pins source, and ends at a reviewed file-only dry run. It excludes plugin
-installation/activation, permalink/site-setup changes and production operations. The strict
-preflight must continue reporting unresolved permalink/URL/backup gates rather than being
-weakened to obtain a passing result. Gateway remains unavailable as a callable tool in this
-Codex session; no direct execution capability is implied by receiving its reports here.
+The historical 14 sandbox guard unittest cases, 22 deployment/backup scenarios and six generic
+Plesk-preflight scenarios passed using local fixtures/mocks. They do not validate the VPS.
+This reconciliation changes documentation only; application code and scripts are unchanged.
+Earlier reports accurately describe their earlier inspection scope but no longer establish
+that the three constants remain pending. Use this report for current preparation status.
+
+Receiving Gateway output does not establish a callable connection in this Codex session.
+No new VPS commands, settings, backup, restore, source staging or deployment were performed
+as part of this documentation correction.

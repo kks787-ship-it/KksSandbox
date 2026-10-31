@@ -32,3 +32,13 @@ Use least-privilege accounts, reviewed public contact numbers and HTTPS on the r
 No secrets or personal records belong in source, fixtures, logs or shared audit reports.
 Backups contain sensitive data: restrict permissions, store encrypted off-server and test
 restoration to an isolated development subscription. Production changes require explicit approval.
+
+## Current sandbox hardening evidence
+
+Per the owner's October 31, 2026 Gateway correction, WP_ENVIRONMENT_TYPE=development,
+DISALLOW_FILE_EDIT=true and WP_DEBUG_DISPLAY=false are applied/verified; syntax, ownership
+and live wp-config mode 0600 passed. Do not reapply them. Original configuration recovery
+artifact: `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`; preserve it
+privately. It is not a full backup or restore verification. Full backup/recovery, actual
+Kadence acceptance and the emergency release gates above remain outstanding. See
+[the current report](test-results/sandbox-preflight.md) for provenance and scope.

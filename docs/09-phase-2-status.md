@@ -1,5 +1,7 @@
 # 09 — Phase 2 Status: Public Website
 
+**Historical milestone record.** For the current server state, including completed October 31, 2026 Gateway configuration hardening and the still-incomplete full backup/restore/staging/dry run, see [the reconciled sandbox report](test-results/sandbox-preflight.md). Earlier unrun/pending statements describe the earlier assessment, not current hardening status.
+
 **Status:** development milestone — **not deployed, not production-ready.** Built and tested in a
 local environment. Installing on the Plesk development site requires owner approval
 (`docs/07-website-installation.md`). Production deployment is a separate, later approval.

@@ -117,3 +117,17 @@ cache both on and off:
 Implement and review this as the next emergency-hardening change. A development preview may
 be installed with explicit approval while labeled non-operational; real-world emergency
 approval must wait for these persistence tests, MFA, physical/mobile tests and owner acceptance.
+
+## Reconcile completed Gateway hardening — October 31, 2026
+
+The owner's correction supersedes earlier pending-hardening reports. Gateway preserved the
+original config at `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`, then
+applied and verified development environment, DISALLOW_FILE_EDIT=true and
+WP_DEBUG_DISPLAY=false, syntax, ownership and live mode 0600. Record this as completed;
+do not reapply constants or request approval for the same hardening again.
+
+Preserve that artifact as configuration-only recovery evidence. It cannot substitute for a
+full website/database backup or scratch restore. Remaining execution begins with a current
+full sandbox-only backup, then a new isolated scratch DB restore, private reviewed source
+staging and deployment dry run. These operations still require execution approval; the
+documentation reconciliation does not authorize them or any plugin/permalink/production change.

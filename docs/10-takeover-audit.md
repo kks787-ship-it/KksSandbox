@@ -1,5 +1,7 @@
 # Digital Ranch takeover audit
 
+**Historical milestone record.** For the current server state, including completed October 31, 2026 Gateway configuration hardening and the still-incomplete full backup/restore/staging/dry run, see [the reconciled sandbox report](test-results/sandbox-preflight.md). Earlier unrun/pending statements describe the earlier assessment, not current hardening status.
+
 Assessment date: October 30, 2026 (America/Los_Angeles). Baseline:
 `c44240e9994c5c693360bef21d9aa2757de79c8e`, matched by fetching
 `origin/claude/csf-digital-ranch-spec-cch2af`. Work branch: `codex/takeover-audit`.

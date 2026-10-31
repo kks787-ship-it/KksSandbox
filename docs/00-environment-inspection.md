@@ -1,73 +1,75 @@
 # 00 — Development Environment Inspection
 
-**Status:** Not yet performed on the VPS. This repository was built and tested in an isolated
-local environment (WordPress 6.5.5, PHP 8.3, SQLite). No recommendation below that depends
-on the real server should be acted on until the report exists.
+**Current status: Gateway inspection and sandbox configuration hardening completed, as
+reported by the owner on October 31, 2026.** The three constants below are verified. Do not
+reapply them. Full sandbox backup, isolated scratch restoration, source staging and deployment
+dry run remain incomplete; no installation is authorized. This replaces the prior
+not-yet-inspected/pending-hardening snapshot without changing the historical test reports.
 
-## Why first
+## Observed sandbox identity
 
-The specification requires verifying the environment before changing it. The old site had
-broken dependencies, `/index.php/` permalinks, and mixed-content warnings — symptoms of
-server configuration as much as of the theme. We need to know which is which.
+Source: owner-forwarded Gateway SSH reports from serve1.rainierserve.com; not independent
+VPS commands executed by this documentation task. Full evidence and remaining limits are in
+[the current preflight report](test-results/sandbox-preflight.md).
 
-## How to run (read-only)
+| Item | Gateway-reported observation |
+|---|---|
+| URL | https://sandbox.cornerstonefarmomak.com |
+| Plesk-relative root | sandbox.cornerstonefarmomak.com |
+| Absolute/canonical root | `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com` |
+| Configured and connected DB | wp_mdf4x; read-only inspection tx_read_only=1 |
+| Options table | TXGEh_options |
+| Stored home/siteurl | Both sandbox HTTPS URL |
+| WordPress | 7.1.4; core/database schema versions match |
+| Domain PHP | 8.3.36; plesk-php83-fpm; required extensions present |
+| MariaDB | 10.6.23, default InnoDB |
+| Kadence | 1.5.2, active parent and stylesheet |
+| HTTPS/access | Let's Encrypt, TLS 1.3, certificate expiry January 29, 2027; HTTPS redirect 301; password challenge 401 |
+| Search indexing | Disabled, blog_public=0 |
+| WP_ENVIRONMENT_TYPE | development — applied and effective value verified |
+| DISALLOW_FILE_EDIT | true — applied and effective value verified |
+| WP_DEBUG_DISPLAY | false — applied and effective value verified |
+| Config validation | PHP syntax passed; ownership preserved/verified, live file mode 0600 |
+| Permalinks | Plain in latest supplied inspection; no later change reported |
 
-On the VPS, as a user who can read the **development** site (not production):
+## Completed configuration backup and hardening
 
-```bash
-git clone <this repo> ~/csf-digital-ranch
-# Run as the development subscription user, not root.
-bash ~/csf-digital-ranch/scripts/inspect-environment.sh /var/www/vhosts/<dev-domain>/httpdocs > ~/env-report.md
+Gateway backed up the original sandbox wp-config **before** editing it on October 31, 2026:
+
+```text
+/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak
 ```
 
-The script only reads. It never edits files, the database, Plesk, or web server
-configuration. It does not print database passwords or salts, but it does include paths and
-hostnames: review it before sharing.
+Retain this protected configuration-only artifact as recovery evidence. Do not expose its
+contents, overwrite it or call it a full site/database backup. Gateway then applied the three
+constants above and verified syntax/effective WordPress values/ownership/0600 permissions.
+The owner reports production was untouched. No repeat configuration change is needed.
 
-If `wp-cli` is not installed, the WordPress sections are skipped; use **Tools → Site Health →
-Info → Copy site info to clipboard** in the dev site admin and attach that instead.
+## Excluded resources
 
-## What the report must answer
+Production: cornerstonefarmomak.com, root
+`/var/www/vhosts/cornerstonefarmomak.com/httpdocs`, database wp_iacb7. Unassigned DB wp_mdoaq
+is also excluded and must not be reused for the scratch restore.
 
-| Item | Where it comes from | Why it matters |
-|---|---|---|
-| WordPress version | `wp core version` | Use WordPress 6.6+ for the prepared release; verify theme JSON v3 compatibility. |
-| PHP version (domain, not just CLI) | Plesk → PHP Settings; Site Health | Plugins require 8.1+; Select a security-supported PHP release compatible with the installed stack. |
-| Database server & version | `SELECT VERSION()` | MySQL 8 / MariaDB 10.6+ recommended. |
-| Apache / nginx arrangement | `nginx -v`, `apache2ctl -v`, `.htaccess` | Plesk usually runs nginx as reverse proxy in front of Apache. Determines how rewrites are configured. |
-| Installed plugins & themes | `wp plugin list`, `wp theme list` | Identify anything carried over from the old site that should not be. |
-| Filesystem permissions & owner | `stat`, world-writable scan | Plesk sites should be owned by the subscription user, not `root` or `www-data`. |
-| HTTPS & certificate | `openssl`, response headers | Expect a valid Let’s Encrypt certificate and `home`/`siteurl` on `https://`. |
-| Permalink rewriting | Random URL should return a WordPress 404 | If it 404s at the web server level, rewrites are not reaching WordPress — the cause of `/index.php/` URLs. |
-| Mixed content | `http://` asset references on the home page | Must be zero. |
-| Backup configuration | Plesk Backup Manager | Schedule, retention, and whether a copy leaves the server. |
-| Tooling | `git`, `composer`, `wp`, `rsync` | Determines the deployment method. |
-| Resource limits | CPU, RAM, disk, PHP limits | Sizing for image processing, backups, and future portals. |
+## Remaining work
 
-## Initial expectations to verify (not yet confirmed)
+After separate approval, begin with a **full sandbox-only current files/config/DB backup**,
+then isolated restoration into a new scratch database, private reviewed source staging and
+exact-target deployment dry run. Follow [the revised runbook](05-backup-rollback-deploy.md#sandbox-preparation-approval-package).
+No plugin installation/activation, permalink changes or production deployment are authorized.
+Remaining functional acceptance includes actual Kadence rendering, cache/rewrites and recovery
+verification. Stored URLs are known; WP_HOME/WP_SITEURL override findings are still unsupplied.
 
-- `WP_ENVIRONMENT_TYPE` should be set to `development` in the dev site's `wp-config.php`.
-  The backup and deploy scripts refuse to run against `production`.
-- Search engine visibility should be **off** on dev (`blog_public = 0`), and the dev site
-  should ideally be behind Plesk password protection.
-- Permalinks should be `/%postname%/`. If `/index.php/` appears, fix the web server
-  rewrite configuration rather than living with it.
-- `DISALLOW_FILE_EDIT` should be `true`.
+## Future inspection procedure
 
-Record the findings in a new section at the bottom of this file once the report exists.
+Use existing approved tooling and the exact target; recheck identities without reapplying
+verified values. scripts/sandbox-preflight.py uses pre-WordPress-load config/DB operations;
+its current strict permalink check will stop while URLs remain plain. Do not weaken guards.
+The general inspector/preflight helpers may bootstrap must-use plugins/drop-ins; select the
+safe non-bootstrap method when runtime side effects are outside scope. Review custom
+wp-config code before evaluating it. Never print credentials, salts or the process environment.
 
-See the current [Milestone B preflight and Plesk checklist](05-backup-rollback-deploy.md#milestone-b--development-deployment-preparation). The inspector now refuses production/unknown environments and reports failed checks. It skips ordinary plugins/themes but existing must-use plugins/drop-ins can still execute during WordPress bootstrap.
-
-## Owner-supplied sandbox identity (subsequent Milestone B preparation)
-
-The owner confirmed the development URL is `https://sandbox.cornerstonefarmomak.com`, its
-Plesk-relative document root is `sandbox.cornerstonefarmomak.com`, and its assigned database
-is `wp_mdf4x`. Reported stack: WP 7.1.4, PHP 8.3.36, Kadence 1.5.2, Let's Encrypt and
-HTTP→HTTPS 301 enabled. Production remains `cornerstonefarmomak.com` / `wp_iacb7`.
-`wp_mdoaq` is unassigned and must not be altered.
-
-These are owner/Plesk observations, not an independent wp-config or connected-database check.
-The absolute root remains unknown. Under the current prohibition on database writes, use the
-new **non-bootstrap** `scripts/sandbox-preflight.py`, not the general inspector above: normal
-WordPress bootstrap can write through plugins/MU-plugins even for nominally read commands.
-See [current evidence and blockers](test-results/sandbox-preflight.md).
+Git, WP-CLI and rsync are already available per Gateway. Their availability is not evidence
+that code has been staged or a deployment dry run completed. Preserve actual outputs and
+label unknown/unrun checks. No full backup, restore, staging or VPS change was executed by
+this documentation reconciliation.

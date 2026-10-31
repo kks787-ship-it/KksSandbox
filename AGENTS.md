@@ -36,14 +36,24 @@ PLAYWRIGHT_BROWSERS_PATH=/workspace/tooling/browsers. See saved environment star
 No credentials or personal data in code, reports, commands, or commits. Use descriptive
 commits, review git diff, and keep test results and deployment blockers explicit.
 
-Current sandbox target is owner-confirmed as https://sandbox.cornerstonefarmomak.com,
-Plesk-relative root sandbox.cornerstonefarmomak.com, assigned DB wp_mdf4x. Production DB
-wp_iacb7 and unassigned wp_mdoaq are excluded. Gateway-reported absolute root is
-/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com; configured and
-connected DB are wp_mdf4x, options table TXGEh_options. Latest Gateway report finds no
-explicit WP_ENVIRONMENT_TYPE and no explicit WP_DEBUG_DISPLAY=false; permalink structure
-is plain. TLS/password protection pass per Gateway; source checkout, fresh backup and scratch
-restore are outstanding; do not change them during inspection. Current scope
-is read-only preflight/dry run only; use scripts/sandbox-preflight.py to avoid WordPress
-bootstrap writes. See docs/test-results/sandbox-preflight.md for unverified checks/access
-blockers. Test guards with PYTHONDONTWRITEBYTECODE=1 python3 tests/scripts/test_sandbox_preflight.py.
+Current sandbox target is https://sandbox.cornerstonefarmomak.com, absolute root
+/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com, configured/connected
+DB wp_mdf4x, options TXGEh_options. Production root is the sibling httpdocs directory and DB
+wp_iacb7; both production and unassigned DB wp_mdoaq are excluded from changes.
+
+On October 31, 2026, the owner reports Gateway backed up the original sandbox wp-config to
+/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak, then applied and verified
+WP_ENVIRONMENT_TYPE=development, DISALLOW_FILE_EDIT=true, WP_DEBUG_DISPLAY=false, PHP syntax,
+ownership and live file mode 0600. These changes are COMPLETE: do not reapply or request
+hardening approval again. Preserve the backup privately as configuration-only recovery evidence;
+it is not a full website/database backup or restore test.
+
+Full sandbox backup, isolated scratch restore into a NEW database, private pinned source
+staging and exact-target deployment dry run remain NOT DONE and need their own execution
+approval. Begin the remaining sequence with full backup. No plugin installation/activation,
+permalink changes or production deployment is authorized. Permalinks are still plain per the
+last report; do not weaken the strict preflight to make it pass. See docs/test-results/sandbox-preflight.md
+and the current package in docs/05-backup-rollback-deploy.md. Use the safe non-bootstrap
+inspection method when runtime writes are outside scope. Gateway reports are owner-supplied
+evidence, not proof that this Codex session executed commands or has Gateway tools available.
+Test guards with PYTHONDONTWRITEBYTECODE=1 python3 tests/scripts/test_sandbox_preflight.py.
