@@ -1,24 +1,21 @@
 # 05 — Backup, Rollback & Deployment
 
-**Current state: October 31, 2026.** Gateway completed sandbox hardening, full backup,
-structural/database and filesystem restore verification, private source staging, exact-target
-Plesk preflight and deployment dry run. The fresh installation backup gate passed, then the
-owner approved **files-only installation of `csf-core` and `csf-emergency` in the sandbox**.
-Both plugin directories are present and verified. A later **owner-approved sandbox-only
-activation of `csf-core` 0.2.0 succeeded**; `csf-emergency` 0.1.0 remains inactive.
-Do not repeat completed preparation or file copying. Functional login/page rendering on the
-isolated restoration remains untested. Emergency plugin activation, site setup, permalink
-change and production deployment remain unauthorized.
+**Current state — October 31, 2026:** Gateway preparation and the initial public-site
+installation/setup are complete. csf-core 0.2.0 is active, 21 pages/menus and static Home are
+configured, and /%postname%/ routes are verified. Emergency remains inactive. A later repository report identifies Kadence gutter Issue #1; authenticated sitewide
+visual/editor acceptance and its fix remain pending. **Do not
+repeat completed preparation or site setup.** The local 0.3.0 candidate is not deployed.
 
-The [current report](test-results/sandbox-preflight.md) records evidence provenance; the
-[installation plan](07-website-installation.md#staged-installation-approval-boundaries)
-separates copying inactive files from later activation, setup and real Kadence testing.
+A future update requires separate approval, a reviewed exact SHA, current target-bound backup
+and core-only dry run. The historical backup predates the completed site setup; retain its
+structural restore evidence without claiming current or functional recovery verification.
+[Current status](test-results/sandbox-preflight.md), [update plan](07-website-installation.md#staged-installation-approval-boundaries).
 
 ## Environments
 
 | Environment | Exact target | Boundary |
 |---|---|---|
-| Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | `csf-core` active with approval; `csf-emergency` inactive; setup unapproved |
+| Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | Core 0.2.0 active; future code updates require approval |
 | Production | cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/httpdocs`; DB `wp_iacb7` | Excluded from changes |
 | Unassigned database | `wp_mdoaq` | Excluded, including as a scratch database |
 | Existing scratch | DB `csf_sandbox_restore_20261031` and private/not-publicly-served restored filesystem | Preserve; filesystem path is in existing Gateway records |
@@ -46,8 +43,7 @@ mode remained 0600. **Do not reapply the constants or request hardening approval
 No new WP_DEBUG/WP_DEBUG_LOG setting or private log destination is implied.
 
 Prior inspection confirmed WP 7.1.4, FPM PHP 8.3.36/extensions, active Kadence 1.5.2, MariaDB
-10.6.23, HTTPS/TLS 1.3, HTTP 401 password protection and indexing disabled. No production
-changes, plugin copying, activation or site setup have been reported.
+10.6.23, HTTPS/TLS 1.3, HTTP 401 password protection and indexing disabled. No production changes were made. The later owner report confirms core installation/activation and site setup; emergency stays inactive.
 
 ## Sandbox preparation approval package
 
@@ -75,17 +71,15 @@ hashes and preflight/dry-run output) from existing Gateway records; do not guess
 later documentation commits do not call for a git pull or new staging task. This Codex checkout
 also verified that d360dbf's plugin trees and three backup/deploy scripts match 52401dc exactly.
 
-### Remaining review sequence
+### Remaining update review sequence
 
-1. Check the existing backup's actual target-bound layout and capture age using the gate below.
-   Prepare private operator evidence from the completed restore records, with the unrun
-   functional tests visible. Request a limited current application-backup refresh **only**
-   if actual artifacts are stale, incompatible or invalid; preserve the full backup.
-2. Review the [staged installation plan](07-website-installation.md#staged-installation-approval-boundaries).
-   First approval is for copying only the two plugin directories, left inactive, with the
-   functional restore limitation disclosed. A nonempty evidence file is not owner approval.
-3. Separate later approvals cover activation, 21-page setup/permalinks and real CSF/Kadence
-   testing. No such operations are authorized now.
+1. Preserve the old full backup and structural restore; any future active-site update needs
+   a current application backup of the now-published build in the gate format below. Request
+   only the needed authorized backup refresh, not another infrastructure/restore package.
+2. Stage the exact reviewed candidate only under the approved update scope. The historical
+   d360dbf dry run does not validate new code. Use --only-core to exclude emergency.
+3. Review the new dry run, ownership/modes, backup/recovery evidence and explicit update
+   approval. No activation, setup, permalink or emergency change is an update prerequisite.
 
 ## Sandbox read-only exact-target inspection
 
@@ -93,11 +87,10 @@ The root, configured/connected DB and development constants are already verified
 Gateway. Do not ask the owner to rediscover them or redo hardening. Recheck target identity
 as a final operation guard without treating completed preparation as unperformed.
 
-Gateway reports a passed Plesk preflight; its exact command/tool version was not forwarded.
-Do not claim the repository's particular sandbox-preflight.py helper passed: it requires
-/%postname%/, while earlier reports had plain URLs. No later permalink change is reported
-or authorized. Retain the Gateway pass and obtain its method from existing records; do not
-change permalinks or weaken a helper to manufacture agreement.
+Gateway reports a passed Plesk preflight and subsequently confirms /%postname%/, 162
+rewrite rules, installed standard sandbox .htaccess and passed Apache syntax. The original
+preflight's exact command/version was not forwarded: do not invent a specific helper result.
+Do not change permalinks or weaken a check to manufacture a pass.
 
 The non-bootstrap helper uses WP-CLI config/read-only DB operations before wp-settings.php;
 wp-config itself is still evaluated. General WP-CLI helpers may initialize MU-plugins/drop-ins
@@ -106,11 +99,9 @@ credentials, salts or the process environment. Use the domain PHP 8.3 handler co
 
 ### Prepared file-only dry run
 
-The Gateway dry run **already passed**. Preserve its listing and exit status. A justified
-future comparison following material source/target drift must retain --dry-run, the pinned
-source and the exact sandbox path; no full preparation repeat or source pull is needed.
+The Gateway dry run **already passed**. Preserve its listing and exit status. A future core update uses the newly reviewed exact SHA, --only-core and the exact sandbox path; omit --apply to retain dry-run mode. That is a comparison of changed code, not a repeat of the historical preparation package.
 Unknown or symlinked content/plugin destinations are a stop, not permission to alter them.
-The actual installation command is provided in doc 07 for later approval only.
+The future update command is provided in doc 07 for later approval only.
 
 ## Backups and verified backup gate before any apply
 
@@ -134,7 +125,7 @@ The old config-only backup remains separate. Neither backup should be overwritte
 
 ### Required target-bound gate bundle
 
-The staged d360dbf script requires this exact layout:
+The verifier requires this exact layout (unchanged in the new candidate):
 
 | Required artifact | Contents / provenance |
 |---|---|
@@ -190,45 +181,57 @@ old evidence, report that specific issue rather than silently transferring a pas
 repeating the whole package without justification. Preserve access controls and export
 only the sandbox database.
 
-**Installation-specific backup gate completed October 31, 2026.** Gateway created a *new* script-format application backup at:
+A future update needs a script-compatible current target-bound gate bundle, preserving the
+completed full backup and reusing the existing restore-evidence.txt. This documentation task
+records the supplied execution evidence only; it has not created that bundle, modified the
+private evidence file, or executed the remote gate. A formatting refresh must not be reported
+as a new structural restore or falsely renew old data's age.
 
-```text
-/var/www/vhosts/cornerstonefarmomak.com/private/csf-dev-20261031-184634-36879/
-```
+## Completed Gateway installation history — retained from remote branch
 
-The backup captures the sandbox database, `wp-content`, target URL/path, WordPress version and plugin inventory, with exactly six SHA-256 manifest entries. `scripts/verify-dev-backup.sh` completed successfully as Gateway job `job_01M69MJJ04000DFWPDVJ254SKY` and checked compressed integrity, exact target binding, the existing restore-evidence file and the age gate. Backup-creation job: `job_01M69MHBVD00VDBTS3X5MD49D3`.
+These records from the owner's newer branch commits supersede older pending-gate wording.
+They are historical execution evidence, not operations run by this Codex task or approval for
+the new candidate. All changes were sandbox-only, against wp_mdf4x as the subscription user.
 
-Captured at approximately **18:46 UTC / 11:46 AM PDT October 31, 2026**; the export's actual file mtime is the authoritative freshness value. **Re-run verification immediately before installation**: a new backup is needed if older than 24 hours, the sandbox has materially changed or integrity fails. The existing full backup and isolated structural restore were not repeated or replaced; a *functional* scratch-site login/rendering test remains unrun. Existing private restore evidence has not been modified. This documentation records the performed gate, **not** permission to install plugins. Inactive file copying remains a separate owner approval, followed by distinct activation and setup approvals.
+| Operation | Evidence / observed result |
+|---|---|
+| Fresh installation-format backup | /var/www/vhosts/cornerstonefarmomak.com/private/csf-dev-20261031-184634-36879/; approximately October 31 18:46 UTC / 11:46 AM PDT; actual export mtime governs age |
+| Backup creation | Gateway job_01M69MHBVD00VDBTS3X5MD49D3 |
+| Gate verification | job_01M69MJJ04000DFWPDVJ254SKY passed six-entry integrity/target/evidence/age checks; reverified before activation by job_01M69NYRX300GG0KF838890WE3 |
+| Owner-approved inactive file copy | job_01M69NHGP200KW7JZK6HD2V9YZ; post-copy verification job_01M69NPPXH00VQVHRVJ8K2KKQ8 |
+| Installed file validation | Both trees matched d360dbf/reviewed 52401dc; 68 PHP files passed PHP 8.3 lint; modes normalized only within those trees to 0755/0644; subscription ownership |
+| Owner-approved core-only activation | job_01M69P01SA00P66KZ43HJE6FC0, exit 0; core 0.2.0 active, emergency 0.1.0 inactive |
+| Historical activation effects | At activation only: 5 posts/2 pages, terms 1→27, options 147→150; Home still posts/plain routes. These counts are superseded by the next setup operation |
+| Owner-approved setup/routes | job_01M69QTN9Y00N8R62TCV7R23XT; 21 pages published, Home ID 6, menus 28/29, footer block 27; /%postname%/, 162 rules, stock sandbox .htaccess mode 0644 and Apache syntax passed |
+| Setup verification | 21/21 do_blocks renders, one H1 each; 76 links, 23 owner notes; repeat dry run all ok; unauthenticated HTTP 401 expected |
 
-## Deployment — future, separately approved
+The older full backup/structural restore was retained, not repeated; functional restored-site
+login/rendering remains untested. The new gate bundle also predates activation/site setup
+and must not be claimed as a backup of the current 21-page build. Preserve it, but require a
+current rollback point before an approved update. Both CSF plugin directories are installed;
+only core is active. Emergency activation and production changes remain excluded.
 
-The next stage copies csf-core/csf-emergency into the sandbox **left inactive**. Source stays
-pinned to d360dbf and matches reviewed 52401dc. Use the [final staged plan](07-website-installation.md#staged-installation-approval-boundaries).
-No installation is yet authorized. File-copy approval must acknowledge the functional restore
-limitation; evidence presence alone is not that approval.
+## Deployment — future core update, separately approved
 
-Activation and 21-page setup require later approvals covering their DB/rewrite/content
-changes. Do not change permalinks for file copying. No production change, main merge,
-DNS/vhost change or launch is part of this plan.
+Core 0.2.0 is active. The local 0.3.0 candidate is not deployed. Use the [current update plan](07-website-installation.md#next-sandbox-update-plan--separate-approval-required): exact reviewed
+source, current target-bound backup/evidence, core-only dry run and separate apply approval.
+--only-core excludes emergency; directories/files are normalized to 0755/0644 without
+changing wp-config.php, uploads, production or intentionally changing active-plugin state.
+Run under the correct subscription account and inspect ownership. No activation, setup,
+permalink, DNS/vhost, main merge or production change is an update prerequisite.
 
 ## Rollback
 
-Keep the completed backup, existing scratch resources and staged checkout. No cleanup or
-restore over an existing site is authorized by this update. For the future files-only stage,
-record that both new plugin directories remain absent just before copying. If their state
-has changed, stop for review. Within that stage's explicit rollback scope, remove/rename only
-those two newly introduced **inactive** directories; do not import a DB or change other files.
+Preserve current core files/checksums/version and current backup before an approved update.
+For a files-only regression, restore only the prior sandbox core tree within the approved
+recovery scope; do not delete the already active plugin or import a DB merely to undo copying.
+If follow-on settings/content edits occurred, preserve later owner changes and review a
+sandbox-only state-aware restore to wp_mdf4x. Never restore the subscription or production DB.
 
-If activation has occurred, removing files alone does not undo tables, roles or options.
-Record a current pre-activation rollback point and use a separately reviewed sandbox-only
-DB/files restore when needed, preserving later user changes. Never restore a shared
-subscription or production DB. Verify ownership, current hardened config/mode 0600, access
-protection, active theme/plugins, routes and cache behavior before calling recovery complete.
-
-Preserve the original pre-hardening config backup as historical recovery evidence. Restoring
-it removes completed hardening; do not automate that as a routine deployment rollback.
-Use the current verified hardened backup for subsequent release recovery. The original
-config artifact requires a deliberate scoped recovery decision before restoration.
+Keep completed backup/scratch/source records. The historical structural restore is not a
+functional rehearsal of the now-installed build. Preserve hardened constants, owner/mode 0600,
+HTTPS/access protection, theme/plugin state and routes. The original pre-hardening config
+artifact is historical recovery evidence, not an automatic rollback (it removes hardening).
 
 ### Required runtime and settings
 
@@ -243,7 +246,7 @@ config artifact requires a deliberate scoped recovery decision before restoratio
 | Permissions | Subscription-owned files; typically files 0644/directories 0755 with tighter wp-config permissions supported by the handler; no world-writable files, no root-owned deploy output. Inspect actual ACLs/ownership first. |
 | Cache | Exclude /h/*, /emergency*, wp-admin and authenticated pages from nginx/CDN/page cache. Public banner cache purge needs logged-out verification across all cache layers. Do not claim it works solely because WP hooks fired. |
 | Tooling | Bash, Git, WP-CLI, rsync, realpath, GNU stat/date, awk, tar, gzip, sha256sum and MySQL/MariaDB client for exports. Node, Composer and browser tooling may stay on the build machine; production PHP plugins do not require node_modules or vendor. |
-| Outbound/cron | No notification provider or credentials needed for this release. Acuity is a browser link. For updates/checksums allow the relevant official WordPress/theme destinations through normal TLS. Record WordPress/server cron; a durable worker is a future notification requirement. |
+| Outbound/cron | Emergency notification delivery remains unimplemented. Optional inquiries stay off until the existing mail transport and actual inbox receipt are verified; verify WP-Cron for expiry cleanup. Acuity is a browser link. For updates/checksums allow the relevant official WordPress/theme destinations through normal TLS. Record WordPress/server cron; a durable worker is a future notification requirement. |
 
 ### Real Kadence acceptance gate
 
@@ -261,7 +264,7 @@ and theme source/checksum. Follow doc 07 for manual palette/header/footer; verif
 - `_kad_*` layout metadata actually takes effect; validate in Kadence's editor panel.
 - Primary/mobile menus and footer synced pattern are placed correctly; keyboard menu operation,
   booking link, editor block validity and accessibility checks pass against actual Kadence DOM.
-- Logged-out monitoring banner appears above the header, works with sticky header choices,
+- Deferred until separately approved emergency testing on an isolated synthetic copy: logged-out monitoring banner appears above the header, works with sticky header choices,
   propagates through every cache layer, and disappears on return to Normal.
 - Standalone emergency and print routes remain independent and noindex. Use synthetic data
   only on the isolated copy; physical tags and owner emergency acceptance remain separate.
@@ -274,75 +277,3 @@ Kadence accessibility roles/DOM and record real evidence; do not assume those te
 Preserve the live Tucker/Elementor site. A future launch plan needs a final production backup,
 redirect map (including old /index.php URLs), reviewed DNS/vhost/certificate changes and a
 rollback window. No part of the current sandbox preparation authorizes those operations.
-
-## Files-only sandbox deployment — October 31, 2026 (verified)
-
-After owner authorization, Gateway rechecked the fresh backup gate, exact WordPress URL/database,
-private source commit `d360dbfd5a0441fa142a3b963a4a42c5145d9738`, reviewed plugin trees,
-empty destination paths, and absence of symlinks. Gateway then copied only `csf-core` and
-`csf-emergency` to the sandbox plugin directory via the reviewed script, using
-`--apply --expected-url --backup --restore-evidence`. Deployment job:
-`job_01M69NHGP200KW7JZK6HD2V9YZ` (succeeded).
-
-Post-copy validation job: `job_01M69NPPXH00VQVHRVJ8K2KKQ8` (succeeded). WordPress reports
-`csf-core` 0.2.0 and `csf-emergency` 0.1.0 as **inactive**. All plugin file contents match
-the pinned reviewed source; **68 PHP files** passed PHP 8.3 syntax checks. Because the private
-checkout created files with restrictive umask (`0700` directories/`0600` files), Gateway
-normalized permissions **only inside these two newly introduced plugin trees** to `0755`
-directories and `0644` files, matching existing WordPress conventions. File ownership is
-the Plesk subscription user. Future deployments using raw `rsync -a` may reset these modes;
-review a deployment-script permission normalization change before further code updates.
-
-Sandbox database remains `wp_mdf4x` with the original five posts (site setup not run).
-Neither plugin was activated, and production's plugin directories remained unmodified.
-A later separate owner authorization activated **`csf-core` only**. `csf-emergency`
-remains inactive. The **next stage requires separate approval** for creating the 21 pages/menus
-and any permalink change.
-Real Kadence rendering and usability have not been validated. The completed backup gate's
-24-hour freshness must be rechecked before any subsequent mutation; if expired, create a
-new limited application backup without repeating the entire structural restore.
-
-
-## Approved sandbox page setup and permalink routing — October 31, 2026
-
-After separate owner approval, Gateway ran the real site setup under the sandbox Plesk user
-against the verified `wp_mdf4x` database. The existing fresh backup gate was checked before
-the operation. Setup job `job_01M69QTN9Y00N8R62TCV7R23XT` succeeded:
-
-- Created/published all 21 CSF pages and set Home as the static front page.
-- Created and assigned primary/footer menus and a synced footer pattern. The pattern still
-  needs placement/configuration in the Kadence Footer Builder.
-- Set `permalink_structure=/%postname%/`; WordPress subsequently generated 162 rewrite rules.
-  `wp rewrite flush --hard` warned that it could not generate a rewrite file automatically;
-  the exact standard WordPress rewrite stanza was therefore created as the sandbox-root
-  `.htaccess` under the subscription user, with mode 0644. Apache syntax checks passed.
-- WordPress-side block rendering verified all 21 pages have exactly one H1 and no failures;
-  a second setup dry run reported all pages/footer `ok`; **23 owner notes** remain.
-- Public unauthenticated HTTPS requests to Home, Lessons and Meet Beth still receive
-  **401 Basic Auth** as intended. These checks do **not** prove the page routes return HTTP 200
-  to an authenticated visitor or that real Kadence displays correctly on mobile/desktop.
-  Authenticated browser acceptance is the next gate.
-
-`csf-core` remains active, `csf-emergency` remains inactive. No production,
-unassigned-database, or emergency-service changes took place. The sandbox is now prepared for
-owner-authenticated **visual alpha review**, not operational launch. Earlier backup and
-scratch-restore evidence is retained; take a new sandbox backup before additional
-high-impact updates as warranted.
-
-## Verified `csf-core` activation (October 31, 2026)
-
-Gateway checked the same sandbox-specific backup gate (fresh, six hashes valid, restored-evidence
-file present), reconfirmed the exact development URL, `wp_mdf4x` and reviewed source, then
-activated **only `csf-core` 0.2.0** as the Plesk subscription user.
-Activation job `job_01M69P01SA00P66KZ43HJE6FC0` succeeded without command errors.
-`wp plugin list` reports `csf-core=active` and `csf-emergency=inactive`.
-`wp csf status` reports all 21 planned website pages missing; `wp csf setup --dry-run`
-showed the 21 prospective page creations and footer pattern without mutating site content.
-Five total posts remain, while taxonomy term records changed from 1 to 27 and option rows
-from 147 to 150 as activation seed effects. Homepage remains `show_on_front=posts`;
-permalink structure remains empty/plain; Kadence remains active; sandbox indexing is still off
-and its public HTTP request is challenged with HTTP 401 password protection.
-
-No page/menu setup, explicit permalink change, emergency activation, notifications,
-production code deployment, or production database action was authorized or performed.
-Separate approval is still required for website setup and any permalinks configuration.

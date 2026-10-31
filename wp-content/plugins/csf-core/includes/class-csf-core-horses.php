@@ -187,13 +187,20 @@ class CSF_Core_Horses {
 
 	/**
 	 * Seed listing terms.
+	 *
+	 * @return WP_Error[] Failed term insertions.
 	 */
 	public static function seed_terms() {
+		$errors = array();
 		foreach ( self::listings() as $slug => $name ) {
 			if ( ! term_exists( $slug, self::LISTING ) ) {
-				wp_insert_term( $name, self::LISTING, array( 'slug' => $slug ) );
+				$result = wp_insert_term( $name, self::LISTING, array( 'slug' => $slug ) );
+				if ( is_wp_error( $result ) ) {
+					$errors[] = $result;
+				}
 			}
 		}
+		return $errors;
 	}
 
 	/**

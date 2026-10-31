@@ -64,6 +64,14 @@ class CSF_Core_Blocks {
 		);
 
 		return array(
+			'csf/inquiry-form'     => array(
+				'title'       => __( 'Farm Inquiry Form', 'csf-core' ),
+				'description' => __( 'General inquiries; disabled until recipient delivery is verified in Settings → Farm Inquiries.', 'csf-core' ),
+				'icon'        => 'email',
+				'attributes'  => array(),
+				'controls'    => array(),
+				'render'      => array( 'CSF_Core_Inquiry', 'render' ),
+			),
 			'csf/book-button'      => array(
 				'title'       => __( 'Book a Lesson Button', 'csf-core' ),
 				'description' => __( 'Booking button using the site-wide booking link (Settings → Booking).', 'csf-core' ),

@@ -1,5 +1,7 @@
 # Project decisions
 
+Current execution state is in [the sandbox report](test-results/sandbox-preflight.md). The pre-installation decisions below retain historical context; the latest owner correction and local candidate decision supersede their pending-stage wording.
+
 ## Continue the existing implementation
 
 Takeover baseline: c44240e9994c5c693360bef21d9aa2757de79c8e, independently matched to the
@@ -129,7 +131,7 @@ do not reapply constants or request approval for the same hardening again.
 Preserve that artifact as configuration-only recovery evidence; it is not the full site backup.
 The subsequent Gateway preparation completion below supersedes the earlier pending task list.
 
-## Record completed Gateway preparation and scoped installation plan — October 31, 2026
+## Historical preparation and scoped installation plan — October 31, 2026
 
 The owner's latest report confirms the full backup/checksum verification at
 /var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/, isolated structural
@@ -150,7 +152,7 @@ refresh a limited gate backup only for real staleness/incompatibility, not a bla
 No plugin/permalink/production operation was authorized or executed by this documentation task.
 
 
-## Retain exact Gateway capture and evidence identifiers — October 31, 2026
+## Historical backup capture and evidence identifiers — October 31, 2026
 
 Gateway supplied DB export 10:08:58 AM PDT (17:08:58 UTC), file archive 10:09:42 AM PDT
 (17:09:42 UTC), existing scratch DB csf_sandbox_restore_20261031 and evidence at
@@ -164,3 +166,40 @@ A fresh target-bound bundle in the existing verifier's required format is the ne
 not a new full sandbox restoration. Format/age/integrity still require actual artifact checks.
 Source remains pinned d360dbf; plugin installation/testing needs separate explicit approval.
 No new remote operation is authorized by this documentation update.
+
+## Finish the existing sandbox and keep inquiries disabled — latest October 31 correction
+
+The owner confirms core 0.2.0 active, 21 published pages, assigned primary/mobile/footer menus,
+static Home and /%postname%/ with 162 rules, standard .htaccess and passed Apache syntax.
+Emergency stays inactive. Do not reinstall, regenerate pages or change permalinks. Footer
+block 27 placement, theme configuration and authenticated real-Kadence acceptance are pending;
+the later remote roadmap reports shared gutter Issue #1. Local substitute-theme checks are not theme acceptance.
+
+Prepare core 0.3.0 for review without deployment. Fix rsync mode preservation with explicit
+0755/0644 and ownership flags; allow --only-core to avoid touching emergency on a public-site
+update. Preserve all existing backup/target/symlink guards. Failed WordPress writes must
+produce CLI failure/admin error and no new completion stamp, not a false success. Setup can
+partially save changes, so report that and avoid automatic force/rebuild retries.
+
+Implement the optional inquiry in the existing core plugin. The owner confirms recipient
+beth.siemon@cornerstonefarmomak.com and explicitly requests it stay off until delivery is
+verified; the provider remains unknown. No recipient or enablement is written automatically.
+Use fixed server-side mail routing, validated Reply-To, nonce/timing/honeypot checks,
+database-backed rate and one-use claims, and no message storage/automatic replies. Test with
+intercepted mail only. Actual MariaDB claim behavior, inbox delivery, privacy/caching settings
+and enabled sandbox form behavior remain pre-enablement gates. Transport acceptance is not
+delivered mail, and this form is not an emergency notification workflow.
+
+A future code update requires a reviewed new SHA, current backup of the installed build,
+core-only dry run and separate authorization. Old d360dbf dry-run evidence remains historical;
+its older structural restore must not be relabeled as current or functional recovery.
+
+### Preserve newer shared-branch findings
+
+During push reconciliation, remote commits through 457fffb supplied the completed fresh
+backup gate/job provenance and reported sitewide Kadence Issue #1 (intro text at viewport
+edge, headings inset; observed on Meet Beth/Camps & Clinics). Preserve all those commits.
+The defect report supersedes the earlier no-confirmed-defects clarification. No CSS fix or
+independent authenticated reproduction is claimed here. Expand the prepared acceptance
+runner to all 21 pages at 390/768/1280px and include gutters/other sections/Gutenberg in manual
+review. Preserve full-bleed backgrounds and existing content; do not force a page rebuild.

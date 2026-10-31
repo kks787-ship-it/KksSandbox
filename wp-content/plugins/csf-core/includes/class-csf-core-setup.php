@@ -141,9 +141,10 @@ class CSF_Core_Setup {
 		$dry  = (bool) $args['dry_run'];
 
 		if ( ! $dry ) {
-			CSF_Core_Library::seed_categories();
-			CSF_Core_Horses::seed_terms();
-			CSF_Core_Events::seed_terms();
+			$term_errors = array_merge( CSF_Core_Library::seed_categories(), CSF_Core_Horses::seed_terms(), CSF_Core_Events::seed_terms() );
+			foreach ( $term_errors as $error ) {
+				$log[] = 'ERROR    Taxonomy setup: ' . $error->get_error_message();
+			}
 		}
 
 		// Pages.
@@ -165,20 +166,35 @@ class CSF_Core_Setup {
 				}
 				$log[] = sprintf( 'update   /%s/%s', $page['path'], $args['force'] ? ' (forced)' : '' );
 				if ( ! $dry ) {
-					wp_update_post(
+					$updated = wp_update_post(
 						array(
 							'ID'           => $existing->ID,
 							'post_content' => $content,
-						)
+						),
+						true
 					);
-					update_post_meta( $existing->ID, '_csf_setup_hash', md5( get_post_field( 'post_content', $existing->ID, 'raw' ) ) );
-					update_post_meta( $existing->ID, '_csf_setup_source', md5( $content ) );
+					if ( is_wp_error( $updated ) || ! $updated ) {
+						$log[] = 'ERROR    Could not update /' . $page['path'] . '/: ' . ( is_wp_error( $updated ) ? $updated->get_error_message() : 'No post was saved.' );
+						continue;
+					}
+					self::save_meta(
+						$existing->ID,
+						array(
+							'_csf_setup_hash'   => md5( get_post_field( 'post_content', $existing->ID, 'raw' ) ),
+							'_csf_setup_source' => md5( $content ),
+						),
+						$log
+					);
 				}
 				continue;
 			}
 
 			$log[] = sprintf( 'create   /%s/', $page['path'] );
 			if ( $dry ) {
+				continue;
+			}
+			if ( $page['parent'] && empty( $ids[ $page['parent'] ] ) ) {
+				$log[] = 'ERROR    Skipped /' . $page['path'] . '/ because its parent page is unavailable.';
 				continue;
 			}
 			$id = wp_insert_post(
@@ -193,27 +209,33 @@ class CSF_Core_Setup {
 				),
 				true
 			);
-			if ( is_wp_error( $id ) ) {
-				$log[] = '  ERROR: ' . $id->get_error_message();
+			if ( is_wp_error( $id ) || ! $id ) {
+				$log[] = 'ERROR    Could not create /' . $page['path'] . '/: ' . ( is_wp_error( $id ) ? $id->get_error_message() : 'No post was saved.' );
 				continue;
 			}
 			$ids[ $page['slug'] ] = $id;
-			update_post_meta( $id, '_csf_setup_hash', md5( get_post_field( 'post_content', $id, 'raw' ) ) );
-			update_post_meta( $id, '_csf_setup_source', md5( $content ) );
-			update_post_meta( $id, '_csf_setup_version', self::VERSION );
-			// Kadence per-page layout: our layouts include their own H1 and full-width sections.
-			update_post_meta( $id, '_kad_post_title', 'hide' );
-			update_post_meta( $id, '_kad_post_layout', 'fullwidth' );
-			update_post_meta( $id, '_kad_post_content_style', 'unboxed' );
-			update_post_meta( $id, '_kad_post_vertical_padding', 'hide' );
+			self::save_meta(
+				$id,
+				array(
+					'_csf_setup_hash'            => md5( get_post_field( 'post_content', $id, 'raw' ) ),
+					'_csf_setup_source'          => md5( $content ),
+					'_csf_setup_version'         => self::VERSION,
+					// Kadence layouts include their own H1 and full-width sections.
+					'_kad_post_title'            => 'hide',
+					'_kad_post_layout'           => 'fullwidth',
+					'_kad_post_content_style'    => 'unboxed',
+					'_kad_post_vertical_padding' => 'hide',
+				),
+				$log
+			);
 		}
 
 		// Front page.
-		if ( ! empty( $ids['home'] ) && (int) get_option( 'page_on_front' ) !== $ids['home'] ) {
+		if ( ! empty( $ids['home'] ) && ( (int) get_option( 'page_on_front' ) !== $ids['home'] || 'page' !== get_option( 'show_on_front' ) ) ) {
 			$log[] = 'set      front page = Home';
 			if ( ! $dry ) {
-				update_option( 'show_on_front', 'page' );
-				update_option( 'page_on_front', $ids['home'] );
+				self::save_option( 'show_on_front', 'page', $log );
+				self::save_option( 'page_on_front', $ids['home'], $log );
 			}
 		}
 
@@ -229,7 +251,7 @@ class CSF_Core_Setup {
 		$structure = (string) get_option( 'permalink_structure' );
 		if ( '/%postname%/' !== $structure ) {
 			if ( $args['set_permalinks'] && ! $dry ) {
-				update_option( 'permalink_structure', '/%postname%/' );
+				self::save_option( 'permalink_structure', '/%postname%/', $log );
 				$log[] = 'set      permalinks = /%postname%/';
 			} else {
 				$log[] = sprintf( 'WARNING  permalink structure is "%s"; recommended "/%%postname%%/" (re-run with --set-permalinks or change in Settings → Permalinks).', $structure ? $structure : 'plain' );
@@ -238,16 +260,75 @@ class CSF_Core_Setup {
 
 		if ( ! $dry ) {
 			flush_rewrite_rules( false );
-			update_option(
-				'csf_core_setup',
-				array(
-					'version' => self::VERSION,
-					'time'    => time(),
-				),
-				false
-			);
+			global $wp_rewrite;
+			if ( did_action( 'wp_loaded' ) && get_option( 'rewrite_rules' ) !== $wp_rewrite->rules ) {
+				$log[] = 'ERROR    Rewrite rules could not be saved.';
+			}
+			if ( ! self::has_errors( $log ) ) {
+				self::save_option(
+					'csf_core_setup',
+					array(
+						'version' => self::VERSION,
+						'time'    => time(),
+					),
+					$log,
+					false
+				);
+			}
 		}
 		return $log;
+	}
+
+	/**
+	 * Whether setup encountered a failed WordPress operation.
+	 *
+	 * @param string[] $log Setup output.
+	 * @return bool
+	 */
+	public static function has_errors( array $log ) {
+		foreach ( $log as $line ) {
+			if ( preg_match( '/^\s*ERROR(?:\s|:)/', $line ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Save an option without treating an unchanged value as a failure.
+	 *
+	 * @param string    $name     Option name.
+	 * @param mixed     $value    Expected value.
+	 * @param string[]  $log      Output updated on failure.
+	 * @param bool|null $autoload Autoload preference.
+	 * @return bool
+	 */
+	private static function save_option( $name, $value, array &$log, $autoload = null ) {
+		$current = get_option( $name );
+		if ( $current === $value || ( is_scalar( $current ) && is_scalar( $value ) && (string) $current === (string) $value ) ) {
+			return true;
+		}
+		if ( ! update_option( $name, $value, $autoload ) ) {
+			$log[] = 'ERROR    Could not save option ' . $name . '.';
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Save setup/layout metadata and report failed writes.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param array    $values  Metadata values.
+	 * @param string[] $log     Output updated on failure.
+	 */
+	private static function save_meta( $post_id, array $values, array &$log ) {
+		foreach ( $values as $key => $value ) {
+			$value = (string) $value;
+			if ( get_post_meta( $post_id, $key, true ) !== $value && false === update_post_meta( $post_id, $key, $value ) ) {
+				$log[] = 'ERROR    Could not save ' . $key . ' for post #' . $post_id . '.';
+			}
+		}
 	}
 
 	/**
@@ -270,10 +351,16 @@ class CSF_Core_Setup {
 				'post_status'  => 'publish',
 				'post_title'   => self::FOOTER_TITLE,
 				'post_content' => CSF_Core_Patterns::section( 'site-footer' ),
-			)
+			),
+			true
 		);
-		update_option( 'csf_core_footer_block', $id, false );
-		return array( 'create   footer synced pattern #' . $id . ' (place it in the Kadence footer — see docs)' );
+		if ( is_wp_error( $id ) || ! $id ) {
+			return array( 'ERROR    Could not create the footer pattern: ' . ( is_wp_error( $id ) ? $id->get_error_message() : 'No post was saved.' ) );
+		}
+		$log = array();
+		self::save_option( 'csf_core_footer_block', $id, $log, false );
+		$log[] = 'create   footer synced pattern #' . $id . ' (place it in the Kadence footer — see docs)';
+		return $log;
 	}
 
 	/**
@@ -291,9 +378,16 @@ class CSF_Core_Setup {
 		$primary = wp_get_nav_menu_object( self::MENU_PRIMARY );
 		if ( ! $primary || $force ) {
 			$menu_id = $primary ? $primary->term_id : wp_create_nav_menu( self::MENU_PRIMARY );
+			if ( is_wp_error( $menu_id ) || ! $menu_id ) {
+				$log[] = 'ERROR    Could not create the primary menu: ' . ( is_wp_error( $menu_id ) ? $menu_id->get_error_message() : 'No menu was saved.' );
+				return $log;
+			}
 			if ( $primary ) {
 				foreach ( (array) wp_get_nav_menu_items( $menu_id ) as $item ) {
-					wp_delete_post( $item->ID, true );
+					if ( ! wp_delete_post( $item->ID, true ) ) {
+						$log[] = 'ERROR    Could not remove primary menu item #' . $item->ID . '; menu rebuild stopped.';
+						return $log;
+					}
 				}
 			}
 			$order = 0;
@@ -302,9 +396,16 @@ class CSF_Core_Setup {
 					continue;
 				}
 				$parent_item = self::add_menu_page( $menu_id, $ids[ $slug ], 0, ++$order, 'booking' === $slug ? 'csf-menu-cta' : '' );
+				if ( is_wp_error( $parent_item ) || ! $parent_item ) {
+					$log[] = 'ERROR    Could not save primary menu item for ' . $slug . '.';
+					continue;
+				}
 				foreach ( $children as $child ) {
 					if ( ! empty( $ids[ $child ] ) ) {
-						self::add_menu_page( $menu_id, $ids[ $child ], $parent_item, ++$order );
+						$child_item = self::add_menu_page( $menu_id, $ids[ $child ], $parent_item, ++$order );
+						if ( is_wp_error( $child_item ) || ! $child_item ) {
+							$log[] = 'ERROR    Could not save primary submenu item for ' . $child . '.';
+						}
 					}
 				}
 			}
@@ -318,13 +419,20 @@ class CSF_Core_Setup {
 		$footer = wp_get_nav_menu_object( self::MENU_FOOTER );
 		if ( ! $footer ) {
 			$footer_id = wp_create_nav_menu( self::MENU_FOOTER );
-			$order     = 0;
+			if ( is_wp_error( $footer_id ) || ! $footer_id ) {
+				$log[] = 'ERROR    Could not create the footer menu: ' . ( is_wp_error( $footer_id ) ? $footer_id->get_error_message() : 'No menu was saved.' );
+				return $log;
+			}
+			$order = 0;
 			foreach ( array( 'contact', 'faq', 'booking' ) as $slug ) {
 				if ( ! empty( $ids[ $slug ] ) ) {
-					self::add_menu_page( $footer_id, $ids[ $slug ], 0, ++$order );
+					$item = self::add_menu_page( $footer_id, $ids[ $slug ], 0, ++$order );
+					if ( is_wp_error( $item ) || ! $item ) {
+						$log[] = 'ERROR    Could not save footer menu item for ' . $slug . '.';
+					}
 				}
 			}
-			wp_update_nav_menu_item(
+			$emergency_item = wp_update_nav_menu_item(
 				$footer_id,
 				0,
 				array(
@@ -335,6 +443,9 @@ class CSF_Core_Setup {
 					'menu-item-position' => ++$order,
 				)
 			);
+			if ( is_wp_error( $emergency_item ) || ! $emergency_item ) {
+				$log[] = 'ERROR    Could not save the footer emergency link.';
+			}
 			$log[] = 'create   menu "' . self::MENU_FOOTER . '"';
 		} else {
 			$footer_id = $footer->term_id;
@@ -355,6 +466,9 @@ class CSF_Core_Setup {
 		}
 		if ( $changed ) {
 			set_theme_mod( 'nav_menu_locations', $locations );
+			if ( get_theme_mod( 'nav_menu_locations', array() ) !== $locations ) {
+				$log[] = 'ERROR    Menu locations could not be saved.';
+			}
 		}
 		if ( ! $available ) {
 			$log[] = 'note     active theme registers no menu locations; assign menus in Appearance → Menus after activating Kadence.';
@@ -370,10 +484,10 @@ class CSF_Core_Setup {
 	 * @param int    $parent_item Parent menu item.
 	 * @param int    $order   Position.
 	 * @param string $classes CSS classes.
-	 * @return int Menu item ID.
+	 * @return int|WP_Error Menu item ID or save error.
 	 */
 	private static function add_menu_page( $menu_id, $page_id, $parent_item, $order, $classes = '' ) {
-		return (int) wp_update_nav_menu_item(
+		return wp_update_nav_menu_item(
 			$menu_id,
 			0,
 			array(
@@ -431,7 +545,10 @@ class CSF_Core_Setup {
 		$log = get_transient( 'csf_setup_log_' . get_current_user_id() );
 		if ( $log && isset( $_GET['ran'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- display only.
 			delete_transient( 'csf_setup_log_' . get_current_user_id() );
-			echo '<div class="notice notice-success"><p>' . esc_html__( 'Setup finished.', 'csf-core' ) . '</p><pre style="white-space:pre-wrap">' . esc_html( implode( "\n", $log ) ) . '</pre></div>';
+			$failed  = self::has_errors( $log );
+			$class   = $failed ? 'notice-error' : 'notice-success';
+			$message = $failed ? __( 'Setup is incomplete. Some changes may have been saved; review the errors before trying again.', 'csf-core' ) : __( 'Setup finished.', 'csf-core' );
+			echo '<div class="notice ' . esc_attr( $class ) . '"><p>' . esc_html( $message ) . '</p><pre style="white-space:pre-wrap">' . esc_html( implode( "\n", $log ) ) . '</pre></div>';
 		}
 
 		echo '<p>' . esc_html__( 'Creates any missing pages from the Corner Stone Farm page layouts, sets the front page, creates menus and the footer. Pages you have edited are never overwritten. Safe to run more than once.', 'csf-core' ) . '</p>';

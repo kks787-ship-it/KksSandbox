@@ -57,7 +57,10 @@ class CSF_Core_CLI {
 		foreach ( $log as $line ) {
 			WP_CLI::log( $line );
 		}
-		WP_CLI::success( 'Site setup complete.' );
+		if ( CSF_Core_Setup::has_errors( $log ) ) {
+			WP_CLI::error( 'Site setup is incomplete. Some changes may have been saved; review the errors before trying again.' );
+		}
+		WP_CLI::success( WP_CLI\Utils\get_flag_value( $assoc_args, 'dry-run', false ) ? 'Site setup dry run complete.' : 'Site setup complete.' );
 	}
 
 	/**

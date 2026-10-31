@@ -1,182 +1,136 @@
-# 07 — Website Installation (Development Site)
+# 07 — Website Installation and Acceptance (Sandbox)
 
-**Scope:** the separate sandbox on Plesk. Both plugin directories have been installed, and
-`csf-core` 0.2.0 has been **activated with owner approval**. `csf-emergency` 0.1.0 remains
-**inactive**. Website page/menu setup and clean permalinks are now completed with separate
-owner approval; emergency activation and production remain excluded.
+**Current state — October 31, 2026:** the owner reports csf-core **0.2.0 active**, all
+21 pages published, navigation assigned and Home selected on real **Kadence 1.5.2**,
+WordPress 7.1.4 and PHP 8.3.36. **Do not reinstall the foundation or recreate the site.**
+csf-emergency 0.1.0 is installed but remains **inactive** and non-operational. Production is excluded.
 
-Estimated time: 45–60 minutes, most of it in the Kadence Customizer.
+The newer remote roadmap reports **[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1)**: shared intro paragraphs reach the viewport edge while headings are inset, observed on Meet Beth and Camps & Clinics. This supersedes the earlier no-confirmed-defects report. It has not been independently reproduced or fixed here; comprehensive authenticated browser testing is pending. The historic substitute-theme tests and WordPress do_blocks() results
+cannot establish real-theme compatibility; HTTP 401 is expected without Basic Authentication.
 
 ## Staged installation approval boundaries
 
-**Final sandbox-only plan; not execution authorization.** Gateway preparation is complete
-through a passed exact-target preflight/dry run, with the existing source pinned to d360dbf.
-Preserve those results and do not repeat infrastructure preparation or advance the checkout.
-The immediate objective is csf-core/csf-emergency testing with **real Kadence 1.5.2**.
+| Stage | Current state / next action |
+|---|---|
+| Preparation | Full backup, structural/file restoration, private staging and exact-target preflight/dry run completed through Gateway; preserve those results |
+| Core installation/setup | Completed through Gateway: active 0.2.0, 21 published pages, primary/mobile/footer menus, static Home |
+| Routes | /%postname%/, 162 rewrite rules, standard sandbox .htaccess and passed Apache syntax reported; do not change them again |
+| Real Kadence acceptance | Reported gutter Issue #1; authenticated sitewide reproduction, fix and acceptance pending |
+| Core update candidate | 0.3.0 in Git, not deployed: deployment permissions, truthful setup errors, optional inquiry form disabled by default |
+| Emergency | Inactive; no activation or operational testing authorized |
 
-| Stage | Proposed action | Authorization/status |
-|---|---|---|
-| Final gate | Fresh target-bound backup + six-entry integrity check, existing restore evidence | **Passed:** `csf-dev-20261031-184634-36879` (time-limited, recheck before later mutations) |
-| A | Copy only the two new CSF plugin directories, **leave inactive** | **Completed with owner approval**, Gateway job `job_01M69NHGP200KW7JZK6HD2V9YZ`. Both plugins confirmed inactive, content identical; permissions normalized to 0755 dirs/0644 files. |
-| B1 | Activate `csf-core` only and verify effects | **Completed with owner approval**, Gateway `job_01M69P01SA00P66KZ43HJE6FC0`; active and loading; no pages generated. |
-| B2 | Activate `csf-emergency` | **Not authorized; inactive.** Emergency operational acceptance remains blocked. |
-| C | Generate the website's 21 pages, menus, synced footer and clean permalinks | **Completed with approval**, Gateway `job_01M69QTN9Y00N8R62TCV7R23XT`. All pages published; footer pattern created but not yet placed in Kadence. Rewrite file configured separately, within approved permalink scope. |
-| D | Inspect actual Kadence desktop/mobile layout, editor, navigation, accessible links, footer and content | **Outstanding:** 21 pages pass WordPress rendering checks; password-protected browser DOM and visual acceptance not yet completed. Emergency plugin inactive; emergency rendering cannot be tested yet. |
+The original d360dbf staging/dry run describes the old release. Do not silently advance that
+pin or claim it validates new code. A reviewed core update needs its own exact source SHA,
+current target-bound backup gate, and **core-only** comparison. Do not repeat the completed
+infrastructure preparation or structural restore.
 
-**Deployment mode follow-up:** The private Git checkout held `0700` directories/`0600` files; the original `rsync -a` copied those modes. Gateway normalized only the newly installed plugin trees to `0755` directories and `0644` files. Amend and review future deployment handling of destination permissions before subsequent releases; do not assume a fresh `rsync -a` preserves this correction.
+## Next sandbox update plan — separate approval required
 
-The isolated restoration passed structural/file checks (12 InnoDB tables; 4,336 regular files,
-zero mismatches), **not functional WordPress login/page rendering**. Disclose this limitation
-in the files-only review; a nonempty restoration-evidence file is not a claim it passed.
-
-### Activation verification — October 31, 2026
-
-`csf-core` was activated on the sandbox as a separate approved action, with backup integrity
-checked immediately before activation. The normal activation routine registers structured
-content types and seeds taxonomy terms, and may flush rewrite rules. The stored permalink
-structure remains **plain**, and homepage setting remains **posts**. `csf-emergency` is still
-inactive; no emergency notifications or QR system is operational. `wp csf status` reports all
-21 planned pages missing and `wp csf setup --dry-run` previews the page/footer creations only.
-At that activation stage, no page setup, footer placement, permalink changes or production deployment had occurred. The separately approved page/permalink setup has **since completed**, as recorded below.
-
-### Approved sandbox page/permalink setup — October 31, 2026
-
-After separate owner approval, `wp csf setup --set-permalinks` generated all **21 published
-CSF pages**, established Home as the static front page (ID 6), created primary/footer menus
-(IDs 28/29) and synced footer pattern (ID 27), and assigned the Kadence primary/mobile/footer
-menu locations. Gateway setup job: `job_01M69QTN9Y00N8R62TCV7R23XT` (success).
-
-WordPress's rewrite flush produced 162 permalink rules. Because WP-CLI could not write an
-`.htaccess` automatically, the stock WordPress-generated rewrite stanza was created in the
-**sandbox root only**, mode 0644, owned by the subscription user. Apache configuration syntax
-passed. The permalink option is now `/%postname%/`.
-
-`wp csf status` confirms all 21 published pages, and WordPress `do_blocks` rendering verified
-all 21 have exactly one H1 and no rendering failures. The repeat setup dry run shows all
-pages and the footer as `ok`. **23 owner-confirmation notes** and labeled photo placeholders
-remain. No authentic branding assets have been installed and the synced footer pattern has
-not yet been placed in Kadence's footer builder.
-
-Unauthenticated HTTPS probes to `/`, `/lessons/`, and `/about/meet-beth/` return the
-expected Plesk password challenge (401). This confirms privacy protection, **not**
-authenticated end-to-end page routing or responsive browser rendering; those still need a
-user-accessible visual acceptance test. `csf-emergency` remains inactive and emergency links
-may not yet resolve. No production operations were performed.
-
-## 0. Before you start
-
-Current state is from the owner's completed Gateway report dated October 31, 2026:
-
-- [x] Exact sandbox identity, WP 7.1.4, PHP 8.3.36 and real Kadence 1.5.2 verified.
-- [x] Development/editing/debug-display constants verified, syntax passed and live config ownership/mode 0600 preserved. Do not reapply.
-- [x] Original config-only recovery evidence retained at `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`.
-- [x] HTTPS/password protection/indexing checks passed.
-- [x] Full backup at `/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/`; archive/checksum verification passed.
-- [x] New isolated scratch DB restored; all 12 InnoDB tables/count samples and restored 4,336 files verified with zero mismatches.
-- [x] Private source staged at d360dbf, plugin trees matched to 52401dc.
-- [x] Exact-target Plesk preflight and deployment dry run passed; only two new plugin directories proposed.
-- [x] Capture times supplied: DB export October 31, 10:08:58 AM PDT; files 10:09:42 AM PDT; existing scratch DB csf_sandbox_restore_20261031 and private restore-evidence.txt path recorded.
-- [x] Installation-time target-bound gate passed with fresh script-format backup and six verified checks; recheck freshness before next mutation.
-- [ ] Functional login/page-rendering test on isolated restoration (explicitly unrun; keep qualification).
-- [x] Stage A file-copy approval granted and completed October 31, 2026, both plugins inactive.
-- [ ] Separate approvals for Stages B/C and any permalink change; not yet authorized.
-
-See the [current report](test-results/sandbox-preflight.md) and
-[gate procedure](05-backup-rollback-deploy.md#backups-and-verified-backup-gate-before-any-apply).
-Do not rerun the completed full backup/restore/source staging/dry-run package. Refer to
-existing Gateway records for the actual staged checkout, scratch identities and raw output.
-
-## 1. Copy the plugins — Stage A completed (historical procedure; do not repeat)
-
-Target: `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`,
-URL `https://sandbox.cornerstonefarmomak.com`, DB `wp_mdf4x`. Only csf-core and csf-emergency
-directories may be introduced. They must still be absent/inactive at the operation boundary;
-if target state has changed, stop for review instead of overwriting unexpected work.
-
-Before approval, use existing records for the actual private source/gate-bundle paths; this
-plan does not guess them. The existing restoration evidence path is supplied below and must
-be reused, not regenerated. Preserve the existing full backup and functional restore
-qualification. Verify the final gate without changing file timestamps or weakening checks.
-Do not use the old config-only backup as the full-site/app gate bundle.
-
-The following is the reviewed **future** files-only command. It must not run until Stage A
-is explicitly approved, including its known functional-recovery limitation:
+1. Review the candidate Git diff and [local validation](test-results/website-finishing.md).
+   Retrieve the actual private source path from Gateway records. Review/stage an exact
+   candidate SHA only under the approved future update scope; this task does not update it.
+2. Inspect current core file checksums/ownership, active-plugin state and owner edits. The
+   October 31 backup predates the now-completed installation/setup. Preserve it and its
+   structural restore evidence, but require a **current** sandbox application backup before
+   updating the active site. Verify target path/URL, six-entry manifest, actual age/provenance
+   and evidence with [doc 05](05-backup-rollback-deploy.md#backups-and-verified-backup-gate-before-any-apply).
+   Do not pretend the older restore proves functional recovery of the current build.
+3. Prepare a core-only dry run using the reviewed new script. The command below is a
+   **future reference**, not authorization to stage files or execute on the VPS:
 
 ```bash
-set -euo pipefail
-: "${CSF_STAGED_SOURCE:?Use the existing private d360dbf checkout path from Gateway records}"
-: "${CSF_GATE_BACKUP:?Use the actual fresh script-compatible target-bound backup path}"
-CSF_RESTORE_EVIDENCE='/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt'
-CSF_DEV_ROOT='/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'
-CSF_DEV_URL='https://sandbox.cornerstonefarmomak.com'
-cd "$CSF_STAGED_SOURCE"
-
-test "$(git rev-parse --verify HEAD)" = 'd360dbfd5a0441fa142a3b963a4a42c5145d9738'
-git diff --quiet 52401dcd9a90ca87ad074c1078ad6633df5be77e -- wp-content/plugins/csf-core wp-content/plugins/csf-emergency
-test -z "$(git ls-files --others -- wp-content/plugins/csf-core wp-content/plugins/csf-emergency)"
-for plugin in csf-core csf-emergency; do
-  test ! -e "$CSF_DEV_ROOT/wp-content/plugins/$plugin"
-  test ! -L "$CSF_DEV_ROOT/wp-content/plugins/$plugin"
-done
-
-bash scripts/verify-dev-backup.sh "$CSF_GATE_BACKUP" "$CSF_DEV_ROOT" "$CSF_DEV_URL" "$CSF_RESTORE_EVIDENCE"
-# NO EXECUTION AUTHORIZATION IN THIS DOCUMENT. Run only after explicit Stage A approval:
-bash scripts/deploy-plugins.sh "$CSF_DEV_ROOT" --expected-url "$CSF_DEV_URL" \
-  --backup "$CSF_GATE_BACKUP" --restore-evidence "$CSF_RESTORE_EVIDENCE" --apply
+# CSF_REVIEWED_SOURCE must be the privately staged, exact reviewed candidate checkout.
+cd "$CSF_REVIEWED_SOURCE"
+bash scripts/deploy-plugins.sh \
+  /var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com \
+  --only-core --expected-url https://sandbox.cornerstonefarmomak.com
 ```
 
-The existing deploy script validates environment/home/siteurl using WordPress initialization;
-a source/target-only rsync dry run does not do that. Review existing startup code and the
-authorized verification scope before executing it; do not promise a DB-side-effect-free
-WordPress bootstrap. The intended Stage A change is inactive plugin files only, not activation
-or deliberate application schema/content mutation.
+4. Review the proposed file/mode changes, source SHA, exit status and rollback point. Only
+   after explicit update approval, use that same command with --apply, --backup and
+   --restore-evidence pointing to the verified current bundle/evidence. Run as the correct
+   Plesk subscription account, not an arbitrary root account: existing ownership is retained
+   and new files belong to the executing account. Selected plugin directories become 0755
+   and files 0644; wp-config.php remains unchanged at 0600. --only-core excludes emergency.
+5. Core is already active: do not activate emergency, run setup/--force, change permalinks,
+   or recreate pages as an update shortcut. Verify core 0.3.0, PHP errors, unchanged routing,
+   menus/content, access protection, disabled inquiry settings and inactive emergency.
+6. Separately review content/theme configuration and inquiry enablement below. Installing
+   the candidate never enables inquiries or inserts the form into an owner-edited page.
 
-After copying, verify source/target checksums and PHP syntax, expected file ownership/modes,
-continued sandbox access protection and unchanged active-plugin state using the agreed
-inspection method. Do not activate via the admin UI or execute setup as a verification shortcut.
-Keep the source SHA, file-copy exit status and resulting file inventory in the installation record.
+The exact target remains sandbox DB wp_mdf4x (options TXGEh_options), root
+/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com. Production httpdocs,
+DB wp_iacb7 and unassigned DB wp_mdoaq are excluded. No server operation is authorized by
+this plan, and this Codex task has no callable Gateway connection.
 
-Stop for owner review. If Stage A fails, rollback is limited to the two directories recorded
-absent before copying and still inactive; do not import a DB, restore production or delete
-the private source/backup. If activation unexpectedly happened, stop and use a separate
-state-aware recovery plan. Do not perform plugin ZIP upload to bypass the script gate.
+## Real Kadence acceptance procedure
 
-## 2. Activate — Stage B, separate approval
+Start with Home, /lessons/, /about/meet-beth/, /horse-training/, /camps-clinics/ and /contact/.
+Issue #1 requires a **sitewide audit of all 21 pages** at **390, 768 and 1280px**, including
+other text sections and Gutenberg. The runner covers all 21; preserve full-bleed backgrounds
+and do not force-regenerate pages. Use Basic Authentication supplied
+through secure access; never paste its password into chat, source or commands.
 
-Recheck the verified backup/recovery point and approved scope, then activate **Corner Stone
-Farm Core** and **Corner Stone Farm Emergency Management** only on the sandbox.
+The prepared runner performs GET/HEAD page review only, records screenshots, one-H1,
+overflow and axe checks, and exercises the mobile trigger if its Kadence selector exists:
 
-Activation registers content types, seeds public taxonomies, creates/updates emergency tables
-and capabilities, and flushes rewrite rules. It is a DB/configuration operation, not file copying.
-It does not generate the 21 public pages. Verify plugin status, PHP logs, table/schema engine,
-capabilities and retained configuration; report errors instead of continuing to setup.
+```bash
+# Private JSON credential file: username/password fields, mode 0600, outside Git/web roots.
+# Set its PATH through secure workspace access; never put credential values on the command line.
+CSF_HTTP_AUTH_FILE="$CSF_PRIVATE_AUTH_PATH" \
+  node tests/e2e/kadence-review.js
+# Optional installed Chromium override: CSF_CHROMIUM_EXECUTABLE=/path/to/chromium
+```
 
-Keep emergency functionality labeled **non-operational**. MFA, concurrency/audit consistency,
-physical tags, mobile/cache checks and owner acceptance remain separate release gates.
-A later activation rollback must account for tables/roles/options, not assume removing plugin
-files restores the original database. Stop for review before Stage C.
+The runner allows only the exact sandbox origin or localhost, rejects substitute themes,
+and reports 401 as blocked authentication. It blocks browser non-GET/HEAD requests; normal
+WordPress GETs can still trigger cache/cron activity. Run only within the approved sandbox
+inspection scope. Private screenshots/results remain ignored under .wp-local/kadence-review/;
+do not publish protected-site artifacts automatically. It does not log into WordPress or
+save anything. A script pass is not visual or editor acceptance.
 
-## 3. Run site setup — Stage C, separate approval
+Manually verify header/mobile menus, keyboard submenu access, Escape/focus return, full-width
+and unboxed layout, global palette/typography and footer. In an approved authenticated editor
+session, inspect the four _kad_* fields listed below and block validity, then test editing/
+saving only with separately authorized disposable content. Editor entry can acquire post
+locks; do not label it a strict database-read-only operation.
 
-Preview Tools → Corner Stone Farm Setup with Dry run, or `wp csf setup --dry-run` after
-the activation-stage review. Preserve edited pages and menus. Never use --force on owner content.
-If preview finds unexpected existing content or errors, stop and resolve them before execution.
+Known configuration/content work: synced **Site Footer block 27 exists but is not placed**
+in Kadence Footer Builder; header/palette/typography/navigation await visual review; original
+logo/photos are missing; 23 owner-confirmation notes and the Acuity destination remain open.
+These configuration tasks are separate from the reported shared gutter defect. Reproduce
+Issue #1 and correct the shared rules; do not apply an isolated two-page patch or redesign. With emergency inactive, its landing/banner links are a deferred acceptance
+item, not authorization to activate it for a smoke test.
 
-Only after site-setup approval run `wp csf setup` to generate missing layouts, hierarchy,
-Home front page, primary/footer menus and synced Site Footer, then `wp csf status`. Verify all
-21 expected page entries, one H1 per page and valid editor blocks; setup's success message
-alone is insufficient because individual writes may fail.
+## Optional inquiry form — keep disabled
 
-No permalink change is authorized now. Earlier records had plain URLs; Gateway now reports
-preflight passed without providing its exact method. Do not infer a permalink change. If
-pretty routes need configuration, obtain explicit authorization for `/%postname%/` and the
-corresponding rewrite update before using `wp csf setup --set-permalinks` or saving Permalinks.
+Owner-confirmed destination: **beth.siemon@cornerstonefarmomak.com**. The delivery service is
+unknown; the owner explicitly requested the form remain disabled until delivery is verified.
+The code has no hard-coded recipient, provider credentials, attachments or automatic replies.
 
-After setup/configuration approval, follow sections 4–6 for Kadence/contact/booking setup and
-actual testing. Those settings modify the sandbox and are not authorized by preparing this plan.
-Use authenticated sandbox browser smoke checks. The repository's full E2E runner refuses remote
-URLs and mutates fixtures/setup; use an isolated real-Kadence copy for that suite instead of
-pointing it at the live sandbox or using it to imply testing was performed.
+After a separately approved update, an approved administrator can save this recipient in
+Settings → Farm Inquiries, leaving both checkboxes off. Configure one existing WordPress
+SMTP/API transport with an authenticated farm sender (not the visitor address), verify
+SPF/DKIM and actual inbox/spam receipt with an approved test, and test Reply-To. A wp_mail()
+true result proves acceptance by the transport, **not delivery**. No real email was sent here.
+Only after inbox verification and explicit enablement approval check Delivery verified and
+Enable. Changing the saved recipient clears both. Add the Farm Inquiry Form block to the
+existing Contact page in Gutenberg under a content-edit approval; no forced site setup.
+
+Exclude the form page and admin-post submission route from full-page/CDN caching; signed
+challenges last two hours and require three seconds before submission. Built-in spam controls:
+honeypot, nonce, signed timing challenge, atomic single-use claim, three attempts per client
+per clock-hour and twenty site-wide, with hour-boundary bursts possible. REMOTE_ADDR is used,
+never forwarded headers; verify Plesk's trusted-proxy handling before enabling. Failed mail
+attempts consume allowance and the token; automatic retries are not attempted. These controls
+are not a WAF or a guarantee against spam. Provider-specific spam integration is not configured.
+
+The plugin stores no inquiry messages or raw IPs. Salted rate/token identifiers and expiry
+values are no-autoload options, cleaned in bounded WP-Cron batches; verify cron execution.
+Any SMTP/logging plugin may retain messages independently: review its privacy/retention
+settings and the farm privacy notice before launch. Confirm database claim behavior on the
+actual MariaDB setup and authenticated form flows before enablement. Local mocked-mail and
+substitute-theme browser checks do not clear those acceptance gates.
 
 ## 4. Settings
 
@@ -186,7 +140,7 @@ pointing it at the live sandbox or using it to imply testing was performed.
 | **Settings → Booking** | Open the Acuity URL, confirm it books the right appointment type, then tick **Verified**. |
 | **Farm Emergency → Settings** | Unchanged from Phase 1 — emergency contacts are separate on purpose. |
 | **Settings → Reading** | Confirm *Your homepage displays → A static page → Home*. |
-| **Settings → Permalinks** | *Post name*. Save once (refreshes rewrite rules). |
+| **Settings → Permalinks** | Already /%postname%/; inspect only. No save/rewrite change is authorized. |
 
 ## 5. Kadence Customizer (Appearance → Customize)
 
@@ -249,41 +203,36 @@ The footer is a synced pattern: edit it once (Patterns → Site Footer) and it u
 
 ### 5e. Page layout (verify)
 
-Setup sets each page's Kadence layout meta to *Fullwidth*, *Unboxed*, *Title hidden*, *no
+Setup writes each page's Kadence layout meta to *Fullwidth*, *Unboxed*, *Title hidden*, *no
 vertical padding* (`_kad_post_layout`, `_kad_post_content_style`, `_kad_post_title`,
 `_kad_post_vertical_padding`). Open **Home** and **Contact** in the editor and check the Kadence
-panel shows those values; if a page shows a second title or a boxed content area, set them there.
+panel and actual Kadence 1.5.2 rendering agree with those values. No mismatch is confirmed. If a demonstrated problem requires a change, record it and obtain the relevant sandbox content/configuration approval first.
 
-## 6. Verify
+## 6. Acceptance and rollback
 
-- [ ] Visit Home, Lessons, Contact on a phone and a desktop.
-- [ ] Every booking button opens the Acuity page.
-- [ ] Footer shows; footer emergency link opens `/emergency/`.
-- [ ] **Farm Emergency → Farm Status**: set *Monitoring Conditions* → banner shows above the
-      header on the home page in a logged-out browser → set back to *Normal* → banner gone.
-- [ ] `wp csf status` (or Tools → Corner Stone Farm Setup) lists all 21 pages.
-- [ ] Optional: run the automated suite against a local copy (see `docs/09-phase-2-status.md`).
+Use the page/device matrix above; record confirmed failures separately from untested items.
+Do not activate emergency or alter farm status to test the public website. Footer block 27
+placement is pending; if Classic Widgets prevents the block UI, review that configuration
+rather than installing another footer plugin or replacing the theme.
 
-## 7. Rollback — match the approved stage
+For a core-files-only update, preserve the pre-update core tree and exact source/version,
+restore **only that sandbox core tree** on an authorized rollback, and verify the already
+active 0.2.0 build/pages still render. Do not delete the existing plugin or import a database
+merely to undo file copying. If approved follow-on settings/content edits also occurred,
+preserve subsequent edits and use a state-aware sandbox-only recovery plan before restoring
+DB wp_mdf4x. Never restore the shared subscription or production DB. Keep hardened config
+and 0600 permissions. The old pre-hardening config artifact is not an automatic rollback.
 
-Stage A: only the two new plugin directories should have been introduced, still inactive.
-Within the approved recovery scope, remove/rename only those recorded new directories.
-Do not restore a database or delete existing source/backup/scratch resources for file copying.
-
-Stages B/C: activation/setup can create tables, capabilities, options, pages, menus and rewrite
-state. File removal/deactivation alone does not undo them. Use the recorded current backup
-and sandbox-only rollback plan after preserving later changes and rechecking exact DB/path.
-Never restore a shared subscription or production. Retain hardened constants/mode 0600;
-do not restore the old config-only artifact as an automatic deployment rollback.
-
-Functional recovery on the existing scratch restoration remains untested. Do not claim a
-functional rollback rehearsal was completed from structural/file checks alone.
+The historical isolated restore passed structural/file integrity, not functional login/
+page-rendering. Current page/setup state differs from that capture; do not relabel it as a
+functional rehearsal of this release. Emergency concurrency and real-world acceptance remain
+separate gates in SECURITY.md and DECISIONS.md.
 
 ## Local development environment
 
 ```bash
 bash scripts/local-dev.sh install   # WordPress + SQLite + both plugins + site setup
 bash scripts/local-dev.sh start     # http://localhost:8890  (admin / localtest123, local only)
-npm install && npm run test:e2e     # automated tests
+npm ci && npm run test:e2e     # automated tests
 KADENCE_ZIP=/path/to/kadence.zip bash scripts/local-dev.sh reset   # test with real Kadence
 ```

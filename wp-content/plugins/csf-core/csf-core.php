@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Corner Stone Farm Core
  * Description:       The Corner Stone Farm public website: brand design system, block patterns, page setup, Knowledge Library, horses, events, farm contact details, and booking buttons.
- * Version:           0.2.0
+ * Version:           0.3.0
  * Requires at least: 6.5
  * Requires PHP:      8.1
  * Author:            Corner Stone Farm
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CSF_CORE_VERSION', '0.2.0' );
+define( 'CSF_CORE_VERSION', '0.3.0' );
 define( 'CSF_CORE_FILE', __FILE__ );
 define( 'CSF_CORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CSF_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -24,6 +24,7 @@ require_once CSF_CORE_DIR . 'includes/class-csf-core-markup.php';
 require_once CSF_CORE_DIR . 'includes/class-csf-core-brand.php';
 require_once CSF_CORE_DIR . 'includes/class-csf-core-farm-info.php';
 require_once CSF_CORE_DIR . 'includes/class-csf-core-booking.php';
+require_once CSF_CORE_DIR . 'includes/class-csf-core-inquiry.php';
 require_once CSF_CORE_DIR . 'includes/class-csf-core-library.php';
 require_once CSF_CORE_DIR . 'includes/class-csf-core-horses.php';
 require_once CSF_CORE_DIR . 'includes/class-csf-core-events.php';
@@ -58,6 +59,7 @@ add_action(
 		CSF_Core_Brand::init();
 		CSF_Core_Farm_Info::init();
 		CSF_Core_Booking::init();
+		CSF_Core_Inquiry::init();
 		CSF_Core_Library::init();
 		CSF_Core_Horses::init();
 		CSF_Core_Events::init();

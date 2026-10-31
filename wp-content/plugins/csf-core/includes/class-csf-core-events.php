@@ -167,13 +167,20 @@ class CSF_Core_Events {
 
 	/**
 	 * Seed event types.
+	 *
+	 * @return WP_Error[] Failed term insertions.
 	 */
 	public static function seed_terms() {
+		$errors = array();
 		foreach ( self::default_types() as $name ) {
 			if ( ! term_exists( $name, self::TYPE ) ) {
-				wp_insert_term( $name, self::TYPE );
+				$result = wp_insert_term( $name, self::TYPE );
+				if ( is_wp_error( $result ) ) {
+					$errors[] = $result;
+				}
 			}
 		}
+		return $errors;
 	}
 
 	/**

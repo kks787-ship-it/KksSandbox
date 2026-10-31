@@ -225,7 +225,7 @@ async function testEditor( browser ) {
 		record( 'editor', `pattern ${ p.name } is valid`, p.invalid.length === 0, JSON.stringify( p.invalid ).slice( 0, 800 ) );
 	}
 	const types = await page.evaluate( () => wp.blocks.getBlockTypes().filter( ( b ) => b.name.indexOf( 'csf/' ) === 0 ).map( ( b ) => b.name ) );
-	record( 'editor', `dynamic blocks registered in the editor (${ types.length })`, types.length === 8, types.join( ', ' ) );
+	record( 'editor', `dynamic blocks registered in the editor (${ types.length })`, types.length === 9 && types.includes( 'csf/inquiry-form' ), types.join( ', ' ) );
 	// Blocked outbound requests (Gravatar, wordpress.org) in the sandbox are network failures, not code errors.
 	const jsErrors = page.consoleErrors.filter( ( e ) => ! /Failed to load resource: net::ERR_|favicon/.test( e ) );
 	record( 'editor', 'no JavaScript errors in the editor (blocked external requests excluded)', jsErrors.length === 0, jsErrors.join( ' | ' ).slice( 0, 800 ) );
@@ -390,7 +390,7 @@ function writeReport( external, notes, started ) {
 
 ( async () => {
 	const started = Date.now();
-	const browser = await chromium.launch();
+	const browser = await chromium.launch( process.env.CSF_CHROMIUM_EXECUTABLE ? { executablePath: process.env.CSF_CHROMIUM_EXECUTABLE } : {} );
 	try {
 		const suites = { editor: testEditor, navigation: testNavigation, emergency: testEmergency, content: testStructuredContent };
 		if ( ONLY ) {

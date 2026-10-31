@@ -41,3 +41,22 @@ and live wp-config mode 0600 passed. Do not reapply them. Original configuration
 artifact: `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`; preserve it
 privately. It is separate from the completed full backup at the private csf-sandbox-backup-20261031 directory. Gateway verified structural restoration of 12 InnoDB tables and 4,336 regular files with zero mismatches. Functional restored-site login/rendering, actual CSF/Kadence acceptance and the emergency release gates above remain untested/outstanding. See
 [the current report](test-results/sandbox-preflight.md) for provenance and scope.
+
+## Optional public inquiries — local 0.3.0 candidate only
+
+The owner requests the form remain disabled until delivery is verified. Installing code does
+not set recipient/enablement or send mail. WordPress Settings API capability/nonce protection
+covers administrative settings. Public submissions require nonce, signed 3-second/2-hour
+challenge, honeypot and reply permission, bounded scalar fields, a fixed valid recipient and
+validated email-only Reply-To. No visitor-controlled recipient, subject or From header,
+attachments or auto-replies. Expiring one-use/rate claims use no-autoload options with identical
+duplicate values, limiting standard WordPress DB writes atomically; actual MariaDB/client
+behavior still needs verification. Clock-hour limits allow boundary bursts and are not DDoS
+protection. Do not trust forwarded IP headers or call a public guest nonce an anti-bot secret.
+
+No inquiry body or raw IP is retained by core. Salted identifiers/expiry values need WP-Cron
+cleanup; independent mail-provider/plugin logs may retain content and require privacy review.
+Exclude form/submission routes from full-page caching. Real provider/inbox and authenticated
+form acceptance, including error/replay behavior, are required before separately approved
+enablement. All local tests intercept mail; none establish delivery to Beth. Form delivery
+failure consumes the token and does not trigger an automatic retry or a success notice.

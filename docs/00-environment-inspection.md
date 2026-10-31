@@ -1,10 +1,10 @@
 # 00 — Development Environment Inspection
 
-**Current status: Gateway completed sandbox infrastructure preparation on October 31, 2026.**
-Hardening, full backup, structural/file restore checks, private source staging, exact-target
-Plesk preflight and deployment dry run are complete. Do not repeat them. Functional login/
-rendering on the isolated restoration is untested. No plugin installation/activation, site
-setup, permalink change or production deployment is authorized.
+**Current status — October 31, 2026:** Gateway completed preparation and the public-site
+installation/setup. csf-core 0.2.0 is active; 21 pages, assigned menus, static Home and pretty
+routes are reported verified. Emergency remains inactive. Do not repeat completed work.
+Authenticated real-Kadence browser/editor acceptance and functional restored-site testing
+remain pending. No new deployment, setup, permalink or production operation is authorized.
 
 ## Observed sandbox identity
 
@@ -31,7 +31,7 @@ VPS commands executed by this documentation task. Full evidence and remaining li
 | WP_DEBUG_DISPLAY | false — applied and effective value verified |
 | Config validation | PHP syntax passed; ownership preserved/verified, live file mode 0600 |
 | Preflight / dry run | Latest Gateway report: passed; only the two new plugin directories proposed |
-| Permalinks | Earlier report: plain; no explicit change reported/authorized. Do not infer one from the passed preflight. |
+| Permalinks | /%postname%/; 162 rewrite rules, standard sandbox .htaccess, Apache syntax passed (latest owner report) |
 
 ## Completed configuration backup and hardening
 
@@ -66,29 +66,34 @@ Gateway's latest completion record states:
 - Existing private evidence: /var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt; reuse it.
 - Existing private source pinned to d360dbfd5a0441fa142a3b963a4a42c5145d9738; plugin tree matches
   52401dcd9a90ca87ad074c1078ad6633df5be77e.
-- Exact-target Plesk preflight and deployment dry run passed; no plugin files copied/activated
-  or pages generated, and no production changes.
+- Initial exact-target preflight/dry run passed. Subsequently core 0.2.0 was installed/activated, 21 pages published, menus assigned and Home configured. No production changes; emergency remains inactive.
 
 These supersede earlier incomplete-backup/restore/staging/dry-run status. Preserve the existing
 source pin, backup and scratch evidence. Do not create new resources to repair stale docs.
 
-## Remaining installation review
+## Remaining build acceptance
 
-Check/prepare the existing backup's actual target-bound script format and capture age,
-reuse the existing private operator evidence file, and review the files-only installation plan. A conditional limited backup refresh is justified only by an actual stale/
-incompatible artifact, not by repeating full preparation. Capture times, scratch DB and evidence path are now supplied; only raw dump/archive filenames,
-private scratch/source filesystem paths and hashes still need existing-record lookup.
+The newer roadmap reports shared intro-gutter Issue #1, not independently reproduced here.
+Authenticated review must cover all 21 pages at 390/768/1280px;
+footer synced block 27 is not placed in Footer Builder. Header/palette/typography/navigation,
+authentic assets, owner notes and booking verification remain configuration/content work.
+See the [current report](test-results/sandbox-preflight.md) and [acceptance/update plan](07-website-installation.md).
 
-Follow the [gate procedure](05-backup-rollback-deploy.md#backups-and-verified-backup-gate-before-any-apply)
-and [staged plan](07-website-installation.md#staged-installation-approval-boundaries). No file
-installation, activation, setup or permalink change is approved. Actual CSF/Kadence functional
-testing and the functional restored-site test remain unrun.
+Local core 0.3.0 fixes and the disabled inquiry form are not deployed. A future approved update
+needs a reviewed exact SHA, current target-bound application backup and --only-core dry run.
+The old full backup predates site installation/setup: preserve its structural evidence and
+capture provenance without claiming current or functional recovery. Do not repeat the entire
+infrastructure package or request known identities again.
 
 ## Inspection limits
 
-Use the latest Gateway preflight pass as reported evidence; retain its actual method/output
-from existing records. Do not claim an unspecified repository helper was run. The strict
-sandbox helper requires pretty permalinks while earlier records had plain URLs; do not change
-settings or weaken checks to reconcile that difference. Current documentation work executes
-no server commands. Never print secrets, bootstrap unreviewed startup code under a read-only
-scope, or convert local mocked tests into claimed server results.
+The original preflight's exact command was not forwarded; do not invent a particular helper
+result. The later explicit permalink/rewrite report supersedes the earlier plain-URL record.
+HTTP 401 without Basic Authentication is expected, not proof of a broken route or successful
+page rendering. No VPS commands were executed here. Never print configuration secrets or
+bootstrap unreviewed startup code under a strict read-only scope. Local mocked/SQLite and
+substitute-theme tests do not establish actual Plesk, MariaDB or Kadence compatibility.
+
+Newer remote records also confirm the fresh gate bundle csf-dev-20261031-184634-36879 passed
+before the owner-approved install/activation/setup. See doc 05 for Gateway job provenance.
+It predates the current published build and is not a substitute for a current update backup.

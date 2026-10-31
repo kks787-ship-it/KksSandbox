@@ -13,7 +13,7 @@ Source code and documentation for the new Corner Stone Farm website and operatin
 | Path | Purpose |
 |---|---|
 | `wp-content/plugins/csf-emergency/` | **Corner Stone Farm Emergency Management** — horse emergency ID pages (`/h/{code}`), printable QR tags, farm emergency status, sitewide banner, `/emergency` page, event log. |
-| `wp-content/plugins/csf-core/` | **The public website** — brand design system, block patterns and page layouts, repeatable site setup, Knowledge Library, horses, camps & clinics, farm contact details, booking buttons. |
+| `wp-content/plugins/csf-core/` | **The public website** — brand design system, block patterns and page layouts, repeatable site setup, Knowledge Library, horses, camps & clinics, farm contact details, booking buttons, optional inquiry form (disabled until delivery is verified). |
 | `scripts/inspect-environment.sh` | Read-only report on the dev server (PHP, DB, web server, plugins, HTTPS, permissions…). |
 | `scripts/backup-dev.sh` | Database + `wp-content` backup of the dev site. |
 | `scripts/deploy-plugins.sh` | Copy the custom plugins to the dev site (dry run by default). |
@@ -38,6 +38,14 @@ WordPress core, the Kadence theme, uploads, and `wp-config.php` are **not** comm
 10. [`docs/09-phase-2-status.md`](docs/09-phase-2-status.md) — Phase 2 status, limitations, incomplete features, owner decisions.
 11. [`docs/test-results/phase-2.md`](docs/test-results/phase-2.md) and [`docs/screenshots/`](docs/screenshots/) — test results and screenshots.
 
+## Current build
+
+The owner reports csf-core 0.2.0 active and all 21 pages published on the protected sandbox.
+Real Kadence 1.5.2 sitewide acceptance is pending; the newer roadmap reports shared gutter
+[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1), not yet reproduced/fixed here.
+The local 0.3.0 candidate has not been deployed; its inquiry form remains off by default.
+See [current status](docs/test-results/sandbox-preflight.md) and [local validation](docs/test-results/website-finishing.md).
+
 ## Development
 
 ```bash
@@ -46,7 +54,7 @@ composer lint             # php -l on every plugin file
 vendor/bin/phpcs          # coding standards (must report no errors)
 
 bash scripts/local-dev.sh install && bash scripts/local-dev.sh start   # local site on :8890
-npm install && npm run test:e2e                                        # browser tests
+npm ci && npm run test:e2e                                        # browser tests
 ```
 
 Requirements: WordPress 6.5+ (csf-core), 6.4+ (csf-emergency), PHP 8.1+.

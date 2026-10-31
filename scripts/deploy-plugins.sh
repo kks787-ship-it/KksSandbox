@@ -2,20 +2,23 @@
 # Copy the custom plugins from this repository to the DEVELOPMENT site.
 #
 #   bash deploy-plugins.sh /path/to/dev/wordpress            # dry run (default)
+#   bash deploy-plugins.sh /path/to/dev/wordpress --only-core # public-site update only
 #   bash deploy-plugins.sh /path/to/dev/wordpress --apply    # actually copy
 #
 # Only touches wp-content/plugins/csf-*. Refuses to deploy to a production environment.
 set -euo pipefail
 
-WP_PATH="${1:?Usage: $0 /path/to/dev/wordpress [--apply]}"
+WP_PATH="${1:?Usage: $0 /path/to/dev/wordpress [--only-core] [--apply]}"
 shift
 APPLY=""
 EXPECTED_URL=""
 BACKUP=""
 RESTORE_EVIDENCE=""
+PLUGINS=(csf-emergency csf-core)
 while (( $# )); do
  case "$1" in
   --apply) APPLY=--apply; shift ;;
+  --only-core) PLUGINS=(csf-core); shift ;;
   --expected-url|--backup|--restore-evidence)
    (( $# >= 2 )) || { echo "Missing value for $1" >&2; exit 1; }
    case "$1" in
@@ -49,7 +52,7 @@ if [[ "$APPLY" == "--apply" ]]; then
  }
  bash "$REPO/scripts/verify-dev-backup.sh" "$BACKUP" "$WP_PATH" "$EXPECTED_URL" "$RESTORE_EVIDENCE"
 fi
-for plugin in csf-emergency csf-core; do
+for plugin in "${PLUGINS[@]}"; do
  [[ -d "$REPO/wp-content/plugins/$plugin" ]] || { echo "Missing plugin source: $plugin" >&2; exit 1; }
  [[ ! -L "$WP_PATH/wp-content" && ! -L "$WP_PATH/wp-content/plugins" && ! -L "$WP_PATH/wp-content/plugins/$plugin" ]] || {
   echo "Refusing: target plugin path contains a symlink; resolve and review the actual target." >&2; exit 1;
@@ -57,10 +60,13 @@ for plugin in csf-emergency csf-core; do
 done
 printf 'Target: %s\n' "$WP_PATH"
 
-RSYNC_FLAGS=(-a --delete --exclude '.git' --itemize-changes)
+# Git/ZIP checkouts may be private (0700/0600). Web-served plugin code needs readable
+# files and traversable directories; keep the destination account's ownership.
+# These flags apply only to selected plugin trees, never wp-config.php or uploads.
+RSYNC_FLAGS=(-a --no-owner --no-group --chmod=D755,F644 --delete --exclude '.git' --itemize-changes)
 [[ "$APPLY" == "--apply" ]] || RSYNC_FLAGS+=(--dry-run)
 
-for plugin in csf-emergency csf-core; do
+for plugin in "${PLUGINS[@]}"; do
 	echo "== $plugin"
 	rsync "${RSYNC_FLAGS[@]}" "$REPO/wp-content/plugins/$plugin/" "$WP_PATH/wp-content/plugins/$plugin/"
 done

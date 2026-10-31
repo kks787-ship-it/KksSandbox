@@ -30,7 +30,8 @@ return $csf::page_header(
 		),
 		'',
 		'csf-card-row'
-	),
+	)
+	. $csf::dynamic( 'csf/inquiry-form' ),
 	'white'
 )
 . $csf::section(
@@ -50,6 +51,6 @@ return $csf::page_header(
 			. $csf::p( esc_html__( 'In a life-threatening emergency, call 911.', 'csf-core' ) ),
 		)
 	)
-	. $csf::note( esc_html__( 'the public phone and email (Settings → Farm Details). An online inquiry form is intentionally not enabled yet: it will be added once spam protection, secure delivery, and notifications have been chosen and tested.', 'csf-core' ) ),
+	. $csf::note( esc_html__( 'the public phone and email (Settings → Farm Details). The optional inquiry form stays disabled until email delivery has been verified (Settings → Farm Inquiries).', 'csf-core' ) ),
 	'linen'
 );

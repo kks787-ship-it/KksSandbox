@@ -67,18 +67,42 @@ csf_sandbox_restore_20261031; private restored files are not publicly served. Ex
 /var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt.
 Reuse it; do not recreate the evidence/restore or request these known identifiers again.
 
-Next: prepare/verify the fresh target-bound gate bundle in the script's required format using
-existing records/evidence. The reported DB capture reaches 24 elapsed hours November 1, 2026,
-9:08:58 AM PST (17:08:58 UTC; DST ends overnight). Actual script artifact metadata/layout
-still needs checking. Retain the structural-pass/functional-test-not-run distinction. Only
-refresh a limited gate backup if actual staleness/incompatibility warrants it and is authorized.
-Do not touch timestamps to fake freshness. Files-only installation, activation, site setup,
-permalink changes and production deployment remain unauthorized; see the staged plan in
-docs/07-website-installation.md. The latest preflight pass is Gateway-reported; its exact
-command was not supplied, so do not invent a particular helper's result or a permalink change.
-Gateway evidence is owner-supplied, not proof this Codex session executed remote commands.
+Latest owner correction: csf-core 0.2.0 is installed/active on the sandbox, all 21 pages
+are published, do_blocks passed with one H1 each, primary/mobile/footer menus are assigned,
+and Home is static front page. Permalinks are /%postname%/, 162 rewrite rules, standard
+sandbox .htaccess installed and Apache syntax passed. Do not repeat installation/setup or
+permalink work. Site Footer synced block 27 exists but is NOT placed in Kadence Footer Builder.
+Emergency remains inactive. The historical d360dbf staging/dry run is not a test of new code.
+
+Newer remote roadmap commits 52b882e/457fffb report real-Kadence Issue #1: shared intro text
+reaches the viewport edge while headings are inset, observed on Meet Beth and Camps/Clinics.
+This supersedes the earlier no-confirmed-defects clarification. Not independently reproduced
+or fixed here. Start authenticated 390/768/1280px review on the six priority pages, then audit
+all 21 pages, other text sections and Gutenberg; preserve full-bleed backgrounds and content.
+HTTP 401 without Basic Authentication is expected, not a broken route. Do not redesign or
+change Kadence meta speculatively. Original logo/photos, header/palette/typography/footer
+configuration, 23 owner notes and Acuity destination verification remain outstanding.
+
+Current local candidate: csf-core 0.3.0; source has not been deployed. Inquiry recipient is
+owner-confirmed beth.siemon@cornerstonefarmomak.com; delivery service is unknown. Owner asks
+that the form remain disabled until delivery is verified. Never send a live test email or
+enable the form without the relevant authorization. No new plugin is needed for theme setup.
+
+No new code deployment, emergency activation, site setup, permalink or production changes
+are authorized. A future core-only update uses --only-core, a reviewed exact source SHA,
+current target-bound backup/evidence gate and separate approval. The old complete backup
+predates the installed site build: preserve it and its structural evidence, but do not claim
+it captures the current 21-page state. Functional restored-site login/rendering remains unrun.
+This cloud session has no callable Gateway tool; owner-reported remote results are not
+commands executed here. See docs/07-website-installation.md and docs/test-results/website-finishing.md.
 
 See docs/test-results/sandbox-preflight.md, docs/test-results/sandbox-restoration-evidence.md
 and docs/05-backup-rollback-deploy.md. Preserve deployment guards. No reapplication of the
 completed constants or redo of completed preparation. Test sandbox guards with
 PYTHONDONTWRITEBYTECODE=1 python3 tests/scripts/test_sandbox_preflight.py.
+
+Remote branch also records completed fresh gate bundle csf-dev-20261031-184634-36879, verified
+before approved file copy/activation/setup. This is complete, not another pending preparation
+task. Preserve job provenance in docs/05-backup-rollback-deploy.md. That bundle predates the
+now-published build; a future approved update needs a current backup, not a repeated full
+infrastructure restoration. Do not claim either historical bundle captures later owner edits.

@@ -138,13 +138,20 @@ class CSF_Core_Library {
 
 	/**
 	 * Create any missing default categories. Safe to run repeatedly.
+	 *
+	 * @return WP_Error[] Failed term insertions.
 	 */
 	public static function seed_categories() {
+		$errors = array();
 		foreach ( self::default_categories() as $name ) {
 			if ( ! term_exists( $name, self::CATEGORY ) ) {
-				wp_insert_term( $name, self::CATEGORY );
+				$result = wp_insert_term( $name, self::CATEGORY );
+				if ( is_wp_error( $result ) ) {
+					$errors[] = $result;
+				}
 			}
 		}
+		return $errors;
 	}
 
 	/**
