@@ -32,7 +32,7 @@ the production domain until the owners approve the replacement.
 - [ ] Tabletop drill: change status, verify banner, revert
 - [ ] Owner sign-off that it is operational (see `04-emergency-plugin.md`)
 
-## Phase 2 — Public website *(csf-core activated in sandbox; site setup not run)*
+## Phase 2 — Public website *(21 pages live in protected sandbox; visual acceptance pending)*
 
 - [x] Brand design system in `csf-core`: palette + self-hosted Playfair Display/Lato as editor presets, block styles, accessible colour pairings
 - [x] 14 section patterns and 21 page layouts (core blocks only; editable in Gutenberg)
@@ -45,8 +45,10 @@ the production domain until the owners approve the replacement.
 - [x] Repeatable local environment (`scripts/local-dev.sh`)
 - [x] **Files-only owner approval and sandbox copy** (doc 07), files and permissions verified
 - [x] **Owner-approved activation of `csf-core` 0.2.0 only**, October 31, 2026; Gateway job `job_01M69P01SA00P66KZ43HJE6FC0`, exit 0; `csf-emergency` 0.1.0 remains inactive
-- [x] `wp csf status` confirms all 21 layout pages are missing; `wp csf setup --dry-run` previews 21 creates and a synced footer without making changes
-- [ ] **Separate owner approval for site setup**, 21 page/menu generation, and **explicit** permalink change authorization (permalink structure remains plain)
+- [x] Owner-approved sandbox setup created all 21 pages, both menus and synced footer, and assigned Home as static front page (Gateway `job_01M69QTN9Y00N8R62TCV7R23XT`)
+- [x] Sandbox permalink structure changed to `/%postname%/`; WordPress rewrite rules flushed and standard WordPress `.htaccess` created **only in sandbox** (Apache syntax OK)
+- [x] WP-CLI `csf status` shows all 21 pages published; programmatic block rendering validated 21/21 with one H1 per page; a second dry run reports all `ok` (no pending changes)
+- [ ] Authenticated HTTP/browser review of clean URLs and real Kadence responsive rendering; anonymous requests still return 401 from sandbox password protection
 - [ ] Verify on Kadence: Customizer palette, header, footer, page-layout settings
 - [ ] Logo, photographs, contact details, Acuity verification, resolve 23 owner notes (doc 09)
 - [ ] Phase 2b: contact/inquiry form with spam protection and tested delivery (owner picks approach)
@@ -148,3 +150,22 @@ Kadence page layouts cannot start until setup is separately approved.
 **Next gate:** explicit owner approval for sandbox site setup/page/menu generation and,
 separately or explicitly included, pretty-permalink changes. `csf-emergency` activation is
 not part of the core activation approval. Production remained outside the operation scope.
+
+
+## Sandbox website setup — October 31, 2026 (Gateway verified)
+
+The owner approved **sandbox-only** website page/menu setup and clean permalink changes.
+Before setup, Gateway reverified the target WordPress installation (`wp_mdf4x`, development,
+Kadence) and the existing time-valid six-entry backup gate. Setup job
+`job_01M69QTN9Y00N8R62TCV7R23XT` succeeded:
+
+- 21 regular CSF pages created/published, including nested lesson, training, about, and FAQ pages.
+- Home page selected as the static front page (`show_on_front=page`, page ID 6).
+- Primary Navigation menu ID 28, Footer Navigation menu ID 29; Kadence locations assigned.
+- Synced footer pattern created as WordPress block ID 27. **Placement/configuration within Kadence's footer builder still pending.**
+- Pretty permalinks set to `/%postname%/`. `wp rewrite flush --hard` regenerated 162 WordPress rules, but WP-CLI warned it could not generate `.htaccess` itself. The standard rules produced by WordPress were then saved in a new sandbox-root `.htaccess` owned by the Plesk subscription user, mode 0644. Apache config syntax passed.
+- WordPress content renderer: all 21 pages rendered with exactly one H1 and no reported failures, 76 links across pages, and **23 owner-confirmation notes** remain. The repeat setup dry run listed all pages/footer as `ok`.
+- The **public HTTP response remains a 401 Basic Auth challenge**, so actual authorized-browser visual layout and route testing are still required. Do not claim end-to-end authenticated browser acceptance from WordPress-level checks alone.
+- `csf-core` 0.2.0 remains active; `csf-emergency` 0.1.0 remains inactive. No notifications, volunteer dispatch or live emergency operation exists.
+
+**Next:** Log in to the sandbox with the existing password, inspect its real Kadence desktop/mobile layouts, place the footer pattern and approved original logo/photo assets, resolve owner notes/booking, and validate the new links. Do not expose the sandbox publicly or modify production. Separate authorization is required for future emergency-plugin activation and any further unrelated server changes.
