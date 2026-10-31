@@ -32,7 +32,7 @@ the production domain until the owners approve the replacement.
 - [ ] Tabletop drill: change status, verify banner, revert
 - [ ] Owner sign-off that it is operational (see `04-emergency-plugin.md`)
 
-## Phase 2 — Public website *(files staged in sandbox; plugins inactive; site not set up)*
+## Phase 2 — Public website *(csf-core activated in sandbox; site setup not run)*
 
 - [x] Brand design system in `csf-core`: palette + self-hosted Playfair Display/Lato as editor presets, block styles, accessible colour pairings
 - [x] 14 section patterns and 21 page layouts (core blocks only; editable in Gutenberg)
@@ -43,7 +43,10 @@ the production domain until the owners approve the replacement.
 - [x] Emergency banner verified on the new pages (independent plugin unchanged)
 - [x] Automated tests: accessibility (axe WCAG 2.2 AA), responsive, links, navigation, booking, block-editor validity, emergency, structured content, setup idempotency
 - [x] Repeatable local environment (`scripts/local-dev.sh`)
-- [x] **Files-only owner approval and sandbox copy** (doc 07); activation, site setup and permalink changes remain separately unauthorized
+- [x] **Files-only owner approval and sandbox copy** (doc 07), files and permissions verified
+- [x] **Owner-approved activation of `csf-core` 0.2.0 only**, October 31, 2026; Gateway job `job_01M69P01SA00P66KZ43HJE6FC0`, exit 0; `csf-emergency` 0.1.0 remains inactive
+- [x] `wp csf status` confirms all 21 layout pages are missing; `wp csf setup --dry-run` previews 21 creates and a synced footer without making changes
+- [ ] **Separate owner approval for site setup**, 21 page/menu generation, and **explicit** permalink change authorization (permalink structure remains plain)
 - [ ] Verify on Kadence: Customizer palette, header, footer, page-layout settings
 - [ ] Logo, photographs, contact details, Acuity verification, resolve 23 owner notes (doc 09)
 - [ ] Phase 2b: contact/inquiry form with spam protection and tested delivery (owner picks approach)
@@ -126,3 +129,22 @@ on later deployments. Fix that in a separate code review (e.g. enforce destinati
 before subsequent application updates. Production was not modified. Next: owner approval
 for sandbox plugin activation (recommend `csf-core` first), followed by separate page/setup
 and permalink authorization.
+
+
+## Sandbox core activation — October 31, 2026 (Gateway verified)
+
+After owner approval and a fresh backup-gate verification (`job_01M69NYRX300GG0KF838890WE3`),
+Gateway activated **only `csf-core` 0.2.0** on the sandbox via WP-CLI under the Plesk subscription
+user. Activation job `job_01M69P01SA00P66KZ43HJE6FC0` succeeded without CLI errors.
+WordPress confirms `csf-core` **active** and `csf-emergency` **inactive**. Existing post count
+remains 5, pages 2; the activation seeded terms (1 → 27) and created normal options (147 → 150).
+The current homepage is unchanged (`show_on_front=posts`), permalink structure remains blank/plain,
+Kadence is active, search indexing is disabled, and HTTPS password protection remains effective
+(401 response on anonymous access). `wp csf status` listed **all 21 planned pages as missing**.
+The separate `wp csf setup --dry-run` reported 21 page creations, a synced footer pattern and
+a plain-permalink warning; **no actual setup took place**. Functional testing on the real
+Kadence page layouts cannot start until setup is separately approved.
+
+**Next gate:** explicit owner approval for sandbox site setup/page/menu generation and,
+separately or explicitly included, pretty-permalink changes. `csf-emergency` activation is
+not part of the core activation approval. Production remained outside the operation scope.
