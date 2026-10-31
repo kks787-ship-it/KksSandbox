@@ -16,6 +16,7 @@ On the VPS, as a user who can read the **development** site (not production):
 
 ```bash
 git clone <this repo> ~/csf-digital-ranch
+# Run as the development subscription user, not root.
 bash ~/csf-digital-ranch/scripts/inspect-environment.sh /var/www/vhosts/<dev-domain>/httpdocs > ~/env-report.md
 ```
 
@@ -30,8 +31,8 @@ Info → Copy site info to clipboard** in the dev site admin and attach that ins
 
 | Item | Where it comes from | Why it matters |
 |---|---|---|
-| WordPress version | `wp core version` | Plugins require 6.4+. |
-| PHP version (domain, not just CLI) | Plesk → PHP Settings; Site Health | Plugins require 8.1+; 8.2/8.3 recommended. |
+| WordPress version | `wp core version` | Use WordPress 6.6+ for the prepared release; verify theme JSON v3 compatibility. |
+| PHP version (domain, not just CLI) | Plesk → PHP Settings; Site Health | Plugins require 8.1+; Select a security-supported PHP release compatible with the installed stack. |
 | Database server & version | `SELECT VERSION()` | MySQL 8 / MariaDB 10.6+ recommended. |
 | Apache / nginx arrangement | `nginx -v`, `apache2ctl -v`, `.htaccess` | Plesk usually runs nginx as reverse proxy in front of Apache. Determines how rewrites are configured. |
 | Installed plugins & themes | `wp plugin list`, `wp theme list` | Identify anything carried over from the old site that should not be. |
@@ -54,3 +55,5 @@ Info → Copy site info to clipboard** in the dev site admin and attach that ins
 - `DISALLOW_FILE_EDIT` should be `true`.
 
 Record the findings in a new section at the bottom of this file once the report exists.
+
+See the current [Milestone B preflight and Plesk checklist](05-backup-rollback-deploy.md#milestone-b--development-deployment-preparation). The inspector now refuses production/unknown environments and reports failed checks. It skips ordinary plugins/themes but existing must-use plugins/drop-ins can still execute during WordPress bootstrap.

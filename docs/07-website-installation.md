@@ -8,7 +8,7 @@ Estimated time: 45–60 minutes, most of it in the Kadence Customizer.
 ## 0. Before you start
 
 - [ ] Environment inspection report exists (`docs/00-environment-inspection.md`) and confirms
-      WordPress ≥ 6.5 (7.x recommended) and PHP ≥ 8.1.
+      WordPress ≥ 6.6 for this prepared release (current supported release preferred) and PHP ≥ 8.1.
 - [ ] Dev `wp-config.php` contains `define( 'WP_ENVIRONMENT_TYPE', 'development' );`
 - [ ] Dev site is not indexed (Settings → Reading → *Discourage search engines*) and ideally behind
       Plesk password protection.
@@ -17,14 +17,18 @@ Estimated time: 45–60 minutes, most of it in the Kadence Customizer.
 
 ## 1. Copy the plugins
 
+Use the reviewed release on `codex/takeover-audit`, not a moving Claude branch tip.
+Follow the [Milestone B procedure](05-backup-rollback-deploy.md#milestone-b--development-deployment-preparation)
+for exact URL/path identity, read-only preflight, verified backup and restore evidence.
+Preparation runs only the dry run; copying, activation and setup wait for explicit authorization.
+
 ```bash
-cd ~/csf-digital-ranch && git fetch && git checkout claude/csf-digital-ranch-spec-cch2af && git pull
-bash scripts/deploy-plugins.sh /var/www/vhosts/<dev>/httpdocs           # dry run
-bash scripts/deploy-plugins.sh /var/www/vhosts/<dev>/httpdocs --apply   # copy
+bash scripts/deploy-plugins.sh "$CSF_DEV_ROOT" --expected-url "$CSF_DEV_URL"
 ```
 
-Without shell access: zip `wp-content/plugins/csf-core` and `csf-emergency` and upload them in
-**Plugins → Add New → Upload Plugin**.
+After explicit approval, the same script requires `--backup`, `--restore-evidence`,
+`--expected-url` and `--apply`. WordPress ZIP upload requires the same verified backup,
+identity checks and approval; it is not a shortcut around those safeguards.
 
 ## 2. Activate
 

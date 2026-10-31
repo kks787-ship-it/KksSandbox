@@ -9,7 +9,8 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Reads and changes the farm status. All changes go through change(), which logs the
- * event, fires the extension hook exactly once per event, and purges page caches.
+ * event, fires the extension hook after a saved change, and purges page caches.
+ * Concurrent confirmation and audit persistence still require hardening before operational use.
  */
 class CSF_Emergency_Farm_State {
 
@@ -118,7 +119,7 @@ class CSF_Emergency_Farm_State {
 		 * Fires once per confirmed farm status change.
 		 *
 		 * Notification modules hook here. They must use $uuid as their idempotency key so
-		 * that a retried request can never send the same alert twice.
+		 * that consumers can deduplicate retries using durable delivery records.
 		 *
 		 * @param string $uuid     Event UUID.
 		 * @param array  $state    New state.

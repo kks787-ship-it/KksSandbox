@@ -23,7 +23,7 @@ remain non-operational until owner acceptance, phone/physical tag tests, cache v
 MFA, and drills. Queued notifications are not delivered notifications.
 
 Use composer install and npm ci with existing lockfiles. Validate PHP with composer lint
-and php vendor/bin/phpcs. Run bash tests/scripts/development-guards.sh and, only on the
+and php vendor/bin/phpcs. Run bash tests/scripts/development-guards.sh, bash tests/scripts/plesk-preflight.sh and, only on the
 disposable local WordPress site, wp eval-file tests/integration/takeover.php and
 python3 tests/integration/emergency-http.py. The HTTP checks require localhost:8890.
 Tests use synthetic data and restore state; never point them at the Plesk or production site.

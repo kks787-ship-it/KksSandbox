@@ -317,7 +317,7 @@ class CSF_Emergency_Admin {
 			exit;
 		}
 
-		// Consume the key before acting so a concurrent resubmit cannot reuse it.
+		// Consume before acting to reject sequential replays; concurrent claims still need atomic persistence.
 		delete_transient( $transient );
 
 		$result = CSF_Emergency_Farm_State::change( $pending['status'], $pending['message'], $pending['public_info'], $pending['next_update'] );
