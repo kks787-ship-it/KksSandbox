@@ -96,7 +96,9 @@ class CSF_Emergency_Farm_State {
 			'event_uuid'  => $uuid,
 		);
 
-		update_option( self::OPTION, $state, true );
+		if ( ! update_option( self::OPTION, $state, true ) ) {
+			return new WP_Error( 'csf_state_write_failed', __( 'The farm status could not be saved. Check the current status before trying again.', 'csf-emergency' ) );
+		}
 
 		CSF_Emergency_Event_Log::record(
 			array(

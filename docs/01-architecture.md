@@ -91,3 +91,11 @@ Each future plugin depends only on documented hooks from the plugins beneath it:
   (enforced via WordPress Coding Standards in `phpcs.xml.dist`).
 - No credentials in the repository. API keys for future notification providers go in
   `wp-config.php` constants or environment variables on the server.
+
+## Takeover review
+
+The design is retained. See [the takeover audit](10-takeover-audit.md) and
+[security release gates](SECURITY.md). Confirmation transients and status comparisons are
+not atomic: the existing “once per event” hook is not an exactly-once guarantee under
+concurrency or persistence failure. Notification consumers need durable idempotency and
+recoverable event processing before operational use.

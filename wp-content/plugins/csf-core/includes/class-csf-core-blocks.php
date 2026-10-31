@@ -296,7 +296,7 @@ class CSF_Core_Blocks {
 	 * @return string
 	 */
 	public static function card( array $args ) {
-		$tag   = in_array( $args['heading'] ?? 'h3', array( 'h2', 'h3', 'h4' ), true ) ? $args['heading'] : 'h3';
+		$tag   = in_array( $args['heading'] ?? '', array( 'h2', 'h3', 'h4' ), true ) ? $args['heading'] : 'h3';
 		$ratio = ( $args['ratio'] ?? '' ) === 'portrait' ? ' csf-card__media--portrait' : '';
 		$html  = '<article class="csf-card">';
 		if ( ! empty( $args['image'] ) ) {

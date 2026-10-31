@@ -50,3 +50,9 @@ npm install && npm run test:e2e                                        # browser
 ```
 
 Requirements: WordPress 6.5+ (csf-core), 6.4+ (csf-emergency), PHP 8.1+.
+
+## Codex takeover
+
+Start with [AGENTS.md](AGENTS.md), [business context](docs/CSF-BUSINESS-CONTEXT.md),
+and the [takeover audit and current validation](docs/10-takeover-audit.md).
+The original architecture, roadmap and deployment runbooks remain canonical.

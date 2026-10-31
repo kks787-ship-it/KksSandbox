@@ -9,13 +9,18 @@ set -euo pipefail
 
 WP_PATH="${1:?Usage: $0 /path/to/dev/wordpress /path/to/backup/dir}"
 DEST="${2:?Usage: $0 /path/to/dev/wordpress /path/to/backup/dir}"
-WP="wp --path=$WP_PATH"
+WP=(wp "--path=$WP_PATH")
 
-ENV_TYPE="$($WP eval 'echo wp_get_environment_type();' 2>/dev/null || echo unknown)"
-if [[ "$ENV_TYPE" == "production" ]]; then
-	echo "Refusing: this site reports WP_ENVIRONMENT_TYPE=production. Set it to 'development' or 'staging' in the dev wp-config.php." >&2
+if ! ENV_TYPE="$("${WP[@]}" eval 'echo wp_get_environment_type();')"; then
+	echo "Refusing: could not verify the target WordPress environment." >&2
 	exit 1
 fi
+case "$ENV_TYPE" in
+	local|development|staging) ;;
+	*) echo "Refusing: target must report local, development, or staging." >&2; exit 1 ;;
+esac
+
+umask 077
 
 STAMP="$(date -u +%Y%m%d-%H%M%S)"
 OUT="$DEST/csf-dev-$STAMP"
@@ -23,14 +28,14 @@ mkdir -p "$OUT"
 chmod 700 "$OUT"
 
 echo "Exporting database…"
-$WP db export "$OUT/database.sql" --quiet
+"${WP[@]}" db export "$OUT/database.sql" --quiet
 gzip "$OUT/database.sql"
 
 echo "Archiving wp-content…"
 tar -czf "$OUT/wp-content.tar.gz" -C "$WP_PATH" wp-content
 
-$WP core version > "$OUT/wp-version.txt"
-$WP plugin list --format=csv > "$OUT/plugins.csv"
+"${WP[@]}" core version > "$OUT/wp-version.txt"
+"${WP[@]}" plugin list --format=csv > "$OUT/plugins.csv"
 ( cd "$OUT" && sha256sum ./*.gz > SHA256SUMS )
 
 echo "Backup written to $OUT"

@@ -11,9 +11,16 @@ WP_PATH="${1:?Usage: $0 /path/to/dev/wordpress [--apply]}"
 APPLY="${2:-}"
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 
-ENV_TYPE="$(wp --path="$WP_PATH" eval 'echo wp_get_environment_type();' 2>/dev/null || echo unknown)"
-if [[ "$ENV_TYPE" == "production" ]]; then
-	echo "Refusing: target reports WP_ENVIRONMENT_TYPE=production." >&2
+if ! ENV_TYPE="$(wp --path="$WP_PATH" eval 'echo wp_get_environment_type();')"; then
+	echo "Refusing: could not verify the target WordPress environment." >&2
+	exit 1
+fi
+case "$ENV_TYPE" in
+	local|development|staging) ;;
+	*) echo "Refusing: target must report local, development, or staging." >&2; exit 1 ;;
+esac
+if [[ -n "$APPLY" && "$APPLY" != "--apply" ]]; then
+	echo "Unknown option: $APPLY" >&2
 	exit 1
 fi
 

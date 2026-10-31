@@ -67,3 +67,16 @@ the production domain until the owners approve the replacement.
 
 - Public AI educational assistant restricted to published Knowledge Library content
 - E-commerce, reporting, marketing automation
+
+## Codex takeover priorities
+
+Continue from Claude commit `c44240e` on a separate branch. The historical phase checkboxes
+above describe prior work, not a new independent verification. Follow the next three
+milestones and evidence gates in [the takeover audit](10-takeover-audit.md):
+
+1. Emergency persistence/concurrency hardening, reproducible tests, approved Plesk dev install.
+2. Authentic assets, verified copy/booking, real Kadence and device acceptance.
+3. Notification/assistance reliability and drills, followed by streamlined household onboarding.
+
+[Business context](CSF-BUSINESS-CONTEXT.md) records supplied operational requirements;
+public wording and missing details remain in the owner confirmation register.

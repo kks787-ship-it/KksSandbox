@@ -56,3 +56,14 @@ Tag each approved release: `git tag -a v0.1.0 -m "…"`.
 The production switch will be its own documented plan covering: final backup of the old site,
 URL redirect map (including old `/index.php/` URLs), DNS/vhost changes in Plesk, certificate,
 search-console resubmission, and a rollback window during which the old site remains restorable.
+
+## Takeover deployment safeguards
+
+Deployment and backup now require successful environment detection and accept only `local`,
+`development` or `staging`; WP-CLI errors, unknown output and production are rejected before
+work. Backups use a restrictive umask and support WordPress paths containing spaces.
+The backup script does not include wp-config.php or prove restorability: use a secure server
+backup for configuration and perform a scratch restore. Keep backups outside the web root.
+
+See the [takeover development deployment plan](10-takeover-audit.md#development-deployment-plan)
+for inspection, release review, backup/restore evidence and approval before applying changes.
