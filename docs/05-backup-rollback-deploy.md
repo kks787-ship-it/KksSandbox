@@ -319,3 +319,57 @@ proposed deletion/copy. Missing rsync or a missing target parent directory is a 
 authorization to install packages or create directories. This is a prepared command plan;
 it is not evidence a server comparison ran. Future apply still requires fresh verified
 backup/restore evidence and explicit authorization for the exact target/release.
+
+### Gateway result received — exact path and remaining gates
+
+The subsequent owner-forwarded Gateway report confirms the canonical sandbox root is:
+
+```text
+/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com
+```
+
+Both configured DB_NAME and SELECT DATABASE() match **wp_mdf4x**; the read-only session
+reports `tx_read_only=1`; safe option reads used **wp_mdf4x.TXGEh_options**. Stored home/siteurl
+match the sandbox HTTPS URL. WP 7.1.4/core schema, domain FPM PHP 8.3.36/extensions and active
+Kadence 1.5.2 match. These replace earlier unknown-path/identity entries in this runbook.
+See [the current report](test-results/sandbox-preflight.md) for evidence provenance.
+
+Two installation gates remain unresolved: effective environment type is unknown and stored
+permalink_structure is empty. Do not change either during this task. The original read-only
+scope permits inspecting just the non-secret WP_ENVIRONMENT_TYPE, WP_HOME and WP_SITEURL
+constants and the domain FPM's WP_ENVIRONMENT_TYPE source; do not bootstrap WordPress or
+print other configuration/environment values. Absent/invalid environment sources default to
+production in WordPress, and a constant takes precedence over the environment variable.
+
+A **file-only dry run** can be prepared/executed against the verified sandbox directories
+while installation remains blocked. This operation does not load WordPress or use its DB.
+It does not bypass or weaken deploy-plugins.sh's apply gates or sandbox-preflight.py's strict
+readiness checks. No file comparison counts as authorization to copy, activate or configure.
+
+In the working Gateway conversation, as the development subscription user:
+
+1. Reconfirm the exact canonical root; ensure wp-content/plugins and both target plugin paths
+   are not symlinks. Do not inspect production plugin directories.
+2. Use an already-existing reviewed source checkout outside all public web roots. Confirm its
+   two CSF plugin trees match `52401dcd9a90ca87ad074c1078ad6633df5be77e` with a quiet Git diff;
+   reject untracked/ignored additions inside those trees too. Record the source path and SHA.
+   If source is absent, stop: do not clone/upload/extract anything during this task.
+3. From that existing checkout, run only:
+
+```bash
+CSF_DEV_ROOT='/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'
+for plugin in csf-core csf-emergency; do
+  rsync -a --delete --exclude=.git --itemize-changes --dry-run \
+    "wp-content/plugins/$plugin/" "$CSF_DEV_ROOT/wp-content/plugins/$plugin/" || exit "$?"
+done
+```
+
+Return the raw dry-run listing and exit status without creating a report file on the VPS.
+If rsync or the target parent directory is absent, report that blocker; do not install tools
+or create directories. Existing secure local-to-remote rsync with --dry-run is an alternative
+when the source checkout is local. Do not substitute a production path.
+
+After file comparison, installation still needs: confirmed development/staging designation,
+reviewed URL overrides, separately authorized pretty-permalink/setup changes, a fresh verified
+backup and restore evidence, actual Kadence acceptance and explicit apply approval. Do not
+reinterpret this inspection update as authorization for those changes.

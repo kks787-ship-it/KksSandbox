@@ -1,75 +1,81 @@
-# Sandbox exact-target preflight — pending server evidence
+# Sandbox exact-target preflight — Gateway evidence received
 
-Scope: read-only inspection and deployment dry run only. **No deployment apply, activation,
-site setup, backup creation, database writes or Plesk configuration change is authorized.**
+Source: the owner's forwarded Gateway SSH report from `serve1`. These are Gateway-reported
+server observations, not commands independently executed by this Codex session.
+Scope remains read-only inspection and deployment dry run only. No apply, activation, site
+setup, backup creation, database writes or Plesk configuration changes are authorized.
 
-## Owner-verified Plesk inventory
+## Verified in the supplied Gateway report
 
-These values were supplied by the owner; they are not yet independent server observations.
+| Check | Gateway-reported result |
+|---|---|
+| Document root and canonical path | `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; Plesk path equals resolved path |
+| Configured DB_NAME | `wp_mdf4x` |
+| SELECT DATABASE() | `wp_mdf4x` |
+| Database session | `tx_read_only = 1` |
+| Options table | `wp_mdf4x.TXGEh_options` |
+| Stored home/siteurl | Both `https://sandbox.cornerstonefarmomak.com` |
+| WordPress | Version file 7.1.4; DB schema version matches core file |
+| Domain PHP | 8.3.36; `plesk-php83-fpm`; FPM binary version confirmed |
+| PHP extensions | Required checks passed; mysqli, curl, mbstring, XML/DOM, ZIP, GD, Imagick, OpenSSL, sodium and intl present |
+| Real Kadence | 1.5.2; template and stylesheet both kadence (active parent theme) |
+| Indexing | blog_public = 0 |
+| Permalink structure | Empty; plain URLs |
 
-| Property | Supplied value | Current independent status |
-|---|---|---|
-| Development URL | https://sandbox.cornerstonefarmomak.com | HTTPS request blocked at cloud CONNECT proxy; no origin response obtained |
-| Relative document root | sandbox.cornerstonefarmomak.com | Absolute canonical path unknown; do not infer a /var/www/vhosts path |
-| Development Plesk database | wp_mdf4x | wp-config DB_NAME and SELECT DATABASE() not yet observed |
-| WordPress | 7.1.4 | Awaiting server readout |
-| Domain PHP | 8.3.36 | Awaiting CLI/handler comparison and extension report |
-| Kadence | 1.5.2 | Installed version/active parent and actual rendering unverified |
-| TLS and redirect | Let's Encrypt enabled; HTTP→HTTPS 301 enabled | Owner-verified Plesk configuration; no external TLS/redirect result obtained |
-| Production | cornerstonefarmomak.com / wp_iacb7 | Excluded; no connection/query/modification attempted |
-| Additional unassigned database | wp_mdoaq | Excluded; no connection/query/modification attempted |
+Plesk's connection initially selected its own `psa` database. Gateway's identity guard stopped
+before any WordPress options query; explicitly selecting `wp_mdf4x` resolved the mismatch.
+Retain this guard on every new DB connection: never assume Plesk's default schema is WordPress.
+Use the explicit database and qualified `wp_mdf4x.TXGEh_options` for sandbox option reads.
+The report states that neither `wp_iacb7` nor `wp_mdoaq` was queried, no credentials were
+printed, WordPress/plugins/themes were not initialized, and no changes were made.
 
-## Access evidence
+## Outstanding gates
 
-The task's current managed runtime reports no outbound identities, secret bindings or runtime
-variables. No SSH agent binding or .ssh directory is present in the task account/workspace.
-The identity manifest contains no connections. No Plesk/SSH connector is available.
-Network policy grants no SSH TCP destinations and does not allow the sandbox HTTPS host.
-A HEAD request to the sandbox with redirects disabled returned HTTP 403 from the CONNECT
-proxy, not from WordPress; it does not establish a site, DNS, certificate or server failure.
-No origin request reached the sandbox through that denied connection.
+| Item | Status and next read-only action |
+|---|---|
+| Effective environment type | Unknown. DB_NAME-only inspection did not read wp-config's WP_ENVIRONMENT_TYPE; absence from domain PHP configuration alone is insufficient evidence. Inspect that named constant and the domain FPM/server WP_ENVIRONMENT_TYPE value without bootstrapping WP. |
+| Effective URL overrides | Stored URLs match. Inspect only WP_HOME/WP_SITEURL definitions and their referenced sources, reporting literal/absent/dynamic without printing configuration files or other constants. |
+| Pretty permalinks | Not configured. Controlled future configuration/setup needs separate authorization; do not save permalinks now. |
+| Real Kadence behavior | Version and active theme identity pass; layouts, editor, navigation, accessibility and cache behavior remain untested. |
+| Backup and restore | No current verified backup or restore evidence supplied. Do not create one during the current read-only task. |
+| Exact-target file dry run | Not executed. A file-only comparison may proceed after exact filesystem/source validation, while reporting all installation blockers. It does not authorize or clear deployment. |
 
-**Blocked:** the actual absolute path, configured/connected database, live preflight and
-server-specific rsync difference cannot be verified without authorized server command output
-or secure SSH access plus the required network route. No credentials should be pasted in chat.
+WordPress 7.1.4's `wp_get_environment_type()` checks the environment variable, then a nonempty
+constant (which takes precedence), and falls back to **production** for absent/invalid values.
+This ordering was checked in the local same-version core source, not executed on the VPS.
+A sandbox hostname or `blog_public=0` does not establish a staging/development environment.
+If constant/environment sources are dynamic or unresolved, preserve status as unknown.
 
-## Prepared exact-target checks
+The original authorization permits read-only predeployment inspection. Reading just the
+non-secret WP_ENVIRONMENT_TYPE, WP_HOME and WP_SITEURL keys does not require permission to
+change them; expand Gateway's self-imposed DB_NAME-only inspection to those named values.
+Do not dump wp-config, passwords, salts, arbitrary includes or the environment. No wp eval
+or normal WordPress initialization is needed for this follow-up.
 
-`scripts/sandbox-preflight.py` resolves and reports the canonical document root, requires the
-owner-confirmed sandbox directory name and a regular wp-config inside it, checks only the
-non-secret DB_NAME/table_prefix/WP_ENVIRONMENT_TYPE settings, and rejects any DB_NAME other
-than wp_mdf4x before database queries. It refuses production, unassigned and unknown databases.
+## Dry-run boundary
 
-It uses WP-CLI db query **before wp-settings.php**, not wp eval/option/theme commands, and
-uses START TRANSACTION READ ONLY for every SELECT. It first verifies SELECT DATABASE(); only
-then reads safe options from the explicitly qualified wp_mdf4x options table. The production
-and unassigned databases are never named in queries. WP-CLI still evaluates wp-config.php;
-custom code there must be reviewed before claiming absolute side-effect isolation. This
-method does not run plugin/theme/MU-plugin initialization. Do not use the older general
-bootstrap-based inspector under the current no-database-writes constraint.
+Use the exact canonical root above and only its csf-core/csf-emergency plugin directories.
+Confirm content/plugins paths are not symlinks to a different site. Compare against reviewed
+release commit `52401dcd9a90ca87ad074c1078ad6633df5be77e` (prepared plugin ZIPs remain unchanged).
+Do not clone/upload/extract sources onto the VPS under the current scope. An existing reviewed
+checkout outside web roots or an existing secure local-to-remote rsync path is needed.
+If neither is available, report the missing source/access prerequisite rather than staging files.
 
-The script checks exact home/siteurl, declared development/staging environment, noindex,
-permalinks, active real Kadence parent, Kadence version header, CLI WP/PHP versions, required
-PHP extensions and linked plugin destinations. It does not activate Kadence, edit settings,
-verify web-handler equality or prove browser compatibility. A mismatch is a stop/report,
-not permission to fix it. Version drift requires review, not an upgrade/downgrade.
+Use mandatory `rsync --dry-run --itemize-changes --delete` and preserve its exit status/output;
+no plugin activation, setup or WordPress bootstrap. Record proposed added/changed/deleted
+files and source commit. Do not remove --dry-run. No actual server diff is claimed here.
+The strict deployment/preflight scripts remain unchanged and must continue to block unknown
+or production environment type and failed installation prerequisites. This file-only operation
+is distinct from installation readiness; it cannot satisfy the backup or environment gates.
 
-Its optional --dry-run invokes rsync with --dry-run hardcoded for both CSF plugin directories.
-There is no --apply flag. It requires a reviewed existing tooling checkout outside the site;
-it must not be uploaded/cloned onto the VPS during this read-only task. A remote rsync dry run
-from an existing local checkout is the alternative if no server tooling checkout exists.
+## Local validation and access limitations
 
-## Current local validation
+The prior 14 sandbox guard unittest cases, 22 deployment/backup scenarios and six generic
+Plesk-preflight scenarios passed locally using fixtures/mocked outputs. They do not establish
+VPS behavior. Historical local rsync output remains a fixture, not a sandbox diff.
+This update changes documentation only; no application behavior or guards were weakened.
 
-- 14 unittest cases pass (including production/unassigned/unknown database subcases), with
-  fixture files and mocked command outputs. They verify refusal before queries/copies, read-only
-  SQL, exact URL, real-theme identity, CLI mismatch, extension failures, symlink rejection and
-  mandatory rsync --dry-run. These are **not** actual sandbox results.
-- Existing deployment/backup and generic Plesk-preflight guard suites remain separate local
-  tests. Historical rsync fixture output from Milestone B is **not** a sandbox deployment diff.
-- Real sandbox dry run: **not executed**. Absolute path and DB verification: **not executed**.
-- No backup/restore verification or real Kadence browser acceptance is claimed in this report.
-
-See [the canonical runbook](../05-backup-rollback-deploy.md#sandbox-read-only-exact-target-inspection)
-for the next commands. Remain blocked for installation until actual evidence and separate
-apply authorization are supplied.
+Gateway's SSH execution tools are still not exposed in this Codex session. Its native cloud
+network denied a prior sandbox HTTPS CONNECT request; that is not evidence of an origin/TLS
+failure. Continue the server commands in the working Gateway conversation and supply the
+non-secret results here. Real sandbox dry run and full installation readiness remain pending.
