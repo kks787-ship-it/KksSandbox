@@ -4,10 +4,11 @@
 structural/database and filesystem restore verification, private source staging, exact-target
 Plesk preflight and deployment dry run. The fresh installation backup gate passed, then the
 owner approved **files-only installation of `csf-core` and `csf-emergency` in the sandbox**.
-Both plugin directories are present and verified, but **both plugins remain inactive**.
+Both plugin directories are present and verified. A later **owner-approved sandbox-only
+activation of `csf-core` 0.2.0 succeeded**; `csf-emergency` 0.1.0 remains inactive.
 Do not repeat completed preparation or file copying. Functional login/page rendering on the
-isolated restoration remains untested. Plugin activation, site setup, permalink change and
-production deployment remain unauthorized.
+isolated restoration remains untested. Emergency plugin activation, site setup, permalink
+change and production deployment remain unauthorized.
 
 The [current report](test-results/sandbox-preflight.md) records evidence provenance; the
 [installation plan](07-website-installation.md#staged-installation-approval-boundaries)
@@ -17,7 +18,7 @@ separates copying inactive files from later activation, setup and real Kadence t
 
 | Environment | Exact target | Boundary |
 |---|---|---|
-| Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | Files-only installation completed; plugins inactive; activation/setup unapproved |
+| Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | `csf-core` active with approval; `csf-emergency` inactive; setup unapproved |
 | Production | cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/httpdocs`; DB `wp_iacb7` | Excluded from changes |
 | Unassigned database | `wp_mdoaq` | Excluded, including as a scratch database |
 | Existing scratch | DB `csf_sandbox_restore_20261031` and private/not-publicly-served restored filesystem | Preserve; filesystem path is in existing Gateway records |
@@ -294,8 +295,27 @@ review a deployment-script permission normalization change before further code u
 
 Sandbox database remains `wp_mdf4x` with the original five posts (site setup not run).
 Neither plugin was activated, and production's plugin directories remained unmodified.
-**Next stage requires explicit owner approval for activation** (consider `csf-core` first),
-followed by separate approval for creating the 21 pages/menus and changing permalinks.
+A later separate owner authorization activated **`csf-core` only**. `csf-emergency`
+remains inactive. The **next stage requires separate approval** for creating the 21 pages/menus
+and any permalink change.
 Real Kadence rendering and usability have not been validated. The completed backup gate's
 24-hour freshness must be rechecked before any subsequent mutation; if expired, create a
 new limited application backup without repeating the entire structural restore.
+
+## Verified `csf-core` activation (October 31, 2026)
+
+Gateway checked the same sandbox-specific backup gate (fresh, six hashes valid, restored-evidence
+file present), reconfirmed the exact development URL, `wp_mdf4x` and reviewed source, then
+activated **only `csf-core` 0.2.0** as the Plesk subscription user.
+Activation job `job_01M69P01SA00P66KZ43HJE6FC0` succeeded without command errors.
+`wp plugin list` reports `csf-core=active` and `csf-emergency=inactive`.
+`wp csf status` reports all 21 planned website pages missing; `wp csf setup --dry-run`
+showed the 21 prospective page creations and footer pattern without mutating site content.
+Five total posts remain, while taxonomy term records changed from 1 to 27 and option rows
+from 147 to 150 as activation seed effects. Homepage remains `show_on_front=posts`;
+permalink structure remains empty/plain; Kadence remains active; sandbox indexing is still off
+and its public HTTP request is challenged with HTTP 401 password protection.
+
+No page/menu setup, explicit permalink change, emergency activation, notifications,
+production code deployment, or production database action was authorized or performed.
+Separate approval is still required for website setup and any permalinks configuration.
