@@ -1,8 +1,9 @@
 # 07 — Website Installation (Development Site)
 
-**Scope:** the separate sandbox on Plesk. Preparation is complete; the two CSF plugins are
-not installed or active yet. Each installation/activation/setup stage below requires separate
-approval. The production site remains excluded.
+**Scope:** the separate sandbox on Plesk. Preparation is complete, and the two CSF plugin
+**directories are installed but both plugins remain inactive** (Gateway, October 31, 2026).
+Activation, website setup and permalink changes each require separate owner approval.
+The production site remains excluded.
 
 Estimated time: 45–60 minutes, most of it in the Kadence Customizer.
 
@@ -15,11 +16,13 @@ The immediate objective is csf-core/csf-emergency testing with **real Kadence 1.
 
 | Stage | Proposed action | Authorization/status |
 |---|---|---|
-| Final gate | Reuse completed backup/structural restore and existing private restore-evidence.txt; verify actual fresh target-bound format | Remote gate not run by this task; conditional limited refresh only if genuinely needed/approved |
-| A | Copy only the two new CSF plugin directories, **leave inactive** | Separate files-only installation approval required; not started |
+| Final gate | Fresh target-bound backup + six-entry integrity check, existing restore evidence | **Passed:** `csf-dev-20261031-184634-36879` (time-limited, recheck before later mutations) |
+| A | Copy only the two new CSF plugin directories, **leave inactive** | **Completed with owner approval**, Gateway job `job_01M69NHGP200KW7JZK6HD2V9YZ`. Both plugins confirmed inactive, content identical; permissions normalized to 0755 dirs/0644 files. |
 | B | Activate csf-core and csf-emergency; verify activation effects | Separate activation approval required; not started |
 | C | Generate/verify the website's 21 pages, menus and synced footer; configure Kadence | Separate site-setup approval required; not started; permalink changes must be explicitly included if needed |
 | D | Test the actual public build/editor/navigation/accessibility/emergency rendering on Kadence | Not started; authenticated sandbox checks within approved test scope |
+
+**Deployment mode follow-up:** The private Git checkout held `0700` directories/`0600` files; the original `rsync -a` copied those modes. Gateway normalized only the newly installed plugin trees to `0755` directories and `0644` files. Amend and review future deployment handling of destination permissions before subsequent releases; do not assume a fresh `rsync -a` preserves this correction.
 
 The isolated restoration passed structural/file checks (12 InnoDB tables; 4,336 regular files,
 zero mismatches), **not functional WordPress login/page rendering**. Disclose this limitation
@@ -38,16 +41,17 @@ Current state is from the owner's completed Gateway report dated October 31, 202
 - [x] Private source staged at d360dbf, plugin trees matched to 52401dc.
 - [x] Exact-target Plesk preflight and deployment dry run passed; only two new plugin directories proposed.
 - [x] Capture times supplied: DB export October 31, 10:08:58 AM PDT; files 10:09:42 AM PDT; existing scratch DB csf_sandbox_restore_20261031 and private restore-evidence.txt path recorded.
-- [ ] Actual installation-time fresh target-bound format/gate verified against those existing artifacts and evidence; no new full preparation required.
+- [x] Installation-time target-bound gate passed with fresh script-format backup and six verified checks; recheck freshness before next mutation.
 - [ ] Functional login/page-rendering test on isolated restoration (explicitly unrun; keep qualification).
-- [ ] Separate approval for Stage A file copying; later approvals for B/C and any permalink change.
+- [x] Stage A file-copy approval granted and completed October 31, 2026, both plugins inactive.
+- [ ] Separate approvals for Stages B/C and any permalink change; not yet authorized.
 
 See the [current report](test-results/sandbox-preflight.md) and
 [gate procedure](05-backup-rollback-deploy.md#backups-and-verified-backup-gate-before-any-apply).
 Do not rerun the completed full backup/restore/source staging/dry-run package. Refer to
 existing Gateway records for the actual staged checkout, scratch identities and raw output.
 
-## 1. Copy the plugins — Stage A, after approval only
+## 1. Copy the plugins — Stage A completed (historical procedure; do not repeat)
 
 Target: `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`,
 URL `https://sandbox.cornerstonefarmomak.com`, DB `wp_mdf4x`. Only csf-core and csf-emergency
