@@ -76,8 +76,9 @@ Emergency remains inactive. The historical d360dbf staging/dry run is not a test
 
 Newer remote roadmap commits 52b882e/457fffb report real-Kadence Issue #1: shared intro text
 reaches the viewport edge while headings are inset, observed on Meet Beth and Camps/Clinics.
-This supersedes the earlier no-confirmed-defects clarification. Not independently reproduced
-or fixed here. Start authenticated 390/768/1280px review on the six priority pages, then audit
+This supersedes the earlier no-confirmed-defects clarification. A shared CSS candidate is
+now reproduced/corrected on a disposable local downloaded Kadence 1.5.2 fixture; the actual
+protected sandbox remains untested. Do not claim its acceptance passed or close Issue #1. Start authenticated 390/768/1280px review on the six priority pages, then audit
 all 21 pages, other text sections and Gutenberg; preserve full-bleed backgrounds and content.
 HTTP 401 without Basic Authentication is expected, not a broken route. Do not redesign or
 change Kadence meta speculatively. Original logo/photos, header/palette/typography/footer
@@ -106,3 +107,11 @@ before approved file copy/activation/setup. This is complete, not another pendin
 task. Preserve job provenance in docs/05-backup-rollback-deploy.md. That bundle predates the
 now-published build; a future approved update needs a current backup, not a repeated full
 infrastructure restoration. Do not claim either historical bundle captures later owner edits.
+
+Latest user scope: finish local layout fixes and prepare review; private Basic Auth file and
+sandbox network access are NOT provisioned/verified. Gateway SSH access does not transfer.
+The local test theme came from the public CDN mirror, not the VPS; preserve that distinction.
+Safe non-forced Contact upgrade is tested from the actual reviewed 0.2.0 template: unedited
+page gains one block, edited/no-hash page is kept and warns for manual placement. No force,
+automatic enablement or live Contact mutation. See docs/test-results/kadence-layout.md and
+updated Contact integration in doc 07; any live content operation still needs approval.

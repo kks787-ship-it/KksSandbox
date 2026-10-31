@@ -45,7 +45,7 @@ the production domain until the owners approve the replacement.
 - [x] Automated tests: accessibility (axe WCAG 2.2 AA), responsive, links, navigation, booking, block-editor validity, emergency, structured content, setup idempotency
 - [x] Repeatable local environment (`scripts/local-dev.sh`)
 - [x] Installed/active core; all 21 pages published, menus assigned, static Home, /%postname%/ and rewrite/Apache checks passed (Gateway)
-- [ ] **SITEWIDE reported real-Kadence gutter defect — [Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1):** intro text reaches viewport edge while nearby headings are inset (Meet Beth, Camps & Clinics). Fix shared constrained-content/gutter behavior and inspect all 21 pages, other text sections and Gutenberg at 390/768/1280px; preserve full-bleed backgrounds and owner content. Not independently reproduced here; no speculative two-page patch or deployment.
+- [ ] **SITEWIDE reported real-Kadence gutter defect — [Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1):** intro text reaches viewport edge while nearby headings are inset (Meet Beth, Camps & Clinics). Fix shared constrained-content/gutter behavior and inspect all 21 pages, other text sections and Gutenberg at 390/768/1280px; preserve full-bleed backgrounds and owner content. Shared CSS candidate and local downloaded-theme geometry evidence are prepared; authenticated sandbox review remains NOT RUN. Do not close Issue #1 or deploy from local results alone.
 - [ ] Verify on Kadence: Customizer palette, header, footer, page-layout settings
 - [ ] Logo, photographs, contact details, Acuity verification, resolve 23 owner notes (doc 09)
 - [x] Local 0.3.0 candidate: deployment permissions, failed-setup reporting, optional inquiry form with spam controls and mocked delivery tests
@@ -83,9 +83,11 @@ the production domain until the owners approve the replacement.
 
 **Assignment A: finish the public website.** The later remote roadmap records real-Kadence
 gutter Issue #1 after the earlier no-confirmed-defects clarification. Authenticated reproduction
-and the shared fix remain pending here. Start with six priority pages, then audit all 21
-at 390/768/1280px, including other text sections and Gutenberg; preserve full-bleed backgrounds. Local deployment-mode/setup-reporting fixes and the disabled inquiry
-form are review candidates, not installed code. Footer block 27 placement, header/palette/
+on the protected sandbox remains pending; the shared candidate is prepared locally. Start with six priority pages, then audit all 21
+at 390/768/1280px, including other text sections and Gutenberg; preserve full-bleed backgrounds. Local deployment-mode/setup-reporting fixes, the shared gutter correction and disabled inquiry
+form are one review candidate, not installed code. Contact integration is tested against the
+0.2.0 saved template: non-forced upgrade for unedited content; edited content preserved with
+a manual-placement warning. Footer block 27 placement, header/palette/
 typography, original assets, Acuity verification and owner notes are configuration/content
 work, not reasons for another plugin or rebuild. See [current status](test-results/sandbox-preflight.md),
 [local validation](test-results/website-finishing.md) and [acceptance/update plan](07-website-installation.md).
@@ -103,3 +105,7 @@ csf-sandbox-backup-20261031 directory, structural 12-table/4,336-file restore, p
 source staging and initial preflight/dry run. Functional restored-site login/rendering was not
 run. Preserve those records; no new production, emergency activation, setup, permalink or
 code deployment authorization is implied by this roadmap update.
+
+Local downloaded-theme results and remaining protected-site gates:
+[test-results/kadence-layout.md](test-results/kadence-layout.md). Owner chose local fixes/review
+preparation until secure sandbox access is arranged. No new deployment or live Contact edit.

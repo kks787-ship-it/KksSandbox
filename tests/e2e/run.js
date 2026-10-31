@@ -16,9 +16,11 @@ const { chromium } = require( 'playwright' );
 const { execFileSync } = require( 'child_process' );
 const fs = require( 'fs' );
 const path = require( 'path' );
+const layoutMetrics = require( './layout-metrics' );
 
 const ROOT = path.resolve( __dirname, '..', '..' );
 const BASE = process.env.CSF_BASE_URL || 'http://localhost:8890';
+const WP_SITE = fs.realpathSync( process.env.CSF_WP_PATH || path.join( ROOT, '.wp-local', 'site' ) );
 const OUT = path.join( ROOT, '.wp-local', 'test-output' );
 const SHOTS = path.join( ROOT, 'docs', 'screenshots' );
 const REPORT = path.join( ROOT, 'docs', 'test-results', 'phase-2.md' );
@@ -29,6 +31,9 @@ const ONLY = ( process.argv.find( ( a ) => a.startsWith( '--only=' ) ) || '' ).s
 if ( ! /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test( BASE ) ) {
 	console.error( 'Refusing to run against a non-local URL: ' + BASE );
 	process.exit( 2 );
+}
+if ( ! WP_SITE.startsWith( path.join( ROOT, '.wp-local' ) + path.sep ) ) {
+	throw new Error( 'WP-CLI fixture must be inside this checkout’s ignored .wp-local directory.' );
 }
 
 const VIEWPORTS = {
@@ -62,7 +67,7 @@ function record( group, name, ok, detail = '' ) {
 }
 
 function wp( ...args ) {
-	return execFileSync( 'php', [ path.join( ROOT, '.wp-local', 'wp-cli.phar' ), '--path=' + path.join( ROOT, '.wp-local', 'site' ), '--allow-root', ...args ], { encoding: 'utf8' } ).trim();
+	return execFileSync( 'php', [ path.join( ROOT, '.wp-local', 'wp-cli.phar' ), '--path=' + WP_SITE, '--allow-root', ...args ], { encoding: 'utf8' } ).trim();
 }
 
 function slugFor( url ) {
@@ -212,6 +217,13 @@ async function testEditor( browser ) {
 		await page.waitForFunction( () => window.wp && wp.data && wp.data.select( 'core/block-editor' ) && wp.data.select( 'core/block-editor' ).getBlocks().length > 0, null, { timeout: 90000 } );
 		const invalid = await page.evaluate( walk + '(wp.data.select("core/block-editor").getBlocks())' );
 		record( 'editor', `${ type } "${ name }" opens in the block editor with no invalid blocks`, invalid.length === 0, JSON.stringify( invalid ).slice( 0, 1500 ) );
+		if ( process.env.CSF_KADENCE_LAYOUT === '1' && type === 'page' ) {
+			const canvas = page.frames().find( frame => frame.name() === 'editor-canvas' ) || page.mainFrame();
+			await canvas.waitForSelector( '.csf-page-header, .csf-hero' );
+			await canvas.evaluate( () => document.fonts.ready );
+			const geometry = await canvas.evaluate( layoutMetrics );
+			record( 'editor', `"${ name }" shared lead alignment and text gutters in real Kadence canvas`, geometry.headers.length > 0 && geometry.headers.every( h => Math.abs( h.title.left - h.lead.left ) <= 1 ) && geometry.textAtEdge.length === 0, JSON.stringify( geometry ).slice( 0, 1200 ) );
+		}
 	}
 
 	// Self-check: the validator must flag deliberately broken markup, or the results above mean nothing.
@@ -337,6 +349,18 @@ async function testStructuredContent( browser ) {
 		await shot( mobile, 'home-with-sample-content-mobile' );
 		await mobile.context().close();
 		await page.context().close();
+		if ( process.env.CSF_KADENCE_LAYOUT === '1' ) {
+			for ( const width of [ 390, 768, 1280 ] ) {
+				const populated = await newPage( browser, { width, height: 900 } );
+				for ( const url of [ '/', '/horse-sales/', '/horse-sales/leasing-mentorship/', '/about/meet-the-horses/', '/resources/', '/camps-clinics/' ] ) {
+					await populated.goto( BASE + url );
+					await populated.evaluate( () => document.fonts.ready );
+					const geometry = await populated.evaluate( layoutMetrics );
+					record( 'layout', `populated lists/cards/images ${ url } at ${ width }px`, geometry.failures.length === 0, JSON.stringify( geometry ).slice( 0, 1200 ) );
+				}
+				await populated.context().close();
+			}
+		}
 	} finally {
 		wp( 'eval-file', path.join( __dirname, 'fixtures.php' ), 'delete' );
 	}

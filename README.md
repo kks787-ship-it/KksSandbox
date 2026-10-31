@@ -42,7 +42,9 @@ WordPress core, the Kadence theme, uploads, and `wp-config.php` are **not** comm
 
 The owner reports csf-core 0.2.0 active and all 21 pages published on the protected sandbox.
 Real Kadence 1.5.2 sitewide acceptance is pending; the newer roadmap reports shared gutter
-[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1), not yet reproduced/fixed here.
+[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1). A shared CSS candidate and
+[local downloaded-theme tests](docs/test-results/kadence-layout.md) are prepared; protected
+sandbox acceptance remains unrun.
 The local 0.3.0 candidate has not been deployed; its inquiry form remains off by default.
 See [current status](docs/test-results/sandbox-preflight.md) and [local validation](docs/test-results/website-finishing.md).
 

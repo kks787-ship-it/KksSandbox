@@ -24,6 +24,7 @@
 	--csf-radius: 6px;
 	--csf-section-space: clamp(3rem, 8vw, 6.5rem);
 	--csf-gutter: clamp(1rem, 4vw, 2rem);
+	--csf-content-width: 1160px; /* Matches CSF_Core_Markup::CONTENT_SIZE. */
 	--csf-gap: clamp(1.25rem, 3vw, 2.25rem);
 	--csf-shadow: 0 1px 2px rgba(17, 17, 17, 0.06), 0 8px 24px rgba(17, 17, 17, 0.06);
 }
@@ -61,6 +62,12 @@ body.csf-brand-type,
 
 .wp-block-group:is(.is-style-csf-section-linen, .is-style-csf-section-white, .is-style-csf-section-tan, .is-style-csf-section-dark, .is-style-csf-section-brown) {
 	padding: var(--csf-section-space) var(--csf-gutter);
+}
+
+/* Kadence's .entry-content .alignfull resets inline padding after this sheet loads.
+   Keep CSF gutters inside full-bleed backgrounds with a more specific shared rule. */
+.wp-block-group.alignfull:is(.is-style-csf-section-linen, .is-style-csf-section-white, .is-style-csf-section-tan, .is-style-csf-section-dark, .is-style-csf-section-brown) {
+	padding-inline: var(--csf-gutter);
 }
 
 /* Full-width sections sit flush against each other. */
@@ -190,7 +197,9 @@ ul.is-style-csf-checklist li::before {
 
 /* ---------- Hero ---------- */
 
-.wp-block-cover.csf-hero { color: var(--csf-linen); padding: clamp(4rem, 12vw, 8rem) var(--csf-gutter); }
+.wp-block-cover.csf-hero,
+.wp-block-cover.alignfull.csf-hero { color: var(--csf-linen); padding: clamp(4rem, 12vw, 8rem) var(--csf-gutter); }
+.wp-block-cover.csf-hero > .wp-block-cover__inner-container { padding-inline: 0; }
 .wp-block-cover.csf-hero h1 { color: var(--csf-linen); margin-block: 0.25rem 1rem; }
 .wp-block-cover.csf-hero .is-style-csf-lead { max-width: 38rem; }
 
@@ -427,6 +436,11 @@ body .csf-footer :is(h2, h3) { font-family: var(--csf-sans); font-size: 0.8125re
 	word-wrap: normal !important;
 }
 
-/* Constrained layouts centre narrower children with !important; keep hero/header text left-aligned. */
+/* Align shorter leads with the common content column, not the full-width parent's edge.
+   Gutenberg uses !important auto margins, so match that priority. This also supports the
+   editor's direct children and classic themes' generated inner-container wrappers. */
 .wp-block-cover.csf-hero .is-style-csf-lead,
-.csf-page-header .is-style-csf-lead { margin-left: 0 !important; }
+.csf-page-header .is-style-csf-lead {
+	margin-inline-start: max(0px, calc((100% - var(--csf-content-width)) / 2)) !important;
+	margin-inline-end: auto !important;
+}

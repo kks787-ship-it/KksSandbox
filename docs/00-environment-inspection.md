@@ -73,7 +73,8 @@ source pin, backup and scratch evidence. Do not create new resources to repair s
 
 ## Remaining build acceptance
 
-The newer roadmap reports shared intro-gutter Issue #1, not independently reproduced here.
+Issue #1 now has a shared CSS candidate and local downloaded Kadence 1.5.2 reproduction.
+Protected sandbox review is still NOT RUN: network access/private credentials are unavailable.
 Authenticated review must cover all 21 pages at 390/768/1280px;
 footer synced block 27 is not placed in Footer Builder. Header/palette/typography/navigation,
 authentic assets, owner notes and booking verification remain configuration/content work.

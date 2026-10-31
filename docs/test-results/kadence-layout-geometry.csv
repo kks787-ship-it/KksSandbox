@@ -1,0 +1,127 @@
+phase,page,viewport_px,gutter_px,title_left_px,lead_left_px,lead_right_px,minimum_section_padding_px,background_left_px,background_right_px,text_nodes_checked,text_edge_failures,content_edge_failures,horizontal_overflow_px,geometry_failures
+before,/,390,16,24,24,366,0,0,390,71,15,12,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/,390,16,0,0,390,0,0,390,52,8,12,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/youth-riders/,390,16,0,0,390,0,0,390,24,6,4,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/adult-amateurs/,390,16,0,0,390,0,0,390,27,8,4,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/dressage-foundations/,390,16,0,0,390,0,0,390,15,7,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/off-site-lessons/,390,16,0,0,390,0,0,390,15,7,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/after-school-program/,390,16,0,0,390,0,0,390,12,6,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/horse-training/,390,16,0,0,390,0,0,390,33,9,6,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/horse-training/fei-young-horse-development/,390,16,0,0,390,0,0,390,15,6,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/camps-clinics/,390,16,0,0,390,0,0,390,19,6,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/horse-sales/,390,16,0,0,390,0,0,390,17,6,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/horse-sales/leasing-mentorship/,390,16,0,0,390,0,0,390,19,5,2,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/,390,16,0,0,390,0,0,390,44,11,6,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/meet-beth/,390,16,0,0,390,0,0,390,18,8,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/meet-the-team/,390,16,0,0,390,0,0,390,16,4,4,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/meet-the-horses/,390,16,0,0,390,0,0,390,10,4,1,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/facilities/,390,16,0,0,390,0,0,390,9,4,5,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/resources/,390,16,0,0,390,0,0,390,15,4,2,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/resources/faq/,390,16,0,0,390,0,0,390,22,17,1,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/contact/,390,16,0,0,390,0,0,390,18,10,2,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/booking/,390,16,0,0,390,0,0,390,15,9,2,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/,768,30.719,24,24,632,0,0,768,71,47,13,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/,768,30.719,0,0,704,0,0,768,52,37,12,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/youth-riders/,768,30.719,0,0,704,0,0,768,24,13,4,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/adult-amateurs/,768,30.719,0,0,704,0,0,768,27,16,4,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/dressage-foundations/,768,30.719,0,0,704,0,0,768,15,7,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/off-site-lessons/,768,30.719,0,0,704,0,0,768,15,8,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/lessons/after-school-program/,768,30.719,0,0,704,0,0,768,12,8,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/horse-training/,768,30.719,0,0,704,0,0,768,33,21,6,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/horse-training/fei-young-horse-development/,768,30.719,0,0,704,0,0,768,15,7,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/camps-clinics/,768,30.719,0,0,704,0,0,768,19,8,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/horse-sales/,768,30.719,0,0,704,0,0,768,17,9,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/horse-sales/leasing-mentorship/,768,30.719,0,0,704,0,0,768,19,13,2,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/,768,30.719,0,0,704,0,0,768,44,31,6,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/meet-beth/,768,30.719,0,0,704,0,0,768,18,9,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/meet-the-team/,768,30.719,0,0,704,0,0,768,16,12,4,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/meet-the-horses/,768,30.719,0,0,704,0,0,768,10,6,1,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/about/facilities/,768,30.719,0,0,704,0,0,768,9,5,5,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/resources/,768,30.719,0,0,704,0,0,768,15,11,2,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/resources/faq/,768,30.719,0,0,704,0,0,768,22,18,1,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/contact/,768,30.719,0,0,704,0,0,768,18,14,3,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/booking/,768,30.719,0,0,704,0,0,768,15,12,2,0,"full-width section lost its inner gutter; section text extends into the viewport gutters; columns, cards, images or booking controls extend into viewport gutters"
+before,/,1280,32,60,24,632,0,0,1280,71,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/lessons/,1280,32,60,0,704,0,0,1280,52,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/lessons/youth-riders/,1280,32,60,0,704,0,0,1280,24,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/lessons/adult-amateurs/,1280,32,60,0,704,0,0,1280,27,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/lessons/dressage-foundations/,1280,32,60,0,704,0,0,1280,15,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/lessons/off-site-lessons/,1280,32,60,0,704,0,0,1280,15,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/lessons/after-school-program/,1280,32,60,0,704,0,0,1280,12,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/horse-training/,1280,32,60,0,704,0,0,1280,33,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/horse-training/fei-young-horse-development/,1280,32,60,0,704,0,0,1280,15,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/camps-clinics/,1280,32,60,0,704,0,0,1280,19,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/horse-sales/,1280,32,60,0,704,0,0,1280,17,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/horse-sales/leasing-mentorship/,1280,32,60,0,704,0,0,1280,19,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/about/,1280,32,60,0,704,0,0,1280,44,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/about/meet-beth/,1280,32,60,0,704,0,0,1280,18,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/about/meet-the-team/,1280,32,60,0,704,0,0,1280,16,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/about/meet-the-horses/,1280,32,60,0,704,0,0,1280,10,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/about/facilities/,1280,32,60,0,704,0,0,1280,9,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/resources/,1280,32,60,0,704,0,0,1280,15,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/resources/faq/,1280,32,60,0,704,0,0,1280,22,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/contact/,1280,32,60,0,704,0,0,1280,18,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+before,/booking/,1280,32,60,0,704,0,0,1280,15,1,0,0,header/hero lead does not align with title; full-width section lost its inner gutter; section text extends into the viewport gutters
+after,/,390,16,16,16,374,16,0,390,71,0,0,0,
+after,/lessons/,390,16,16,16,374,16,0,390,52,0,0,0,
+after,/lessons/youth-riders/,390,16,16,16,374,16,0,390,24,0,0,0,
+after,/lessons/adult-amateurs/,390,16,16,16,374,16,0,390,27,0,0,0,
+after,/lessons/dressage-foundations/,390,16,16,16,374,16,0,390,15,0,0,0,
+after,/lessons/off-site-lessons/,390,16,16,16,374,16,0,390,15,0,0,0,
+after,/lessons/after-school-program/,390,16,16,16,374,16,0,390,12,0,0,0,
+after,/horse-training/,390,16,16,16,374,16,0,390,33,0,0,0,
+after,/horse-training/fei-young-horse-development/,390,16,16,16,374,16,0,390,15,0,0,0,
+after,/camps-clinics/,390,16,16,16,374,16,0,390,19,0,0,0,
+after,/horse-sales/,390,16,16,16,374,16,0,390,17,0,0,0,
+after,/horse-sales/leasing-mentorship/,390,16,16,16,374,16,0,390,19,0,0,0,
+after,/about/,390,16,16,16,374,16,0,390,44,0,0,0,
+after,/about/meet-beth/,390,16,16,16,374,16,0,390,18,0,0,0,
+after,/about/meet-the-team/,390,16,16,16,374,16,0,390,16,0,0,0,
+after,/about/meet-the-horses/,390,16,16,16,374,16,0,390,10,0,0,0,
+after,/about/facilities/,390,16,16,16,374,16,0,390,9,0,0,0,
+after,/resources/,390,16,16,16,374,16,0,390,15,0,0,0,
+after,/resources/faq/,390,16,16,16,374,16,0,390,22,0,0,0,
+after,/contact/,390,16,16,16,374,16,0,390,18,0,0,0,
+after,/booking/,390,16,16,16,374,16,0,390,15,0,0,0,
+after,/,768,30.719,30.719,30.719,638.719,30.72,0,768,71,0,0,0,
+after,/lessons/,768,30.719,30.719,30.719,734.719,30.72,0,768,52,0,0,0,
+after,/lessons/youth-riders/,768,30.719,30.719,30.719,734.719,30.72,0,768,24,0,0,0,
+after,/lessons/adult-amateurs/,768,30.719,30.719,30.719,734.719,30.72,0,768,27,0,0,0,
+after,/lessons/dressage-foundations/,768,30.719,30.719,30.719,734.719,30.72,0,768,15,0,0,0,
+after,/lessons/off-site-lessons/,768,30.719,30.719,30.719,734.719,30.72,0,768,15,0,0,0,
+after,/lessons/after-school-program/,768,30.719,30.719,30.719,734.719,30.72,0,768,12,0,0,0,
+after,/horse-training/,768,30.719,30.719,30.719,734.719,30.72,0,768,33,0,0,0,
+after,/horse-training/fei-young-horse-development/,768,30.719,30.719,30.719,734.719,30.72,0,768,15,0,0,0,
+after,/camps-clinics/,768,30.719,30.719,30.719,734.719,30.72,0,768,19,0,0,0,
+after,/horse-sales/,768,30.719,30.719,30.719,734.719,30.72,0,768,17,0,0,0,
+after,/horse-sales/leasing-mentorship/,768,30.719,30.719,30.719,734.719,30.72,0,768,19,0,0,0,
+after,/about/,768,30.719,30.719,30.719,734.719,30.72,0,768,44,0,0,0,
+after,/about/meet-beth/,768,30.719,30.719,30.719,734.719,30.72,0,768,18,0,0,0,
+after,/about/meet-the-team/,768,30.719,30.719,30.719,734.719,30.72,0,768,16,0,0,0,
+after,/about/meet-the-horses/,768,30.719,30.719,30.719,734.719,30.72,0,768,10,0,0,0,
+after,/about/facilities/,768,30.719,30.719,30.719,734.719,30.72,0,768,9,0,0,0,
+after,/resources/,768,30.719,30.719,30.719,734.719,30.72,0,768,15,0,0,0,
+after,/resources/faq/,768,30.719,30.719,30.719,734.719,30.72,0,768,22,0,0,0,
+after,/contact/,768,30.719,30.719,30.719,734.719,30.72,0,768,18,0,0,0,
+after,/booking/,768,30.719,30.719,30.719,734.719,30.72,0,768,15,0,0,0,
+after,/,1280,32,60,60,668,32,0,1280,71,0,0,0,
+after,/lessons/,1280,32,60,60,764,32,0,1280,52,0,0,0,
+after,/lessons/youth-riders/,1280,32,60,60,764,32,0,1280,24,0,0,0,
+after,/lessons/adult-amateurs/,1280,32,60,60,764,32,0,1280,27,0,0,0,
+after,/lessons/dressage-foundations/,1280,32,60,60,764,32,0,1280,15,0,0,0,
+after,/lessons/off-site-lessons/,1280,32,60,60,764,32,0,1280,15,0,0,0,
+after,/lessons/after-school-program/,1280,32,60,60,764,32,0,1280,12,0,0,0,
+after,/horse-training/,1280,32,60,60,764,32,0,1280,33,0,0,0,
+after,/horse-training/fei-young-horse-development/,1280,32,60,60,764,32,0,1280,15,0,0,0,
+after,/camps-clinics/,1280,32,60,60,764,32,0,1280,19,0,0,0,
+after,/horse-sales/,1280,32,60,60,764,32,0,1280,17,0,0,0,
+after,/horse-sales/leasing-mentorship/,1280,32,60,60,764,32,0,1280,19,0,0,0,
+after,/about/,1280,32,60,60,764,32,0,1280,44,0,0,0,
+after,/about/meet-beth/,1280,32,60,60,764,32,0,1280,18,0,0,0,
+after,/about/meet-the-team/,1280,32,60,60,764,32,0,1280,16,0,0,0,
+after,/about/meet-the-horses/,1280,32,60,60,764,32,0,1280,10,0,0,0,
+after,/about/facilities/,1280,32,60,60,764,32,0,1280,9,0,0,0,
+after,/resources/,1280,32,60,60,764,32,0,1280,15,0,0,0,
+after,/resources/faq/,1280,32,60,60,764,32,0,1280,22,0,0,0,
+after,/contact/,1280,32,60,60,764,32,0,1280,18,0,0,0,
+after,/booking/,1280,32,60,60,764,32,0,1280,15,0,0,0,

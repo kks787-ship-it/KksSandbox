@@ -49,7 +49,7 @@ restore must not be scheduled again merely because documentation changed.
 
 ## Real Kadence — confirmed results versus pending acceptance
 
-Kadence 1.5.2 is active and WordPress-level rendering passed. **The newer remote roadmap reports shared gutter [Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1)** after the earlier no-confirmed-defects clarification: intro text reaches the viewport edge while headings are inset, observed on Meet Beth and Camps & Clinics. This Codex session has not independently reproduced or fixed it; sitewide authenticated acceptance remains pending.
+Kadence 1.5.2 is active and WordPress-level rendering passed. **The newer remote roadmap reports shared gutter [Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1)** after the earlier no-confirmed-defects clarification: intro text reaches the viewport edge while headings are inset, observed on Meet Beth and Camps & Clinics. A shared CSS candidate is locally reproduced/corrected using downloaded Kadence 1.5.2; **no authenticated Plesk sandbox testing was performed**. The owner chose local completion/review preparation until secure access is arranged. See [local layout evidence](kadence-layout.md).
 Unauthenticated HTTP 401 is expected password protection, not a route defect or HTTP 200 proof.
 Historical substitute-theme tests cannot establish real Kadence compatibility.
 
@@ -65,8 +65,9 @@ Use the [authenticated procedure](../07-website-installation.md#real-kadence-acc
 
 ## Current development versus installed release
 
-The new **0.3.0 candidate has not been deployed**. It fixes deployment modes and setup error
-reporting and adds an inquiry form that stays disabled until actual delivery is verified.
+The new **0.3.0 candidate has not been deployed**. It fixes deployment modes, setup error reporting and shared layout gutters, and adds an inquiry
+form that stays disabled until actual delivery is verified. Safe non-forced Contact integration
+is regression-tested locally; actual saved sandbox content has not been inspected or changed.
 Recipient: beth.siemon@cornerstonefarmomak.com; transport unknown; owner explicitly requests
 keeping the form off. Local results are in [website finishing](website-finishing.md).
 

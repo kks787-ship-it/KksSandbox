@@ -5,7 +5,7 @@
 WordPress 7.1.4 and PHP 8.3.36. **Do not reinstall the foundation or recreate the site.**
 csf-emergency 0.1.0 is installed but remains **inactive** and non-operational. Production is excluded.
 
-The newer remote roadmap reports **[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1)**: shared intro paragraphs reach the viewport edge while headings are inset, observed on Meet Beth and Camps & Clinics. This supersedes the earlier no-confirmed-defects report. It has not been independently reproduced or fixed here; comprehensive authenticated browser testing is pending. The historic substitute-theme tests and WordPress do_blocks() results
+The newer remote roadmap reports **[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1)**: shared intro paragraphs reach the viewport edge while headings are inset, observed on Meet Beth and Camps & Clinics. This supersedes the earlier no-confirmed-defects report. A shared CSS candidate now reproduces/corrects it on a disposable local installation using downloaded Kadence 1.5.2. **Authenticated Plesk sandbox review is still NOT RUN**; local results do not approve deployment or close Issue #1. The historic substitute-theme tests and WordPress do_blocks() results
 cannot establish real-theme compatibility; HTTP 401 is expected without Basic Authentication.
 
 ## Staged installation approval boundaries
@@ -15,8 +15,8 @@ cannot establish real-theme compatibility; HTTP 401 is expected without Basic Au
 | Preparation | Full backup, structural/file restoration, private staging and exact-target preflight/dry run completed through Gateway; preserve those results |
 | Core installation/setup | Completed through Gateway: active 0.2.0, 21 published pages, primary/mobile/footer menus, static Home |
 | Routes | /%postname%/, 162 rewrite rules, standard sandbox .htaccess and passed Apache syntax reported; do not change them again |
-| Real Kadence acceptance | Reported gutter Issue #1; authenticated sitewide reproduction, fix and acceptance pending |
-| Core update candidate | 0.3.0 in Git, not deployed: deployment permissions, truthful setup errors, optional inquiry form disabled by default |
+| Protected sandbox acceptance | NOT RUN: no verified network access or private Basic Auth file in this task; local downloaded-theme results are separate |
+| Core update candidate | 0.3.0 in Git, not deployed: deployment permissions, truthful setup errors, shared gutter fix, optional inquiry form disabled by default |
 | Emergency | Inactive; no activation or operational testing authorized |
 
 The original d360dbf staging/dry run describes the old release. Do not silently advance that
@@ -52,8 +52,9 @@ bash scripts/deploy-plugins.sh \
    Plesk subscription account, not an arbitrary root account: existing ownership is retained
    and new files belong to the executing account. Selected plugin directories become 0755
    and files 0644; wp-config.php remains unchanged at 0600. --only-core excludes emergency.
-5. Core is already active: do not activate emergency, run setup/--force, change permalinks,
-   or recreate pages as an update shortcut. Verify core 0.3.0, PHP errors, unchanged routing,
+5. Core is already active: do not activate emergency, use --force, change permalinks, or
+   recreate pages. The narrowly reviewed non-forced Contact integration below is a separate
+   content operation after approval, not automatic plugin-install behavior. Verify core 0.3.0, PHP errors, unchanged routing,
    menus/content, access protection, disabled inquiry settings and inactive emergency.
 6. Separately review content/theme configuration and inquiry enablement below. Installing
    the candidate never enables inquiries or inserts the form into an owner-edited page.
@@ -98,9 +99,49 @@ locks; do not label it a strict database-read-only operation.
 Known configuration/content work: synced **Site Footer block 27 exists but is not placed**
 in Kadence Footer Builder; header/palette/typography/navigation await visual review; original
 logo/photos are missing; 23 owner-confirmation notes and the Acuity destination remain open.
-These configuration tasks are separate from the reported shared gutter defect. Reproduce
-Issue #1 and correct the shared rules; do not apply an isolated two-page patch or redesign. With emergency inactive, its landing/banner links are a deferred acceptance
+These configuration tasks are separate from the shared gutter candidate. Verify that candidate
+on the actual sandbox; do not treat a local theme run as site acceptance. With emergency inactive, its landing/banner links are a deferred acceptance
 item, not authorization to activate it for a smoke test.
+
+## Safe Contact-page integration — after separately approved update
+
+The Contact page is saved WordPress content. Copying 0.3.0 plugin files changes its template
+source, not the stored page. The CSS correction itself requires **no page regeneration**.
+The isolated regression uses the reviewed 0.2.0 Contact template from 52401dc and verifies:
+
+- Existing unedited Contact: a non-forced dry run previews an update; a non-forced apply
+  inserts exactly one inquiry block into the same page ID and updates source/content hashes.
+- Other twenty pages and menus/locations remain unchanged; repeating setup adds no duplicates.
+- Owner-edited Contact or missing ownership hash: dry run/apply preserve content and metadata
+  exactly. Setup warns that the Farm Inquiry Form block requires manual placement in Gutenberg.
+- An already manually placed block is preserved. Every path keeps inquiries disabled.
+
+After approved file deployment and confirmation that the **installed** code is the reviewed
+0.3.0, verify the exact sandbox/current backup and run the following preview within its
+approved inspection scope. Do not bootstrap staged PHP over the old live plugin to bypass
+the file-update boundary:
+
+```bash
+# Future reference only; not authorization to run on the VPS now.
+wp --path=/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com csf setup --dry-run
+```
+
+For an unedited Contact page, expect `update /contact/`; existing pages/footer should remain
+`ok` and there should be no unexpected creations or other content updates. If the delta is
+larger or any error appears, stop for review. Only under explicit **Contact content-update
+approval**, run that same command without --dry-run (never --force or --set-permalinks), then
+check the unchanged Contact ID, one inquiry block, other page/menu content and disabled form.
+
+If Contact is `kept (edited in WordPress)`, do not force it. Under the content-edit approval,
+open the existing page in Gutenberg, place a single Farm Inquiry Form block at the agreed
+location and preserve Beth's wording/design. Review/save only that change and verify no
+public form appears. Copying files or a successful setup message alone does not prove the
+saved page received the block. Re-run the dry preview afterwards; edited content remains kept.
+The standard non-forced runner also seeds missing default terms, fills missing site/menu
+configuration, soft-flushes rewrites and refreshes its completion marker. Its preview is
+not an atomic Contact-only transaction. Confirm the existing configuration and include that
+housekeeping in any future setup approval; use manual block placement if strictly one-post
+editing is required. No live Contact hash or content was inspected/changed by this task.
 
 ## Optional inquiry form — keep disabled
 
@@ -114,8 +155,8 @@ SMTP/API transport with an authenticated farm sender (not the visitor address), 
 SPF/DKIM and actual inbox/spam receipt with an approved test, and test Reply-To. A wp_mail()
 true result proves acceptance by the transport, **not delivery**. No real email was sent here.
 Only after inbox verification and explicit enablement approval check Delivery verified and
-Enable. Changing the saved recipient clears both. Add the Farm Inquiry Form block to the
-existing Contact page in Gutenberg under a content-edit approval; no forced site setup.
+Enable. Changing the saved recipient clears both. Use the safe Contact integration above
+for block placement; adding the block never grants permission to enable or send mail.
 
 Exclude the form page and admin-post submission route from full-page/CDN caching; signed
 challenges last two hours and require three seconds before submission. Built-in spam controls:
@@ -130,7 +171,34 @@ values are no-autoload options, cleaned in bounded WP-Cron batches; verify cron 
 Any SMTP/logging plugin may retain messages independently: review its privacy/retention
 settings and the farm privacy notice before launch. Confirm database claim behavior on the
 actual MariaDB setup and authenticated form flows before enablement. Local mocked-mail and
-substitute-theme browser checks do not clear those acceptance gates.
+local-theme browser checks do not clear those acceptance gates.
+
+## Local layout reproduction and sandbox review handoff
+
+Local tests use the public Kadence 1.5.2 release on a separate SQLite fixture, with emergency
+inactive and mail blocked. Source/provenance and results are in
+[test-results/kadence-layout.md](test-results/kadence-layout.md). They do not read the real
+sandbox database, customized theme settings, owner-edited content or HTTP authentication.
+The owner explicitly chose **finish local fixes; prepare sandbox review**. Network access
+and a private Basic Authentication file are not provisioned/verified here; Gateway access
+does not transfer into this cloud task.
+
+When separately arranged, use the existing exact-sandbox runner above for all 21 pages at
+390/768/1280. It now records heading/lead boxes, responsive gutter lengths, section bounds,
+text/card/image/button bounds and overflow, alongside axe and screenshots. It waits for
+Kadence's drawer initialization and closure, rather than treating animation timing as a
+navigation defect. Inspect mobile/desktop keyboard behavior manually too.
+
+The untouched local theme defaults hid the text-only brand on tablet, producing an unnamed
+home link before a logo exists. The local configured-fixture run explicitly uses Kadence's
+native Logo Layout → Logo & Title at all breakpoints. **This setting was not applied to the
+sandbox**, and the finding is not proof its current header has the same setting. During its
+approved Customizer review, keep the site title visible at tablet/mobile until the authentic
+logo/accessibility name is verified. This is configuration work, not another plugin.
+
+Keep Issue #1 open until the actual protected site's complete review/owner acceptance and
+approved update are recorded. Do not claim a local pass verifies real Plesk PHP/MariaDB,
+mail delivery, header/footer configuration or the isolated backup's functional restoration.
 
 ## 4. Settings
 

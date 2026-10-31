@@ -27,6 +27,11 @@ target.close();source.close()
 PY
 CSF_SETUP_TEST_ROOT="$TMP" php "$ROOT/.wp-local/wp-cli.phar" --path="$TMP/site" \
   eval-file "$ROOT/tests/integration/setup-reporting.php"
+git -C "$ROOT" show 52401dcd9a90ca87ad074c1078ad6633df5be77e:wp-content/plugins/csf-core/content/pages/contact.php > "$TMP/contact-0.2.0.php"
+CSF_SETUP_TEST_ROOT="$TMP" php "$ROOT/.wp-local/wp-cli.phar" --path="$TMP/site" \
+  eval-file "$ROOT/tests/integration/contact-upgrade.php"
+# Restore the fixture's current Contact template for the subsequent mocked form/browser tests.
+php "$ROOT/.wp-local/wp-cli.phar" --path="$TMP/site" eval '$p=get_page_by_path("contact",OBJECT,"page"); wp_update_post(array("ID"=>$p->ID,"post_content"=>CSF_Core_Patterns::page_content("contact")));' --quiet
 CSF_SETUP_TEST_ROOT="$TMP" php "$ROOT/.wp-local/wp-cli.phar" --path="$TMP/site" \
   eval-file "$ROOT/tests/integration/inquiry.php"
 if [[ "${CSF_INQUIRY_BROWSER:-0}" == 1 ]]; then

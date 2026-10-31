@@ -1,5 +1,9 @@
 # Public website finishing — local review candidate, October 31, 2026
 
+**0778176 review record.** Follow-up shared gutter correction, safe saved-Contact upgrade
+and downloaded-theme fixture evidence are in [kadence-layout.md](kadence-layout.md).
+Authenticated Plesk sandbox acceptance remains unrun; the historical counts below are retained.
+
 Candidate: **csf-core 0.3.0**, prepared from 4635106, reconciled with newer shared-branch documentation through 457fffb.
 **Not deployed.** The owner reports core 0.2.0 and all 21 pages already active/published on
 the Plesk sandbox. No rebuild, new setup, permalink change, emergency activation or VPS

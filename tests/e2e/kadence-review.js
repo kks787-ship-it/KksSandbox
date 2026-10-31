@@ -8,6 +8,7 @@
 const fs = require( 'fs' );
 const path = require( 'path' );
 const { chromium } = require( 'playwright' );
+const layoutMetrics = require( './layout-metrics' );
 const BASE = process.env.CSF_REVIEW_URL || 'https://sandbox.cornerstonefarmomak.com';
 const ROOT = path.resolve( __dirname, '../..' );
 const OUT = path.join( ROOT, '.wp-local/kadence-review' );
@@ -68,13 +69,17 @@ async function main() {
 					footerPatternPresent: !! document.querySelector( '.csf-footer' ),
 				} ) );
 				const result = { path: url, width, status: response.status(), ...layout };
+				result.geometry = await page.evaluate( layoutMetrics );
 				if ( url === '/' && width === 390 ) {
 					const toggle = page.locator( '#mobile-toggle' );
 					if ( await toggle.isVisible() ) {
 						await toggle.focus();
 						await page.keyboard.press( 'Enter' );
+						// Kadence adds .active after a short drawer initialization timer.
+						await page.locator( '#mobile-drawer.active' ).waitFor( { state: 'visible', timeout: 3000 } );
 						result.mobileMenuOpened = await toggle.getAttribute( 'aria-expanded' ) === 'true';
 						await page.keyboard.press( 'Escape' );
+						await page.waitForFunction( () => ! document.querySelector( '#mobile-drawer' ).classList.contains( 'show-drawer' ), null, { timeout: 3000 } ).catch( () => null );
 						result.mobileMenuClosedOnEscape = await toggle.getAttribute( 'aria-expanded' ) === 'false';
 					} else {
 						result.mobileMenuNeedsManualCheck = true;
@@ -82,7 +87,7 @@ async function main() {
 				}
 				await page.addScriptTag( { path: require.resolve( 'axe-core/axe.min.js' ) } );
 				result.accessibility = await page.evaluate( async () => ( await window.axe.run( document, { runOnly: { type: 'tag', values: [ 'wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa' ] } } ) ).violations.map( v => ( { id: v.id, impact: v.impact, targets: v.nodes.map( n => n.target ) } ) ) );
-				result.passed = result.status === 200 && result.h1 === 1 && result.overflow <= 1 && result.accessibility.length === 0 && result.mobileMenuOpened !== false && result.mobileMenuClosedOnEscape !== false;
+				result.passed = result.status === 200 && result.h1 === 1 && result.overflow <= 1 && result.geometry.headers.length > 0 && result.geometry.sections.length > 0 && result.geometry.textCount > 0 && result.geometry.failures.length === 0 && result.accessibility.length === 0 && result.mobileMenuOpened !== false && result.mobileMenuClosedOnEscape !== false;
 				await page.screenshot( { path: path.join( OUT, ( url === '/' ? 'home' : url.replace( /^\/|\/$/g, '' ).replace( /\//g, '-' ) ) + '-' + width + '.png' ), fullPage: true } );
 				report.results.push( result );
 				console.log( `${ result.passed ? 'PASS' : 'REVIEW' } ${ url } at ${ width }px` );

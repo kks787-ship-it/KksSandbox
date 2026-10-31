@@ -158,6 +158,9 @@ class CSF_Core_Setup {
 				$edited               = self::is_edited( $existing );
 				if ( $edited && ! $args['force'] ) {
 					$log[] = sprintf( 'kept     /%s/ (edited in WordPress — not overwritten)', $page['path'] );
+					if ( 'contact' === $page['slug'] && ! has_block( 'csf/inquiry-form', $existing ) ) {
+						$log[] = 'WARNING  /contact/ has no inquiry-form block. Review the edited page and add the Farm Inquiry Form block manually in Gutenberg; setup has preserved its content. The form stays disabled until delivery is verified and enabled separately.';
+					}
 					continue;
 				}
 				if ( ! $edited && md5( $content ) === get_post_meta( $existing->ID, '_csf_setup_source', true ) ) {

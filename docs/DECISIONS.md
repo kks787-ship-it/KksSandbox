@@ -203,3 +203,27 @@ The defect report supersedes the earlier no-confirmed-defects clarification. No 
 independent authenticated reproduction is claimed here. Expand the prepared acceptance
 runner to all 21 pages at 390/768/1280px and include gutters/other sections/Gutenberg in manual
 review. Preserve full-bleed backgrounds and existing content; do not force a page rebuild.
+
+## Shared gutter correction and safe Contact integration — local candidate only
+
+Reproduce Issue #1 on a disposable installation using public Kadence 1.5.2, with the old
+0778176 stylesheet as a browser baseline. Actual computed styles show two interactions:
+Kadence's later .entry-content .alignfull resets section padding to zero; the plugin's forced
+zero left margin then puts short leads at the viewport edge while 1160px headings center.
+Use a more specific shared full-width section gutter rule and derive lead inline-start
+margin from the same 1160px content width. Preserve full-bleed backgrounds, hero behavior,
+existing HTML/copy and editor block serialization. No per-page patch or body margin.
+
+A saved 0.2.0 Contact page requires content integration separately from copying plugin files.
+Use the reviewed old template in an isolated fixture to prove the existing non-forced hash
+logic updates only unedited content, adds one block idempotently and keeps other pages/menus.
+Edited or untracked Contact content is never overwritten; warn for manual Gutenberg block
+placement. Do not enable the form or send mail as part of upgrading content.
+
+The user explicitly chose local fixes and sandbox review preparation. No verified sandbox
+network access or private Basic Auth file is available; Gateway connectivity is separate.
+Local downloaded-theme results cannot approve the actual site's theme settings, owner edits,
+PHP/MariaDB or inbox delivery. Keep Issue #1 open and any deployment/content edit gated.
+The local unconfigured Kadence tablet title fallback produced an unnamed brand link; test
+native Logo & Title configuration on the fixture and flag the actual header for manual
+review rather than adding theme workarounds to core or silently changing the sandbox.
