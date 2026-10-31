@@ -2,10 +2,12 @@
 
 **Current state: October 31, 2026.** Gateway completed sandbox hardening, full backup,
 structural/database and filesystem restore verification, private source staging, exact-target
-Plesk preflight and deployment dry run. **Do not repeat completed preparation.** Functional
-login/page rendering on the isolated restoration remains untested. The next step is final
-backup-gate verification/evidence and files-only installation review. No plugin installation,
-activation, site setup, permalink change or production deployment is authorized by this update.
+Plesk preflight and deployment dry run. The fresh installation backup gate passed, then the
+owner approved **files-only installation of `csf-core` and `csf-emergency` in the sandbox**.
+Both plugin directories are present and verified, but **both plugins remain inactive**.
+Do not repeat completed preparation or file copying. Functional login/page rendering on the
+isolated restoration remains untested. Plugin activation, site setup, permalink change and
+production deployment remain unauthorized.
 
 The [current report](test-results/sandbox-preflight.md) records evidence provenance; the
 [installation plan](07-website-installation.md#staged-installation-approval-boundaries)
@@ -15,7 +17,7 @@ separates copying inactive files from later activation, setup and real Kadence t
 
 | Environment | Exact target | Boundary |
 |---|---|---|
-| Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | No installation authorized; preparation reported complete |
+| Sandbox | https://sandbox.cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, options `TXGEh_options` | Files-only installation completed; plugins inactive; activation/setup unapproved |
 | Production | cornerstonefarmomak.com; `/var/www/vhosts/cornerstonefarmomak.com/httpdocs`; DB `wp_iacb7` | Excluded from changes |
 | Unassigned database | `wp_mdoaq` | Excluded, including as a scratch database |
 | Existing scratch | DB `csf_sandbox_restore_20261031` and private/not-publicly-served restored filesystem | Preserve; filesystem path is in existing Gateway records |
@@ -271,3 +273,29 @@ Kadence accessibility roles/DOM and record real evidence; do not assume those te
 Preserve the live Tucker/Elementor site. A future launch plan needs a final production backup,
 redirect map (including old /index.php URLs), reviewed DNS/vhost/certificate changes and a
 rollback window. No part of the current sandbox preparation authorizes those operations.
+
+## Files-only sandbox deployment — October 31, 2026 (verified)
+
+After owner authorization, Gateway rechecked the fresh backup gate, exact WordPress URL/database,
+private source commit `d360dbfd5a0441fa142a3b963a4a42c5145d9738`, reviewed plugin trees,
+empty destination paths, and absence of symlinks. Gateway then copied only `csf-core` and
+`csf-emergency` to the sandbox plugin directory via the reviewed script, using
+`--apply --expected-url --backup --restore-evidence`. Deployment job:
+`job_01M69NHGP200KW7JZK6HD2V9YZ` (succeeded).
+
+Post-copy validation job: `job_01M69NPPXH00VQVHRVJ8K2KKQ8` (succeeded). WordPress reports
+`csf-core` 0.2.0 and `csf-emergency` 0.1.0 as **inactive**. All plugin file contents match
+the pinned reviewed source; **68 PHP files** passed PHP 8.3 syntax checks. Because the private
+checkout created files with restrictive umask (`0700` directories/`0600` files), Gateway
+normalized permissions **only inside these two newly introduced plugin trees** to `0755`
+directories and `0644` files, matching existing WordPress conventions. File ownership is
+the Plesk subscription user. Future deployments using raw `rsync -a` may reset these modes;
+review a deployment-script permission normalization change before further code updates.
+
+Sandbox database remains `wp_mdf4x` with the original five posts (site setup not run).
+Neither plugin was activated, and production's plugin directories remained unmodified.
+**Next stage requires explicit owner approval for activation** (consider `csf-core` first),
+followed by separate approval for creating the 21 pages/menus and changing permalinks.
+Real Kadence rendering and usability have not been validated. The completed backup gate's
+24-hour freshness must be rechecked before any subsequent mutation; if expired, create a
+new limited application backup without repeating the entire structural restore.
