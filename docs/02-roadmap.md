@@ -15,7 +15,7 @@ the production domain until the owners approve the replacement.
 - [ ] Functional WordPress login/page-rendering test on the isolated restoration (not part of the completed structural verification)
 - [x] Private source pinned d360dbf, verified against 52401dc; exact-target Plesk preflight/deployment dry run passed
 - [x] Fresh installation-specific target-bound backup created and verifier passed October 31, 2026 (time-limited gate; recheck age at installation)
-- [ ] Separate owner approval for files-only sandbox plugin installation (inactive)
+- [x] Owner approved sandbox files-only installation; `csf-core` 0.2.0 and `csf-emergency` 0.1.0 copied inactive October 31, 2026, contents verified against reviewed source; 68 PHP files linted
 - [ ] Owners complete the confirmation register (`03-owner-confirmation-register.md`)
 - [ ] Owners supply original logo source files and authentic photography (still outstanding)
 
@@ -32,7 +32,7 @@ the production domain until the owners approve the replacement.
 - [ ] Tabletop drill: change status, verify banner, revert
 - [ ] Owner sign-off that it is operational (see `04-emergency-plugin.md`)
 
-## Phase 2 — Public website *(code complete for review; not deployed)*
+## Phase 2 — Public website *(files staged in sandbox; plugins inactive; site not set up)*
 
 - [x] Brand design system in `csf-core`: palette + self-hosted Playfair Display/Lato as editor presets, block styles, accessible colour pairings
 - [x] 14 section patterns and 21 page layouts (core blocks only; editable in Gutenberg)
@@ -43,7 +43,7 @@ the production domain until the owners approve the replacement.
 - [x] Emergency banner verified on the new pages (independent plugin unchanged)
 - [x] Automated tests: accessibility (axe WCAG 2.2 AA), responsive, links, navigation, booking, block-editor validity, emergency, structured content, setup idempotency
 - [x] Repeatable local environment (`scripts/local-dev.sh`)
-- [ ] **Owner approval to install on the Plesk development site** (doc 07)
+- [x] **Files-only owner approval and sandbox copy** (doc 07); activation, site setup and permalink changes remain separately unauthorized
 - [ ] Verify on Kadence: Customizer palette, header, footer, page-layout settings
 - [ ] Logo, photographs, contact details, Acuity verification, resolve 23 owner notes (doc 09)
 - [ ] Phase 2b: contact/inquiry form with spam protection and tested delivery (owner picks approach)
@@ -102,9 +102,8 @@ zero mismatches; functional login/page-rendering on the restoration NOT RUN.
 The installation-specific gate backup was captured on October 31, 2026 at about 18:46 UTC
 (11:46 AM PDT), and `scripts/verify-dev-backup.sh` passed all six checks. Its age is
 limited to 24 hours and must be rechecked immediately before any installation.
-Next: review and explicitly authorize inactive plugin-file copying; installation is not authorized by this update. Activation, 21-page setup/permalinks and real Kadence testing are separate stages.
-No installation/activation/setup/permalink/production change is authorized by the documentation
-update. See the [current plan](07-website-installation.md#staged-installation-approval-boundaries).
+Files-only installation was subsequently explicitly approved by the owner and completed via Gateway; both plugins remain inactive. Activation, 21-page setup/permalinks and real Kadence testing are separate stages.
+No activation/setup/permalink/production change is authorized by this documentation update. See the [current plan](07-website-installation.md#staged-installation-approval-boundaries).
 
 
 Gateway's subsequent execution detail records database export at October 31, 2026,
@@ -115,5 +114,15 @@ The completed full backup, scratch restore and pinned source were reused. A new 
 backup gate bundle was captured separately at:
 `/var/www/vhosts/cornerstonefarmomak.com/private/csf-dev-20261031-184634-36879/`.
 Verifier job: `job_01M69MJJ04000DFWPDVJ254SKY` (succeeded). The bundle is not a replacement
-for the full backup or a new restoration drill. No file-copy, activation, setup or permalink
-changes have been made. Next: separate files-only installation approval.
+for the full backup or a new restoration drill. **Approved sandbox-only file copy succeeded**
+under Gateway job `job_01M69NHGP200KW7JZK6HD2V9YZ`, with post-copy validation under
+`job_01M69NPPXH00VQVHRVJ8K2KKQ8`. Both plugin directories and all files match the pinned
+reviewed source byte-for-byte. PHP lint passed for 68 files. WordPress confirms both plugins
+**inactive** and the sandbox database remains `wp_mdf4x` (5 posts; no page setup).
+Permissions in those two new plugin trees were normalized to directories `0755` and files
+`0644`, matching existing WordPress plugin conventions. **Important follow-up:** staging
+Git checkout uses restrictive modes; the `rsync -a` deployment script can reset permissions
+on later deployments. Fix that in a separate code review (e.g. enforce destination modes)
+before subsequent application updates. Production was not modified. Next: owner approval
+for sandbox plugin activation (recommend `csf-core` first), followed by separate page/setup
+and permalink authorization.
