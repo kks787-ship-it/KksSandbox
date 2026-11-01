@@ -24,8 +24,8 @@ policies, horse records, or emergency information.
 | 16 | Policies: cancellation, weather, helmet, minors, payment | — | **Needed** | |
 | 17 | Agreement/waiver templates (legally reviewed) | — | **Needed** | |
 | 18 | Testimonials (real, with permission to publish) | — | **Needed** | |
-| 19 | Logo source files (vector preferred) | — | **Needed** | |
-| 20 | Authentic photographs and photo permissions (esp. minors) | — | **Needed** | |
+| 19 | Logo source files (vector preferred) | Original-looking farm artwork located in legacy production uploads: `2025/03/Corner-Stone-Farm-01-1.png` (white transparent, 256×135) and `2025/03/Facebook-Cover-Image-1.png` (black-on-white, 1702×630). Owner-provided branded image is also in project context. **Unrelated 2024 “Tucker” logos are excluded.** | **Candidates located; confirm approved version and header/footer placement. Vector master still requested.** | Read-only archive audit, Nov 1 2026 |
+| 20 | Authentic photographs and photo permissions (esp. minors) | Legacy production archive contains candidate historic equestrian photos; sandbox media library currently empty. **19 distinct image roles / 30 active placements.** Many candidate originals are only 206×206 social thumbnails. | **Owner must select images and verify actual farm context, rights, and minors’ permissions before import/publication.** | Read-only archive audit, Nov 1 2026 |
 | 21 | Social media profile URLs | — | **Needed** | |
 | 22 | Official emergency information source for the area (e.g. county emergency management) | — | **Needed** | |
 | 23 | Horses for emergency profiles and the public fields approved for each | — | **Needed** | |
@@ -45,3 +45,10 @@ response-time commitment or inquiry-form enablement is inferred. The owner separ
 sandbox Farm Details with unrelated fields preserved. Call/email links were verified through
 server-side rendering without sending a live message. Protected browser checks now confirm those links at all three widths; a separate tablet
 header accessibility defect and unfinished branding/footer still prevent full site acceptance.
+
+
+## Website completion inventory — November 1, 2026
+
+The protected sandbox contains **23 unresolved Owner-to-Confirm notes** across 20 of its 21 generated program pages, **19 unique photo designs in 30 image placements**, and **zero uploaded Media Library attachments**. The legacy production archive was inspected read-only; the verified farm logo candidates above were not imported or published. See [canonical asset inventory](08-content-and-asset-inventory.md#actual-protected-sandbox-finishing-audit--november-1-2026), [photo recovery issue #5](https://github.com/kks787-ship-it/KksSandbox/issues/5) and [content decisions issue #6](https://github.com/kks787-ship-it/KksSandbox/issues/6).
+
+No prior program fee, operating-hour proposal, client waiver, age minimum, return policy, family photograph, or permission is converted into approved public content merely because it was discussed in an earlier planning session. Confirm each current value before removing its associated note.
