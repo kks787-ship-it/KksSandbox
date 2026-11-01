@@ -345,7 +345,10 @@ async function testStructuredContent( browser ) {
 		record( 'events', 'upcoming event is listed', camps.includes( 'Sample Summer Camp' ) );
 		record( 'events', 'past event is hidden', ! camps.includes( 'Sample Past Clinic' ) );
 		await page.goto( created.event );
-		record( 'events', 'open event shows a Register button', ( await page.locator( '.csf-event-register a' ).count() ) === 1 );
+		const eventScheduling = page.locator( '.csf-event-summary' ).getByRole( 'link', { name: 'Contact Beth to Schedule', exact: true } );
+		record( 'events', 'open event shows one Contact Beth to Schedule link', ( await eventScheduling.count() ) === 1 );
+		const eventContactHref = await eventScheduling.getAttribute( 'href' ).catch( () => '' );
+		record( 'events', 'event scheduling links internally to Contact instead of the legacy registration URL', eventContactHref === new URL( '/contact/', BASE ).href, eventContactHref );
 		record( 'events', 'event page passes axe', ( await runAxe( page ) ).length === 0 );
 		await shot( page, 'sample-event-desktop' );
 

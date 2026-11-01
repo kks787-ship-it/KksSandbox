@@ -267,3 +267,21 @@ recurrence and transactional appointment/resource/audit writes. This is an owner
 deliverable, not implemented scheduling code. See the [test report](test-results/scheduling-contact.md)
 for source/guard passes and blocked PHP/WordPress/browser checks. No deployment, environment
 republication, installation-script edit, live content operation or production change occurred.
+
+
+## Scheduling architecture business-rule refinements — validation follow-up
+
+The Issue #4 review is incorporated in doc 01 before calendar implementation: appointment-level
+school-horse pools and sequential ride slots permit group/Academy rotations; service-specific
+resources permit client-horse off-site/haul-in appointments without a school horse; hard welfare
+blocks and configured workload/rest limits are independent of lesson demand; a confirmed slot
+is distinct from staff-verified permission to ride; and cancellation notice/history does not
+trigger unapproved fees, forfeits or makeup credits. Actual capacities, workloads, suitability,
+travel buffers, Academy policy, clearance evidence and user grants still require owner review.
+No scheduling schema, migration or appointments have been created.
+
+The owner has now approved public scheduling call/email details in [the confirmation register](03-owner-confirmation-register.md#public-scheduling-contact-approval).
+Those details are recorded for review, not yet written to the sandbox. No text-message,
+24-hour emergency service or email-delivery claim follows. Keep inquiries disabled and emergency
+inactive. The calibrated candidate preview proposes 21 page updates and no owner-edited overwrite;
+plugin files, page/menu migration and settings publication still require scoped authorization.

@@ -351,3 +351,20 @@ external scheduling links, plus admin/editor preview. Reverting files does not r
 content; use reviewed per-record revisions/backup reconciliation for rollback. This proposal
 is not authorization to run any of those commands on the sandbox. Local results and blocked
 checks: [scheduling report](test-results/scheduling-contact.md).
+
+
+### Validated candidate preview and approved contact values — follow-up
+
+The candidate preview has now been completed read-only through Gateway: all 21 existing
+pages would update, none are owner-edited, no pages would be created, and synced footer #27
+is reused. Installed-code calibration matched exactly and stored-page hashes were identical
+before/after. This supersedes the earlier preview-pending wording above; **no migration was
+applied**. Raw job provenance and runtime validation are in the current section of
+[the scheduling report](test-results/scheduling-contact.md).
+
+Beth's public call/email values are now approved in [doc 03](03-owner-confirmation-register.md#public-scheduling-contact-approval).
+They have not been entered into Farm Details. Prepare a settings-only change for the approved
+phone/email, preserving location and all unrelated values; do not publish the private inquiry
+recipient by inference. Public SMS, inquiry-form enablement and emergency use are not approved.
+Plugin files, saved pages/menus and these settings remain separately scoped live operations.
+After approval, verify call/email links visually without sending mail or a test message.

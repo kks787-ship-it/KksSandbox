@@ -112,8 +112,15 @@ Acuity-removal update has been performed; those remain separate approval boundar
 ### Current local delivery for Issues #3 and #4
 
 Scheduling contact source changes, source/guard test results and the non-forced content
-migration plan are in [the current report](test-results/scheduling-contact.md). PHP/Composer
-and WordPress/browser execution are blocked on this executor; do not infer acceptance from
-source checks. Saved sandbox pages/menus have not been changed. [The staff scheduling
+migration plan are in [the current report](test-results/scheduling-contact.md). The original cloud blockers are superseded by private-fixture validation recorded there;
+the event assertion now passes 19/19. Real-Kadence acceptance remains pending. Saved sandbox pages/menus have not been changed. [The staff scheduling
 architecture](01-architecture.md#digital-ranch-staff-scheduling--issue-4-architecture-for-review)
 is delivered for owner review; the MVP and its MariaDB acceptance matrix are unimplemented.
+
+
+Issue #4's group rotations, client-horse resources, welfare/workload, rider-clearance and
+cancellation refinements are now incorporated in doc 01. No calendar implementation begins
+until unresolved business policies are approved. Public scheduling call/email values are now
+owner-approved in doc 03 but not yet entered into sandbox settings; no SMS approval. Review
+plugin files, all 21 candidate page updates and any menu/settings changes as separately scoped
+operations. This follow-up authorizes none of those live mutations.

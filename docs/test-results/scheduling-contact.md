@@ -1,5 +1,59 @@
 # Issues #3/#4 local delivery — October 31, 2026
 
+## Current follow-up: runtime evidence and event assertion corrected
+
+The original executor blockers below are historical. Follow-up validation used the existing
+private WordPress 7.1.4 / PHP 8.3.36 / SQLite fixture and Kadence **stand-in**, accessed through
+Gateway. It is not the protected real-Kadence sandbox or the Codex Cloud runtime. The tested
+plugin source remains `c3732b2`; this follow-up changes only the event browser assertion and
+documentation, not plugin behavior.
+
+The obsolete `.csf-event-register a` assertion was replaced by two checks scoped to the event
+summary: exactly one link with accessible name **Contact Beth to Schedule**, and the exact
+internal `/contact/` URL rather than the fixture's saved external registration URL.
+
+**Rerun in this task:** `node tests/e2e/run.js --only=content` — **19 passed, 0 failed**.
+Gateway job `job_01M6AXK96W003HZ4FJAAY2MSMQ` completed with exit 0; test-file SHA-256
+`001b750eb671976e190a46c6273ca77a1231965667c52a92436f571d0701f11c` matches this checkout.
+The suite cleaned up all synthetic records. Inquiry was disabled and emergency inactive
+before/after; the local-only server was stopped by the cleanup trap. No live mail or sandbox
+writes occurred. The targeted run does not overwrite the historical phase-2 report.
+
+**Prior follow-up results, not rerun here:** PHP syntax 69/69, PHPCS clean, contact scheduling
+100, setup reporting 27, Contact upgrade 14, inquiry validation 39, signed integrity 17,
+inquiry browser 25, editor 61, navigation 7, responsive/booking/a11y 441 at 390/768/1280px,
+deployment guards 22, Plesk identity 6, sandbox target 14 and browser security guards 6.
+Provenance is in [Issue #3's validation comment](https://github.com/kks787-ship-it/KksSandbox/issues/3#issuecomment-6554519514).
+The 441-pass completion log was independently read from Gateway job
+`job_01M6AWRD3E009G36KCEARPV5F4`. The earlier structured-content 17/18 mismatch is now
+resolved by the targeted 19/19 rerun above. Keep these results separate from authenticated
+real-Kadence and MariaDB acceptance, which remain outstanding.
+
+### Saved sandbox migration preview (existing evidence; not repeated or applied)
+
+Gateway job `job_01M6AWXGW300V1P3VW3GMCZES5` completed successfully. Its installed-code
+calibration exactly matched normal `wp csf setup --dry-run`; candidate `c3732b2` proposed
+**21 updates, zero kept/owner-edited pages, zero new pages**, retaining synced footer #27.
+Before/after saved-page aggregate SHA-256 both were
+`368441d82b7911977d38f68fc9fd06848acdf349adac9a8c137b84930dcc9c1c`.
+The candidate was previewed without installing its plugin or applying setup. All page paths
+listed in doc 07 are proposed updates; there is no approved content write. Persisted Primary
+and Footer menu labels need separate review. The earlier installed-code Contact-only preview
+must not be mistaken for the candidate's 21-page proposal.
+
+At inspection, public phone/email were unset. The owner has now explicitly approved Beth's
+call/email channels in [the confirmation register](../03-owner-confirmation-register.md#public-scheduling-contact-approval).
+Those values are recorded, **not yet published or saved on the sandbox**. SMS is not approved.
+A separately authorized Farm Details settings step and rendered-link verification are required
+before the new Contact workflow can be accepted for publication; the form stays disabled.
+
+Issue #4's five business-rule refinements are incorporated in the canonical architecture and
+acceptance matrix. This is still design only: no calendar plugin, schema or bookings. No
+production, live plugin, saved page/menu or settings changes were made in this follow-up.
+
+
+## Original cloud-only execution record (historical)
+
 Source base: `5055e822833ca3a1aae402207153a1df34199284`, branch
 `codex/takeover-audit`. No sandbox/production operation, environment onboarding or
 republication, installation-script change, inquiry enablement, mail or emergency activation.

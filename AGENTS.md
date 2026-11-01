@@ -129,3 +129,12 @@ is canceled, all public scheduling CTAs use Contact Beth to Schedule → /contac
 stay disabled and emergency inactive. Source/migration tests and runtime blockers are in
 docs/test-results/scheduling-contact.md. Internal calendar architecture is in doc 01; do not
 mistake its proposed schema and acceptance matrix for an implemented staff scheduling MVP.
+
+
+Validation follow-up: existing private Gateway fixture validation supersedes the earlier
+cloud-only runtime blockers; see the current section in docs/test-results/scheduling-contact.md.
+The corrected structured-content browser assertions passed 19/19. The owner approved public
+call/email values in doc 03; settings publication remains a separate live-content operation,
+and SMS/emergency use is not inferred. The calibrated candidate preview proposed all 21 page
+updates without writing them. The doc 01 architecture includes Issue #4 business-rule review
+refinements; keep it design-only until unresolved capacities/policies and roles are reviewed.

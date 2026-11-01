@@ -138,9 +138,14 @@ than assuming `dbDelta()` succeeded. No cascading deletion of appointments or au
 | `resources` | `id`, unique UUID, kind (`instructor`, `horse`, `arena`, `location`), private display name, active flag, optional WordPress user ID, school/client-owned classification, suitability policy reference, revision. Instructors and horses are exclusive; arenas initially exclusive per appointment. Shared group riding is one appointment with a roster. |
 | `households` | `id`, UUID, minimal staff label, optional unique `(source_namespace, external_id)` onboarding reference; no public user account required. |
 | `participants` | `id`, UUID, household ID, minimal staff label, optional onboarding reference. No birth dates, medical or guardian documents here; a staff eligibility/suitability decision is referenced separately. |
-| `appointments` | `id`, UUID, title, type (`group`, `private`, `haul_in`, `off_site`, `academy`, `training`, `break`), state, nullable hold expiry UTC, UTC start/end, original local start/end, IANA zone and resolved UTC offsets, instructor ID, location ID, route-group ID, capacity, staff-only notes/visibility, series ID/occurrence key nullable, created/updated/confirmed/canceled actor IDs and UTC times, cancellation reason, revision. CHECK-equivalent validation: end > start, capacity > 0; UNIQUE `(series_id, occurrence_key)`, INDEX `(state,start_utc,end_utc)`. |
-| `roster` | Composite PK `(appointment_id,participant_id)`, household ID, horse resource ID, suitability decision/reference and reviewer/time. Capacity counts roster entries; duplicate rider/horse assignments rejected. Client-owned horses have resource IDs too. |
-| `allocations` | PK `id`, appointment ID, resource ID, occupied start/end including explicit travel/preparation buffers, UNIQUE `(appointment_id,resource_id)`, INDEX `(resource_id,start_utc,end_utc)`. Only confirmed appointments and explicit holds have allocations. Participant overlap checks use the roster under the same mutation lock. |
+| `appointments` | `id`, UUID, title, type (`group`, `private`, `haul_in`, `off_site`, `academy`, `training`, `break`), state, nullable hold expiry UTC, UTC start/end, original local start/end, IANA zone and resolved UTC offsets, instructor ID, location ID, route-group ID, capacity, staff-only notes/visibility, resource-review-required flag, series ID/occurrence key nullable, created/updated/confirmed/canceled actor IDs and UTC times, cancellation reason/initiator/notice-received UTC/effective UTC, revision. CHECK-equivalent validation: end > start, capacity > 0; UNIQUE `(series_id, occurrence_key)`, INDEX `(state,start_utc,end_utc)`. |
+| `roster` | Composite PK `(appointment_id,participant_id)`, household ID, participation-clearance status/reference, suitability decision/reference and reviewer/time. Capacity counts distinct participants. Horse assignment is not one horse per rider for the entire appointment; use appointment allocations and ride slots below. |
+| `horse_references` | `id`, UUID, stable private horse identity, ownership (`school`, `client`), optional unique managed horse resource ID. A client horse need not belong to farm inventory. Use its stable reference for collision checks across visits; never create a fictitious school-horse allocation. |
+| `appointment_horses` | Composite PK `(appointment_id,horse_reference_id)`, use (`school_pool`, `client`), declared activity/workload category. Names the reserved pool or client horses even without detailed ride slots; absent slot detail uses the full appointment interval conservatively for overlap/workload checks. |
+| `ride_slots` | `id`, appointment ID, participant ID, horse reference ID, occupied start/end and explicit recovery buffers, UNIQUE `(appointment_id,participant_id,start_utc)`, indexes `(horse_reference_id,start_utc,end_utc)` and `(participant_id,start_utc,end_utc)`. No overlapping rider or horse use within a class; sequential shared-horse rotations allowed. Slot must fit the appointment and its declared horse pool; managed school horses must also have allocations. |
+| `resource_blocks` | `id`, resource/horse reference ID, unavailable/rest interval, generic staff-visible reason, restricted note reference, creator/update/release actors/times and revision. Welfare blocks are hard exclusions, not warning overrides; retain history. |
+| `participation_clearances` | `id`, participant ID, relevant service/appointment scope, release/guardian/emergency-contact verification statuses, reviewer/time, expiry/recheck date and external evidence reference. Record manual verification until onboarding exists; no signatures, health documents or fabricated approvals here. |
+| `allocations` | PK `id`, appointment ID, resource ID, occupied start/end including explicit travel/preparation buffers, UNIQUE `(appointment_id,resource_id)`, INDEX `(resource_id,start_utc,end_utc)`. Only confirmed appointments and explicit holds have allocations. Group school-horse pools are reserved here at appointment level. Participant and client-horse overlap checks also use roster/ride slots under the same mutation lock. |
 | `series` | `id`, UUID, owner user ID, farm-local weekday/start/duration, interval weeks, bounded count/until, zone, template, generation horizon/cursor, revision. MVP supports weekly recurrence, not arbitrary unbounded RRULE evaluation. |
 | `exceptions` | PK `(series_id,occurrence_key)`, action (`skip`, `cancel`, `replace`), replacement appointment ID nullable, actor/reason/time. The key is the original local date/time, retained even when rescheduled. |
 | `route_groups` | `id`, date, staff geographic label, ordered stops and explicitly entered travel buffers; no geocoding or automatic distance claims. |
@@ -149,7 +154,7 @@ than assuming `dbDelta()` succeeded. No cascading deletion of appointments or au
 | `audit` | Append-only `id`, command UUID, entity/type/ID, action, old/new revision, actor, time, reason and bounded changed-field summary. UNIQUE `(command_id,entity_type,entity_id,new_revision)`. Minimize notes/participant details in audit; never log REST bodies. |
 
 Notes are staff-only in MVP; no public visibility value is accepted. Referential checks,
-state validation and audit writes apply to REST, admin, CLI and future adapters through
+state validation, clearance, welfare and audit writes apply to REST, admin, CLI and future adapters through
 one mutation service. No alternate direct `update_post_meta` scheduling write path.
 
 ### States and permissions
@@ -165,7 +170,8 @@ Allowed transitions: requested → hold/confirmed/canceled; hold → requested/c
 confirmed → canceled or an explicitly reviewed confirmed reschedule. Canceled records remain
 terminal; create a linked replacement instead of silently restoring one. Expired holds are
 excluded from overlap reads by expiry time even if cleanup is late; cleanup records the
-hold → requested transition with a system actor. Reconfirmation always revalidates conflicts.
+hold → requested transition with a system actor. Reconfirmation always revalidates conflicts. Calendar confirmation is not permission to ride;
+participation clearance is an independent, visibly reported gate (see below).
 No separate completed state in MVP: elapsed confirmed appointments remain auditable history.
 
 Create `csf_schedule_manager` with view/edit/hold/confirm/cancel/audit capabilities; assign
@@ -186,7 +192,8 @@ minor-data handling policy require owner review before real participant entry.
 
 Use one singleton scheduling write lock initially: a small two-person calendar favors a
 simple demonstrable correctness boundary over high write throughput. Every writer, including
-recurrence generation, hold expiry, enrollment and resource/policy edits, follows this protocol:
+recurrence generation, hold expiry, welfare blocks, clearance changes, enrollment and
+resource/policy edits, follows this protocol:
 
 1. Authenticate and authorize; validate request shapes and normalize local times. Start an
    InnoDB transaction; `SELECT ... FOR UPDATE` the existing settings singleton. Never use a
@@ -194,17 +201,24 @@ recurrence generation, hold expiry, enrollment and resource/policy edits, follow
 2. Look up/lock command UUID. Return an existing committed result for the same actor/digest;
    otherwise insert it and check the appointment/series expected revision. Stale writes are
    409 responses requiring a fresh review, including cancellation and roster changes.
-3. Read authoritative current allocations and nonexpired holds. For half-open intervals
+3. Read authoritative current allocations, declared appointment horse identities, welfare blocks
+   and nonexpired holds. For half-open intervals
    `[start,end)`, conflict exists when `existing.start < proposed.end AND existing.end > proposed.start`.
    Exclude the appointment being edited; validate its whole replacement roster/resources.
    Adjacent appointments are allowed only after their configured buffers. Distinct instructors,
-   horses and arenas can run simultaneously; sharing any exclusive resource is rejected.
+   horses and arenas can run simultaneously; sharing any exclusive resource across distinct
+   appointments is rejected. Within one group appointment, validate sequential ride slots
+   separately so riders can rotate through the same reserved school-horse pool.
 4. Check participant overlaps, capacity, active resources, horse/rider suitability, Sunday
-   closure, protected blocks, Academy policy and full-training enrollment cap. A request with
-   incomplete resource data can be saved only as requested, not confirmed or held. Return
+   closure, protected/welfare blocks, workload/break limits, Academy policy and full-training
+   enrollment cap. Apply service-specific requirements; off-site/haul-in client horses do not
+   require a school horse. Incomplete required scheduling data permits only requested status.
+   Independently compute ride clearance; pending paperwork does not turn a confirmed slot
+   into permission to participate. Return
    conflicts with staff-safe labels and no sensitive notes. Explicitly acknowledged advisory
    warnings are bound to the current normalized payload and policy revision.
-5. Persist appointment/series/roster, replace allocations, increment revision and append audit
+5. Persist appointment/series/roster/declared horses/ride slots and clearance references, replace allocations,
+   increment revision and append audit
    plus command result in this same transaction. Check every query and affected-row count.
    Roll back on any error; no success, partial roster or audit-only outcome. Commit before
    returning success. A lost response is resolved by command UUID, not a fresh operation.
@@ -215,6 +229,66 @@ additional deduplication. Bound deadlock/timeout retries with the same command U
 return retryable 503 without claiming a reservation. A failed COMMIT has an unknown outcome
 until a fresh connection resolves the command. Audit and appointment are committed together.
 Restrict direct DB access to operators; the protocol cannot protect writes that bypass it.
+
+### Group rotations, service resources, welfare and participation
+
+Reserve a group or Academy's school-horse pool at appointment level so no other appointment
+can use those horses simultaneously. Multiple students may ride the same horse sequentially;
+never enforce one horse per student for the entire multi-hour class. Where riders rotate,
+enter discrete concurrent ride slots and their recovery buffers. Reject simultaneous use of
+one horse by two riders, overlapping rider slots, slots outside the class and horses outside
+the reserved pool. Class capacity is a staff-configured participant limit, separate from the
+number of horses. Without a detailed slot plan, calculate workload conservatively over each
+horse's full reserved interval; do not assume unrecorded rest. Rotations/suitability and the
+minimum slot detail needed for a service require Beth's review before operations.
+
+| Service | Required scheduling resources; owner configures exact values |
+|---|---|
+| Group / Horse Academy | Instructor, facility/arena/location, participant capacity, explicitly reserved school-horse pool or declared client horses, and a rotation plan where used. No automatic one-to-one rider/horse rule. |
+| Private | Instructor and location; select school-horse allocation or declared client horse. Arena required when using the farm arena. |
+| Haul-in | Instructor, farm location/arena and client's stable horse reference; no farm-owned horse required. |
+| Off-site | Instructor, client location, route group and travel buffers, client's stable horse reference; no farm arena or school horse required unless explicitly used. Non-Wednesday is advisory. |
+| Internal training/break | Explicitly affected instructor/horse/facility resources; no client roster required. |
+
+A client horse can be “not a farm resource” while still having a private stable horse
+reference. Check that identity through `appointment_horses` across appointments/ride slots under the same lock, along
+with instructors, participants and actual managed resources. Do not deduce that two unnamed
+horses differ or claim collision protection for an unidentified horse; resolve identity
+before riding/confirmation where the service requires it. Ownership never implies suitability.
+
+Horse welfare is a hard scheduling constraint. Staff can enter unavailable/rest blocks for
+comfort, veterinary/farrier care, injury or recovery; the calendar shows only “unavailable,”
+not private health notes. Configurable working-time limits per farm-local day, consecutive
+work limits, minimum rest and workload categories must be approved per school horse/service;
+no invented numeric defaults. Count ride-slot work where a complete plan exists, otherwise
+reserved time conservatively, including adjacent days/series occurrences as required. Unknown
+required limits prevent operational confirmation. A manager cannot acknowledge away a welfare
+block to fill a lesson. Record who creates, edits or releases a block and the reason.
+
+Permit a protective block even when existing appointments conflict: persist the block and
+flag every affected appointment as requiring staff resource review in the same transaction.
+Do not silently cancel appointments or leave them looking ride-ready. New confirmations,
+reschedules and ride clearance must respect the block; resolving affected entries requires
+an audited reassignment/reschedule/cancellation or a separately reviewed block release.
+No automated diagnosis or weather/fire/smoke threshold is implemented.
+
+Calendar state and rider clearance are independent. A confirmed date may remain **not cleared
+to ride** while paperwork is pending. Before the first ride (and after expiry or changed
+requirements), staff verifies the required release, guardian authorization for minors and
+emergency-contact completion, recording reviewer/time and an evidence reference. Unknown,
+missing, expired or revoked clearance prohibits participation and shows a clear roster warning;
+never infer signatures from a confirmed reservation. The MVP staff workflow has an explicit
+pre-ride checklist/check-in gate; recurring bookings do not bypass it. The scheduling plugin
+is not an e-signature system and cannot physically prevent riding, so staff must follow that
+manual gate until onboarding supplies authoritative eligibility checks. Clearance and horse
+suitability are separate; neither grants the other. Keep details in authorized views only.
+
+Cancellations retain initiator (household/staff), notice-received time, effective cancellation
+time, actor, reason, previous schedule and series/exception scope in audit. Correcting a notice
+adds an audit event rather than erasing history. Display notice duration if useful, without
+assuming a financial consequence. A discussed 24-hour practice is not an approved billing rule:
+no automatic fees, forfeits, refunds or makeup credits. Those policies and any future overrides
+require explicit owner review; payments and subscription billing remain deferred.
 
 ### Farm policy and recurrence
 
@@ -268,7 +342,8 @@ List bounds are required (maximum 93 days) with pagination, no unrestricted full
 | `PATCH /appointments/{uuid}` | Reviewed reschedule/roster/notes with expected revision; cannot implicitly promote state. |
 | `POST /appointments/{uuid}/confirm` or `/cancel` | Explicit transition, reason/confirmation, expected revision and command UUID. No hard-delete endpoint. |
 | `POST /series/preview`, `POST /series`, `PATCH /series/{uuid}` | Finite occurrence preview/save, scope one/future, exception decisions and series revision. |
-| `GET /resources`, `GET /route-groups`, protected policy/enrollment mutations | Bounded reference lists; manager-only mutations use the same transaction lock and audit. |
+| `GET /resources`, `GET /route-groups`, protected policy/enrollment/welfare-block mutations | Bounded reference lists; manager-only mutations use the same transaction lock and audit. |
+| `GET /appointments/{uuid}/participation`, `PATCH /participants/{uuid}/clearance` | Server-computed pre-ride requirements and explicit staff verification/revocation; manager capability, record checks, expected revision and audit. Never derives clearance from calendar confirmation. |
 | `GET /audit?appointment=` and `GET /commands/{uuid}` | Separate audit capability; actor-bound command result for uncertain-response recovery. |
 
 Return 400 validation errors, 403 forbidden, 404 unavailable records, 409 revision/resource
@@ -277,17 +352,20 @@ SQL or private participant details in errors. Server sets actors/timestamps; cli
 supply approval identity or bypass warnings by posting an arbitrary boolean.
 
 Staff opens weekly or monthly view, chooses a date and group/private/etc., enters local time,
-participants/resources/location and preview. Requested items are visually distinct and say
+participants/service-specific resources/location and any rotation plan, then previews. Show
+calendar confirmation and participation clearance as separate badges. A pre-ride review lists
+paperwork, suitability, welfare and resource conflicts; never label a pending rider ride-ready. Requested items are visually distinct and say
 “does not reserve resources.” A separate Hold action requires expiry; Confirm shows conflicts,
 warning acknowledgments and direct-agreement confirmation. Disable duplicate submit visually,
 but rely on server idempotency. 409 reloads current revision before a new review. Cancellation
-retains a visible history entry. Use labeled keyboard-operable controls, textual statuses,
+collects notice time/initiator and retains visible history without calculating charges. Use labeled keyboard-operable controls, textual statuses,
 focus management, readable mobile day lists and no drag-only rescheduling. No public dashboard.
 
 ### Migration, rollback and delivery increments
 
 1. Owner reviews this design and unresolved policy values (timezone, user IDs, capacity,
-   suitability, Academy season/resources, travel buffers and retention). No MVP code or
+   suitability, horse workloads/rest, rotation policy, release/guardian checks, cancellation
+   notice handling, Academy season/resources, travel buffers and retention). No MVP code or
    server changes are implied by architecture approval.
 2. Implement schema/version checks and a local CLI migration plan/apply on disposable fixtures.
    Migration is explicit, not an activation side effect. Verify current backup and target;
@@ -321,12 +399,17 @@ post-backup staff entries. Deactivation/uninstall never drops private scheduling
 | Visitor contacts farm / requested entry | No automatic creation or confirmation from Contact; requested has no allocations. |
 | Anonymous/client/editor/emergency coordinator and ungranted administrator | REST/list/detail/audit/write denied; no cached disclosure. Spoofed actor rejected. |
 | Two PHP workers confirm overlapping horse/instructor/arena | Exactly one wins, loser 409; no partial rows/audit; repeat with an initially empty calendar. |
-| Simultaneous separate resources, adjacent buffered intervals, roster duplicate | Valid independent work succeeds; buffered overlap and double rider/horse allocation fail. |
+| Simultaneous separate resources, adjacent buffered intervals, roster duplicate | Valid independent work succeeds; buffered overlap and concurrent rider/horse allocation fail; sequential group rotations remain valid. |
 | Lost response, duplicate command, altered payload, stale edit/cancel | Original result replayed only for original actor/payload; conflicting replay/revision rejected. |
 | Fail roster/allocation/audit/command write, kill before/after commit, deadlock | Transaction rolls back or committed command resolves deterministically; never false success. |
 | Sunday crossing-midnight, Wednesday advisory, route geography/travel | Sunday client work blocked; non-Wednesday off-site allowed only after reviewed advisory; buffers enforced. |
 | Monday Academy, protected Beth training/break, six full-training horses | Resource conflicts blocked; explicit Academy exception retained; sixth overlapping enrollment denied; lesson horses unaffected. |
-| Group capacity, inactive or unsuitable horse, client-owned horse | Capacity/suitability checked per roster; no service is confirmed with unknown required policy. |
+| Group/Academy rotations with fewer horses than riders | Sequential shared-horse slots succeed; overlapping rider/horse slots and another appointment using a reserved pool horse fail. Participant capacity remains independent of horse count. |
+| Off-site/haul-in using client horse | Confirm with correct instructor/location/route and client horse reference, without allocating a school horse; overlapping instructor/client horse/participant still rejected. |
+| Unavailable/rest block, workload and recovery buffers | New confirmations cannot bypass welfare; adding a protective block flags existing conflicts. Exceeded or unknown configured limits fail, including adjacent/recurring workloads; no private health notes in overview. |
+| Confirmed appointment with missing/expired release or guardian clearance | Slot remains confirmed but rider is visibly not cleared; pre-ride gate denies participation. Manual verified evidence unlocks only the relevant clearance, never horse suitability. |
+| Cancellation notice, household/staff initiator and recurrence scope | Notice/history and corrections retained; no fee, forfeit or makeup-credit writes generated, including notice under 24 hours. |
+| Group capacity, inactive or unsuitable horse | Capacity/suitability checked separately; unknown required scheduling policy blocks confirmation; reservation never implies participation clearance. |
 | Weekly series across DST, gap/fold times, one/future edits and cancellations | Local time preserved; gap rejected/fold resolved; stable keys/exceptions and no duplicates after retries. |
 | Hold expiry with stopped cleanup, concurrent confirm and expiry | Expired hold stops blocking by clock; state/audit transitions serialized and conflict rechecked. |
 | Schema migrations/rollback on disposable MariaDB, cache on/off | Engine/index checks pass; interrupted migration resumes safely; restore/reconciliation loses no approved fixture entries. |
