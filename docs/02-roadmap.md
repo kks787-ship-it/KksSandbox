@@ -1,5 +1,7 @@
 # 02 — Delivery Roadmap
 
+> **Current full-platform snapshot (November 1, 2026):** See [Digital Ranch system map and completion ledger](12-digital-ranch-system-map.md). It reconciles current installed sandbox, Codex scheduling work, photo/content status, emergency operational gates, all future modules and commercialization. Earlier milestones below are historical and some pending statements have since been superseded.
+
 Phases are sequential; each ends with owner review on the development site. Nothing goes to
 the production domain until the owners approve the replacement.
 
