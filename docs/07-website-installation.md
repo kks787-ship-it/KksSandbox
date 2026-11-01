@@ -381,3 +381,13 @@ phone/email, preserving location and all unrelated values; do not publish the pr
 recipient by inference. Public SMS, inquiry-form enablement and emergency use are not approved.
 Plugin files, saved pages/menus and these settings remain separately scoped live operations.
 After approval, verify call/email links visually without sending mail or a test message.
+
+
+### Protected acceptance now executed
+
+The secure credential handoff is complete. The real-site 21-page sweep at 390/768/1280px
+passed every scheduling check, with no public form. Mobile/desktop passed overall; tablet
+has a common unnamed Kadence header home link. Contact links are verified, but demo site
+title, default footer/missing CSF footer and visible owner notes still need finishing.
+No Customizer, title or footer change was made during verification. See the current release
+report; earlier credential-blocked statements are historical, not requests to repeat setup.

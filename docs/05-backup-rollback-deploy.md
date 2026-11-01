@@ -294,3 +294,13 @@ Kadence accessibility roles/DOM and record real evidence; do not assume those te
 Preserve the live Tucker/Elementor site. A future launch plan needs a final production backup,
 redirect map (including old /index.php URLs), reviewed DNS/vhost/certificate changes and a
 rollback window. No part of the current sandbox preparation authorizes those operations.
+
+
+## Post-release protected-site verification — November 1, 2026
+
+Authenticated real-Kadence sweep completed: scheduling checks **63/63 passed**, mobile and
+desktop overall **42/42 passed**; all 21 tablet views flagged one common unnamed header home
+link (`link-name`). Shared gutter geometry, H1, HTTP and overflow checks passed throughout.
+Existing demo site title/default footer and missing CSF footer placement remain unfinished.
+See the current scheduling report for job provenance. No extra deployment/theme edit was
+performed by this review. Temporary credentials removed; inquiry off/emergency inactive.

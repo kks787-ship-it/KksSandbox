@@ -1,5 +1,56 @@
 # Issues #3/#4 local delivery — October 31, 2026
 
+## Protected Kadence review — November 1, 2026
+
+The owner supplied the Basic Auth value through Gateway. The exact deployed plugin source
+remains `6a46521`; this verification used the real protected sandbox and Kadence 1.5.2,
+not the stand-in. Gateway job `job_01M6AYQ56H00MDDSYEFNCZKDCM` completed the entire sweep
+and correctly exited **1** because tablet accessibility needs review. It did not stop early.
+
+| Width | Page views | Scheduling checks | Overall automated result |
+|---|---:|---:|---|
+| 390px mobile | 21 | 21 passed | 21 passed |
+| 768px tablet | 21 | 21 passed | 21 require review: same unnamed header home link |
+| 1280px desktop | 21 | 21 passed | 21 passed |
+| Total | 63 | **63 passed** | **42 passed, 21 require review** |
+
+All 63 views returned HTTP 200, exactly one H1, no horizontal overflow, no browser errors,
+and no shared-gutter geometry failures. Every scheduling button had the approved name,
+internal Contact destination and at least a 44px target. No canceled-provider links, old
+online-booking claims or inquiry forms were exposed. The Contact page at all three widths
+had the approved call and email links and no SMS link. The mobile menu opened by keyboard
+and closed on Escape. These are browser emulation results, not physical-device testing.
+
+Every tablet view has the same serious axe `link-name` violation:
+`.mobile-site-branding > .brand[rel="home"]`. The header home link lacks an accessible name.
+There were no geometry failures in those views and scheduling checks still passed. This
+matches the previously documented unconfigured Kadence tablet-branding risk; no theme
+workaround or Customizer change was applied during this read-only verification.
+
+Screenshot review of Contact at 390px confirms the call/email and scheduling layout. It
+also exposes existing unfinished theme configuration: public site title **Ultimate Blogging
+Championship**, default Kadence copyright/footer, and no placed synced CSF footer. The final
+read-only audit confirmed the site title and missing `.csf-footer` in all 63 views. Owner-review
+notes also remain visible, including Contact's now-stale public-details confirmation note.
+Do not call the site launch-ready, claim full tablet accessibility, or close overall site
+acceptance while these remain. Header branding/logo/title, footer placement and remaining
+owner notes need a scoped follow-up; authentic assets are still outstanding.
+
+The existing authenticated review runner now also verifies scheduling names/destinations,
+touch targets, old claims/links, inquiry absence, contact channels and browser errors. The
+remote review used an equivalent temporary runner with a separate private output directory.
+Local syntax and all six credential/origin refusal guards passed after incorporating those
+assertions. Private raw results and 63 screenshots remain under the exact release directory
+at `.wp-local/kadence-release-review/`; no credentials are in those reports or Git.
+
+Gateway final audit `job_01M6AYYE2P00F2A0RAX51MW7Q0` succeeded and reconfirmed inquiry disabled
+and emergency inactive. Browser requests were limited to GET/HEAD and service workers were
+blocked; no forms, WordPress admin login or content/theme operations were performed. The
+temporary 0600 credential file was removed successfully by
+`job_01M6AYXREN00G14X3S1XHYEY7D`; the owner's saved value remains in Gateway. Production and
+the calendar architecture/implementation boundary are unchanged.
+
+
 ## Approved sandbox release — October 31, 2026 (PDT)
 
 The owner explicitly approved plugin deployment and, separately, the public call/email and
@@ -26,7 +77,7 @@ retained there. Restore only the affected sandbox core tree/records after review
 changes; never restore the entire subscription or production database. Original structural
 restore evidence is retained unchanged; functional restored-site testing is still unrun.
 
-**Protected browser acceptance remains blocked:** the post-release unauthenticated Contact
+**At release time, protected browser acceptance was blocked (superseded by the review above):** the post-release unauthenticated Contact
 request returns expected HTTP 401. No Basic Auth value is stored in Gateway yet. A secure
 Gateway request for `csf-sandbox-http-auth` is pending; credentials must never enter chat or
 Git. Actual protected Kadence review at 390/768/1280px has not run. The prior 441 checks and

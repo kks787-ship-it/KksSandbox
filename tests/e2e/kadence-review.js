@@ -51,8 +51,12 @@ async function main() {
 			// Refuse browser writes. WordPress GETs may still trigger normal cache/cron work.
 			await context.route( '**/*', route => [ 'GET', 'HEAD' ].includes( route.request().method() ) ? route.continue() : route.abort() );
 			const page = await context.newPage();
+            let pageErrors = [];
+            page.on( 'pageerror', error => pageErrors.push( error.message ) );
+            page.on( 'console', message => { if ( message.type() === 'error' ) { pageErrors.push( message.text() ); } } );
 			for ( const url of PAGES ) {
-				const response = await page.goto( BASE + url, { waitUntil: 'networkidle' } );
+				pageErrors = [];
+                const response = await page.goto( BASE + url, { waitUntil: 'networkidle' } );
 				if ( response.status() === 401 ) {
 					throw new Error( 'HTTP 401: authentication is unavailable or rejected. Page routes and Kadence rendering remain UNTESTED.' );
 				}
@@ -69,6 +73,20 @@ async function main() {
 					footerPatternPresent: !! document.querySelector( '.csf-footer' ),
 				} ) );
 				const result = { path: url, width, status: response.status(), ...layout };
+                result.pageErrors = pageErrors.slice();
+                result.scheduling = await page.evaluate( () => {
+                    const buttons = Array.from( document.querySelectorAll( 'a[data-csf-booking]' ) );
+                    const badButtons = buttons.filter( a => a.href !== location.origin + '/contact/' || a.textContent.trim() !== 'Contact Beth to Schedule' || a.getBoundingClientRect().height < 44 );
+                    const oldLinks = Array.from( document.querySelectorAll( 'a[href]' ) ).filter( a => /acuity|cornerstonefarm[.]as[.]me/i.test( a.href ) || /^Book a Lesson$/i.test( a.textContent.trim() ) );
+                    const oldClaims = /see available times|book(?:ed)? online|online booking|confirmation after booking/i.test( document.body.innerText );
+                    const formExposed = !!document.querySelector( '.csf-inquiry form' );
+                    const contact = location.pathname === '/contact/' ? {
+                        call: !!document.querySelector( 'a[href="tel:5095578467"]' ),
+                        email: Array.from( document.querySelectorAll( 'a[href^="mailto:"]' ) ).some( a => a.href.toLowerCase() === 'mailto:beth.siemon@cornerstonefarmomak.com' ),
+                        sms: !!document.querySelector( 'a[href^="sms:"]' )
+                    } : null;
+                    return { buttonCount: buttons.length, badButtons: badButtons.length, oldLinks: oldLinks.length, oldClaims, formExposed, contact, passed: buttons.length > 0 && badButtons.length === 0 && oldLinks.length === 0 && !oldClaims && !formExposed && ( !contact || ( contact.call && contact.email && !contact.sms ) ) };
+                } );
 				result.geometry = await page.evaluate( layoutMetrics );
 				if ( url === '/' && width === 390 ) {
 					const toggle = page.locator( '#mobile-toggle' );
@@ -87,7 +105,7 @@ async function main() {
 				}
 				await page.addScriptTag( { path: require.resolve( 'axe-core/axe.min.js' ) } );
 				result.accessibility = await page.evaluate( async () => ( await window.axe.run( document, { runOnly: { type: 'tag', values: [ 'wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa' ] } } ) ).violations.map( v => ( { id: v.id, impact: v.impact, targets: v.nodes.map( n => n.target ) } ) ) );
-				result.passed = result.status === 200 && result.h1 === 1 && result.overflow <= 1 && result.geometry.headers.length > 0 && result.geometry.sections.length > 0 && result.geometry.textCount > 0 && result.geometry.failures.length === 0 && result.accessibility.length === 0 && result.mobileMenuOpened !== false && result.mobileMenuClosedOnEscape !== false;
+				result.passed = result.scheduling.passed && result.pageErrors.length === 0 && result.status === 200 && result.h1 === 1 && result.overflow <= 1 && result.geometry.headers.length > 0 && result.geometry.sections.length > 0 && result.geometry.textCount > 0 && result.geometry.failures.length === 0 && result.accessibility.length === 0 && result.mobileMenuOpened !== false && result.mobileMenuClosedOnEscape !== false;
 				await page.screenshot( { path: path.join( OUT, ( url === '/' ? 'home' : url.replace( /^\/|\/$/g, '' ).replace( /\//g, '-' ) ) + '-' + width + '.png' ), fullPage: true } );
 				report.results.push( result );
 				console.log( `${ result.passed ? 'PASS' : 'REVIEW' } ${ url } at ${ width }px` );

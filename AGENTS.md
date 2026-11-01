@@ -145,7 +145,9 @@ core-only deployment and separate 21-page/menu/public-contact update. These are 
 do not repeat them. Fresh private backup csf-dev-20261101-065451-968013 and Gateway job
 provenance are in docs/test-results/scheduling-contact.md. All 21 saved pages now match the
 new source; items 48/51 and public call/email updated; no force/setup apply/permalink change.
-Protected real-Kadence 390/768/1280px acceptance is awaiting secure Basic Auth credentials.
-No values are currently stored under requested csf-sandbox-http-auth; never put credentials
-in chat or Git or disable protection. Inquiry stays off, emergency inactive/unchanged,
+Protected real-Kadence review has now run at 390/768/1280px: all 63 scheduling checks pass;
+42 mobile/desktop views pass overall and 21 tablet views share one unnamed header-home-link
+axe violation. Demo site title/default footer and missing CSF footer placement remain. The
+secure value is saved in Gateway; temporary server credential file removed. Never put
+credentials in chat or Git or disable protection. Inquiry stays off, emergency inactive/unchanged,
 production excluded. The calendar architecture remains design-only.

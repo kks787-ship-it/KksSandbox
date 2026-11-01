@@ -297,3 +297,13 @@ disabled, production untouched. No calendar implementation is authorized by this
 Protected Kadence browser acceptance remains pending the secure Basic Auth credential handoff;
 HTTP 401 without it is expected. Record the release as deployed with acceptance outstanding,
 not as fully verified on real devices. See docs/test-results/scheduling-contact.md.
+
+
+## Protected scheduling review completed — November 1, 2026
+
+Secure Gateway credentials enabled actual Kadence review. All 63 scheduling views passed;
+42 mobile/desktop views passed overall while 21 tablet views share a serious unnamed home-link
+accessibility issue. Existing demo title/default footer and absent placed CSF footer remain.
+Do not bypass those findings or treat the private-fixture successes as full live acceptance.
+The review was read-only; the temporary credential file was removed. No additional theme,
+plugin/content deployment or calendar implementation was authorized or performed.
