@@ -167,3 +167,12 @@ foundation dispatcher, actor-bound command replay and singleton lock. The test r
 covers populated-v1 upgrade/restore and real two-worker booking races, with optional
 CSF_TEST_BROWSER=1 for the synthetic loopback browser fixture. No protected install or live
 migration is approved. Inquiry disabled, emergency inactive, website/deployment scripts untouched.
+
+Sprint #9.1 / Issue #10 now adds local 0.2.1 native staff fields, local-time choices and private
+nonce/allowlist-protected preview tools. Schema remains v2/14 tables. Preview uses the same
+Store transaction and rolls back; it never reserves. Preserve exact request replay, current
+policy/time validation, roster/turn identities and clear confirmation-versus-evidence warnings.
+See docs/13-scheduling-staff-acceptance.md and docs/test-results/scheduling-staff.md. Initial
+policy/provisioning stays controlled operator work. The pinned sandbox pilot is a proposal in
+the canonical deployment runbook, not permission to install/migrate/provision. No production,
+public self-booking, inquiry enablement, emergency activation or website setup changes.

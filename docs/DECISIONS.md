@@ -338,3 +338,18 @@ flags are not e-signatures. See [implementation contract](01-architecture.md#spr
 and [validation/release report](test-results/scheduling-calendar.md). No protected sandbox
 installation, live migration, production change, inquiry enablement or emergency activation
 was performed or authorized by this development milestone.
+
+## Staff usability before protected pilot — Issue #10 / Sprint #9.1
+
+The 0.2.1 local candidate removes structured editing from everyday group, roster, suitability,
+availability and welfare work. Local-time choices, a checked preview, retained drafts and
+exact uncertain-result replay sit over the existing v2 transaction/audit/permission boundary.
+No new schema, public booking, inquiry change or emergency activation is introduced.
+
+Preview rolls back and reserves nothing; a save rechecks. A confirmed calendar entry still
+cannot imply verified rider evidence or a signed agreement. Synthetic walkthroughs and
+screenshots are [recorded separately](13-scheduling-staff-acceptance.md); Beth/Kris human
+acceptance is not claimed. Initial owner policy, staff IDs/MFA and protected-stack acceptance
+remain prerequisites to the separately approved pilot. See [validation](test-results/scheduling-staff.md)
+and the scheduling pilot section in the canonical deployment runbook. Household onboarding
+and legally reviewed versioned agreements remain the next development boundary.

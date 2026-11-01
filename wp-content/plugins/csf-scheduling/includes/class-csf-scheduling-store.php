@@ -104,6 +104,19 @@ class CSF_Scheduling_Store {
 		return self::change( $kind, $payload, $revision, $command );
 	}
 
+	/** Preview the exact appointment path under the same lock; persist nothing.
+	 *
+	 * @param array  $body Appointment.
+	 * @param int    $revision Reviewed facility revision.
+	 * @param string $command Command UUID.
+	 * @return array|WP_Error
+	 */
+	public static function preview( $body, $revision, $command ) {
+		if ( ! is_array( $body ) || strlen( wp_json_encode( $body ) ) > 65536 ) {
+			return new WP_Error( 'invalid_body', 'Bounded appointment required.' ); }
+		return self::change( 'appointment_saved', $body, $revision, $command, true );
+	}
+
 	/** Internal command dispatch. Every path rechecks caller authorization.
 	 *
 	 * @param string $kind Fixed operation.
@@ -111,9 +124,10 @@ class CSF_Scheduling_Store {
 	 * @param int    $revision Expected singleton revision.
 	 * @param string $command UUID.
 	 * @return array|WP_Error
+	 * @param bool   $preview Roll back rather than committing.
 	 * @throws RuntimeException Caught locally to roll back all transaction participants.
 	 */
-	private static function change( $kind, $payload, $revision, $command ) {
+	private static function change( $kind, $payload, $revision, $command, $preview = false ) {
 		global $wpdb;
 		if ( ! CSF_Scheduling_Schema::inspect()['ready'] || ! is_int( $revision ) || $revision < 0 || ! CSF_Scheduling_Audit::uuid( $command ) || ! in_array( $kind, array_merge( array( 'staff_provisioned', 'policy_replaced', 'resource_created' ), CSF_Scheduling_Calendar::COMMANDS ), true ) ) {
 			return new WP_Error( 'not_ready', 'Verified schema, command and revision required.' );
@@ -185,6 +199,11 @@ class CSF_Scheduling_Store {
 				}
 				$result['resource_uuid'] = $entity;
 			}
+			if ( $preview ) {
+				if ( false === $wpdb->query( 'ROLLBACK' ) ) {
+					throw new RuntimeException( 'write_failed' ); }
+				return $result + array( 'preview' => true );
+			}
 			$policy = 'policy_replaced' === $kind ? $payload : json_decode( $row['policy_json'], true );
 			$zone   = $policy['timezone'] ?? null;
 			if ( 1 !== $wpdb->update(
@@ -214,7 +233,14 @@ class CSF_Scheduling_Store {
 		} catch ( Throwable $error ) {
 			$wpdb->query( 'ROLLBACK' );
 			$reason = in_array( $error->getMessage(), array_merge( CSF_Scheduling_Calendar::ERRORS, array( 'schema_changed', 'command_conflict', 'stale_revision', 'resource_failed', 'write_failed', 'commit_unknown' ) ), true ) ? $error->getMessage() : 'storage_error';
-			return new WP_Error( 'scheduling_write_failed', 'Command not acknowledged; retry the same UUID after resolving storage or revision conflict.', array( 'reason' => $reason ) );
+			return new WP_Error(
+				'scheduling_write_failed',
+				'Command not acknowledged; retry the same UUID after resolving storage or revision conflict.',
+				array(
+					'reason' => $reason,
+					'detail' => $error instanceof CSF_Scheduling_Conflict ? $error->resource_label : null,
+				)
+			);
 		}
 	}
 

@@ -1,0 +1,15 @@
+3051d46a062d0a245d19d3ba2028ae5e499c14ffe0360b86fe4cc1db268e4ab1  wp-content/plugins/csf-scheduling/assets/staff.css
+2f474873bcd6b700bfde47ae226d71a3d3fa3a06ec4cc7bcea534bf376806e76  wp-content/plugins/csf-scheduling/assets/staff.js
+6e60bf7df6e0089662118581dd950d8c5151bebf6fcf93c7a9047c9123e8b67a  wp-content/plugins/csf-scheduling/csf-scheduling.php
+db98448525502043706c32ea21b17ec5691b033c83f864c6b5511575f4fa5c49  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-access.php
+35b23cfa7f9d1bd8ddcdddab7d24fbb5a3a63299a75be4ea6503a698805eb61e  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-admin.php
+6108e49007b383649b0a49bacd89481cf185b8fb6598e8dba855dba9606a6326  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-audit.php
+8b0042df3fa86fe709cc01b9fb5477abbe9bf8b7a9674625eb7d0c9eb946a157  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-calendar.php
+c3b3070e6807f6f7285ed8ca9ddbcb42475442538b4330f3c624ae3500fe496e  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-cli.php
+75fba13414d029aae6c27396ff4cfe80780fcc72a391f02cb13a6c98873c51c1  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-conflict.php
+46228d1eda22969de5e73c27e4cf72f55b7ab1fe0861fe89f769149cc88325f7  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-diagnostics.php
+3ee1193b5251fc11de9d74e72267b310c345c8eee956c690dc8a92ba5e34214a  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-policy.php
+066d32a1687fd26d1c86387ffc5f58773abeacad3d4c6ce7b8d6c8a0f4c9ad59  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-schema.php
+a7d0ee5fc3f671e849693898aff5dcae4f20f03dd6bffc60ab2d46382202d6b5  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-store.php
+cef24403a438357626d968c21d72699aebdeb56784856efdb32ef94866b81279  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-time.php
+4722ffc49f526f0f92514459c23e30372b23b615e596a06c05fd663455c2f2ac  wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-ui.php

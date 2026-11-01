@@ -36,6 +36,8 @@ if [[ "${CSF_TEST_PHASE:-all}" == foundation ]]; then
 fi
 "${WP[@]}" eval-file /repo/tests/scheduling/calendar.php
 bash /repo/tests/scheduling/races.sh
+"${WP[@]}" eval-file /repo/tests/scheduling/usability.php
+bash /repo/tests/scheduling/usability-races.sh
 "${WP[@]}" --user=1 csf scheduling migrate > /test/migration-preview.json
 "${WP[@]}" --user=1 csf scheduling health > /test/health.json
 printf 'CLI_PREVIEW_AND_HEALTH_PASS\n'

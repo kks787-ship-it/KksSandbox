@@ -1,0 +1,123 @@
+Sprint #9.1 final local validation: stock WordPress 6.8.3 / PHP 8.1.34
+No protected sandbox/production actions. Inquiry disabled, emergency inactive.
+
+MARIADB
+Success: 87 scheduling foundation integration checks; database 10.6.28-MariaDB-ubu2204
+Success: 128 calendar integration checks; database 10.6.28-MariaDB-ubu2204
+TWO_WORKER_BOOKING_EMPTY_PASS_ONE_COMMIT_ONE_CONFLICT
+TWO_WORKER_BOOKING_POPULATED_PASS_ONE_COMMIT_ONE_CONFLICT
+Success: 66 staff usability integration checks; database 10.6.28-MariaDB-ubu2204
+TWO_WORKER_GROUP_HORSE_PASS_ONE_COMMIT_ONE_REJECTION
+TWO_WORKER_GROUP_INSTRUCTOR_PASS_ONE_COMMIT_ONE_REJECTION
+TWO_WORKER_GROUP_RIDER_PASS_ONE_COMMIT_ONE_REJECTION
+TWO_WORKER_GROUP_INCOMPLETE_PASS_ONE_COMMIT_ONE_REJECTION
+CLI_PREVIEW_AND_HEALTH_PASS
+PRODUCTION_MIGRATION_DENIED
+NETWORK_CHANGED_GET_RECOVERY 1
+BROWSER_PASS 59 checks; transport GET recoveries 1
+TWO_WORKER_MIGRATION_PASS_ONE_AUDIT
+POPULATED_V1_BACKUP_RESTORE_PASS_V2_ACCESS_DENIED
+LOGICAL_BACKUP_RESTORE_PASS
+
+Browser assertions:
+PASS anonymous staff page requires login
+PASS no raw JSON editor in staff interface
+PASS staff page rendered 390
+PASS no horizontal overflow 390
+PASS four preserved rotation rows 390
+PASS partial turn end preserved 390
+PASS calendar accessibility:
+PASS staff page rendered 768
+PASS no horizontal overflow 768
+PASS four preserved rotation rows 768
+PASS partial turn end preserved 768
+PASS calendar accessibility:
+PASS staff page rendered 1280
+PASS no horizontal overflow 1280
+PASS four preserved rotation rows 1280
+PASS partial turn end preserved 1280
+PASS calendar accessibility:
+PASS appointment starts with save disabled
+PASS repeated time is not guessed
+PASS second fold can be selected explicitly
+PASS DST gap cannot enable saving
+PASS connection interruption preserves unsent staff edits
+PASS interrupted preview cannot enable saving
+PASS preview passes: Schedule checked. No reservation has been made. Saving checks it again.
+PASS save gate follows preview result
+PASS preview has not created or reserved an appointment
+PASS confirmed appointment still shows missing rider clearance
+PASS exact staff command replay accepted
+PASS replay never duplicates appointment
+PASS preview passes: Schedule checked. No reservation has been made. Saving checks it again.
+PASS save gate follows preview result
+PASS preview reports actual per-horse reserved workload
+PASS group displays four named turns
+PASS preview passes: Schedule checked. No reservation has been made. Saving checks it again.
+PASS save gate follows preview result
+PASS title-only edit preserves all old ride and roster values
+PASS preview blocks: arena: Pilot Arena: Already reserved. Change the horse, instructor, arena or time, then preview again.
+PASS save gate follows preview result
+PASS conflict names selected resource, not another appointment
+PASS preview passes: Schedule checked. No reservation has been made. Saving checks it again.
+PASS save gate follows preview result
+PASS client-owned horse scheduled without school allocation
+PASS new welfare block flags existing confirmation
+PASS explicit block release clears active restriction
+PASS explicit move shifts ride turn with appointment
+PASS preview passes: Schedule checked. No reservation has been made. Saving checks it again.
+PASS save gate follows preview result
+PASS canceled record remains in calendar
+PASS cancellation reason remains in readable audit history
+PASS resource name can be maintained
+PASS empty availability clearly means unavailable
+PASS keyboard adds a turn
+PASS keyboard-reachable remove restores empty form
+PASS private horse filter is not placed in URL
+PASS horse filter limits appointment cards
+PASS private AJAX rejects missing nonce
+PASS anonymous time/preview handler unavailable
+PASS calendar accessibility:
+PASS no browser script or local transport failures:
+BROWSER_PASS 59 checks; transport GET recoveries 1
+
+MYSQL
+Success: 87 scheduling foundation integration checks; database 8.0.46
+Success: 128 calendar integration checks; database 8.0.46
+TWO_WORKER_BOOKING_EMPTY_PASS_ONE_COMMIT_ONE_CONFLICT
+TWO_WORKER_BOOKING_POPULATED_PASS_ONE_COMMIT_ONE_CONFLICT
+Success: 66 staff usability integration checks; database 8.0.46
+TWO_WORKER_GROUP_HORSE_PASS_ONE_COMMIT_ONE_REJECTION
+TWO_WORKER_GROUP_INSTRUCTOR_PASS_ONE_COMMIT_ONE_REJECTION
+TWO_WORKER_GROUP_RIDER_PASS_ONE_COMMIT_ONE_REJECTION
+TWO_WORKER_GROUP_INCOMPLETE_PASS_ONE_COMMIT_ONE_REJECTION
+CLI_PREVIEW_AND_HEALTH_PASS
+PRODUCTION_MIGRATION_DENIED
+TWO_WORKER_MIGRATION_PASS_ONE_AUDIT
+POPULATED_V1_BACKUP_RESTORE_PASS_V2_ACCESS_DENIED
+LOGICAL_BACKUP_RESTORE_PASS
+
+All-plugin PHP/WPCS:
+82 /tmp/s91-lint
+............................................................ 60 / 82 (73%)
+......................                                       82 / 82 (100%)
+
+
+Time: 2.68 secs; Memory: 36MB
+
+Source/deployment guards:
+PASS: 17 deployment/backup scenarios (blocked targets, dry run, apply, backup checksums, paths with spaces)
+PASS: 22 total deployment/backup scenarios including apply prerequisites and symlink rejection
+PASS: 6 Plesk preflight identity scenarios (runtime checks mocked)
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 0.029s
+
+OK
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.006s
+
+OK
+
+Protected source diff, Node/shell syntax and git diff --check: PASS

@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 
 /** One facility lock orders all configuration, roster and appointment mutations. */
 class CSF_Scheduling_Calendar {
-	const COMMANDS = array( 'rider_saved', 'horse_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
+	const COMMANDS = array( 'resource_saved', 'rider_saved', 'horse_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
 	const ERRORS   = array( 'forbidden', 'invalid_body', 'invalid_time', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
 
 	/** Fixed private table lookup.
@@ -122,6 +122,43 @@ class CSF_Scheduling_Calendar {
 		$policy = json_decode( $settings['policy_json'], true );
 		if ( in_array( $kind, array( 'appointment_saved', 'appointment_canceled' ), true ) ) {
 			return self::appointment( $kind, $body, $policy );
+		}
+		if ( 'resource_saved' === $kind ) {
+			self::keys( $body, array( 'uuid', 'expected', 'data' ) );
+			self::keys( $body['data'], array( 'label', 'active' ) );
+			self::label( $body['data']['label'] );
+			$old = self::find( 'resources', $body['uuid'] );
+			self::require( $old && is_int( $body['expected'] ) && (int) $old['revision'] === $body['expected'] && is_bool( $body['data']['active'] ), 'stale_appointment' );
+			self::require(
+				1 === $wpdb->update(
+					self::table( 'resources' ),
+					array(
+						'label'    => $body['data']['label'],
+						'active'   => (int) $body['data']['active'],
+						'revision' => $body['expected'] + 1,
+					),
+					array( 'id' => $old['id'] )
+				),
+				'write_failed'
+			);
+			self::document(
+				'history',
+				wp_generate_uuid4(),
+				$body['uuid'],
+				array(
+					'kind'   => $kind,
+					'before' => array(
+						'label'  => $old['label'],
+						'active' => (bool) $old['active'],
+					),
+					'after'  => $body['data'],
+				),
+				0
+			);
+			return array(
+				'uuid'            => $body['uuid'],
+				'entity_revision' => $body['expected'] + 1,
+			);
 		}
 		if ( 'restriction_released' === $kind ) {
 			self::keys( $body, array( 'uuid', 'expected', 'reason' ) );
@@ -434,6 +471,7 @@ class CSF_Scheduling_Calendar {
 	 * @param DateTimeImmutable $end End.
 	 * @param array             $resources Resolved resources.
 	 * @param int               $exclude Existing appointment ID.
+	 * @throws CSF_Scheduling_Conflict Selected resource is reserved.
 	 */
 	private static function validate_allocations( $b, $s, $p, $start, $end, $resources, $exclude ) {
 		global $wpdb;
@@ -444,13 +482,15 @@ class CSF_Scheduling_Calendar {
 			self::available( $uuid, $left, $right, $p );
 			self::unrestricted( $uuid, $left, $right, $p );
 			if ( 'requested' !== $b['state'] ) {
-				self::require( ! self::overlap( 'allocations', 'resource_id', (int) $r['id'], $left, $right, $exclude ), 'resource_conflict' );
+				if ( self::overlap( 'allocations', 'resource_id', (int) $r['id'], $left, $right, $exclude ) ) {
+					throw new CSF_Scheduling_Conflict( 'resource_conflict', esc_html( $r['kind'] . ': ' . $r['label'] ) ); }
 			}
 		}
 		foreach ( $b['riders'] as $uuid ) {
 			$r = self::find( 'riders', $uuid );
 			if ( 'requested' !== $b['state'] ) {
-				self::require( ! self::overlap( 'participants', 'rider_id', (int) $r['id'], $left, $right, $exclude ), 'rider_conflict' );
+				if ( self::overlap( 'participants', 'rider_id', (int) $r['id'], $left, $right, $exclude ) ) {
+					throw new CSF_Scheduling_Conflict( 'rider_conflict', esc_html( json_decode( $r['body_json'], true )['label'] ) ); }
 			}
 		}
 		$assigned = array();
@@ -480,7 +520,8 @@ class CSF_Scheduling_Calendar {
 				self::require( ! ( ( $slot['key'] === $key || ( null !== $ride['rider'] && $slot['rider'] === $ride['rider'] ) ) && $slot['start'] < $z && $slot['end'] > $a ), 'resource_conflict' );
 			}
 			if ( 'requested' !== $b['state'] ) {
-				self::require( ! self::overlap( 'slots', 'resource_id', $key, $a->modify( "-$buffer minutes" ), $z->modify( "+$buffer minutes" ), $exclude ), 'resource_conflict' );
+				if ( self::overlap( 'slots', 'resource_id', $key, $a->modify( "-$buffer minutes" ), $z->modify( "+$buffer minutes" ), $exclude ) ) {
+					throw new CSF_Scheduling_Conflict( 'resource_conflict', esc_html( 'Horse: ' . $horse['label'] ) ); }
 			}
 			$slots[] = array(
 				'key'   => $key,

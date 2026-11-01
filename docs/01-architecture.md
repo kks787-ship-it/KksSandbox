@@ -672,3 +672,61 @@ rider and horse-owner relationships and legally reviewed versioned agreement evi
 the existing rider UUIDs to those records with an explicit migration; do not duplicate them
 or treat the current manually verified booleans as electronic signatures. Calendar confirmation
 must stay separate from permission to begin a service. No Sprint #10 code is included here.
+
+### Sprint #9.1 staff usability — 0.2.1, schema v2 retained
+
+The staff presentation layer now uses native fields for all appointment/group turns,
+resources, horse/rider suitability, availability and protective-block administration.
+No raw structured-data editor remains. Existing v2 identities and schema are unchanged;
+there is no migration or activation grant for this patch release. The existing Store,
+canonical command ledger, facility lock, expected revisions, confirmation permissions,
+allocations, welfare validation and audit remain the authoritative write boundary.
+
+`resource_saved` adds bounded label/active edits to that same dispatcher, with the resource
+revision and before/after application history. It cannot change a resource's kind/identity.
+School/client horse identity restrictions remain unchanged. An inactive resource stays in
+history and blocks use; naming a scheduling instructor never provisions a WordPress staff user.
+
+`Store::preview()` uses the **same locked appointment command** and rolls back before ledger,
+facility-revision and audit commit. It persists no rows and reserves nothing. InnoDB may
+consume auto-increment values during rolled-back attempts; IDs are opaque and gaps are not
+missing appointments. Saving always reruns the original transaction/constraints. A preview
+is advisory, not a hold. Resource/participant collisions return only the selected resource's
+bounded label, never another appointment title or family details.
+
+The private `wp_ajax_csf_schedule_tools` handler requires allowlisted manage permission and
+a nonce. There is **no nopriv handler or public REST route**. It provides local-time choices
+and appointment preview. Server `Time::choices()` enumerates offsets around the selected
+IANA-zone date; gaps produce no candidate, folds require an explicit server-validated
+occurrence. Ordinary times resolve without an offset entered by the user. All submitted
+wall-time/choice pairs are resolved again on the server; a browser-supplied offset is not
+trusted. Stored instants are displayed in the current facility zone without moving them.
+An explicit Move action shifts the appointment end and turns together; preview checks the
+resulting actual instants, DST, workload, buffers and collisions before a save is enabled.
+
+A single presentation snapshot binds displayed policy/timezone to its reviewed facility
+revision, including if configuration changes while the page renders. Saving an old review
+requires refresh; it cannot silently acquire the new policy revision.
+
+All original ride rows and roster order are retained for unchanged fields. Add/remove,
+horse pool selection and recovery-minute helpers propose explicit rows; no hidden recurrence
+or routing engine is added. UI summaries distinguish local-clock estimates from the server's
+actual reserved minutes, including configured travel. Facility/day filters survive saves in
+authorized POST bodies, rather than putting private resource identifiers into URLs.
+
+Failed edits remain in the authorized response, without browser local storage or public
+query parameters. Stale global revisions require current-calendar review and re-preview;
+a stale entity revision cannot be forced over a concurrent edit. Unknown commit outcomes
+retain the exact normalized payload, actor-bound request ID and original revision for replay.
+The exact-retry path uses the existing service directly, so later timezone configuration
+cannot reinterpret a previously committed command. New/altered commands still undergo the
+original server authorization, schema, time and reservation checks. There is no bypass of
+the ledger or scheduling engine. No raw exception/SQL bodies are returned to staff.
+
+Evidence flags remain manual observations, not signed agreements or an attendance/service
+start gate. Initial facility policy and verified staff identity/MFA configuration remain
+operator/owner work. Recurrence, Academy cohort automation, route optimization, notifications,
+fees, onboarding/e-signatures, emergency integration and multi-tenant SaaS remain excluded.
+See [staff acceptance](13-scheduling-staff-acceptance.md) and
+[validation/limits](test-results/scheduling-staff.md). Protected installation and Beth/Kris
+acceptance remain separate release gates; no deployment or live migration occurred here.

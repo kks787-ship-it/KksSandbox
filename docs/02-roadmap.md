@@ -177,3 +177,16 @@ still uses an advanced editor; recurrence/Academy/route automation remain future
 Next development milestone: Sprint #10 household onboarding and digital agreements, using
 shared household/rider/horse identities and legally reviewed versioned signing evidence.
 Do not implement payments, public booking or emergency integration as part of that handoff.
+
+### Sprint #9.1 / Issue #10 local usability candidate
+
+0.2.1 replaces structured appointment/group/roster/availability/welfare editing with native
+staff fields, validated local times, pre-save preview and clear conflict/clearance messages.
+It retains schema v2, existing records and the transactional reservation service. The
+[synthetic staff walkthrough](13-scheduling-staff-acceptance.md) and
+[validation report](test-results/scheduling-staff.md) prepare release review, not live operation.
+
+Next: separately approve a pinned scheduling-only protected pilot, then Beth/Kris device and
+workflow acceptance with synthetic records. Initial real policy/resources, staff IDs and MFA
+remain owner/operator decisions. Only after usability/pilot acceptance should Sprint #10
+household onboarding and versioned digital agreement work connect to existing rider UUIDs.
