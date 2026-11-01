@@ -138,3 +138,14 @@ call/email values in doc 03; settings publication remains a separate live-conten
 and SMS/emergency use is not inferred. The calibrated candidate preview proposed all 21 page
 updates without writing them. The doc 01 architecture includes Issue #4 business-rule review
 refinements; keep it design-only until unresolved capacities/policies and roles are reviewed.
+
+
+Latest owner approval and completed release: steps 2 and 3 explicitly approved the 6a46521
+core-only deployment and separate 21-page/menu/public-contact update. These are COMPLETE;
+do not repeat them. Fresh private backup csf-dev-20261101-065451-968013 and Gateway job
+provenance are in docs/test-results/scheduling-contact.md. All 21 saved pages now match the
+new source; items 48/51 and public call/email updated; no force/setup apply/permalink change.
+Protected real-Kadence 390/768/1280px acceptance is awaiting secure Basic Auth credentials.
+No values are currently stored under requested csf-sandbox-http-auth; never put credentials
+in chat or Git or disable protection. Inquiry stays off, emergency inactive/unchanged,
+production excluded. The calendar architecture remains design-only.

@@ -285,3 +285,15 @@ Those details are recorded for review, not yet written to the sandbox. No text-m
 24-hour emergency service or email-delivery claim follows. Keep inquiries disabled and emergency
 inactive. The calibrated candidate preview proposes 21 page updates and no owner-edited overwrite;
 plugin files, page/menu migration and settings publication still require scoped authorization.
+
+
+## Execute separately approved scheduling sandbox release
+
+The user explicitly approved release steps 2 and 3: exact core files at 6a46521 and the public
+call/email plus 21 saved-page/applicable-menu changes. After fresh backup and reviewed core-only
+comparison, both operations completed. Hash-guarded content migration preserved IDs and owner
+provenance; repeat setup preview is all ok. Emergency remains inactive/unchanged, inquiries
+disabled, production untouched. No calendar implementation is authorized by this release.
+Protected Kadence browser acceptance remains pending the secure Basic Auth credential handoff;
+HTTP 401 without it is expected. Record the release as deployed with acceptance outstanding,
+not as fully verified on real devices. See docs/test-results/scheduling-contact.md.

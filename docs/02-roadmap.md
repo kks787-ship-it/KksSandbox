@@ -124,3 +124,12 @@ until unresolved business policies are approved. Public scheduling call/email va
 owner-approved in doc 03 but not yet entered into sandbox settings; no SMS approval. Review
 plugin files, all 21 candidate page updates and any menu/settings changes as separately scoped
 operations. This follow-up authorizes none of those live mutations.
+
+
+### Approved scheduling release completed
+
+Core source 6a46521, the 21 saved pages, two applicable menu items and approved public call/email
+settings are now applied to the protected sandbox after a fresh verified backup. Idempotent
+preview and server-side checks passed. Actual Kadence browser acceptance remains pending
+Basic Auth credentials; Issue #3 stays open. See the current release section in the scheduling
+report. Issue #4 is still design-only; no calendar plugin/schema was deployed.

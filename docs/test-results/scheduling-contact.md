@@ -1,5 +1,44 @@
 # Issues #3/#4 local delivery — October 31, 2026
 
+## Approved sandbox release — October 31, 2026 (PDT)
+
+The owner explicitly approved plugin deployment and, separately, the public call/email and
+21 saved-page/applicable-menu changes. Exact deployed source:
+`6a4652100988719cac919780b4ec9103b8c35ada`. This release supersedes earlier pending-deployment
+and unset-contact statements below; earlier validation records remain historical evidence.
+The internal calendar remains architecture only.
+
+| Operation | Evidence and outcome |
+|---|---|
+| Exact-target preflight, fresh backup and core-only comparison | Gateway `job_01M6AY6Z0D00HPVMNYJXEZDA9D`, succeeded. Kadence 1.5.2, MariaDB 10.6.23, PHP/WordPress/extensions and sandbox URL checks passed; only csf-core targeted, no deletions. |
+| Fresh target-bound backup | `/var/www/vhosts/cornerstonefarmomak.com/private/csf-dev-20261101-065451-968013/`; DB captured November 1 06:54:51 UTC / October 31 23:54:51 PDT. Database gzip, wp-content archive and exact six-file checksum/target/age gate passed. This is not a new restore drill. |
+| Core-only files applied | Gateway `job_01M6AY9B9Y00KEP43J45FFCKER`, succeeded. Dry run rechecked against its saved comparison immediately before apply. Installed core tree matches the exact release source; emergency SHA-256 manifest unchanged. Version remains 0.3.0. |
+| Saved content/settings applied | Gateway `job_01M6AYBS7Q00XXK7V0X1999HH3`, succeeded. Hash-guarded updates to existing page IDs 6–26; no created pages, force, owner-edit overwrite or site-setup apply. Setup content/source hashes updated after each verified save. Booking title updated to Contact Beth to Schedule. |
+| Applicable navigation | Existing menu items 48 and 51 now say Contact Beth to Schedule and reference the Contact page. Item IDs, positions, parent relationships, classes, menu memberships and location assignments retained. |
+| Public channels | Farm Details phone `509-557-8467` and email `Beth.Siemon@cornerstonefarmomak.com` saved from explicit owner approval, preserving unrelated fields. Rendered call/email links verified. No SMS or 24-hour/emergency-use approval inferred. |
+| Idempotency | Post-migration `wp csf setup --dry-run`: all 21 pages and synced footer #27 `ok`; no further updates. Permalinks and footer placement unchanged. |
+| Final server-side verification | Gateway `job_01M6AYD1E500ZSBZ97G4TS91PB`, succeeded. All 49 core PHP files lint; 21 saved public do_blocks renders with one H1 each, no old booking claims/forms; public channels and persisted menus pass; core files 0755/0644 and subscription owned. |
+
+Rollback artifacts are private in the fresh backup: `content-before.json` preserves the
+original 21 page records/metadata, menu records and public settings, while `wp-content.tar.gz`
+preserves the previous core tree. Deployment dry-run/apply logs and emergency hashes are
+retained there. Restore only the affected sandbox core tree/records after reviewing later
+changes; never restore the entire subscription or production database. Original structural
+restore evidence is retained unchanged; functional restored-site testing is still unrun.
+
+**Protected browser acceptance remains blocked:** the post-release unauthenticated Contact
+request returns expected HTTP 401. No Basic Auth value is stored in Gateway yet. A secure
+Gateway request for `csf-sandbox-http-auth` is pending; credentials must never enter chat or
+Git. Actual protected Kadence review at 390/768/1280px has not run. The prior 441 checks and
+19/19 content rerun are private stand-in fixture evidence, not live-site visual acceptance.
+Issue #3 stays open for that acceptance; deployment completion must not be called full site
+acceptance. No authentication protection was removed or bypassed.
+
+Throughout: inquiry disabled, emergency inactive with unchanged files, no mail sent, no
+production/DNS/Plesk/vhost changes and no calendar engine/schema/appointment creation. Cloud
+onboarding, installation scripts and the historical private source pin were not modified.
+
+
 ## Current follow-up: runtime evidence and event assertion corrected
 
 The original executor blockers below are historical. Follow-up validation used the existing

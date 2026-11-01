@@ -1,5 +1,18 @@
 # 07 — Website Installation and Acceptance (Sandbox)
 
+## Scheduling release applied with owner approval
+
+The exact `6a46521` core files and separately approved saved-page/menu/public-contact changes
+are now applied on the protected sandbox. All 21 existing page IDs were preserved with
+hash checks; no force or setup apply was used. Two menu entries now point to Contact, and
+Beth's approved call/email are saved. Repeat setup dry run is entirely `ok`. Inquiry stays
+disabled, emergency inactive, footer placement and permalinks unchanged. Earlier pending
+migration/approval wording below is historical. [Current evidence and rollback](test-results/scheduling-contact.md#approved-sandbox-release--october-31-2026-pdt).
+
+Actual protected Kadence browser review is still pending secure Basic Auth access. Do not
+substitute the private stand-in suite for that acceptance or repeat completed installation.
+
+
 **Current state — October 31, 2026:** Gateway verified and deployed **csf-core 0.3.0**, commit `0f8530e`, to the password-protected sandbox only. All 21 generated site pages were preserved; no setup or Contact content update was run. Kadence 1.5.2, WordPress 7.1.4 and PHP 8.3.36 remain. **Do not reinstall the foundation or recreate the site.** `csf-emergency` 0.1.0 remains **inactive**; production is excluded.
 
 The newer remote roadmap reports **[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1)**: shared intro paragraphs reach the viewport edge while headings are inset, observed on Meet Beth and Camps & Clinics. This supersedes the earlier no-confirmed-defects report. A shared CSS correction has been **deployed to the protected sandbox**, and the owner visually accepted the mobile layout on the pages viewed. **Authenticated all-21-page Plesk acceptance remains NOT RUN**; tablet/desktop and comprehensive audit are pending, so Issue #1 remains open. The historic substitute-theme tests and WordPress do_blocks() results

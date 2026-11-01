@@ -1,5 +1,22 @@
 # 05 — Backup, Rollback & Deployment
 
+## Latest approved release — October 31, 2026
+
+The owner approved core-only deployment and the separate scheduling content/settings change.
+Source `6a4652100988719cac919780b4ec9103b8c35ada` is now installed on the protected sandbox,
+with 21 saved pages, two applicable menu entries and approved public call/email updated.
+Inquiry remains disabled, emergency inactive and unchanged, production untouched. The plugin
+version remains 0.3.0. Older 0.2.0/pending-deployment statements below are historical.
+
+Fresh rollback bundle: private `csf-dev-20261101-065451-968013`, captured November 1
+06:54:51 UTC / October 31 23:54:51 PDT. Target-bound integrity gate passed; original structural
+restore evidence was reused without claiming a new or functional restore. See the exact
+job IDs, checks, selective rollback artifacts and remaining protected-browser gate in
+[the scheduling release report](test-results/scheduling-contact.md#approved-sandbox-release--october-31-2026-pdt).
+Do not repeat this deployment or reuse its approval for future changes. No full-site setup,
+permalink change, infrastructure onboarding or production operation was performed.
+
+
 **Current state — October 31, 2026:** Gateway preparation and the initial public-site
 installation/setup are complete. csf-core 0.2.0 is active, 21 pages/menus and static Home are
 configured, and /%postname%/ routes are verified. Emergency remains inactive. A later repository report identifies Kadence gutter Issue #1; authenticated sitewide
