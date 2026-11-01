@@ -20,8 +20,8 @@ These requirements guide development; they do not replace approval of public cop
   Warm Tan, Sage Green, decorative Muted Gold; Playfair Display and Lato. Palette approval
   against original assets remains outstanding. Keep design calm, approachable and mobile-first.
 - Use real farm photography with publication permissions, especially for minors.
-- Retain Acuity unless a replacement is approved. Supplied appointment URL:
-  https://cornerstonefarm.as.me/?appointmentType=70075205 ; owner verification remains required.
+- Public scheduling: Contact Beth to Schedule → /contact/. Beth or Kris confirms dates
+  directly; only their staff-confirmed entries populate the future internal calendar.
 
 The next workflow priority after website/emergency foundations is streamlined household
 onboarding: collect household data once, support multiple riders, apply relevant legally

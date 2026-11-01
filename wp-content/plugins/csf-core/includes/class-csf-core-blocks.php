@@ -73,8 +73,8 @@ class CSF_Core_Blocks {
 				'render'      => array( 'CSF_Core_Inquiry', 'render' ),
 			),
 			'csf/book-button'      => array(
-				'title'       => __( 'Book a Lesson Button', 'csf-core' ),
-				'description' => __( 'Booking button using the site-wide booking link (Settings → Booking).', 'csf-core' ),
+				'title'       => __( 'Contact Beth to Schedule', 'csf-core' ),
+				'description' => __( 'Scheduling contact button linking to the Contact page.', 'csf-core' ),
 				'icon'        => 'calendar-alt',
 				'attributes'  => array(
 					'label'   => array(
@@ -91,7 +91,6 @@ class CSF_Core_Blocks {
 					),
 				),
 				'controls'    => array(
-					array( 'label', 'text', __( 'Label (blank = default)', 'csf-core' ) ),
 					array(
 						'variant',
 						'select',

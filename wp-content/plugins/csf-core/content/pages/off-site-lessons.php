@@ -25,7 +25,7 @@ return $csf::page_header(
 					esc_html__( 'Prefer to come to us? Haul-in lessons are available at Corner Stone Farm.', 'csf-core' ),
 				)
 			)
-			. $csf::p( esc_html__( 'Off-site lessons are arranged directly with us rather than booked online. Tell us where you are located and what you would like to work on.', 'csf-core' ) )
+			. $csf::p( esc_html__( 'Off-site lessons are arranged directly with Beth or Kris. Tell us where you are located and what you would like to work on.', 'csf-core' ) )
 			. $csf::note( esc_html__( 'the off-site service area, any travel fee, and the minimum number of riders per location.', 'csf-core' ) )
 			. $csf::buttons( array( array( __( 'Ask about off-site lessons', 'csf-core' ), $csf::url( 'contact' ), 'csf-primary' ) ) ),
 			$csf::placeholder( 'offsite' ),

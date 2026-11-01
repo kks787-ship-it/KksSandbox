@@ -22,7 +22,7 @@ return $csf::page_header(
 	. $csf_q( __( 'I have never ridden before. Can I take lessons?', 'csf-core' ), esc_html__( 'Yes. We teach riders from complete beginners through advanced, with a strong focus on safety and confidence.', 'csf-core' ) )
 	. $csf_q( __( 'Do you teach adults?', 'csf-core' ), esc_html__( 'Absolutely. Adult amateurs — new, returning, or experienced — are a core part of our program.', 'csf-core' ) )
 	. $csf_q( __( 'Can I bring my own horse?', 'csf-core' ), esc_html__( 'Yes. Haul-in lessons are available, and off-site lessons can be arranged at your barn.', 'csf-core' ) )
-	. $csf_q( __( 'How do I book a lesson?', 'csf-core' ), esc_html__( 'Use the Book a Lesson button anywhere on this site to see available times and book online.', 'csf-core' ) )
+	. $csf_q( __( 'How do I book a lesson?', 'csf-core' ), esc_html__( 'Use Contact Beth to Schedule to reach our Contact page. Beth or Kris confirms lesson dates directly; a request does not reserve an appointment.', 'csf-core' ) )
 	. $csf_q( __( 'What paperwork is needed before the first ride?', 'csf-core' ), esc_html__( 'Required agreements and emergency contact details must be completed before any rider’s first lesson.', 'csf-core' ) )
 	. $csf::h( __( 'Training', 'csf-core' ) )
 	. $csf_q( __( 'How many horses do you take in training?', 'csf-core' ), esc_html__( 'We keep our training program small, with a maximum of five horses in full training at one time.', 'csf-core' ) )

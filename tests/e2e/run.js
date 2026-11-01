@@ -50,7 +50,7 @@ const PAGES = [
 	'/about/meet-the-horses/', '/about/facilities/', '/resources/', '/resources/faq/', '/contact/', '/booking/',
 ];
 
-const PRIMARY_MENU = [ 'Home', 'Lessons', 'Horse Training', 'Camps & Clinics', 'Horse Sales', 'About', 'Resources', 'Contact', 'Book a Lesson' ];
+const PRIMARY_MENU = [ 'Home', 'Lessons', 'Horse Training', 'Camps & Clinics', 'Horse Sales', 'About', 'Resources', 'Contact', 'Contact Beth to Schedule' ];
 
 // Pages captured for docs/screenshots (mobile + desktop; home also tablet).
 const SCREENSHOT_PAGES = [ '/', '/lessons/', '/horse-training/', '/camps-clinics/', '/horse-sales/', '/about/', '/about/meet-beth/', '/resources/', '/resources/faq/', '/contact/', '/booking/' ];
@@ -111,6 +111,11 @@ async function testPages( browser ) {
 			page.consoleErrors = [];
 			const res = await page.goto( BASE + url, { waitUntil: 'networkidle' } );
 			const label = `${ url } @${ vpName }`;
+			const schedulingHTML = await page.content();
+			record( 'booking', `${ label } has no canceled provider or public booking promises`, ! /acuity|cornerstonefarm\.as\.me|see available times|book(?:ed)? online|online booking|confirmation after booking/i.test( schedulingHTML ) );
+			const schedulingButtons = await page.$$eval( 'a[data-csf-booking]', ( as ) => as.map( ( a ) => ( { href: a.href, label: a.textContent.trim(), height: a.getBoundingClientRect().height } ) ) );
+			record( 'booking', `${ label } scheduling buttons have contact names, destinations and touch targets`, schedulingButtons.length > 0 && schedulingButtons.every( ( a ) => a.href === bookingUrl && a.label === 'Contact Beth to Schedule' && a.height >= 44 ) );
+
 
 			if ( vpName === 'desktop' ) {
 				const html = await page.content();
@@ -124,7 +129,7 @@ async function testPages( browser ) {
 				record( 'pages', `${ url } shows no admin-only hints to visitors`, hints === 0 );
 
 				const booking = await page.$$eval( 'a[data-csf-booking]', ( as ) => as.map( ( a ) => a.href ) );
-				record( 'booking', `${ url } booking buttons use the shared Acuity URL (${ booking.length })`, booking.every( ( h ) => h === bookingUrl ), booking.join( ', ' ) );
+				record( 'booking', `${ url } booking buttons use the internal Contact destination (${ booking.length })`, booking.every( ( h ) => h === bookingUrl ), booking.join( ', ' ) );
 
 				const imgs = await page.$$eval( 'main img', ( is ) => is.filter( ( i ) => ! i.hasAttribute( 'alt' ) ).length );
 				record( 'a11y', `${ url } every image has alt text`, imgs === 0, imgs + ' without alt' );
@@ -184,7 +189,7 @@ async function testNavigation( browser ) {
 		const top = await page.$$eval( '#primary-nav > ul > li > a', ( as ) => as.map( ( a ) => a.textContent.trim() ) );
 		record( 'navigation', `primary menu order (${ vpName })`, JSON.stringify( top ) === JSON.stringify( PRIMARY_MENU ), top.join( ', ' ) );
 		const cta = await page.$eval( '#primary-nav .csf-menu-cta > a', ( a ) => a.getAttribute( 'href' ) ).catch( () => '' );
-		record( 'navigation', `"Book a Lesson" menu item is highlighted and links to /booking/ (${ vpName })`, cta.endsWith( '/booking/' ), cta );
+		record( 'navigation', `"Contact Beth to Schedule" menu item is highlighted and links to /contact/ (${ vpName })`, cta.endsWith( '/contact/' ), cta );
 		if ( vpName === 'desktop' ) {
 			const sub = await page.$$eval( '#primary-nav .sub-menu a', ( as ) => as.length );
 			record( 'navigation', 'submenus contain the 12 supporting pages', sub === 12, sub + ' submenu links' );

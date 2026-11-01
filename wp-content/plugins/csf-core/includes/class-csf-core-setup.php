@@ -61,7 +61,7 @@ class CSF_Core_Setup {
 			array( 'resources', __( 'Resources', 'csf-core' ), '' ),
 			array( 'faq', __( 'FAQ', 'csf-core' ), 'resources' ),
 			array( 'contact', __( 'Contact', 'csf-core' ), '' ),
-			array( 'booking', __( 'Book a Lesson', 'csf-core' ), '' ),
+			array( 'booking', __( 'Contact Beth to Schedule', 'csf-core' ), '' ),
 		);
 		$pages = array();
 		foreach ( $tree as $row ) {

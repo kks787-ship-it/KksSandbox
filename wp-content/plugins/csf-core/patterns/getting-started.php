@@ -16,7 +16,7 @@ return array(
 		$csf::intro( __( 'New riders', 'csf-core' ), __( 'How to get started', 'csf-core' ) )
 		. $csf::columns(
 			array(
-				$csf::card( $csf::eyebrow( __( 'Step 1', 'csf-core' ) ) . $csf::h( __( 'Book a lesson', 'csf-core' ), 3 ) . $csf::p( esc_html__( 'Choose a time that works for you through our online booking.', 'csf-core' ) ) ),
+				$csf::card( $csf::eyebrow( __( 'Step 1', 'csf-core' ) ) . $csf::h( __( 'Contact Beth to Schedule', 'csf-core' ), 3 ) . $csf::p( esc_html__( 'Contact Beth to discuss a lesson. Beth or Kris confirms your appointment directly.', 'csf-core' ) ) ),
 				$csf::card( $csf::eyebrow( __( 'Step 2', 'csf-core' ) ) . $csf::h( __( 'Complete rider paperwork', 'csf-core' ), 3 ) . $csf::p( esc_html__( 'Required agreements and emergency contacts are completed before the first ride — for every rider, every time.', 'csf-core' ) ) ),
 				$csf::card( $csf::eyebrow( __( 'Step 3', 'csf-core' ) ) . $csf::h( __( 'Ride with a plan', 'csf-core' ), 3 ) . $csf::p( esc_html__( 'After your first lesson, we recommend a lesson plan based on your goals and experience.', 'csf-core' ) ) ),
 			),

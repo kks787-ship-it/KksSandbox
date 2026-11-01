@@ -246,7 +246,7 @@ artifact is historical recovery evidence, not an automatic rollback (it removes 
 | Permissions | Subscription-owned files; typically files 0644/directories 0755 with tighter wp-config permissions supported by the handler; no world-writable files, no root-owned deploy output. Inspect actual ACLs/ownership first. |
 | Cache | Exclude /h/*, /emergency*, wp-admin and authenticated pages from nginx/CDN/page cache. Public banner cache purge needs logged-out verification across all cache layers. Do not claim it works solely because WP hooks fired. |
 | Tooling | Bash, Git, WP-CLI, rsync, realpath, GNU stat/date, awk, tar, gzip, sha256sum and MySQL/MariaDB client for exports. Node, Composer and browser tooling may stay on the build machine; production PHP plugins do not require node_modules or vendor. |
-| Outbound/cron | Emergency notification delivery remains unimplemented. Optional inquiries stay off until the existing mail transport and actual inbox receipt are verified; verify WP-Cron for expiry cleanup. Acuity is a browser link. For updates/checksums allow the relevant official WordPress/theme destinations through normal TLS. Record WordPress/server cron; a durable worker is a future notification requirement. |
+| Outbound/cron | Emergency notification delivery remains unimplemented. Optional inquiries stay off until the existing mail transport and actual inbox receipt are verified; verify WP-Cron for expiry cleanup. Scheduling links remain internal to Contact. For updates/checksums allow the relevant official WordPress/theme destinations through normal TLS. Record WordPress/server cron; a durable worker is a future notification requirement. |
 
 ### Real Kadence acceptance gate
 

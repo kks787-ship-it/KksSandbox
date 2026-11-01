@@ -111,6 +111,6 @@ children need written parental permission.
 
 | Service | Use | Status |
 |---|---|---|
-| Acuity Scheduling — `https://cornerstonefarm.as.me/?appointmentType=70075205` | All "Book a Lesson" buttons (one setting) | **Not verified** — unreachable from the build environment; owner must open it and tick *Verified* |
+| Manual scheduling contact | All scheduling buttons → `/contact/` | Beth/Kris confirm dates directly; public channels require owner approval |
 | Google Fonts | Not used (fonts are self-hosted) | — |
 | Analytics, chat, embeds | None | — |

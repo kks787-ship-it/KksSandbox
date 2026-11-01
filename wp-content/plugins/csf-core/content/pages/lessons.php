@@ -61,7 +61,7 @@ return $csf::page_header(
 . CSF_Core_Patterns::section( 'getting-started' )
 . $csf::section(
 	$csf::h( __( 'Lesson pricing', 'csf-core' ) )
-	. $csf::p( esc_html__( 'Current lesson options and rates are shown when you book online.', 'csf-core' ) )
+	. $csf::p( esc_html__( 'Contact Beth to discuss current lesson options and rates.', 'csf-core' ) )
 	. $csf::note( esc_html__( 'whether to publish lesson prices on this page, lesson lengths, private vs. group options, and the cancellation policy.', 'csf-core' ) ),
 	'linen'
 )

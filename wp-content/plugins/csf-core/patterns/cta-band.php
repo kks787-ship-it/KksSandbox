@@ -16,7 +16,7 @@ return array(
 		$csf::group(
 			$csf::eyebrow( __( 'Begin', 'csf-core' ) )
 			. $csf::h( __( 'Ready to ride with us?', 'csf-core' ) )
-			. $csf::lead( esc_html__( 'Book a lesson online, or get in touch to talk about training, camps, or leasing.', 'csf-core' ) )
+			. $csf::lead( esc_html__( 'Contact Beth to Schedule lessons, or discuss training, camps, or leasing. Beth or Kris confirms dates directly.', 'csf-core' ) )
 			. $csf::book_row( __( 'Contact us', 'csf-core' ), $csf::url( 'contact' ), 'light', true ),
 			array( 'className' => 'csf-section-intro' )
 		),

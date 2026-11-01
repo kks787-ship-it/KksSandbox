@@ -99,7 +99,7 @@ class CSF_Core_CLI {
 		if ( 'table' === ( $assoc_args['format'] ?? 'table' ) ) {
 			WP_CLI::log( sprintf( 'Owner notes outstanding: %d (must be 0 before launch).', $notes ) );
 			$booking = CSF_Core_Booking::get();
-			WP_CLI::log( 'Booking URL: ' . $booking['url'] . ( $booking['verified'] ? ' (verified)' : ' (NOT verified)' ) );
+			WP_CLI::log( 'Scheduling: Contact Beth to Schedule → ' . $booking['url'] );
 			WP_CLI::log( 'Active theme: ' . wp_get_theme()->get( 'Name' ) . ( get_template() === 'kadence' ? '' : ' (expected Kadence)' ) );
 		}
 	}

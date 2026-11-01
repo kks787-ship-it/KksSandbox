@@ -265,7 +265,7 @@ class CSF_Core_Markup {
 	}
 
 	/**
-	 * Booking button (dynamic; uses Settings → Booking).
+	 * Scheduling contact button (dynamic; always links to Contact).
 	 *
 	 * @param string $variant primary|outline|light.
 	 * @param string $label   Optional label.

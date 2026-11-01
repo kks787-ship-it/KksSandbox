@@ -33,7 +33,7 @@ local environment. Installing on the Plesk development site requires owner appro
   (`wp csf setup` or **Tools → Corner Stone Farm Setup**) that never overwrites edited pages.
 - **Structured content only where it is structured:** Library Articles, Horses, Camps & Clinics.
   Programs are plain pages to avoid duplicate records.
-- **One booking setting.** Every booking button reads the Acuity URL from **Settings → Booking**.
+- **One fixed scheduling contact route.** Every scheduling button uses **Contact Beth to Schedule → /contact/**; legacy provider settings are ignored.
 - **Emergency system untouched and independent.** `csf-emergency` was not modified; its banner is
   tested on the new pages (above the header, mobile and desktop, accessible).
 
@@ -46,7 +46,7 @@ local environment. Installing on the Plesk development site requires owner appro
 | Header and footer configured in the Kadence Customizer | That is how Kadence stores them; writing its internal options from a script was judged too fragile | ~30 minutes of manual configuration on the dev site (step-by-step in doc 07). |
 | Footer as a synced pattern placed in a Kadence footer widget | Footer edited in one place in the block editor | One manual placement step. |
 | No contact form yet | Brief: no public forms until spam protection, secure delivery, and notifications are chosen and tested | Visitors use phone/email/booking. Form plugin choice is an owner decision. |
-| Acuity linked, not embedded | No third-party script on every page; booking happens on Acuity's secure page | One extra click; an embed can be added on `/booking/` later. |
+| Direct scheduling contact | Beth or Kris confirms appointments personally | No public availability or automatic reservations. |
 
 ## Testing
 
@@ -61,7 +61,7 @@ local environment. Installing on the Plesk development site requires owner appro
 - **navigation:** menu order, highlighted Book a Lesson item, 12 submenu pages, keyboard access to
   submenus, mobile menu toggle state;
 - **links:** every internal link on every page resolves (external links listed, not fetched);
-- **booking:** every booking button uses the single configured Acuity URL;
+- **booking:** every scheduling button uses the fixed internal Contact destination;
 - **block editor:** every page and the footer open in the WordPress 7.1 block editor and every block
   matches the current block markup exactly (strict `validateBlock`, with a deliberately broken
   control block proving the check works); all 35 patterns valid; 8 dynamic blocks registered;
@@ -84,7 +84,7 @@ local environment. Installing on the Plesk development site requires owner appro
    The header, footer, menus, and page-layout settings **must be verified on the dev site with
    Kadence** (doc 07 §6), or locally with `KADENCE_ZIP=… bash scripts/local-dev.sh reset`.
    The Kadence page-layout meta keys set by setup are believed correct but unverified.
-2. **Acuity link not verified** — unreachable from the build environment.
+2. **Saved scheduling copy migration pending** — preview non-forced setup; preserve owner edits.
 3. **No real photographs or logo.** 22 labelled placeholders; the header shows the farm name as text.
 4. **23 "Owner to confirm" notes** remain visible on pages (list in the test report).
 5. Screenshots show the stand-in header, not Kadence's.
@@ -112,7 +112,7 @@ local environment. Installing on the Plesk development site requires owner appro
 1. Supply the original logo artwork (vector if possible).
 2. Supply authentic photographs (shot list in doc 08) and photo permissions for minors.
 3. Enter and confirm public phone, email, hours, social links, legal business name.
-4. Open and verify the Acuity booking link.
+4. Review Contact Beth to Schedule links and separately approve saved-page/menu edits.
 5. Resolve each "Owner to confirm" note (credential wording; Beth's and Kris's bios; farm story;
    publishing the five-horse limit and Sunday closure; lesson pricing/lengths/cancellation policy;
    minimum age, attire and helmet policy; onboarding steps; off-site service area and travel fee;

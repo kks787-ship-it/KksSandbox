@@ -11,16 +11,16 @@ $csf = 'CSF_Core_Markup';
 
 return $csf::page_header(
 	__( 'Booking', 'csf-core' ),
-	__( 'Book a lesson', 'csf-core' ),
-	esc_html__( 'See available times and book your lesson online.', 'csf-core' )
+	__( 'Contact Beth to Schedule', 'csf-core' ),
+	esc_html__( 'Contact Beth to request a lesson. Beth or Kris confirms lesson dates directly.', 'csf-core' )
 )
 . $csf::section(
 	$csf::columns(
 		array(
-			$csf::h( __( 'Online booking', 'csf-core' ) )
-			. $csf::p( esc_html__( 'Our scheduling system shows current availability and lesson options. You will receive a confirmation after booking.', 'csf-core' ) )
-			. $csf::book( 'primary', __( 'See available times', 'csf-core' ) )
-			. $csf::p( esc_html__( 'Booking opens our secure scheduling page (Acuity Scheduling) in this window.', 'csf-core' ) ),
+			$csf::h( __( 'Arrange your lesson', 'csf-core' ) )
+			. $csf::p( esc_html__( 'Contacting the farm is a request, not a confirmed appointment. Beth or Kris will agree on a lesson date with you directly.', 'csf-core' ) )
+			. $csf::book( 'primary', __( 'Contact Beth to Schedule', 'csf-core' ) )
+			. $csf::p( esc_html__( 'Use the approved call or message options on our Contact page.', 'csf-core' ) ),
 			$csf::h( __( 'Before your first ride', 'csf-core' ) )
 			. $csf::ul(
 				array(
@@ -35,7 +35,7 @@ return $csf::page_header(
 	'white'
 )
 . $csf::section(
-	$csf::h( __( 'Not booked online', 'csf-core' ), 3 )
+	$csf::h( __( 'Other services', 'csf-core' ), 3 )
 	. $csf::p( esc_html__( 'Horse training, off-site lessons, leases, mentorship, and camp inquiries are arranged directly.', 'csf-core' ) )
 	. $csf::buttons( array( array( __( 'Contact us', 'csf-core' ), $csf::url( 'contact' ), 'csf-outline' ) ) ),
 	'linen'

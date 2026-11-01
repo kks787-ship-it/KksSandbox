@@ -8,9 +8,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Events have dates, ages, a registration status, and an optional registration link.
- * Registration itself happens wherever the owners choose (Acuity, a form, phone); this
- * plugin only links to it.
+ * Events have dates, ages and a registration status.
+ * Registration is arranged directly using owner-approved contact channels; this
+ * plugin directs visitors to the internal Contact page.
  */
 class CSF_Core_Events {
 
@@ -90,11 +90,7 @@ class CSF_Core_Events {
 				'type'    => 'select',
 				'options' => self::statuses(),
 			),
-			'register_url'   => array(
-				'label' => __( 'Registration link', 'csf-core' ),
-				'type'  => 'url',
-				'help'  => __( 'Shown as a button only while status is "Registration open" or "Waitlist only".', 'csf-core' ),
-			),
+
 		);
 	}
 
@@ -251,12 +247,10 @@ class CSF_Core_Events {
 	 * @return string
 	 */
 	public static function register_button( $post_id ) {
-		$url = CSF_Core_Fields::get( $post_id, 'register_url' );
-		if ( ! $url || ! in_array( CSF_Core_Fields::get( $post_id, 'status' ), array( 'open', 'waitlist' ), true ) ) {
+		if ( ! in_array( CSF_Core_Fields::get( $post_id, 'status' ), array( 'open', 'waitlist' ), true ) ) {
 			return '';
 		}
-		$label = 'waitlist' === CSF_Core_Fields::get( $post_id, 'status' ) ? __( 'Join the waitlist', 'csf-core' ) : __( 'Register', 'csf-core' );
-		return '<p class="csf-event-register"><a class="csf-book-button csf-book-button--primary" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></p>';
+		return CSF_Core_Booking::render_button( array() );
 	}
 
 	/**

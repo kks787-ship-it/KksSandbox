@@ -68,11 +68,11 @@ About                         (Our Philosophy)
 Resources                     (curated landing page; articles live at /library/{article}/)
   └─ FAQ
 Contact
-Booking                       ← “Book a Lesson” header button
+Booking                       ← internal scheduling explanation route
 ```
 
-The header "Book a Lesson" item links to `/booking/`; every booking button uses the shared Acuity
-URL (Settings → Booking). Implementation status and Kadence configuration steps: see
+The scheduling header item and shared buttons display “Contact Beth to Schedule” and
+link to `/contact/`; `/booking/` remains an internal explanation page. Implementation status and Kadence configuration steps: see
 `docs/07-website-installation.md` and `docs/09-phase-2-status.md`.
 The emergency pages (`/emergency`, `/h/…`) are **not** in navigation; `/emergency` is linked
 from the footer and the banner.

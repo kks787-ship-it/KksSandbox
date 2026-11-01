@@ -82,7 +82,7 @@ protected sandbox remains untested. Do not claim its acceptance passed or close 
 all 21 pages, other text sections and Gutenberg; preserve full-bleed backgrounds and content.
 HTTP 401 without Basic Authentication is expected, not a broken route. Do not redesign or
 change Kadence meta speculatively. Original logo/photos, header/palette/typography/footer
-configuration, 23 owner notes and Acuity destination verification remain outstanding.
+configuration, 23 owner notes and approved public contact channels remain outstanding.
 
 Current local candidate: csf-core 0.3.0; source has not been deployed. Inquiry recipient is
 owner-confirmed beth.siemon@cornerstonefarmomak.com; delivery service is unknown. Owner asks
@@ -122,3 +122,10 @@ acknowledge submissions, and a valid receipt can be claimed once. No PII in rece
 stored expiry markers; never log raw proofs. Keep form disabled. New local integrity/HTTP
 checks do not establish Plesk/MariaDB acceptance or delivered mail. Before any later approved
 apply, Gateway needs current target-bound backup and a core-only comparison of the new SHA.
+
+
+Current scheduling work follows Issues #3/#4 and the latest decision register: the provider
+is canceled, all public scheduling CTAs use Contact Beth to Schedule → /contact/, inquiries
+stay disabled and emergency inactive. Source/migration tests and runtime blockers are in
+docs/test-results/scheduling-contact.md. Internal calendar architecture is in doc 01; do not
+mistake its proposed schema and acceptance matrix for an implemented staff scheduling MVP.

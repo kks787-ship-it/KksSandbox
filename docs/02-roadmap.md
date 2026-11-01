@@ -40,7 +40,7 @@ the production domain until the owners approve the replacement.
 - [x] All pages from the sitemap, hierarchy, primary & footer menus, synced footer, via idempotent `wp csf setup` / Tools screen
 - [x] Knowledge Library: summary, topics, audiences, reading time, review date, updated date, related articles, `/library/`
 - [x] Horses (farm / sale / lease) and Camps & Clinics as structured content with listing blocks
-- [x] Reusable booking CTA and farm contact-details block exist, but the former has a **canceled Acuity fallback** that must be removed in [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3). Do not use online-booking claims.
+- [x] Reusable booking CTA and farm contact-details block exist, with fixed **Contact Beth to Schedule → /contact/** rendering prepared locally in [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3). Do not use online-booking claims.
 - [x] Emergency banner verified on the new pages (independent plugin unchanged)
 - [x] Automated tests: accessibility (axe WCAG 2.2 AA), responsive, links, navigation, booking, block-editor validity, emergency, structured content, setup idempotency
 - [x] Repeatable local environment (`scripts/local-dev.sh`)
@@ -83,7 +83,7 @@ the production domain until the owners approve the replacement.
 
 ## Current assignments — finish the existing site and begin internal scheduling
 
-**Assignment A: website finishing and removal of canceled Acuity — [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3).** The user confirmed Acuity has been canceled. All public scheduling CTAs must say **Contact Beth to Schedule** and lead to the internal Contact page with verified/approved call/message options; no live availability, booking confirmations, or enabled inquiry form. The old Acuity default and saved-page claims must be removed by a reviewed, non-forced, editor-safe migration. **Issue #3 has not been implemented or deployed.** Do not infer online booking from existing core buttons.
+**Assignment A: website finishing and removal of canceled Acuity — [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3).** The user confirmed Acuity has been canceled. All public scheduling CTAs must say **Contact Beth to Schedule** and lead to the internal Contact page with verified/approved call/message options; no live availability, booking confirmations, or enabled inquiry form. The old Acuity default and saved-page claims must be removed by a reviewed, non-forced, editor-safe migration. **Issue #3 source changes are prepared locally; runtime validation and deployment remain pending.** Do not infer online booking from existing core buttons.
 
 The shared gutter fix and optional disabled inquiry form were already installed in core 0.3.0 on the password-protected sandbox through Gateway. The user visually approved the reviewed mobile layout; Issue #1 still requires tablet/desktop and comprehensive authenticated 21-page acceptance. Kadence branding, footer block 27 placement, authentic assets, verified contact channels and owner notes remain. Keep the installed 21 pages intact; no rebuilding.
 
@@ -107,3 +107,13 @@ Local downloaded-theme evidence and remaining protected-site acceptance gates:
 [test-results/kadence-layout.md](test-results/kadence-layout.md). The approved core-only 0.3.0
 update has been deployed to the protected sandbox, but no saved Contact-page edit or
 Acuity-removal update has been performed; those remain separate approval boundaries.
+
+
+### Current local delivery for Issues #3 and #4
+
+Scheduling contact source changes, source/guard test results and the non-forced content
+migration plan are in [the current report](test-results/scheduling-contact.md). PHP/Composer
+and WordPress/browser execution are blocked on this executor; do not infer acceptance from
+source checks. Saved sandbox pages/menus have not been changed. [The staff scheduling
+architecture](01-architecture.md#digital-ranch-staff-scheduling--issue-4-architecture-for-review)
+is delivered for owner review; the MVP and its MariaDB acceptance matrix are unimplemented.

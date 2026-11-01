@@ -7,7 +7,7 @@ cannot establish real-theme compatibility; HTTP 401 is expected without Basic Au
 
 ## Canceled Acuity — new scheduling workflow (owner confirmed October 31, 2026)
 
-The owner canceled Acuity. The public call to action must be **Contact Beth to Schedule** linked to `/contact/`. Show only approved, verified call/message channels. The inquiry form remains **disabled**; it is not a public scheduling fallback. Do not advertise available times, online booking, automated confirmations, or Acuity imports. Beth or Kris confirms appointments directly, and the future staff calendar uses only their confirmed entries. The code/default and previously saved page text have **not yet been migrated**; see [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3). The website update and saved-page/menu update require separate explicit approvals.
+The owner canceled Acuity. The public call to action must be **Contact Beth to Schedule** linked to `/contact/`. Show only approved, verified call/message channels. The inquiry form remains **disabled**; it is not a public scheduling fallback. Do not advertise available times, online booking, automated confirmations, or Acuity imports. Beth or Kris confirms appointments directly, and the future staff calendar uses only their confirmed entries. The local code/default changes are prepared; previously saved sandbox page text has **not yet been migrated**; see [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3). The website update and saved-page/menu update require separate explicit approvals.
 
 ## Staged installation approval boundaries
 
@@ -216,7 +216,7 @@ mail delivery, header/footer configuration or the isolated backup's functional r
 | Screen | What to enter |
 |---|---|
 | **Settings → Farm Details** | Confirmed public phone, email, location, hours note, social links, legal name. Empty fields are hidden. Leave *Brand typography* on unless you set fonts in Kadence (step 5b). |
-| **Settings → Booking** | **Deprecated.** Do not configure or verify the canceled Acuity provider. [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3) will replace the old booking link/default with **Contact Beth to Schedule → /contact/** and remove online-booking claims. |
+| **Settings → Booking** | **Deprecated.** Do not configure or verify the canceled Acuity provider. [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3) now prepares the fixed local contact route in place of the old booking link/default with **Contact Beth to Schedule → /contact/** and remove online-booking claims. |
 | **Farm Emergency → Settings** | Unchanged from Phase 1 — emergency contacts are separate on purpose. |
 | **Settings → Reading** | Confirm *Your homepage displays → A static page → Home*. |
 | **Settings → Permalinks** | Already /%postname%/; inspect only. No save/rewrite change is authorized. |
@@ -313,3 +313,41 @@ bash scripts/local-dev.sh start     # http://localhost:8890  (admin / localtest1
 npm ci && npm run test:e2e     # automated tests
 KADENCE_ZIP=/path/to/kadence.zip bash scripts/local-dev.sh reset   # test with real Kadence
 ```
+
+
+## Issue #3 saved-content migration proposal (not executed on sandbox)
+
+Code files do not rewrite saved Gutenberg content. The fixed dynamic button ignores legacy
+provider options and legacy custom labels without deleting saved attributes. Existing classic
+booking page menu items and `csf-menu-cta` items render Contact Beth to Schedule → /contact/
+without changing the stored menu; `/booking/` remains a useful explanation route. Old event
+registration URLs are retained as unused metadata and cannot render a scheduling link.
+Settings → Scheduling is informational; no provider URL or verification control remains.
+
+After code review and separate approval for the exact protected target, prepare these
+read-only reports against its current backup-bound state:
+
+```bash
+wp csf status --format=json
+wp csf setup --dry-run
+```
+
+Review every one of the 21 page paths as `ok`, `update`, or `kept` (edited or untracked).
+Also review primary/mobile/footer saved menus, custom Kadence header buttons, synced Site
+Footer block, reusable blocks and owner-authored event content for legacy external links and
+online-booking claims. Dynamic rendering does not sanitize arbitrary saved HTML or text.
+Do not assume a plugin-only update removes all old claims from those saved records.
+
+Submit the exact dry-run page list and proposed Gutenberg/menu changes for **separate content
+approval**. Never use `--force`. If approved, non-forced setup updates only pages whose saved
+content still matches `_csf_setup_hash`; owner-edited/no-hash pages stay unchanged and require
+an exact manual edit proposal. Existing synced footer is kept by setup and must be reviewed
+individually. Preserve IDs, hierarchy, unrelated owner text, menu assignments and content
+hashes. Setup can partially fail: inspect errors; never force-retry a partial migration.
+
+After an approved content operation, rerun the dry run for idempotency and review all 21
+saved rendered routes at 390/768/1280px, accessible names/targets, absence of public forms and
+external scheduling links, plus admin/editor preview. Reverting files does not restore saved
+content; use reviewed per-record revisions/backup reconciliation for rollback. This proposal
+is not authorization to run any of those commands on the sandbox. Local results and blocked
+checks: [scheduling report](test-results/scheduling-contact.md).

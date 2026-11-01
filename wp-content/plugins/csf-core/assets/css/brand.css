@@ -411,7 +411,7 @@ body .csf-footer :is(h2, h3) { font-family: var(--csf-sans); font-size: 0.8125re
 .csf-footer p.csf-tagline--left { text-align: left; }
 @media (min-width: 782px) { .csf-footer .csf-footer__links { text-align: right; } }
 
-/* Highlighted "Book a Lesson" menu item (menu item CSS class: csf-menu-cta). !important is
+/* Highlighted scheduling menu item (menu item CSS class: csf-menu-cta). !important is
    needed to win over theme navigation link styles such as Kadence's header menu. */
 .menu-item.csf-menu-cta > a {
 	background: var(--csf-brown) !important;

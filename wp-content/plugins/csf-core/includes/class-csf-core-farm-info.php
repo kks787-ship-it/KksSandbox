@@ -199,7 +199,7 @@ class CSF_Core_Farm_Info {
 		$items = array();
 
 		if ( $info['phone'] ) {
-			$items[] = '<li class="csf-contact__item"><span class="csf-contact__label">' . esc_html__( 'Call or text', 'csf-core' ) . '</span><a href="tel:' . esc_attr( self::tel( $info['phone'] ) ) . '">' . esc_html( $info['phone'] ) . '</a></li>';
+			$items[] = '<li class="csf-contact__item"><span class="csf-contact__label">' . esc_html__( 'Call', 'csf-core' ) . '</span><a href="tel:' . esc_attr( self::tel( $info['phone'] ) ) . '">' . esc_html( $info['phone'] ) . '</a></li>';
 		}
 		if ( $info['email'] ) {
 			$items[] = '<li class="csf-contact__item"><span class="csf-contact__label">' . esc_html__( 'Email', 'csf-core' ) . '</span><a href="mailto:' . esc_attr( antispambot( $info['email'] ) ) . '">' . esc_html( antispambot( $info['email'] ) ) . '</a></li>';
@@ -232,8 +232,11 @@ class CSF_Core_Farm_Info {
 		if ( $info['response'] && ! $variant ) {
 			$html .= '<p class="csf-contact__response">' . esc_html( $info['response'] ) . '</p>';
 		}
+		if ( ! $info['phone'] && ! $info['email'] ) {
+			$html .= '<p>' . esc_html__( 'Public scheduling contact details are not yet available here. An appointment is confirmed only when Beth or Kris agrees on the date with you directly.', 'csf-core' ) . '</p>';
+		}
 		if ( ! $info['phone'] && ! $info['email'] && current_user_can( 'manage_options' ) ) {
-			$html .= '<p class="csf-admin-hint">' . esc_html__( 'Admin note: no phone or email entered yet (Settings → Farm Details). Visitors only see the location.', 'csf-core' ) . '</p>';
+			$html .= '<p class="csf-admin-hint">' . esc_html__( 'Admin note: no phone or email entered yet (Settings → Farm Details). Visitors see the location and scheduling contact fallback.', 'csf-core' ) . '</p>';
 		}
 		return $html . '</div>';
 	}

@@ -23,7 +23,7 @@ return $csf::page_header(
 			),
 			$csf::card(
 				$csf::h( __( 'Ready to ride?', 'csf-core' ), 2 )
-				. $csf::p( esc_html__( 'Lessons can be booked online at any time.', 'csf-core' ) )
+				. $csf::p( esc_html__( 'Contact Beth to Schedule using the public contact details here. Beth or Kris confirms lesson dates directly; contacting us does not reserve a lesson.', 'csf-core' ) )
 				. $csf::book()
 				. $csf::p( esc_html__( 'Training, off-site lessons, leases, and camps are arranged directly — get in touch using the details here.', 'csf-core' ) )
 			),

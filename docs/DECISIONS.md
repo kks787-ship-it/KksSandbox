@@ -249,3 +249,21 @@ local code correction in the consolidated 0.3.0 candidate, not sandbox deploymen
 **Future Digital Ranch calendar:** Use appointments explicitly confirmed by Beth or Kris as the source of truth. Staff enter/confirm appointments directly. No Acuity APIs, imports, synchronization, or assumed historic bookings. Requests, tentative holds, and confirmed appointments must have distinct states.
 
 **Execution boundary:** This is a binding product/design decision and Codex implementation task, **not authorization to mutate the VPS**. As of this entry, the new Acuity-removal website changes are *not yet applied*. The previously approved csf-core 0.3.0 release is already installed in the protected sandbox; page content has not been regenerated. Review code, local tests, and a safe saved-page migration separately before any future sandbox update. Production and inactive emergency plugin remain untouched.
+
+
+## Local scheduling removal and internal calendar design — October 31, 2026
+
+Issue #3 source now fixes dynamic scheduling buttons to Contact Beth to Schedule → /contact/,
+ignoring old provider options/labels and event registration URLs while preserving saved
+block/shortcode interfaces. Generated copy uses direct Beth/Kris confirmation. Existing
+classic booking navigation renders the Contact route without rewriting saved menu records.
+Contact uses only public Farm Details settings; no inquiry recipient becomes a public email.
+The inquiry form remains disabled and emergency inactive. Saved pages, custom header HTML,
+synced footer and owner edits require the separate non-forced migration review in doc 07.
+
+Issue #4's architecture is now in the [canonical architecture](01-architecture.md#digital-ranch-staff-scheduling--issue-4-architecture-for-review).
+It proposes a separate staff-only scheduling plugin with explicit states, finite local-time
+recurrence and transactional appointment/resource/audit writes. This is an owner-review
+deliverable, not implemented scheduling code. See the [test report](test-results/scheduling-contact.md)
+for source/guard passes and blocked PHP/WordPress/browser checks. No deployment, environment
+republication, installation-script edit, live content operation or production change occurred.
