@@ -12,7 +12,7 @@ policies, horse records, or emergency information.
 | 4 | Text number for found-horse reports | — | **Needed** | |
 | 5 | Public email address | — | **Needed** | |
 | 6 | Public street address or “Omak, WA” only | — | **Needed** | |
-| 7 | Acuity booking URL | `https://cornerstonefarm.as.me/?appointmentType=70075205` (spec) | **Verify link works & books the right type** | |
+| 7 | Scheduling request channel | **Acuity canceled.** Public CTA: **Contact Beth to Schedule** → `/contact/`. Show only approved call/message options; no public booking availability or enabled inquiry form. | **Workflow confirmed; code/content migration pending [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3)** | Owner, Oct 31 2026 |
 | 8 | Lesson, training, camp, lease prices | — | **Needed** (or decide “inquire for pricing”) | |
 | 9 | Beth Siemon credentials (USDF Bronze & Silver Medals, Pony Club B, FEI young horse experience) | Spec | Confirm exact wording | |
 | 10 | Kris Siemon bio and role description | Spec | Confirm wording | |
