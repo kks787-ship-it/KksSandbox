@@ -83,3 +83,12 @@ The owner-approved public call/email channels are stored in **Settings → Farm 
 3. Replace photographs only after authentic asset selection and publication permission. No altered/made-up logo, invented portraits, synthetic facilities or fictitious student photos.
 4. Verify all updated pages in actual protected Kadence at 390/768/1280px and perform an owner visual review.
 5. Launch/production approval remains a separate decision. Inquiry disabled; emergency inactive; Acuity removed.
+
+
+## Legacy website copy recovered for comparison (not automatically current)
+
+The old production website's public About page preserves Beth's *own first-person voice*. It describes riding from early childhood, an initial coaching role at 13 with Four Star Farms near Tacoma, upper-level dressage, Pony Club experience, young horses and youth confidence-building. This is potentially more authentic than generic résumé copy, but the **owners must confirm what should appear in the new biography** and whether names/age milestones remain accurate. Review the original page at `https://cornerstonefarmomak.com/index.php/about-2/` before editing the protected site.
+
+The old public homepage also mentioned lessons starting at **age six**. The new Youth Riders age minimum remains unapproved; do not silently adopt that older figure. The legacy FAQ allowed a **bicycle helmet** during an introductory period; this must **not** be copied into current riding-safety instructions without current equestrian-helmet and insurer review. Current approved helmet standards, loaners, footwear and protective equipment need explicit owner confirmation. The old template also includes unrelated demonstration names, a New York address, placeholder email/phone details and dummy text; **never migrate those as farm facts**.
+
+These are legacy-source leads, not current-date confirmations, and they do not authorize changes to any website page.
