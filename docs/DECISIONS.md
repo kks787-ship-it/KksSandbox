@@ -307,3 +307,17 @@ accessibility issue. Existing demo title/default footer and absent placed CSF fo
 Do not bypass those findings or treat the private-fixture successes as full live acceptance.
 The review was read-only; the temporary credential file was removed. No additional theme,
 plugin/content deployment or calendar implementation was authorized or performed.
+
+## Implement scheduling foundation locally — Issue #8
+
+A separate `csf-scheduling` 0.1.0 candidate now implements explicit six-table InnoDB migrations,
+owner-verified staff provisioning, configurable facility policies/resources, idempotent audited
+foundation mutations and a private read-only diagnostic. Activation neither migrates nor grants
+roles/capabilities. Appointment entry and confirmations remain disabled/unimplemented.
+
+Portability is single-facility per WordPress prefix, not speculative multi-tenant SaaS. CSF
+hours, staff identities, Academy and horse caps are reviewed pilot configuration, never universal
+code defaults. No calendar scheduling rules are claimed enforced by the foundation alone.
+Schema v2 and the transactionally safe staff calendar are the prepared next Issue #9 work.
+No protected sandbox install/migration, farm data, Plesk, production, emergency activation or
+inquiry enablement is part of this implementation. See canonical doc 01 and its test report.

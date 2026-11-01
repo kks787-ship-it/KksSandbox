@@ -417,3 +417,146 @@ post-backup staff entries. Deactivation/uninstall never drops private scheduling
 
 These are architecture acceptance criteria, **not executed scheduling-MVP tests**. The
 current repository has no scheduling plugin or schema migration to test yet.
+
+## Scheduling foundation v1 implementation — Issue #8
+
+Local candidate `csf-scheduling` **0.1.0** implements the bounded foundation below. The larger
+Issue #4 model above remains the target design; its roster, horse rotations, welfare blocks,
+clearances, route groups, recurrence and enrollment tables are **not implemented by v1**.
+No calendar UI, appointment writer, confirmation endpoint or public route exists yet.
+
+### Facility portability decision (Issue #7)
+
+One WordPress installation/database prefix owns one facility and one singleton settings row.
+This is a modular single-facility plugin, **not multi-tenant SaaS**. A future second facility
+needs its own isolated installation unless a separately reviewed tenancy design replaces
+this boundary. No Beth/Kris names, IDs, weekday rules, five-horse cap, prices or program dates
+are hard-coded in runtime policy. Corner Stone Farm is the first customer, not a source of
+invented defaults for other barns. Emergency/QR, onboarding, billing and the website remain
+separate modules; no commercial/safety claims are made by this increment.
+
+Policy is an explicitly replaced, strictly typed JSON document. Fresh migration seeds null
+unknowns and no staff/resources/appointments. Its fields are timezone, all seven service-day
+intervals, facility-defined service keys and capacities/durations/horse source/travel needs/
+required resource kinds, daily/consecutive/rest workload limits, training enrollment cap,
+optional Academy season/time/capacity (or explicitly disabled), preferred off-site weekday
+and travel buffer. Null means unknown, empty hours mean explicitly closed. JSON object key
+ordering is irrelevant; string numbers, invalid dates/zones, reversed/overlapping hours and
+unknown fields are rejected. Enabled school-horse services need workload values; travel
+services need buffers. Missing declared active resources or incomplete capability grants
+also block foundation readiness. Even a ready foundation reports `operational_calendar=false`
+and `appointment_writes_enabled=false`.
+
+For CSF, Sunday closure, Wednesday preference, Monday Academy 14:30–17:00, five full-training
+horses and America/Los_Angeles remain **configuration proposals**. Unknown capacities,
+season dates, workload limits, actual resources and owner-verified staff IDs must be supplied
+and reviewed. No proposal is installed, and no real rider/horse records are used in tests.
+
+### Exact v1 persistence and permission contract
+
+`$wpdb->prefix . 'csf_sched_'` names only six InnoDB/utf8mb4_unicode_ci tables:
+
+| Table | Delivered now |
+|---|---|
+| settings | Singleton ID 1, stable UUID, schema version, global facility revision, policy/staff JSON, updating actor and UTC microsecond timestamp. |
+| resources | Stable UUID, instructor/horse/arena/location kind, private label, active inventory flag, revision, creator/time. Active does not mean suitable or available to ride. |
+| appointments | Basic private record columns including state, service, local/UTC intervals and offsets, hold expiry, creation/confirmation/cancellation actors and notice time. **No writer exists.** |
+| allocations | Exclusive appointment/resource reference and interval index, unique appointment/resource pair. No allocation logic or bookings are enabled yet. |
+| commands | UUID primary key, actor, operation, canonical payload/reviewed-revision digest, committed result and UTC time. No raw request body. |
+| audit | Stable event/command/entity UUIDs, fixed action code, actor, old/new revisions, UTC and facility-local timestamps/zone. Unknown zone stays null. Application append-only; privileged database operators can still alter SQL data. |
+
+The checked DDL contract is in `CSF_Scheduling_Schema::definitions()/statements()` and the
+[synthetic-prefix preview](test-results/scheduling-foundation-preview.txt). Physical checks
+verify engines, charset/collation, exact column order/types/null/default/auto-increment, UUID
+binary collation, complete ordered unique/nonunique indexes (no prefix/extra indexes),
+singleton identity and installed version. SQLite/non-MySQL storage is rejected. Future,
+missing-installed or incompatible schema fails closed, with no destructive auto-repair.
+Unversioned populated tables require explicit recovery review rather than automatic adoption.
+
+There are no activation/deactivation/uninstall migration hooks or capability grants. WordPress
+itself necessarily changes its `active_plugins` option on activation; the plugin performs
+**zero activation-initiated SQL writes, schema writes or role/user grants**. No page/menu,
+core/emergency/inquiry settings, cron or public REST/CPT registrations are added.
+
+Staff provisioning is a separate verified-operator CLI action by existing numeric WP user IDs.
+It creates no users or generic roles. View/manage/confirm/audit capabilities **and** an uncached
+strict staff allowlist are required; Administrator, Editor or a manually added capability
+alone never grants calendar access. `--owner-verified` records an operator acknowledgment,
+not a substitute for actually checking identity. The CLI operator is already trusted to run
+PHP; no web bootstrap/provisioning endpoint exists. Removed staff are denied immediately.
+
+Policy/resource/provisioning records serialize on the singleton `FOR UPDATE` lock. Expected
+revision and actor-bound command UUID/digest protect stale writes/replays. The data mutation,
+new revision, audit and committed command result share one InnoDB transaction. Persistence
+errors roll back and return an error; an uncertain commit must be resolved by replaying the
+same command, never inventing a new UUID. There is no cross-request object cache for these
+records and no external I/O inside the transaction. WordPress user capability metadata is a
+post-commit **reconciled mirror**: an interrupted grant is reported, access/readiness fail
+closed, and replay repairs it without another scheduling event. Revocation is authoritative
+from the allowlist even if stale capability metadata remains. No blanket exactly-once claim
+is made about WordPress caches or user metadata.
+
+### Explicit migration and operator workflow
+
+No command below is authorization to operate on the protected sandbox. Use only disposable
+local fixtures in this sprint. The migration guard additionally requires the deliberate
+`CSF_SCHEDULING_MIGRATION_ALLOWED=true` configuration constant and a local/development/staging
+environment; it refuses production even with that constant. Do not set it on the farm site.
+
+```bash
+# Select an already verified local fixture operator; do not infer staff from this ID.
+wp --user=1 csf scheduling migrate                     # read-only exact DDL + inspection
+wp --user=1 csf scheduling migrate --apply --expected-url=http://localhost:8899
+# Owner supplies real IDs only in a separately approved future deployment.
+wp --user=1 csf scheduling provision --user-ids=1,2 --owner-verified --revision=0 --command-id=<uuid-v4>
+wp --user=1 csf scheduling configure --file=/private/facility-policy.json --revision=1 --command-id=<uuid-v4>
+wp --user=1 csf scheduling resource --file=/private/resource.json --revision=<current> --command-id=<uuid-v4>
+wp --user=1 csf scheduling health
+```
+
+Each resource file supplies only `uuid`, `kind` and a bounded plain private `label`. Policy
+files must include every documented root key; service fields are `enabled`, `capacity`,
+`duration_minutes`, `horse_source` (`school|client|either|none`), `requires_travel`,
+`required_resources` (list of resource kinds or null). Workload fields are `daily_minutes`,
+`consecutive_minutes`, `break_minutes`. Academy is null (unknown), `{ "enabled": false }`,
+or all of `enabled`, `weekday`, `start`, `end`, `season_start`, `season_end`, `capacity`.
+Service hours are seven arrays keyed 0–6, containing ordered `["HH:MM","HH:MM"]` intervals.
+All timing is farm-local intent; v1 validates configuration but does not yet enforce lesson
+availability, welfare, eligibility, DST ambiguity or resource overlaps. Those gates belong
+to the Issue #9 mutation/preview service before appointment entry is permitted.
+
+Migration takes a bounded database advisory lock, preflights existing tables, creates missing
+empty tables and verifies them. DDL is not transactionally reversible: an interruption may
+leave empty tables, but cannot stamp readiness. Seed version 0 is unconfigured; schema version
+1 and its audit event commit together only after verification. Re-running a valid completed
+migration is read-only/idempotent. An incomplete empty installation can resume; an installed
+schema with a missing table, changed column/index/engine or future version cannot be silently
+repaired or downgraded.
+
+Before any future approved deployment, take an exact-target database/files backup and record
+its hash, migrate an isolated restored copy first, and obtain separate schema/staff-access
+approval. Deactivation retains data and grants; absence of an active plugin removes its UI.
+Before first operational data, rollback can deactivate/remove files and retain tables privately.
+After writes, freeze writers, preserve all post-backup records, then reconcile or restore a
+compatible backup under explicit approval. Never drop tables or use an old database to undo
+files automatically. No destructive down-migration command is shipped. The local test harness
+rehearses logical backup/restore only on a throwaway database.
+
+### Issue #9 implementation-ready handoff
+
+1. Add a reviewed **v2** migration for roster/horse references and rotations, welfare blocks,
+   participation clearances and complete cancellation actor/reason/notice/history fields.
+   Extend the v1 schema contract/version deliberately; do not change a deployed v1 in place.
+2. Build a single private appointment preview/write service using the same singleton lock,
+   expected revisions and actor-bound command contract; add state/resource/capacity/timezone,
+   horse welfare/workload and pre-ride-clearance gates before enabling confirmation.
+3. Verify empty/populated-calendar two-worker allocation races, stale edits, command replay,
+   unknown commit outcomes, DST folds/gaps and Sunday-cross-midnight using **configured**
+   policies. The v1 migration concurrency test is not an appointment conflict test.
+4. Then add authenticated day/week views and keyboard/mobile entry/cancel flows, with explicit
+   requested/held/confirmed/canceled and clearance statuses. No public routes, mail or billing.
+5. Recurrence, Monday Academy cohorts, grouped travel and protected training remain later
+   increments, driven by facility policy rather than global CSF constants. Keep the approved
+   shared-horse/client-horse/welfare distinctions in the larger design above.
+
+Tests and release limitations: [foundation validation](test-results/scheduling-foundation.md).

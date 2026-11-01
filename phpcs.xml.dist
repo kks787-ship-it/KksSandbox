@@ -3,6 +3,7 @@
 	<description>Coding standards for Corner Stone Farm custom plugins.</description>
 	<file>wp-content/plugins/csf-emergency</file>
 	<file>wp-content/plugins/csf-core</file>
+	<file>wp-content/plugins/csf-scheduling</file>
 	<exclude-pattern>*/assets/vendor/*</exclude-pattern>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
@@ -12,11 +13,22 @@
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 	</rule>
 	<rule ref="PHPCompatibilityWP"/>
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="csf_schedule_view"/>
+				<element value="csf_schedule_manage"/>
+				<element value="csf_schedule_confirm"/>
+				<element value="csf_schedule_audit"/>
+			</property>
+		</properties>
+	</rule>
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
 				<element value="csf-emergency"/>
 				<element value="csf-core"/>
+				<element value="csf-scheduling"/>
 			</property>
 		</properties>
 	</rule>

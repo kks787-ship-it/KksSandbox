@@ -151,3 +151,11 @@ axe violation. Demo site title/default footer and missing CSF footer placement r
 secure value is saved in Gateway; temporary server credential file removed. Never put
 credentials in chat or Git or disable protection. Inquiry stays off, emergency inactive/unchanged,
 production excluded. The calendar architecture remains design-only.
+
+Issue #8 foundation is now implemented locally in csf-scheduling 0.1.0. See doc 01's v1 contract
+and docs/test-results/scheduling-foundation.md. No sandbox installation or migration is approved.
+Activation has no scheduling writes/grants. Use tests/scheduling/run.sh on disposable internal
+Docker fixtures only (MariaDB/MySQL, synthetic data). It never uses the protected fixture/config.
+The foundation deliberately has no appointment writer/confirmation/UI. Issue #9 requires a new
+versioned schema increment and the audited resource/eligibility service before a staff calendar.
+Existing core/emergency source and deployment/installation scripts stay untouched.

@@ -153,3 +153,12 @@ The existing `csf-scheduling` calendar document in [doc 01](01-architecture.md#d
 4. **Website finishing continues separately:** [Issue #5](https://github.com/kks787-ship-it/KksSandbox/issues/5) photo/branding and [Issue #6](https://github.com/kks787-ship-it/KksSandbox/issues/6) content/owner approvals. The protected sandbox already has some recent photo updates that are not reflected in this repository's static historical document sections; inspect live state before proposing a website mutation.
 
 Build and test local code against disposable WordPress/MariaDB fixtures. Owner must separately approve any protected sandbox schema, staff access, use of real horse/client records, or production deployment. Inquiry disabled and emergency inactive; no production changes.
+
+### Issue #8 local foundation candidate
+
+Implemented the isolated scheduling foundation and its read-only diagnostics. Versioned schema,
+strict facility policy, explicit staff grants, command replay/audit and disposable MySQL/MariaDB
+migration/recovery tests are delivered. It is **not an operational calendar**, and no sandbox
+migration or deployment occurred. See [doc 01's v1 contract and Issue #9 handoff](01-architecture.md#scheduling-foundation-v1-implementation--issue-8)
+and [current validation](test-results/scheduling-foundation.md). Issue #9 starts with a reviewed
+v2 migration and appointment service before its day/week UI; do not reuse public website records.
