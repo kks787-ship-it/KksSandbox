@@ -238,3 +238,14 @@ and no-referrer. Keep message/sender/recipient data out of URLs and markers. No 
 automatic retry or form enablement follows from acknowledgment. Regression coverage includes
 forged GET, successful POST/303, replay, invalid receipts and transport failure. This is a
 local code correction in the consolidated 0.3.0 candidate, not sandbox deployment approval.
+
+
+## Owner scheduling-provider decision — October 31, 2026
+
+**Supersedes all prior Acuity booking plans and instructions.** The owners confirmed Acuity Scheduling has been **canceled**. Do not reactivate, verify, integrate, import from, or link to Acuity. Any old references or options in source, active content, or historical plans are deprecated and need safe cleanup through [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3).
+
+**Interim public scheduling workflow:** All lesson booking/request CTAs read **“Contact Beth to Schedule”** and link to the internal **/contact/** page. Present only verified, owner-approved call/message channels. Do not suggest the public can see live availability, book online, or receive an automatic confirmed appointment. The website inquiry form stays **disabled** until separately verified/approved, and is **not** the fallback channel.
+
+**Future Digital Ranch calendar:** Use appointments explicitly confirmed by Beth or Kris as the source of truth. Staff enter/confirm appointments directly. No Acuity APIs, imports, synchronization, or assumed historic bookings. Requests, tentative holds, and confirmed appointments must have distinct states.
+
+**Execution boundary:** This is a binding product/design decision and Codex implementation task, **not authorization to mutate the VPS**. As of this entry, the new Acuity-removal website changes are *not yet applied*. The previously approved csf-core 0.3.0 release is already installed in the protected sandbox; page content has not been regenerated. Review code, local tests, and a safe saved-page migration separately before any future sandbox update. Production and inactive emergency plugin remain untouched.
