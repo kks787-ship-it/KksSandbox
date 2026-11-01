@@ -33,25 +33,26 @@ the production domain until the owners approve the replacement.
 - [ ] Tabletop drill: change status, verify banner, revert
 - [ ] Owner sign-off that it is operational (see `04-emergency-plugin.md`)
 
-## Phase 2 — Public website *(0.2.0 active in sandbox; acceptance pending)*
+## Phase 2 — Public website *(csf-core 0.3.0 active in protected sandbox; site acceptance pending)*
 
 - [x] Brand design system in `csf-core`: palette + self-hosted Playfair Display/Lato as editor presets, block styles, accessible colour pairings
 - [x] 14 section patterns and 21 page layouts (core blocks only; editable in Gutenberg)
 - [x] All pages from the sitemap, hierarchy, primary & footer menus, synced footer, via idempotent `wp csf setup` / Tools screen
 - [x] Knowledge Library: summary, topics, audiences, reading time, review date, updated date, related articles, `/library/`
 - [x] Horses (farm / sale / lease) and Camps & Clinics as structured content with listing blocks
-- [x] Single shared Acuity booking button; farm contact details block (empty until confirmed)
+- [x] Reusable booking CTA and farm contact-details block exist, but the former has a **canceled Acuity fallback** that must be removed in [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3). Do not use online-booking claims.
 - [x] Emergency banner verified on the new pages (independent plugin unchanged)
 - [x] Automated tests: accessibility (axe WCAG 2.2 AA), responsive, links, navigation, booking, block-editor validity, emergency, structured content, setup idempotency
 - [x] Repeatable local environment (`scripts/local-dev.sh`)
 - [x] Installed/active core; all 21 pages published, menus assigned, static Home, /%postname%/ and rewrite/Apache checks passed (Gateway)
-- [ ] **SITEWIDE reported real-Kadence gutter defect — [Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1):** intro text reaches viewport edge while nearby headings are inset (Meet Beth, Camps & Clinics). Fix shared constrained-content/gutter behavior and inspect all 21 pages, other text sections and Gutenberg at 390/768/1280px; preserve full-bleed backgrounds and owner content. Shared CSS candidate and local downloaded-theme geometry evidence are prepared; authenticated sandbox review remains NOT RUN. Do not close Issue #1 or deploy from local results alone.
+- [ ] **Sitewide Kadence gutter — [Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1):** the shared CSS fix was deployed in core 0.3.0; the owner visually approved the reviewed **mobile** layout. Tablet/desktop and full authenticated 21-page audit at 390/768/1280px remain pending. Preserve full-bleed backgrounds and owner content; do not close Issue #1 before sitewide acceptance.
 - [ ] Verify on Kadence: Customizer palette, header, footer, page-layout settings
-- [ ] Logo, photographs, contact details, Acuity verification, resolve 23 owner notes (doc 09)
-- [x] Local 0.3.0 candidate: deployment permissions, failed-setup reporting, optional inquiry form with spam controls and mocked delivery tests
-- [x] Issue #2 code correction prepared: short-lived signed one-use acknowledgment, forged-URL/replay/mail-failure regressions (17 integrity and 25 HTTP/browser checks); not deployed
-- [ ] Deploy reviewed core update after separate approval/current backup gate; keep inquiry form disabled
-- [ ] Verify actual delivery to beth.siemon@cornerstonefarmomak.com and actual MariaDB/form behavior before approved enablement (provider unknown)
+- [ ] Logo, authentic photographs, approved call/message contact channels, and remaining owner-content confirmations (doc 09). Acuity is canceled: **no verification or integration**; see [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3).
+- [x] csf-core 0.3.0 deployed to protected sandbox with permission fixes, setup error reporting, shared gutter CSS and optional inquiry form **disabled by default**. Local security/browser tests passed; real mail delivery not tested.
+- [x] [Issue #2](https://github.com/kks787-ship-it/KksSandbox/issues/2) resolved and included in sandbox core 0.3.0: signed short-lived one-use inquiry acknowledgment, with local forged-URL/replay/mail-failure regressions.
+- [x] Reviewed core 0.3.0 update deployed **sandbox only** through Gateway with fresh backup, verified exact source and core-only dry run. Contact page content was preserved, inquiry form disabled, and emergency plugin inactive.
+- [ ] Inquiry form stays disabled. Any future enablement requires approved mail provider, verified delivery to beth.siemon@cornerstonefarmomak.com, real MariaDB/anti-spam checks, and separate approval. It is **not** the interim scheduling channel.
+- [ ] [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3): Remove canceled Acuity links, defaults and online-booking promises; replace all scheduling CTAs with **Contact Beth to Schedule → /contact/** using approved phone/text/email channels. Code, tests, and saved-page migration require separate review and sandbox update approval.
 - [ ] Launch prep: SEO metadata, redirects from old URLs, privacy policy, production deployment plan (separate approval)
 
 ## Phase 3 — Notifications & evacuation assistance
@@ -80,18 +81,13 @@ the production domain until the owners approve the replacement.
 - Public AI educational assistant restricted to published Knowledge Library content
 - E-commerce, reporting, marketing automation
 
-## Current assignments — finish the existing site
+## Current assignments — finish the existing site and begin internal scheduling
 
-**Assignment A: finish the public website.** The later remote roadmap records real-Kadence
-gutter Issue #1 after the earlier no-confirmed-defects clarification. Authenticated reproduction
-on the protected sandbox remains pending; the shared candidate is prepared locally. Start with six priority pages, then audit all 21
-at 390/768/1280px, including other text sections and Gutenberg; preserve full-bleed backgrounds. Local deployment-mode/setup-reporting fixes, the shared gutter correction and disabled inquiry
-form are one review candidate, not installed code. Contact integration is tested against the
-0.2.0 saved template: non-forced upgrade for unedited content; edited content preserved with
-a manual-placement warning. Footer block 27 placement, header/palette/
-typography, original assets, Acuity verification and owner notes are configuration/content
-work, not reasons for another plugin or rebuild. See [current status](test-results/sandbox-preflight.md),
-[local validation](test-results/website-finishing.md) and [acceptance/update plan](07-website-installation.md).
+**Assignment A: website finishing and removal of canceled Acuity — [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3).** The user confirmed Acuity has been canceled. All public scheduling CTAs must say **Contact Beth to Schedule** and lead to the internal Contact page with verified/approved call/message options; no live availability, booking confirmations, or enabled inquiry form. The old Acuity default and saved-page claims must be removed by a reviewed, non-forced, editor-safe migration. **Issue #3 has not been implemented or deployed.** Do not infer online booking from existing core buttons.
+
+The shared gutter fix and optional disabled inquiry form were already installed in core 0.3.0 on the password-protected sandbox through Gateway. The user visually approved the reviewed mobile layout; Issue #1 still requires tablet/desktop and comprehensive authenticated 21-page acceptance. Kadence branding, footer block 27 placement, authentic assets, verified contact channels and owner notes remain. Keep the installed 21 pages intact; no rebuilding.
+
+**Assignment C: internal Digital Ranch calendar architecture.** This is a separate, modular staff-first system. Confirmed appointments entered/approved by Beth or Kris are the source of truth; there will be **no Acuity synchronization/import**. Model requests versus tentative holds versus confirmed bookings; recurring lessons, horse and instructor/resource conflicts, Monday Horse Academy, Wednesday off-site groupings, Sunday client closure and protected trainer time. Design schema/workflows/tests before implementation; no public self-booking in the initial release. See [owner decision](DECISIONS.md#owner-scheduling-provider-decision--october-31-2026).
 
 **Assignment B: harden emergency operations.** Keep emergency inactive. Atomic review/state/
 audit/outbox consistency, permanent token reservation, coordinator security and real MariaDB
@@ -107,6 +103,7 @@ source staging and initial preflight/dry run. Functional restored-site login/ren
 run. Preserve those records; no new production, emergency activation, setup, permalink or
 code deployment authorization is implied by this roadmap update.
 
-Local downloaded-theme results and remaining protected-site gates:
-[test-results/kadence-layout.md](test-results/kadence-layout.md). Owner chose local fixes/review
-preparation until secure sandbox access is arranged. No new deployment or live Contact edit.
+Local downloaded-theme evidence and remaining protected-site acceptance gates:
+[test-results/kadence-layout.md](test-results/kadence-layout.md). The approved core-only 0.3.0
+update has been deployed to the protected sandbox, but no saved Contact-page edit or
+Acuity-removal update has been performed; those remain separate approval boundaries.
