@@ -162,3 +162,18 @@ migration/recovery tests are delivered. It is **not an operational calendar**, a
 migration or deployment occurred. See [doc 01's v1 contract and Issue #9 handoff](01-architecture.md#scheduling-foundation-v1-implementation--issue-8)
 and [current validation](test-results/scheduling-foundation.md). Issue #9 starts with a reviewed
 v2 migration and appointment service before its day/week UI; do not reuse public website records.
+
+### Sprint #9 local working-calendar candidate
+
+`csf-scheduling` 0.2.0 adds explicit v2 migration, private day/week views, manual appointments,
+state changes, transactional resource/participant conflicts, horse suitability/workload and
+pre-ride evidence distinctions. Cancellation and protective-block release preserve history.
+See [validation and remaining release gates](test-results/scheduling-calendar.md) and the
+[implemented architecture](01-architecture.md#sprint-9-implementation--csf-scheduling-020--schema-v2).
+This supersedes the earlier “calendar not built” status for **local code only**. No protected
+sandbox install or real scheduling acceptance is implied. Pilot configuration/group entry
+still uses an advanced editor; recurrence/Academy/route automation remain future increments.
+
+Next development milestone: Sprint #10 household onboarding and digital agreements, using
+shared household/rider/horse identities and legally reviewed versioned signing evidence.
+Do not implement payments, public booking or emergency integration as part of that handoff.

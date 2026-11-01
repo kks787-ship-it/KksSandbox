@@ -40,7 +40,7 @@ class CSF_Scheduling_Audit {
 	 */
 	public static function append( $command, $action, $entity, $old, $next_revision, $zone = null ) {
 		global $wpdb;
-		if ( ! self::uuid( $command ) || ! self::uuid( $entity ) || ! in_array( $action, array( 'schema_installed', 'policy_replaced', 'staff_provisioned', 'resource_created' ), true ) || ( null !== $zone && ! in_array( $zone, timezone_identifiers_list(), true ) ) ) {
+		if ( ! self::uuid( $command ) || ! self::uuid( $entity ) || ! in_array( $action, array_merge( array( 'schema_installed', 'policy_replaced', 'staff_provisioned', 'resource_created' ), CSF_Scheduling_Calendar::COMMANDS ), true ) || ( null !== $zone && ! in_array( $zone, timezone_identifiers_list(), true ) ) ) {
 			return new WP_Error( 'audit_invalid', 'Invalid audit metadata.' );
 		}
 		$uuid  = wp_generate_uuid4();

@@ -560,3 +560,115 @@ rehearses logical backup/restore only on a throwaway database.
    shared-horse/client-horse/welfare distinctions in the larger design above.
 
 Tests and release limitations: [foundation validation](test-results/scheduling-foundation.md).
+
+### Sprint #9 implementation — csf-scheduling 0.2.0 / schema v2
+
+This section records the implemented local candidate and supersedes the v1 handoff's
+“no appointment writer/UI” limitation. It does not authorize deployment or real appointments.
+See [current validation and release limits](test-results/scheduling-calendar.md).
+
+**Schema and upgrade.** The six v1 tables retain their exact columns and indexes. V2 adds
+`riders`, `horses`, `availability`, `restrictions`, `details`, `history`, `slots` and
+`participants`, all prefix-scoped InnoDB. The first six new tables use versioned JSON
+documents with UUID, entity UUID, revision, actor and UTC timestamp. Their shapes are
+strictly checked by the service; they are not public WordPress posts or user profiles.
+`history` is append-only in application code and retains before/after bodies, including
+cancellation initiator, reason, actual notice and effective time. Audit events remain
+bounded metadata in the original audit table. Privileged SQL is outside this protection.
+
+Slots hold distinct school/client horse lock identities: positive school-resource IDs and
+negative client-horse row IDs in a signed bigint. Client horses have no school-resource row.
+School horse identities cannot be reassigned beneath existing allocations. Multiple
+sequential slots on the same school horse support a shared-horse group without allocating
+one horse per rider. Participants reserve their whole appointment interval. No foreign
+keys or JSON-schema database constraints are claimed: all writers use the private service.
+
+The guarded migration verifies the intact v1 contract, creates only missing v2 tables,
+verifies the entire v2 contract, then stamps version 2 with its audit in a checked
+transaction. Existing resources, policy, staff, commands and revisions survive. Interrupted
+DDL remains unready and can resume only with compatible empty new tables; unexplained
+populated new tables, missing installed base tables, drift and future versions are refused.
+Activation/deactivation still perform no scheduling migration, deletion or grants. The
+existing CLI preview and exact URL/operator/environment apply gates remain mandatory.
+
+**One write boundary.** `CSF_Scheduling_Store::calendar(kind, body, facility_revision,
+command_uuid)` extends the existing Store dispatcher and command/audit ledger. It requires
+an allowlisted user with `csf_schedule_manage`; confirmation and edits to a confirmed
+appointment also require `csf_schedule_confirm`. The existing singleton `FOR UPDATE` lock
+serializes policy, staff, resources, rosters and bookings in one order. The staff allowlist
+is rechecked after taking the lock. Actor-bound canonical request hashing, original-result
+replay, global expected revision, appointment/document expected revision and checked commit
+are shared with the foundation. A stale global revision rejects even an unrelated edit:
+staff refresh rather than silently overwrite. No success is reported before commit.
+
+A lost commit acknowledgement returns an uncertain outcome. The original command UUID,
+body and revision must be replayed to recover the committed result; do not generate a new
+request ID to retry an uncertain command. SQL/exception bodies are not returned as errors.
+Database read failure is not interpreted as an empty/free calendar.
+
+**Commands and states.** `rider_saved`, `horse_saved`, `availability_saved`,
+`restriction_added`, `restriction_released`, `appointment_saved` and
+`appointment_canceled` are the fixed commands. Document saves use `{uuid, expected, data}`;
+release uses `{uuid, expected, reason}`. Appointment saves require exactly `uuid`, `expected`,
+`title`, `service_type`, `state`, `start`, `end`, `hold_expires`, `resources`, `riders` and
+`rides`. A ride is `{horse, rider, start, end}`; null rider supports horse training.
+Resource/rider/horse references are UUIDs, never caller-supplied SQL identifiers.
+
+Requested appointments reserve nothing. Explicit holds reserve until their recorded UTC
+expiry, at most 24 hours and no later than appointment start. Expired holds remain visible
+but stop blocking. Confirmed appointments reserve time after direct agreement. Requests
+and holds can become confirmed; confirmed edits remain confirmed; cancellation is terminal.
+Cancellations preserve records/history and atomically release every allocation. Notice and
+effective timestamps must be actual non-future times, with notice no later than effective;
+no fees, refunds, emails or automatic cancellation policies are computed.
+
+**Rules.** Times use `YYYY-MM-DDTHH:MM±HH:MM` with a facility IANA timezone. The offset must
+match the actual local instant: DST gaps, missing/wrong offsets and impossible dates are
+rejected; both folds can be represented explicitly. Appointments fit one configured local
+opening interval and the configured service duration; cross-midnight services are deliberately
+unsupported in this increment. Conflict intervals are half-open `[start,end)`. Active holds
+and confirmed appointments conflict on horse, instructor, arena, location and participant;
+requested/canceled/expired holds do not reserve resources. Travel buffers extend staff,
+location, participant and horse reservations. Horse workload conservatively counts reserved
+horse time, including travel, rather than claiming to measure ridden exertion.
+
+Each farm resource needs explicit availability intervals; unknown availability is blocked.
+Service capacity is a rider count. Full-training enrollment is a separate configurable
+horse cap, not the number of training appointments. Horse service and rider suitability
+must be explicitly approved. School and client horses both receive welfare/rest checks.
+Daily minutes, consecutive minutes and minimum break durations come from facility policy.
+Protective restrictions can be added over an existing booking without silently canceling it;
+its calendar card flags staff review. A release is an explicit versioned command with
+history, rather than deleting the restriction. Changed suitability, availability and workload
+also undergo review on calendar reads.
+
+Calendar confirmation does **not** clear a rider. Release evidence, emergency-contact evidence
+and guardian evidence for a minor are separate staff-verified booleans with actor/history.
+Missing evidence displays a pre-ride block. No medical details, contact records, signed
+agreements or verification automation are implemented. Actual service/attendance clearance
+and household agreement linking belong to the next workflow, not an inferred signature.
+
+**Private interface.** The Digital Ranch wp-admin menu requires the view capability plus
+the authoritative staff allowlist. There are no public scheduling pages, REST endpoints,
+shortcodes, booking links, mail or background workers. POSTs additionally require a WordPress
+nonce and command permission. Day and rolling seven-day views filter instructor, horse or
+arena and limit output to 500 appointments; overflowing ranges fail visibly. Cards show
+state, expired hold, pre-ride status and welfare review. Routine creation/edit/confirmation
+and cancellation use ordinary fields; JavaScript constructs the strictly validated command.
+Advanced groups, roster, suitability, availability and restrictions retain an explicit
+structured editor. Audit-capable staff can inspect private appointment history.
+
+**Deliberate limits.** This is one facility per WordPress table prefix with serialized writes,
+not multi-tenant SaaS. Roster documents and welfare queries are suitable for a small pilot,
+not a demonstrated large-barn performance claim. Dates require explicit offsets; there is
+no drag/drop, automatic recurrence, Academy cohort generator, route optimization, intake,
+payment or signature engine. Configured Academy/weekday preferences remain inputs to the
+later farm-specific increment; no Monday, Wednesday, Sunday or five-horse default is hardcoded.
+Staff identity provisioning, MFA, actual policies/resources and Beth/Kris acceptance remain
+separate protected-site release gates.
+
+**Sprint #10 boundary.** Household onboarding should introduce canonical household, guardian,
+rider and horse-owner relationships and legally reviewed versioned agreement evidence. Link
+the existing rider UUIDs to those records with an explicit migration; do not duplicate them
+or treat the current manually verified booleans as electronic signatures. Calendar confirmation
+must stay separate from permission to begin a service. No Sprint #10 code is included here.

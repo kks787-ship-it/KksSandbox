@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /** Physical schema contract and migration gate. */
 class CSF_Scheduling_Schema {
-	const VERSION = 1;
+	const VERSION = 2;
 
 	/** Checked table identifiers; never accept a caller's table name.
 	 *
@@ -27,15 +27,16 @@ class CSF_Scheduling_Schema {
 		return $wpdb->prefix . 'csf_sched_' . $name;
 	}
 
-	/** Minimal v1; detailed rosters/rotations/clearance/recurrence are future migrations.
+	/** Versioned additive schema; v1 tables retain their original physical contract.
 	 *
+	 * @param int $version Contract version.
 	 * @return array
 	 */
-	public static function definitions() {
-		$id   = array( 'bigint unsigned', false );
-		$uuid = array( 'char(36)', false );
-		$time = array( 'datetime(6)', false );
-		return array(
+	public static function definitions( $version = self::VERSION ) {
+		$id          = array( 'bigint unsigned', false );
+		$uuid        = array( 'char(36)', false );
+		$time        = array( 'datetime(6)', false );
+		$definitions = array(
 			'settings'     => array(
 				'columns' => array(
 					'id'             => $id,
@@ -144,6 +145,55 @@ class CSF_Scheduling_Schema {
 				),
 			),
 		);
+		if ( $version >= 2 ) {
+			foreach ( array( 'riders', 'horses', 'availability', 'restrictions', 'details', 'history' ) as $name ) {
+				$definitions[ $name ] = array(
+					'columns' => array(
+						'id'             => $id,
+						'uuid'           => $uuid,
+						'entity_uuid'    => $uuid,
+						'revision'       => $id,
+						'body_json'      => array( 'longtext', false ),
+						'created_by'     => $id,
+						'created_at_utc' => $time,
+					),
+					'indexes' => array(
+						'PRIMARY' => array( true, array( 'id' ) ),
+						'uuid'    => array( true, array( 'uuid' ) ),
+						'entity'  => array( false, array( 'entity_uuid' ) ),
+					),
+				);
+			}
+			$definitions['slots']        = array(
+				'columns' => array(
+					'id'             => $id,
+					'appointment_id' => $id,
+					'resource_id'    => array( 'bigint', false ),
+					'start_utc'      => $time,
+					'end_utc'        => $time,
+				),
+				'indexes' => array(
+					'PRIMARY'       => array( true, array( 'id' ) ),
+					'resource_time' => array( false, array( 'resource_id', 'start_utc', 'end_utc' ) ),
+					'appointment'   => array( false, array( 'appointment_id' ) ),
+				),
+			);
+			$definitions['participants'] = array(
+				'columns' => array(
+					'id'             => $id,
+					'appointment_id' => $id,
+					'rider_id'       => $id,
+					'start_utc'      => $time,
+					'end_utc'        => $time,
+				),
+				'indexes' => array(
+					'PRIMARY'           => array( true, array( 'id' ) ),
+					'appointment_rider' => array( true, array( 'appointment_id', 'rider_id' ) ),
+					'rider_time'        => array( false, array( 'rider_id', 'start_utc', 'end_utc' ) ),
+				),
+			);
+		}
+		return $definitions;
 	}
 
 	/** DDL preview, identical to the statements apply uses.
@@ -168,9 +218,10 @@ class CSF_Scheduling_Schema {
 
 	/** Read-only physical verification; unknown or extra schema fails closed.
 	 *
+	 * @param int $version Physical contract to verify.
 	 * @return array
 	 */
-	public static function inspect() {
+	public static function inspect( $version = self::VERSION ) {
 		global $wpdb;
 		if ( ! extension_loaded( 'mysqli' ) || ! ( $wpdb->dbh instanceof mysqli ) ) {
 			return array(
@@ -183,7 +234,7 @@ class CSF_Scheduling_Schema {
 		}
 		$missing = array();
 		$errors  = array();
-		foreach ( self::definitions() as $name => $def ) {
+		foreach ( self::definitions( $version ) as $name => $def ) {
 			$table = self::table( $name );
 			$info  = $wpdb->get_row( $wpdb->prepare( 'SELECT ENGINE,TABLE_COLLATION FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=%s', $table ), ARRAY_A );
 			if ( ! $info ) {
@@ -273,7 +324,21 @@ class CSF_Scheduling_Schema {
 		}
 		try {
 			$state = self::inspect();
-			if ( ( self::VERSION === $state['version'] && ! $state['ready'] ) || $state['errors'] || ( null !== $state['version'] && ! in_array( $state['version'], array( 0, self::VERSION ), true ) ) ) {
+			if ( 1 === $state['version'] ) {
+				$base = self::inspect( 1 );
+				if ( $base['errors'] || $base['missing'] ) {
+					return new WP_Error( 'migration_incompatible', 'Installed v1 physical schema must be intact.' );
+				}
+				foreach ( array_diff( array_keys( self::definitions() ), array_keys( self::definitions( 1 ) ) ) as $name ) {
+					if ( ! in_array( $name, $state['missing'], true ) ) {
+						$t = self::table( $name );
+						if ( (int) $wpdb->get_var( "SELECT COUNT(*) FROM `$t`" ) ) { // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+							return new WP_Error( 'migration_existing_data', 'Unversioned v2 data requires reviewed recovery.' );
+						}
+					}
+				}
+			}
+			if ( ( self::VERSION === $state['version'] && ! $state['ready'] ) || $state['errors'] || ( null !== $state['version'] && ! in_array( $state['version'], array( 0, 1, self::VERSION ), true ) ) ) {
 				return new WP_Error( 'migration_incompatible', 'Existing schema is incompatible; no automatic destructive repair.' );
 			}
 			if ( $state['ready'] ) {
@@ -281,7 +346,7 @@ class CSF_Scheduling_Schema {
 			}
 			// Never adopt populated tables whose installation marker is absent/incomplete.
 			foreach ( self::definitions() as $name => $def ) {
-				if ( 'settings' === $name || in_array( $name, $state['missing'], true ) ) {
+				if ( 1 === $state['version'] || 'settings' === $name || in_array( $name, $state['missing'], true ) ) {
 					continue;
 				}
 				$t = self::table( $name );
@@ -318,7 +383,7 @@ class CSF_Scheduling_Schema {
 				return new WP_Error( 'migration_transaction', 'Cannot begin transaction.' );
 			}
 			$wpdb->get_row( "SELECT id FROM `$t` WHERE id=1 FOR UPDATE" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-			$audit = CSF_Scheduling_Audit::append( wp_generate_uuid4(), 'schema_installed', self::settings()['uuid'], 0, 1 );
+			$audit = CSF_Scheduling_Audit::append( wp_generate_uuid4(), 'schema_installed', self::settings()['uuid'], (int) self::settings()['schema_version'], self::VERSION );
 			if ( is_wp_error( $audit ) || 1 !== $wpdb->update( $t, array( 'schema_version' => self::VERSION ), array( 'id' => 1 ) ) || false === $wpdb->query( 'COMMIT' ) ) {
 				$wpdb->query( 'ROLLBACK' );
 				return new WP_Error( 'migration_commit', 'Migration marker and audit were not acknowledged; inspect before retry.' );

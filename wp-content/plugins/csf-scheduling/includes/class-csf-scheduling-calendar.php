@@ -1,0 +1,654 @@
+<?php
+/** Private appointment and roster service, called only within the foundation lock.
+ *
+ * @package CSF_Scheduling
+ */
+
+defined( 'ABSPATH' ) || exit;
+// Private authoritative records deliberately bypass the WordPress object cache.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+/** One facility lock orders all configuration, roster and appointment mutations. */
+class CSF_Scheduling_Calendar {
+	const COMMANDS = array( 'rider_saved', 'horse_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
+	const ERRORS   = array( 'forbidden', 'invalid_body', 'invalid_time', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
+
+	/** Fixed private table lookup.
+	 *
+	 * @param string $name Logical table.
+	 * @return string
+	 */
+	public static function table( $name ) {
+		return CSF_Scheduling_Schema::table( $name );
+	}
+
+	/** Fail closed with a fixed, non-private reason.
+	 *
+	 * @param bool   $ok Predicate.
+	 * @param string $reason Code.
+	 * @throws RuntimeException Failed predicate.
+	 */
+	public static function require( $ok, $reason = 'invalid_body' ) {
+		if ( ! $ok ) {
+			throw new RuntimeException( esc_html( $reason ) );
+		}
+	}
+
+	/** Require exact keys rather than silently discarding misspelled fields.
+	 *
+	 * @param array $body Object.
+	 * @param array $keys Keys.
+	 */
+	public static function keys( $body, $keys ) {
+		self::require( is_array( $body ) && ! array_diff( array_keys( $body ), $keys ) && ! array_diff( $keys, array_keys( $body ) ) );
+	}
+
+	/** Plain private labels only.
+	 *
+	 * @param mixed $value Label.
+	 */
+	public static function label( $value ) {
+		self::require( is_string( $value ) && trim( $value ) && strlen( $value ) <= 200 && sanitize_text_field( $value ) === $value );
+	}
+
+	/** Select by UUID; callers must already hold the facility lock for writes.
+	 *
+	 * @param string $name Table.
+	 * @param string $uuid UUID.
+	 * @return array|null
+	 */
+	public static function find( $name, $uuid ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Audit::uuid( $uuid ) );
+		$t = self::table( $name );
+		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `$t` WHERE uuid=%s", $uuid ), ARRAY_A );
+	}
+
+	/** Checked database write.
+	 *
+	 * @param string $name Table.
+	 * @param array  $data Columns.
+	 * @return int ID.
+	 */
+	public static function insert( $name, $data ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
+		self::require( 1 === $wpdb->insert( self::table( $name ), $data ), 'write_failed' );
+		return (int) $wpdb->insert_id;
+	}
+
+	/** Versioned JSON row; append-only history uses a fresh UUID each time.
+	 *
+	 * @param string $name Table.
+	 * @param string $uuid Row UUID.
+	 * @param string $entity Entity UUID.
+	 * @param array  $body Private details.
+	 * @param int    $expected Expected entity revision.
+	 * @return int New revision.
+	 */
+	public static function document( $name, $uuid, $entity, $body, $expected ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
+		$old = self::find( $name, $uuid );
+		self::require( is_int( $expected ) && ( $old ? (int) $old['revision'] : 0 ) === $expected, 'stale_appointment' );
+		$data = array(
+			'uuid'           => $uuid,
+			'entity_uuid'    => $entity,
+			'revision'       => $expected + 1,
+			'body_json'      => wp_json_encode( $body ),
+			'created_by'     => get_current_user_id(),
+			'created_at_utc' => CSF_Scheduling_Audit::now(),
+		);
+		if ( $old ) {
+			self::require( 1 === $wpdb->update( self::table( $name ), $data, array( 'id' => $old['id'] ) ), 'write_failed' );
+		} else {
+			self::insert( $name, $data );
+		}
+		return $expected + 1;
+	}
+
+	/** Dispatch inside Store's transaction, never an independently callable writer.
+	 *
+	 * @param string $kind Command.
+	 * @param array  $body Body.
+	 * @param array  $settings Locked settings.
+	 * @return array Result.
+	 */
+	public static function apply( $kind, $body, $settings ) {
+		global $wpdb;
+		// A raw public PHP call must not bypass the transaction boundary.
+		self::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
+		self::require( CSF_Scheduling_Access::can( 'csf_schedule_manage' ), 'forbidden' );
+		$policy = json_decode( $settings['policy_json'], true );
+		if ( in_array( $kind, array( 'appointment_saved', 'appointment_canceled' ), true ) ) {
+			return self::appointment( $kind, $body, $policy );
+		}
+		if ( 'restriction_released' === $kind ) {
+			self::keys( $body, array( 'uuid', 'expected', 'reason' ) );
+			self::label( $body['reason'] );
+			$old = self::find( 'restrictions', $body['uuid'] );
+			self::require( $old, 'not_found' );
+			$before = json_decode( $old['body_json'], true );
+			self::require( empty( $before['released'] ), 'invalid_transition' );
+			$after = $before + array(
+				'released'       => true,
+				'release_reason' => $body['reason'],
+			);
+			$next  = self::document( 'restrictions', $body['uuid'], $old['entity_uuid'], $after, $body['expected'] );
+			self::document(
+				'history',
+				wp_generate_uuid4(),
+				$body['uuid'],
+				array(
+					'kind'   => $kind,
+					'before' => $before,
+					'after'  => $after,
+				),
+				0
+			);
+			return array(
+				'uuid'            => $body['uuid'],
+				'entity_revision' => $next,
+			);
+		}
+		self::keys( $body, array( 'uuid', 'expected', 'data' ) );
+		self::require( CSF_Scheduling_Audit::uuid( $body['uuid'] ) && is_int( $body['expected'] ) && is_array( $body['data'] ) );
+		$d      = $body['data'];
+		$entity = $body['uuid'];
+		if ( 'rider_saved' === $kind ) {
+			self::keys( $d, array( 'label', 'adult', 'release_verified', 'guardian_verified', 'emergency_verified' ) );
+			self::label( $d['label'] );
+			foreach ( array( 'adult', 'release_verified', 'guardian_verified', 'emergency_verified' ) as $key ) {
+				self::require( is_bool( $d[ $key ] ) );
+			}
+			$table = 'riders';
+		} elseif ( 'horse_saved' === $kind ) {
+			self::keys( $d, array( 'label', 'source', 'resource_uuid', 'suitable_services', 'suitable_riders', 'training_enrolled' ) );
+			self::label( $d['label'] );
+			self::require( in_array( $d['source'], array( 'school', 'client' ), true ) && is_array( $d['suitable_services'] ) && array_is_list( $d['suitable_services'] ) && count( $d['suitable_services'] ) <= 30 && is_bool( $d['training_enrolled'] ) );
+			self::require( is_array( $d['suitable_riders'] ) && array_is_list( $d['suitable_riders'] ) && count( $d['suitable_riders'] ) <= 100 );
+			foreach ( $d['suitable_riders'] as $rider_uuid ) {
+				self::require( self::find( 'riders', $rider_uuid ), 'horse_unsafe' ); }
+			foreach ( $d['suitable_services'] as $service ) {
+				self::require( is_string( $service ) && isset( $policy['services'][ $service ] ), 'horse_unsafe' );
+			}
+			if ( 'school' === $d['source'] ) {
+				$r = self::find( 'resources', $d['resource_uuid'] );
+				self::require( $r && 'horse' === $r['kind'] && (int) $r['active'], 'horse_unsafe' );
+				$horses = self::documents( 'horses' );
+				foreach ( $horses as $horse ) {
+					self::require( $horse['uuid'] === $body['uuid'] || $horse['data']['resource_uuid'] !== $d['resource_uuid'], 'horse_unsafe' );
+				}
+			} else {
+				self::require( null === $d['resource_uuid'] );
+			}
+			if ( $d['training_enrolled'] ) {
+				self::require( is_int( $policy['training_horse_cap'] ), 'policy_incomplete' );
+				$total = 1;
+				foreach ( self::documents( 'horses' ) as $horse ) {
+					$total += $horse['uuid'] !== $body['uuid'] && $horse['data']['training_enrolled'] ? 1 : 0;
+				}
+				self::require( $total <= $policy['training_horse_cap'], 'capacity' );
+			}
+			$existing_horse = self::find( 'horses', $body['uuid'] );
+			if ( $existing_horse ) {
+				$identity = json_decode( $existing_horse['body_json'], true );
+				self::require( $identity['source'] === $d['source'] && $identity['resource_uuid'] === $d['resource_uuid'], 'horse_unsafe' );
+			}
+			$table = 'horses';
+		} elseif ( 'availability_saved' === $kind ) {
+			self::keys( $d, array( 'resource_uuid', 'intervals' ) );
+			self::require( self::find( 'resources', $d['resource_uuid'] ) && is_array( $d['intervals'] ) && count( $d['intervals'] ) <= 100 );
+			$entity = $d['resource_uuid'];
+			// One availability document per resource; an empty list means unavailable.
+			self::require( $body['uuid'] === $entity );
+			foreach ( $d['intervals'] as $interval ) {
+				self::keys( $interval, array( 'start', 'end' ) );
+				self::require( CSF_Scheduling_Time::parse( $interval['start'], $policy['timezone'] ) < CSF_Scheduling_Time::parse( $interval['end'], $policy['timezone'] ), 'invalid_time' );
+			}
+			$table = 'availability';
+		} else {
+			self::keys( $d, array( 'target_uuid', 'start', 'end', 'reason' ) );
+			self::require( self::find( 'resources', $d['target_uuid'] ) || self::find( 'horses', $d['target_uuid'] ), 'not_found' );
+			self::require( 0 === $body['expected'] && ! self::find( 'restrictions', $body['uuid'] ) );
+			self::require( in_array( $d['reason'], array( 'rest', 'unavailable', 'welfare', 'protected_training' ), true ) );
+			self::require( CSF_Scheduling_Time::parse( $d['start'], $policy['timezone'] ) < CSF_Scheduling_Time::parse( $d['end'], $policy['timezone'] ), 'invalid_time' );
+			$entity = $d['target_uuid'];
+			$table  = 'restrictions';
+		}
+		$prior_document = self::find( $table, $body['uuid'] );
+		$next           = self::document( $table, $body['uuid'], $entity, $d, $body['expected'] );
+		self::document(
+			'history',
+			wp_generate_uuid4(),
+			$body['uuid'],
+			array(
+				'kind'   => $kind,
+				'before' => $prior_document ? json_decode( $prior_document['body_json'], true ) : null,
+				'after'  => $d,
+			),
+			0
+		);
+		return array(
+			'uuid'            => $body['uuid'],
+			'entity_revision' => $next,
+		);
+	}
+
+	/** Private documents; never call from public output or unauthenticated endpoints.
+	 *
+	 * @param string $name Table.
+	 * @return array
+	 */
+	public static function documents( $name ) {
+		global $wpdb;
+		$t    = self::table( $name );
+		$rows = $wpdb->get_results( "SELECT * FROM `$t` ORDER BY id", ARRAY_A );
+		return array_map(
+			static function ( $row ) {
+				$row['data'] = json_decode( $row['body_json'], true );
+				unset( $row['body_json'] );
+				return $row;
+			},
+			$rows
+		);
+	}
+
+	/** Create/edit/cancel with explicit state transitions and independent rider clearance.
+	 *
+	 * @param string $kind Command.
+	 * @param array  $b Body.
+	 * @param array  $p Facility policy.
+	 * @return array
+	 */
+	private static function appointment( $kind, $b, $p ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Audit::uuid( $b['uuid'] ?? null ) );
+		$old = self::find( 'appointments', $b['uuid'] );
+		self::require( is_int( $b['expected'] ?? null ) && ( $old ? (int) $old['revision'] : 0 ) === $b['expected'], 'stale_appointment' );
+		self::require( ! $old || 'canceled' !== $old['state'], 'invalid_transition' );
+		$previous = self::find( 'details', $b['uuid'] );
+		$before   = $previous ? json_decode( $previous['body_json'], true ) : null;
+		if ( 'appointment_canceled' === $kind ) {
+			self::keys( $b, array( 'uuid', 'expected', 'initiator', 'reason', 'notice', 'effective' ) );
+			self::require( $old && in_array( $b['initiator'], array( 'client', 'staff', 'facility', 'weather', 'horse_welfare' ), true ), 'invalid_transition' );
+			self::label( $b['reason'] );
+			$notice    = CSF_Scheduling_Time::parse( $b['notice'], $old['timezone'] );
+			$effective = CSF_Scheduling_Time::parse( $b['effective'], $old['timezone'] );
+			self::require( CSF_Scheduling_Time::utc( $notice ) <= CSF_Scheduling_Audit::now() && CSF_Scheduling_Time::utc( $effective ) <= CSF_Scheduling_Audit::now() && $notice <= $effective, 'invalid_time' );
+			$data   = array(
+				'state'               => 'canceled',
+				'revision'            => $b['expected'] + 1,
+				'canceled_by'         => get_current_user_id(),
+				'notice_received_utc' => CSF_Scheduling_Time::utc( $notice ),
+			);
+			$detail = $before + array( 'cancellation' => $b );
+		} else {
+			self::keys( $b, array( 'uuid', 'expected', 'title', 'service_type', 'state', 'start', 'end', 'hold_expires', 'resources', 'riders', 'rides' ) );
+			self::require( ! CSF_Scheduling_Policy::missing( $p ), 'policy_incomplete' );
+			self::label( $b['title'] );
+			self::require( in_array( $b['state'], array( 'requested', 'held', 'confirmed' ), true ) );
+			if ( 'confirmed' === $b['state'] || ( $old && 'confirmed' === $old['state'] ) ) {
+				self::require( CSF_Scheduling_Access::can( 'csf_schedule_confirm' ), 'forbidden' );
+			}
+			self::require( ! $old || 'confirmed' !== $old['state'] || 'confirmed' === $b['state'], 'invalid_transition' );
+			$s = $p['services'][ $b['service_type'] ] ?? null;
+			self::require( $s && $s['enabled'], 'policy_incomplete' );
+			$start = CSF_Scheduling_Time::parse( $b['start'], $p['timezone'] );
+			$end   = CSF_Scheduling_Time::parse( $b['end'], $p['timezone'] );
+			self::require( $end > $start && $end->getTimestamp() - $start->getTimestamp() <= 86400 && $end->getTimestamp() - $start->getTimestamp() === 60 * $s['duration_minutes'], 'invalid_time' );
+			// Every appointment is contained in one explicit local opening interval; crossing a closed day is never allowed.
+			$open = false;
+			foreach ( $p['service_hours'][ (int) $start->format( 'w' ) ] as $interval ) {
+				$open = $open || ( $start->format( 'Y-m-d' ) === $end->format( 'Y-m-d' ) && $start->format( 'H:i' ) >= $interval[0] && $end->format( 'H:i' ) <= $interval[1] );
+			}
+			self::require( $open, 'outside_hours' );
+			$hold = null;
+			if ( 'held' === $b['state'] ) {
+				$hold = CSF_Scheduling_Time::utc( CSF_Scheduling_Time::parse( $b['hold_expires'], $p['timezone'] ) );
+				self::require( $hold > CSF_Scheduling_Audit::now() && $hold <= CSF_Scheduling_Time::utc( new DateTimeImmutable( '+24 hours' ) ) && $hold <= CSF_Scheduling_Time::utc( $start ), 'invalid_time' );
+			} else {
+				self::require( null === $b['hold_expires'] );
+			}
+			foreach ( array( 'resources', 'riders', 'rides' ) as $key ) {
+				self::require( is_array( $b[ $key ] ) && array_is_list( $b[ $key ] ) && count( $b[ $key ] ) <= 100 );
+			}
+			self::require( count( $b['riders'] ) <= $s['capacity'] && count( array_unique( $b['riders'], SORT_REGULAR ) ) === count( $b['riders'] ), 'capacity' );
+			$resource_rows = array();
+			$kinds         = array();
+			foreach ( $b['resources'] as $uuid ) {
+				$r = self::find( 'resources', $uuid );
+				self::require( $r && (int) $r['active'] && 'horse' !== $r['kind'] && ! isset( $resource_rows[ $uuid ] ), 'not_found' );
+				$resource_rows[ $uuid ] = $r;
+				$kinds[]                = $r['kind'];
+			}
+			foreach ( $s['required_resources'] as $required ) {
+				self::require( 'horse' === $required || in_array( $required, $kinds, true ), 'not_found' );
+			}
+			foreach ( $b['riders'] as $uuid ) {
+				self::require( self::find( 'riders', $uuid ), 'not_found' );
+			}
+			$detail = $b;
+			$data   = array(
+				'uuid'                 => $b['uuid'],
+				'title'                => $b['title'],
+				'service_type'         => $b['service_type'],
+				'state'                => $b['state'],
+				'start_utc'            => CSF_Scheduling_Time::utc( $start ),
+				'end_utc'              => CSF_Scheduling_Time::utc( $end ),
+				'start_local'          => $start->format( 'Y-m-d H:i:s.u' ),
+				'end_local'            => $end->format( 'Y-m-d H:i:s.u' ),
+				'timezone'             => $p['timezone'],
+				'start_offset_seconds' => $start->getOffset(),
+				'end_offset_seconds'   => $end->getOffset(),
+				'hold_expires_utc'     => $hold,
+				'revision'             => $b['expected'] + 1,
+				'confirmed_by'         => 'confirmed' === $b['state'] ? get_current_user_id() : null,
+			);
+			self::validate_allocations( $b, $s, $p, $start, $end, $resource_rows, $old ? (int) $old['id'] : 0 );
+		}
+		$id = $old ? (int) $old['id'] : 0;
+		if ( $old ) {
+			self::require( 1 === $wpdb->update( self::table( 'appointments' ), $data, array( 'id' => $id ) ), 'write_failed' );
+		} else {
+			$id = self::insert(
+				'appointments',
+				$data + array(
+					'created_by'          => get_current_user_id(),
+					'created_at_utc'      => CSF_Scheduling_Audit::now(),
+					'canceled_by'         => null,
+					'notice_received_utc' => null,
+				)
+			);
+		}
+		foreach ( array( 'allocations', 'slots', 'participants' ) as $name ) {
+			self::require( false !== $wpdb->delete( self::table( $name ), array( 'appointment_id' => $id ) ), 'write_failed' );
+		}
+		if ( 'appointment_saved' === $kind && 'requested' !== $b['state'] ) {
+			$buffer = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
+			foreach ( $resource_rows as $r ) {
+				self::insert(
+					'allocations',
+					array(
+						'appointment_id' => $id,
+						'resource_id'    => $r['id'],
+						'start_utc'      => CSF_Scheduling_Time::utc( $start->modify( "-$buffer minutes" ) ),
+						'end_utc'        => CSF_Scheduling_Time::utc( $end->modify( "+$buffer minutes" ) ),
+					)
+				);
+			}
+			foreach ( $b['riders'] as $uuid ) {
+				$rider = self::find( 'riders', $uuid );
+				self::insert(
+					'participants',
+					array(
+						'appointment_id' => $id,
+						'rider_id'       => $rider['id'],
+						'start_utc'      => CSF_Scheduling_Time::utc( $start->modify( "-$buffer minutes" ) ),
+						'end_utc'        => CSF_Scheduling_Time::utc( $end->modify( "+$buffer minutes" ) ),
+					)
+				);
+			}
+			foreach ( $b['rides'] as $ride ) {
+				$horse = json_decode( self::find( 'horses', $ride['horse'] )['body_json'], true );
+				// Client horses also get an independent lock identity, without a fictitious school resource.
+				$horse_row   = self::find( 'horses', $ride['horse'] );
+				$resource_id = 'school' === $horse['source'] ? (int) self::find( 'resources', $horse['resource_uuid'] )['id'] : 0 - (int) $horse_row['id'];
+				// slots use signed resource IDs in v2; school >0, client <0.
+				self::insert(
+					'slots',
+					array(
+						'appointment_id' => $id,
+						'resource_id'    => $resource_id,
+						'start_utc'      => CSF_Scheduling_Time::utc( CSF_Scheduling_Time::parse( $ride['start'], $p['timezone'] )->modify( "-$buffer minutes" ) ),
+						'end_utc'        => CSF_Scheduling_Time::utc( CSF_Scheduling_Time::parse( $ride['end'], $p['timezone'] )->modify( "+$buffer minutes" ) ),
+					)
+				);
+			}
+		}
+		$next = self::document( 'details', $b['uuid'], $b['uuid'], $detail, $b['expected'] );
+		self::document(
+			'history',
+			wp_generate_uuid4(),
+			$b['uuid'],
+			array(
+				'kind'   => $kind,
+				'before' => $before,
+				'after'  => $detail,
+			),
+			0
+		);
+		return array(
+			'uuid'            => $b['uuid'],
+			'entity_revision' => $next,
+			'state'           => $data['state'],
+		);
+	}
+
+	/** Allocation gate, run under the singleton lock even for requested previews.
+	 *
+	 * @param array             $b Appointment.
+	 * @param array             $s Service.
+	 * @param array             $p Policy.
+	 * @param DateTimeImmutable $start Start.
+	 * @param DateTimeImmutable $end End.
+	 * @param array             $resources Resolved resources.
+	 * @param int               $exclude Existing appointment ID.
+	 */
+	private static function validate_allocations( $b, $s, $p, $start, $end, $resources, $exclude ) {
+		global $wpdb;
+		$buffer = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
+		$left   = $start->modify( "-$buffer minutes" );
+		$right  = $end->modify( "+$buffer minutes" );
+		foreach ( $resources as $uuid => $r ) {
+			self::available( $uuid, $left, $right, $p );
+			self::unrestricted( $uuid, $left, $right, $p );
+			if ( 'requested' !== $b['state'] ) {
+				self::require( ! self::overlap( 'allocations', 'resource_id', (int) $r['id'], $left, $right, $exclude ), 'resource_conflict' );
+			}
+		}
+		foreach ( $b['riders'] as $uuid ) {
+			$r = self::find( 'riders', $uuid );
+			if ( 'requested' !== $b['state'] ) {
+				self::require( ! self::overlap( 'participants', 'rider_id', (int) $r['id'], $left, $right, $exclude ), 'rider_conflict' );
+			}
+		}
+		$assigned = array();
+		$slots    = array();
+		foreach ( $b['rides'] as $ride ) {
+			self::keys( $ride, array( 'horse', 'rider', 'start', 'end' ) );
+			self::require( null === $ride['rider'] || in_array( $ride['rider'], $b['riders'], true ) );
+			$h = self::find( 'horses', $ride['horse'] );
+			self::require( $h, 'horse_unsafe' );
+			$horse = json_decode( $h['body_json'], true );
+			self::require( null === $ride['rider'] || in_array( $ride['rider'], $horse['suitable_riders'], true ), 'horse_unsafe' );
+			self::require( in_array( $b['service_type'], $horse['suitable_services'], true ) && ( 'either' === $s['horse_source'] || $horse['source'] === $s['horse_source'] ), 'horse_unsafe' );
+			$a = CSF_Scheduling_Time::parse( $ride['start'], $p['timezone'] );
+			$z = CSF_Scheduling_Time::parse( $ride['end'], $p['timezone'] );
+			self::require( $start <= $a && $a < $z && $z <= $end, 'invalid_time' );
+			self::unrestricted( $h['uuid'], $a, $z, $p );
+			if ( 'school' === $horse['source'] ) {
+				$r = self::find( 'resources', $horse['resource_uuid'] );
+				self::require( $r && (int) $r['active'], 'horse_unsafe' );
+				$key = (int) $r['id'];
+				self::available( $horse['resource_uuid'], $a, $z, $p );
+				self::unrestricted( $horse['resource_uuid'], $a, $z, $p );
+			} else {
+				$key = 0 - (int) $h['id'];
+			}
+			foreach ( $slots as $slot ) {
+				self::require( ! ( ( $slot['key'] === $key || ( null !== $ride['rider'] && $slot['rider'] === $ride['rider'] ) ) && $slot['start'] < $z && $slot['end'] > $a ), 'resource_conflict' );
+			}
+			if ( 'requested' !== $b['state'] ) {
+				self::require( ! self::overlap( 'slots', 'resource_id', $key, $a->modify( "-$buffer minutes" ), $z->modify( "+$buffer minutes" ), $exclude ), 'resource_conflict' );
+			}
+			$slots[] = array(
+				'key'   => $key,
+				'rider' => $ride['rider'],
+				'start' => $a->modify( "-$buffer minutes" ),
+				'end'   => $z->modify( "+$buffer minutes" ),
+			);
+			if ( null !== $ride['rider'] ) {
+				$assigned[] = $ride['rider']; }
+		}
+		if ( 'none' !== $s['horse_source'] ) {
+			self::require( $slots && ! array_diff( $b['riders'], $assigned ), 'horse_unsafe' );
+		} else {
+			self::require( ! $slots );
+		}
+		// Evaluate the complete candidate plus existing active rides, not one slot at a time.
+		foreach ( array_unique( array_column( $slots, 'key' ) ) as $key ) {
+			self::require( ! in_array( null, $p['workload'], true ), 'policy_incomplete' );
+			$day_start = $start->setTime( 0, 0 );
+			$day_end   = $day_start->modify( '+1 day' );
+			$t         = self::table( 'slots' );
+			$ap        = self::table( 'appointments' );
+			$rows      = $wpdb->get_results( $wpdb->prepare( "SELECT x.start_utc,x.end_utc FROM `$t` x JOIN `$ap` a ON a.id=x.appointment_id WHERE x.resource_id=%d AND a.id<>%d AND (a.state='confirmed' OR (a.state='held' AND a.hold_expires_utc>UTC_TIMESTAMP(6))) AND x.start_utc<%s AND x.end_utc>%s", $key, $exclude, CSF_Scheduling_Time::utc( $day_end->modify( '+1 day' ) ), CSF_Scheduling_Time::utc( $day_start->modify( '-1 day' ) ) ), ARRAY_A );
+			$times     = array();
+			foreach ( $rows as $row ) {
+				$times[] = array( strtotime( $row['start_utc'] . ' UTC' ), strtotime( $row['end_utc'] . ' UTC' ) ); }
+			foreach ( $slots as $slot ) {
+				if ( $slot['key'] === $key ) {
+					$times[] = array( $slot['start']->getTimestamp(), $slot['end']->getTimestamp() ); }
+			}
+			usort( $times, static fn( $a, $b ) => $a[0] <=> $b[0] );
+			$minutes     = 0;
+			$chain_start = null;
+			$last_end    = null;
+			foreach ( $times as $time ) {
+				$minutes += max( 0, min( $time[1], $day_end->getTimestamp() ) - max( $time[0], $day_start->getTimestamp() ) ) / 60;
+				if ( null === $last_end || ( $time[0] > $last_end && $time[0] - $last_end >= 60 * $p['workload']['break_minutes'] ) ) {
+					$chain_start = $time[0]; }
+				self::require( $time[1] - $chain_start <= 60 * $p['workload']['consecutive_minutes'], 'welfare_conflict' );
+				$last_end = $time[1];
+			}
+			self::require( $minutes <= $p['workload']['daily_minutes'], 'welfare_conflict' );
+		}
+	}
+
+	/** Explicit availability is required for all farm resources.
+	 *
+	 * @param string            $uuid Resource.
+	 * @param DateTimeImmutable $a Start.
+	 * @param DateTimeImmutable $z End.
+	 * @param array             $p Policy.
+	 */
+	private static function available( $uuid, $a, $z, $p ) {
+		$doc = self::find( 'availability', $uuid );
+		$ok  = false;
+		foreach ( $doc ? json_decode( $doc['body_json'], true )['intervals'] : array() as $interval ) {
+			$ok = $ok || ( CSF_Scheduling_Time::parse( $interval['start'], $p['timezone'] ) <= $a && CSF_Scheduling_Time::parse( $interval['end'], $p['timezone'] ) >= $z );
+		}
+		self::require( $ok, 'outside_hours' );
+	}
+
+	/** Protective restrictions are allowed over existing bookings; reads flag review.
+	 *
+	 * @param string            $uuid Target.
+	 * @param DateTimeImmutable $a Start.
+	 * @param DateTimeImmutable $z End.
+	 * @param array             $p Policy.
+	 */
+	private static function unrestricted( $uuid, $a, $z, $p ) {
+		foreach ( self::documents( 'restrictions' ) as $doc ) {
+			$d = $doc['data'];
+			self::require( ! empty( $d['released'] ) || $doc['entity_uuid'] !== $uuid || CSF_Scheduling_Time::parse( $d['start'], $p['timezone'] ) >= $z || CSF_Scheduling_Time::parse( $d['end'], $p['timezone'] ) <= $a, 'welfare_conflict' );
+		}
+	}
+
+	/** Current locking reads see prior worker commits even with REPEATABLE READ.
+	 *
+	 * @param string            $name Allocation table.
+	 * @param string            $field Fixed key.
+	 * @param int               $id Identity.
+	 * @param DateTimeImmutable $a Start.
+	 * @param DateTimeImmutable $z End.
+	 * @param int               $exclude Appointment.
+	 * @return bool
+	 */
+	private static function overlap( $name, $field, $id, $a, $z, $exclude ) {
+		global $wpdb;
+		$t     = self::table( $name );
+		$ap    = self::table( 'appointments' );
+		$found = $wpdb->get_var( $wpdb->prepare( "SELECT x.id FROM `$t` x JOIN `$ap` a ON a.id=x.appointment_id WHERE x.`$field`=%d AND a.id<>%d AND x.start_utc<%s AND x.end_utc>%s AND (a.state='confirmed' OR (a.state='held' AND a.hold_expires_utc>UTC_TIMESTAMP(6))) LIMIT 1 FOR UPDATE", $id, $exclude, CSF_Scheduling_Time::utc( $z ), CSF_Scheduling_Time::utc( $a ) ) );
+		self::require( ! $wpdb->last_error, 'write_failed' );
+		return (bool) $found;
+	}
+
+	/** Bounded private calendar read. No rider details or sensitive evidence in overview.
+	 *
+	 * @param string $date Local date.
+	 * @param string $view day or week.
+	 * @param string $filter Optional resource UUID.
+	 * @return array|WP_Error
+	 */
+	public static function view( $date, $view = 'day', $filter = '' ) {
+		global $wpdb;
+		if ( ! CSF_Scheduling_Access::can() ) {
+			return new WP_Error( 'forbidden', 'Private staff access required.' ); }
+		try {
+			$p = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
+			self::require( is_string( $date ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/D', $date ) && in_array( $view, array( 'day', 'week' ), true ) && is_string( $p['timezone'] ), 'invalid_time' );
+			$start = new DateTimeImmutable( $date . ' 00:00:00', new DateTimeZone( $p['timezone'] ) );
+			self::require( $start->format( 'Y-m-d' ) === $date );
+			$end  = $start->modify( 'week' === $view ? '+7 days' : '+1 day' );
+			$t    = self::table( 'appointments' );
+			$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `$t` WHERE start_utc<%s AND end_utc>%s ORDER BY start_utc,id LIMIT 501", CSF_Scheduling_Time::utc( $end ), CSF_Scheduling_Time::utc( $start ) ), ARRAY_A );
+			self::require( count( $rows ) <= 500, 'capacity' );
+			$result = array();
+			foreach ( $rows as $row ) {
+				$d         = json_decode( self::find( 'details', $row['uuid'] )['body_json'], true );
+				$resources = $d['resources'];
+				$horses    = array_column( $d['rides'], 'horse' );
+				if ( $filter && ! in_array( $filter, array_merge( $resources, $horses ), true ) ) {
+					continue; }
+				$clear = true;
+				foreach ( $d['riders'] as $rider ) {
+					$r     = json_decode( self::find( 'riders', $rider )['body_json'], true );
+					$clear = $clear && $r['release_verified'] && $r['emergency_verified'] && ( $r['adult'] || $r['guardian_verified'] );
+				}
+				$review = false;
+				try {
+					$a = new DateTimeImmutable( $row['start_utc'], new DateTimeZone( 'UTC' ) );
+					$z = new DateTimeImmutable( $row['end_utc'], new DateTimeZone( 'UTC' ) );
+					foreach ( array_merge( $resources, $horses ) as $uuid ) {
+						self::unrestricted( $uuid, $a, $z, $p );
+						if ( in_array( $uuid, $resources, true ) ) {
+							self::available( $uuid, $a, $z, $p ); }
+					}
+					foreach ( $horses as $uuid ) {
+						$h = json_decode( self::find( 'horses', $uuid )['body_json'], true );
+						foreach ( $d['rides'] as $ride ) {
+							if ( $ride['horse'] === $uuid && null !== $ride['rider'] ) {
+								self::require( in_array( $ride['rider'], $h['suitable_riders'], true ), 'horse_unsafe' ); }
+						}
+						if ( $h['resource_uuid'] ) {
+							self::unrestricted( $h['resource_uuid'], $a, $z, $p );
+							self::available( $h['resource_uuid'], $a, $z, $p );
+						} self::require( in_array( $row['service_type'], $h['suitable_services'], true ), 'horse_unsafe' ); }
+					$resolved = array();
+					foreach ( $resources as $resource_uuid ) {
+						$resolved[ $resource_uuid ] = self::find( 'resources', $resource_uuid );
+						self::require( $resolved[ $resource_uuid ] && (int) $resolved[ $resource_uuid ]['active'], 'not_found' ); }
+					$service = $p['services'][ $row['service_type'] ] ?? null;
+					self::require( $service && $service['enabled'] && ! CSF_Scheduling_Policy::missing( $p ), 'policy_incomplete' );
+					self::validate_allocations( $d, $service, $p, $a->setTimezone( new DateTimeZone( $row['timezone'] ) ), $z->setTimezone( new DateTimeZone( $row['timezone'] ) ), $resolved, (int) $row['id'] );
+				} catch ( Throwable $error ) {
+					$review = true; }
+				$result[] = array(
+					'uuid'           => $row['uuid'],
+					'title'          => $row['title'],
+					'state'          => $row['state'],
+					'start'          => $d['start'],
+					'end'            => $d['end'],
+					'revision'       => (int) $row['revision'],
+					'rider_cleared'  => $clear,
+					'welfare_review' => $review,
+					'hold_expired'   => 'held' === $row['state'] && $row['hold_expires_utc'] <= CSF_Scheduling_Audit::now(),
+				);
+			}
+			return $result;
+		} catch ( Throwable $error ) {
+			return new WP_Error( 'calendar_unavailable', 'Set a valid facility timezone and bounded date range.' ); }
+	}
+}

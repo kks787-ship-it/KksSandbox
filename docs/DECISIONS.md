@@ -321,3 +321,20 @@ code defaults. No calendar scheduling rules are claimed enforced by the foundati
 Schema v2 and the transactionally safe staff calendar are the prepared next Issue #9 work.
 No protected sandbox install/migration, farm data, Plesk, production, emergency activation or
 inquiry enablement is part of this implementation. See canonical doc 01 and its test report.
+
+## Implement private calendar locally — Sprint #9
+
+The 0.2.0 candidate extends the 0.1.0 foundation with an additive schema v2, manual private
+appointments and the same singleton-lock/idempotent-command/audit boundary. No parallel
+booking writer or public booking service is introduced. Explicit availability, horse service
+and rider suitability, configurable welfare limits and independent rider evidence fail closed.
+Requested, held, confirmed and canceled remain distinct; cancellations retain history.
+
+The routine staff interface uses ordinary appointment fields. Structured roster/availability
+and group-slot editing are a pilot limitation, not a completed commercial user experience.
+Cross-midnight appointments, recurrence, Academy cohorts and route optimization remain later
+work. Household onboarding and actual digital agreements are Sprint #10; current evidence
+flags are not e-signatures. See [implementation contract](01-architecture.md#sprint-9-implementation--csf-scheduling-020--schema-v2)
+and [validation/release report](test-results/scheduling-calendar.md). No protected sandbox
+installation, live migration, production change, inquiry enablement or emergency activation
+was performed or authorized by this development milestone.

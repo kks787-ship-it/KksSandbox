@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Digital Ranch Scheduling Foundation
- * Description: Private facility scheduling foundation. Not an operational calendar.
- * Version: 0.1.0
+ * Plugin Name: Digital Ranch Staff Scheduling
+ * Description: Private staff calendar with explicit confirmation and resource protection.
+ * Version: 0.2.0
  * Requires PHP: 8.1
  * Requires at least: 6.6
  * Text Domain: csf-scheduling
@@ -13,13 +13,14 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CSF_SCHEDULING_VERSION', '0.1.0' );
-foreach ( array( 'schema', 'audit', 'policy', 'access', 'store', 'diagnostics', 'cli' ) as $csf_module ) {
+define( 'CSF_SCHEDULING_VERSION', '0.2.0' );
+foreach ( array( 'schema', 'audit', 'policy', 'access', 'store', 'time', 'calendar', 'admin', 'diagnostics', 'cli' ) as $csf_module ) {
 	require_once __DIR__ . '/includes/class-csf-scheduling-' . $csf_module . '.php';
 }
 unset( $csf_module );
 // Deliberately no activation, deactivation, uninstall, cron or public-route side effects.
-add_action( 'admin_menu', array( 'CSF_Scheduling_Diagnostics', 'menu' ) );
+add_action( 'admin_menu', array( 'CSF_Scheduling_Admin', 'menu' ) );
+add_action( 'admin_init', array( 'CSF_Scheduling_Admin', 'post' ) );
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	WP_CLI::add_command( 'csf scheduling', 'CSF_Scheduling_CLI' );
 }

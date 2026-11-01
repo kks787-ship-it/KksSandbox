@@ -159,3 +159,11 @@ Docker fixtures only (MariaDB/MySQL, synthetic data). It never uses the protecte
 The foundation deliberately has no appointment writer/confirmation/UI. Issue #9 requires a new
 versioned schema increment and the audited resource/eligibility service before a staff calendar.
 Existing core/emergency source and deployment/installation scripts stay untouched.
+
+Sprint #9 now extends the foundation locally: csf-scheduling 0.2.0 / schema v2 adds the private
+staff calendar and audited transactional appointment commands. Read doc 01's implemented v2
+contract and docs/test-results/scheduling-calendar.md before changes. Preserve the original
+foundation dispatcher, actor-bound command replay and singleton lock. The test runner now
+covers populated-v1 upgrade/restore and real two-worker booking races, with optional
+CSF_TEST_BROWSER=1 for the synthetic loopback browser fixture. No protected install or live
+migration is approved. Inquiry disabled, emergency inactive, website/deployment scripts untouched.

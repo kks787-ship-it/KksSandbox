@@ -2,7 +2,7 @@
 
 **Snapshot:** November 1, 2026 (America/Los_Angeles). **Scope:** Corner Stone Farm Digital Ranch, CSF-OS and prospective barn-management product. This is a **capability inventory and conceptual product map**, not a replacement for the canonical [delivery roadmap](02-roadmap.md), [architecture](01-architecture.md), [owner decisions](03-owner-confirmation-register.md) or [security rules](SECURITY.md). Entries must be updated as real code, installations or owner approvals occur. Do not treat a proposed feature or issue assignment as implemented software.
 
-**Evidence reviewed:** GitHub branch codex/takeover-audit at e78e2d5768d0281681692558e5e7baa65c1ef89e, Issues #1–#9, and a read-only WP-CLI inspection of the actual protected sandbox on November 1. No server changes were made during this inventory. The website baseline below retains that inspection. The current commit now adds the **local-only** Sprint 1 foundation and its [recorded tests](test-results/scheduling-foundation.md); it is not installed or operational on the sandbox.
+**Evidence reviewed:** GitHub branch codex/takeover-audit at e78e2d5768d0281681692558e5e7baa65c1ef89e, Issues #1–#9, and a read-only WP-CLI inspection of the actual protected sandbox on November 1. No server changes were made during this inventory. The website baseline below retains that inspection. The local-only Sprint 1 foundation is now extended by the Sprint #9 calendar candidate; see [current validation](test-results/scheduling-calendar.md). Neither scheduling increment is installed or operational on the sandbox.
 
 ## 1. Product mission and scope
 
@@ -56,7 +56,7 @@ The arrows describe **future data flow**, not integrations that already exist.
 | Horse sale/lease/farm listings | Horse custom post type, listing fields and visibility/price controls | STRUCTURE ONLY; **0 horse records in sandbox** |
 | Camps and clinics catalog | Event custom post type and upcoming-event/listing presentation | STRUCTURE ONLY; **0 event records in sandbox** |
 | Emergency IDs / banner | csf-emergency plugin version 0.1.0 installed; QR horse ID/public unlisted pages, farm status workflow, basic log/banner locally built | BUILT — inactive; **0 configured operational horse profiles** |
-| Internal scheduling | Issue #4 architecture complete; csf-scheduling 0.1.0 foundation implemented/tested locally; #9 calendar follows; **no scheduling plugin or schema installed on sandbox** | BUILT — local-only foundation; calendar NOT BUILT |
+| Internal scheduling | Issue #4 architecture complete; csf-scheduling 0.2.0 foundation/calendar implemented and tested locally; **no scheduling plugin or schema installed on sandbox** | BUILT — local-only calendar candidate; staff pilot pending |
 | Production replacement | Existing old production website remains separate; protected new site not launched publicly | NOT DONE |
 
 The current backup bundle includes the post-contact/pre-photo state and the later protected-sandbox photo update. Backups are private; full real-life operational recovery must still be validated beyond the prior structural restoration.
@@ -79,13 +79,13 @@ The current backup bundle includes the post-contact/pre-photo state and the late
 | Capability | Current state | Target and first dependency |
 |---|---|---|
 | **Staff scheduling foundation** | BUILT — local-only 0.1.0 foundation in this commit; [validation](test-results/scheduling-foundation.md) on disposable MariaDB/MySQL; no protected install | Separate csf-scheduling plugin; strict install/migration; InnoDB tables; facility policies; private staff permissions |
-| **Usable day/week calendar** | NOT BUILT; Sprint [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) specified | Beth/Kris manual requested/hold/confirmed/canceled appointments; audited changes, robust horse/instructor/arena/participant conflicts, protected blocks |
+| **Usable day/week calendar** | BUILT — local-only Sprint [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) candidate; [tests/limits](test-results/scheduling-calendar.md); no real staff acceptance | Beth/Kris manual requested/hold/confirmed/canceled appointments; audited changes, robust horse/instructor/arena/participant conflicts, protected blocks |
 | **Recurring lessons and Horse Academy roster** | DESIGNED, not coded | DST-safe recurrence, exceptions, resource rotations, participant/group cap, makeups only after policy approval |
 | **Household CRM / one-time intake** | NOT BUILT; workflow requirements documented from experience with multi-rider families | One household, parents/guardians, multiple riders, related horse owners/horses, emergency contacts; avoid duplicate entry |
 | **Digital agreements & e-signatures** | NOT BUILT; prior paper/PDF forms exist outside the software | Review state-specific agreements, version them, capture who signed and when, securely store executed documents and gate service start |
-| **New-rider check-in and participation clearance** | DESIGNED in calendar architecture | Separate calendar confirmation from signed release/guardian/emergency details; staff-visible not-cleared status |
+| **New-rider check-in and participation clearance** | BUILT — local manual evidence flags; onboarding/signatures NOT BUILT | Separate calendar confirmation from signed release/guardian/emergency details; staff-visible not-cleared status |
 | **Lesson delivery** | NOT BUILT | Attendance, instructor notes, school horse assignments, rider goals, learning plans and makeup rules |
-| **School horses / resource welfare** | DESIGNED as scheduling constraints | Workload, suitability, rest, injury/unavailable periods, tack fit and staff-confirmed horse care blocks |
+| **School horses / resource welfare** | BUILT — local suitability/workload/restriction checks; care workflows NOT BUILT | Workload, suitability, rest, injury/unavailable periods, tack fit and staff-confirmed horse care blocks |
 | **Boarding** | NOT BUILT | Board plans, paddock/stall allocations, care tasks, feed instructions, extras, contracts and 30-day notice workflow |
 | **Daily horse care and provider scheduling** | NOT BUILT | Feed/medication instructions with appropriate access, farrier/vet/saddle fitter calendars, care history and supplier/team contacts |
 | **Training and FEI horse development** | NOT BUILT | Enrollment cap, training journals, progressive goals, videos, owner updates, horse welfare and sale preparation |
@@ -146,7 +146,7 @@ This whole module stays isolated from private client/payment data and from routi
 
 - [x] Architecture/requirements for staff calendar including welfare, conflict, group rotations, staff-confirmed appointments and DST.
 - [x] **Sprint 1 Issue #8 local implementation:** csf-scheduling 0.1.0 foundation, explicit schema, private staff permissions and tests are in this commit; 87 integration checks per database plus migration concurrency/backup restore. [Evidence and limitations](test-results/scheduling-foundation.md). Not installed or approved for real scheduling.
-- [ ] **Sprint 2 Issue #9:** staff day/week calendar, explicit appointment confirmation, held resources, conflict/clearance checks, cancellation audit.
+- [x] **Sprint 2 Issue #9 local candidate:** staff day/week calendar, explicit confirmation/holds, conflicts, welfare and pre-ride flags, cancellation history. [Validation and pilot limits](test-results/scheduling-calendar.md). No protected install or Beth/Kris operational acceptance.
 - [ ] Approve owner-specific actual capacities, resource roster, timezone and staffing identities before adding real appointments to the protected sandbox.
 - [ ] Pilot Beth/Kris calendar with manual existing appointments; no Acuity import or public self-booking.
 
@@ -205,6 +205,6 @@ Stages B/C/E can have overlapping **design** work without merging their deployme
 | [#6](https://github.com/kks787-ship-it/KksSandbox/issues/6) | Owner-review page copy/policies | 23 open notes; copy draft prepared |
 | [#7](https://github.com/kks787-ship-it/KksSandbox/issues/7) | Commercial product discovery | Opportunity recorded; no commercial platform |
 | [#8](https://github.com/kks787-ship-it/KksSandbox/issues/8) | Scheduling foundation | Local implementation and validation delivered in this commit; not deployed; see foundation report |
-| [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) | Working staff calendar | Specified, follows #8 |
+| [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) | Working staff calendar | Local 0.2.0 candidate and tests delivered; protected install and real staff acceptance pending |
 
 **Update this ledger from evidence, not assumptions.** Mark a task DONE only with commit/test references and, if relevant, installation/operational-acceptance evidence. If code is finished but not deployed, mark it BUILT — inactive or local-only. If active in a sandbox but unapproved for real emergency/financial use, do not mark it operational. Preserve historical sources; later evidence supersedes older paragraphs elsewhere in the repository.

@@ -1,5 +1,5 @@
 <?php
-/** Small foundation-only mutation service; no appointment writer exists yet.
+/** Shared transactional mutation and idempotent command service.
  *
  * @package CSF_Scheduling
  */
@@ -11,12 +11,23 @@ defined( 'ABSPATH' ) || exit;
 
 /** Serializes audited policy, staff and resource changes under the facility row. */
 class CSF_Scheduling_Store {
+	/** Private request state.
+	 *
+	 * @var bool Internal dispatcher guard. */
+	private static $calendar_transaction = false;
+	/** Is the internal calendar dispatcher active?
+	 *
+	 * @return bool
+	 */
+	public static function in_calendar_transaction() {
+		return self::$calendar_transaction; }
+
 	/** Canonical JSON digest independent of object key ordering.
 	 *
 	 * @param mixed $value Payload.
 	 * @return mixed
 	 */
-	private static function canonical( $value ) {
+	public static function canonical( $value ) {
 		if ( ! is_array( $value ) ) {
 			return $value;
 		}
@@ -78,6 +89,21 @@ class CSF_Scheduling_Store {
 		return self::change( 'staff_provisioned', $ids, $revision, $command );
 	}
 
+	/** Calendar commands share the foundation transaction and command ledger.
+	 *
+	 * @param string $kind Operation.
+	 * @param array  $payload Body.
+	 * @param int    $revision Facility revision.
+	 * @param string $command UUID.
+	 * @return array|WP_Error
+	 */
+	public static function calendar( $kind, $payload, $revision, $command ) {
+		if ( ! in_array( $kind, CSF_Scheduling_Calendar::COMMANDS, true ) || ! is_array( $payload ) || strlen( wp_json_encode( $payload ) ) > 65536 ) {
+			return new WP_Error( 'invalid_command', 'Bounded calendar command required.' );
+		}
+		return self::change( $kind, $payload, $revision, $command );
+	}
+
 	/** Internal command dispatch. Every path rechecks caller authorization.
 	 *
 	 * @param string $kind Fixed operation.
@@ -89,7 +115,7 @@ class CSF_Scheduling_Store {
 	 */
 	private static function change( $kind, $payload, $revision, $command ) {
 		global $wpdb;
-		if ( ! CSF_Scheduling_Schema::inspect()['ready'] || ! is_int( $revision ) || $revision < 0 || ! CSF_Scheduling_Audit::uuid( $command ) || ! in_array( $kind, array( 'staff_provisioned', 'policy_replaced', 'resource_created' ), true ) ) {
+		if ( ! CSF_Scheduling_Schema::inspect()['ready'] || ! is_int( $revision ) || $revision < 0 || ! CSF_Scheduling_Audit::uuid( $command ) || ! in_array( $kind, array_merge( array( 'staff_provisioned', 'policy_replaced', 'resource_created' ), CSF_Scheduling_Calendar::COMMANDS ), true ) ) {
 			return new WP_Error( 'not_ready', 'Verified schema, command and revision required.' );
 		}
 		if ( 'staff_provisioned' !== $kind && ! CSF_Scheduling_Access::can( 'csf_schedule_manage' ) ) {
@@ -108,6 +134,9 @@ class CSF_Scheduling_Store {
 			$row = $wpdb->get_row( "SELECT * FROM `$settings` WHERE id=1 FOR UPDATE", ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			if ( ! $row || self::schema_version( $row ) !== CSF_Scheduling_Schema::VERSION ) {
 				throw new RuntimeException( 'schema_changed' );
+			}
+			if ( 'staff_provisioned' !== $kind && ! in_array( get_current_user_id(), json_decode( $row['staff_json'], true ), true ) ) {
+				throw new RuntimeException( 'forbidden' );
 			}
 			$prior = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `$commands` WHERE uuid=%s", $command ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			if ( $prior ) {
@@ -133,6 +162,14 @@ class CSF_Scheduling_Store {
 				$update['staff_json']     = wp_json_encode( $payload );
 			} elseif ( 'policy_replaced' === $kind ) {
 				$update['policy_json'] = wp_json_encode( $payload );
+			} elseif ( in_array( $kind, CSF_Scheduling_Calendar::COMMANDS, true ) ) {
+				self::$calendar_transaction = true;
+				try {
+					$result = CSF_Scheduling_Calendar::apply( $kind, $payload, $row );
+				} finally {
+					self::$calendar_transaction = false; }
+				$entity             = $result['uuid'];
+				$result['revision'] = $revision + 1;
 			} else {
 				$entity = $payload['uuid'];
 				if ( 1 !== $wpdb->insert(
@@ -176,7 +213,7 @@ class CSF_Scheduling_Store {
 			return $result;
 		} catch ( Throwable $error ) {
 			$wpdb->query( 'ROLLBACK' );
-			$reason = in_array( $error->getMessage(), array( 'schema_changed', 'command_conflict', 'stale_revision', 'resource_failed', 'write_failed', 'commit_unknown' ), true ) ? $error->getMessage() : 'storage_error';
+			$reason = in_array( $error->getMessage(), array_merge( CSF_Scheduling_Calendar::ERRORS, array( 'schema_changed', 'command_conflict', 'stale_revision', 'resource_failed', 'write_failed', 'commit_unknown' ) ), true ) ? $error->getMessage() : 'storage_error';
 			return new WP_Error( 'scheduling_write_failed', 'Command not acknowledged; retry the same UUID after resolving storage or revision conflict.', array( 'reason' => $reason ) );
 		}
 	}

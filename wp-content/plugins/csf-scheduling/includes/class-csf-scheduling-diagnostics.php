@@ -6,7 +6,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-/** No operational-calendar claim, regardless of configuration. */
+/** Readiness metadata for the private calendar candidate. */
 class CSF_Scheduling_Diagnostics {
 	/** Safe health metadata with no identities or policy bodies.
 	 *
@@ -43,14 +43,14 @@ class CSF_Scheduling_Diagnostics {
 			}
 		}
 		return array(
-			'plugin_version'             => CSF_SCHEDULING_VERSION,
-			'schema'                     => CSF_Scheduling_Schema::inspect(),
-			'policy_revision'            => (int) $row['revision'],
-			'missing_policy'             => $missing,
-			'foundation_ready'           => ! $missing,
-			'operational_calendar'       => false,
-			'appointment_writes_enabled' => false,
-			'message'                    => 'Foundation only. Not yet an operational calendar.',
+			'plugin_version'               => CSF_SCHEDULING_VERSION,
+			'schema'                       => CSF_Scheduling_Schema::inspect(),
+			'policy_revision'              => (int) $row['revision'],
+			'missing_policy'               => $missing,
+			'foundation_ready'             => ! $missing,
+			'private_calendar_implemented' => true,
+			'appointment_writes_enabled'   => ! $missing,
+			'message'                      => 'Private calendar candidate. Explicit availability, roster and acceptance are required before operational use.',
 		);
 	}
 
@@ -67,6 +67,6 @@ class CSF_Scheduling_Diagnostics {
 		if ( is_wp_error( $report ) ) {
 			wp_die( esc_html( $report->get_error_message() ), '', array( 'response' => 403 ) );
 		}
-		echo '<div class="wrap"><h1>Scheduling Foundation</h1><p>Not yet an operational calendar.</p><pre>' . esc_html( wp_json_encode( $report, JSON_PRETTY_PRINT ) ) . '</pre></div>';
+		echo '<div class="wrap"><h1>Scheduling Readiness</h1><p>Private calendar candidate; verify configuration before operational use.</p><pre>' . esc_html( wp_json_encode( $report, JSON_PRETTY_PRINT ) ) . '</pre></div>';
 	}
 }

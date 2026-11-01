@@ -1,0 +1,70 @@
+Sprint #9 final local validation — stock WordPress 6.8.3 / PHP 8.1.34
+No protected sandbox, production, inquiry or emergency operations.
+
+
+$ CSF_TEST_BROWSER=1 bash tests/scheduling/run.sh
+Success: 87 scheduling foundation integration checks; database 10.6.28-MariaDB-ubu2204
+Success: 128 calendar integration checks; database 10.6.28-MariaDB-ubu2204
+TWO_WORKER_BOOKING_EMPTY_PASS_ONE_COMMIT_ONE_CONFLICT
+TWO_WORKER_BOOKING_POPULATED_PASS_ONE_COMMIT_ONE_CONFLICT
+CLI_PREVIEW_AND_HEALTH_PASS
+PRODUCTION_MIGRATION_DENIED
+BROWSER_PASS 21 checks; transport GET recoveries 0
+TWO_WORKER_MIGRATION_PASS_ONE_AUDIT
+POPULATED_V1_BACKUP_RESTORE_PASS_V2_ACCESS_DENIED
+LOGICAL_BACKUP_RESTORE_PASS
+
+Browser assertions:
+PASS anonymous staff page requires login
+PASS authenticated calendar entry has no browser errors:
+PASS private calendar rendered at 390
+PASS week displays both committed race appointments at 390
+PASS no horizontal overflow at 390
+PASS private calendar rendered at 768
+PASS week displays both committed race appointments at 768
+PASS no horizontal overflow at 768
+PASS private calendar rendered at 1280
+PASS week displays both committed race appointments at 1280
+PASS no horizontal overflow at 1280
+PASS day limits visible appointments
+PASS staff edit persisted via nonce form
+PASS edited title displayed
+PASS normal form requested appointment persisted:
+PASS requested appointment appears in day view
+PASS requested appointment confirmed through staff form
+PASS cancellation retained in UI
+PASS missing nonce rejected with HTTP403
+PASS calendar accessibility scan:
+PASS no browser JavaScript or local transport errors:
+BROWSER_PASS 21 checks; transport GET recoveries 0
+
+$ CSF_TEST_DB_IMAGE=mysql:8.0 bash tests/scheduling/run.sh
+Success: 87 scheduling foundation integration checks; database 8.0.46
+Success: 128 calendar integration checks; database 8.0.46
+TWO_WORKER_BOOKING_EMPTY_PASS_ONE_COMMIT_ONE_CONFLICT
+TWO_WORKER_BOOKING_POPULATED_PASS_ONE_COMMIT_ONE_CONFLICT
+CLI_PREVIEW_AND_HEALTH_PASS
+PRODUCTION_MIGRATION_DENIED
+TWO_WORKER_MIGRATION_PASS_ONE_AUDIT
+POPULATED_V1_BACKUP_RESTORE_PASS_V2_ACCESS_DENIED
+LOGICAL_BACKUP_RESTORE_PASS
+
+All-plugin PHP syntax/WPCS:
+80 /tmp/csf-lint
+............................................................ 60 / 80 (75%)
+....................                                         80 / 80 (100%)
+
+
+Time: 2.2 secs; Memory: 36MB
+
+Local deployment guard unit tests:
+PASS: 17 deployment/backup scenarios (blocked targets, dry run, apply, backup checksums, paths with spaces)
+PASS: 22 total deployment/backup scenarios including apply prerequisites and symlink rejection
+PASS: 6 Plesk preflight identity scenarios (runtime checks mocked)
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 0.031s
+
+OK
+
+Node/shell syntax and git diff --check: PASS
