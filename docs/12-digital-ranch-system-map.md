@@ -2,7 +2,7 @@
 
 **Snapshot:** November 1, 2026 (America/Los_Angeles). **Scope:** Corner Stone Farm Digital Ranch, CSF-OS and prospective barn-management product. This is a **capability inventory and conceptual product map**, not a replacement for the canonical [delivery roadmap](02-roadmap.md), [architecture](01-architecture.md), [owner decisions](03-owner-confirmation-register.md) or [security rules](SECURITY.md). Entries must be updated as real code, installations or owner approvals occur. Do not treat a proposed feature or issue assignment as implemented software.
 
-**Evidence reviewed:** GitHub branch codex/takeover-audit at e78e2d5768d0281681692558e5e7baa65c1ef89e, Issues #1–#9, and a read-only WP-CLI inspection of the actual protected sandbox on November 1. No server changes were made during this inventory. The website baseline below retains that inspection. The local-only Sprint 1 foundation is now extended by the Sprint #9 calendar candidate; see [current validation](test-results/scheduling-calendar.md). Neither scheduling increment is installed or operational on the sandbox.
+**Evidence reviewed:** GitHub branch `codex/takeover-audit` at [a105868](https://github.com/kks787-ship-it/KksSandbox/commit/a1058688544fed2c7103c59612b6f53a35d07118), Issues #1–#10, local [Sprint #8 foundation](test-results/scheduling-foundation.md) and [Sprint #9 calendar](test-results/scheduling-calendar.md) validation, plus a **November 1, 2026 read-only Gateway verification** of the actual protected sandbox. The public website baseline remains separately verified. **Scheduling v0.2.0 is implemented and locally tested but not installed, migrated, or operational on the protected sandbox; there are zero scheduling tables there.** Staff UX and owner acceptance remain release gates.
 
 ## 1. Product mission and scope
 
@@ -147,6 +147,7 @@ This whole module stays isolated from private client/payment data and from routi
 - [x] Architecture/requirements for staff calendar including welfare, conflict, group rotations, staff-confirmed appointments and DST.
 - [x] **Sprint 1 Issue #8 local implementation:** csf-scheduling 0.1.0 foundation, explicit schema, private staff permissions and tests are in this commit; 87 integration checks per database plus migration concurrency/backup restore. [Evidence and limitations](test-results/scheduling-foundation.md). Not installed or approved for real scheduling.
 - [x] **Sprint 2 Issue #9 local candidate:** staff day/week calendar, explicit confirmation/holds, conflicts, welfare and pre-ride flags, cancellation history. [Validation and pilot limits](test-results/scheduling-calendar.md). No protected install or Beth/Kris operational acceptance.
+- [ ] **Sprint #9.1 Issue #10:** replace advanced group/roster/suitability/welfare JSON editing with staff-friendly forms, real local-time choices and acceptance walkthroughs; preserve scheduling's conflict/clearance integrity. [Staff usability ticket](https://github.com/kks787-ship-it/KksSandbox/issues/10).
 - [ ] Approve owner-specific actual capacities, resource roster, timezone and staffing identities before adding real appointments to the protected sandbox.
 - [ ] Pilot Beth/Kris calendar with manual existing appointments; no Acuity import or public self-booking.
 
@@ -204,7 +205,8 @@ Stages B/C/E can have overlapping **design** work without merging their deployme
 | [#5](https://github.com/kks787-ship-it/KksSandbox/issues/5) | Logo and authentic photos | First 22/30 placed; eight remain |
 | [#6](https://github.com/kks787-ship-it/KksSandbox/issues/6) | Owner-review page copy/policies | 23 open notes; copy draft prepared |
 | [#7](https://github.com/kks787-ship-it/KksSandbox/issues/7) | Commercial product discovery | Opportunity recorded; no commercial platform |
-| [#8](https://github.com/kks787-ship-it/KksSandbox/issues/8) | Scheduling foundation | Local implementation and validation delivered in this commit; not deployed; see foundation report |
-| [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) | Working staff calendar | Local 0.2.0 candidate and tests delivered; protected install and real staff acceptance pending |
+| [#8](https://github.com/kks787-ship-it/KksSandbox/issues/8) | Scheduling foundation | **Issue closed — completed local implementation and validation** at `4c9abf3`; not deployed |
+| [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) | Working staff calendar | Local v0.2.0 at `a105868` and tests delivered; remains open for protected install/real staff acceptance |
+| [#10](https://github.com/kks787-ship-it/KksSandbox/issues/10) | Staff usability and pilot readiness | **Open** — advanced group/resource forms and acceptance before operational pilot |
 
 **Update this ledger from evidence, not assumptions.** Mark a task DONE only with commit/test references and, if relevant, installation/operational-acceptance evidence. If code is finished but not deployed, mark it BUILT — inactive or local-only. If active in a sandbox but unapproved for real emergency/financial use, do not mark it operational. Preserve historical sources; later evidence supersedes older paragraphs elsewhere in the repository.
