@@ -304,3 +304,196 @@ link (`link-name`). Shared gutter geometry, H1, HTTP and overflow checks passed 
 Existing demo site title/default footer and missing CSF footer placement remain unfinished.
 See the current scheduling report for job provenance. No extra deployment/theme edit was
 performed by this review. Temporary credentials removed; inquiry off/emergency inactive.
+
+## Scheduling 0.2.1 — pinned synthetic pilot proposal (not executed)
+
+**Source pin:** `6f5a9bf51747399a309b39637a135841fe4cf2a1` on `codex/takeover-audit`.
+**Scheduling plugin Git tree:** `893edbe31278946aa2aaa830a56d5d1812b87323`.
+**Scope:** only its `wp-content/plugins/csf-scheduling/` directory, version 0.2.1,
+15 source/asset files verified by
+[`scheduling-staff-files.sha256`](test-results/scheduling-staff-files.sha256).
+The later documentation commit adds this proposal without changing that plugin tree.
+Never deploy a floating branch or substitute a newer SHA without another comparison/review.
+
+This is prepared for **separate owner approval**, not an instruction already authorized or
+executed. Approval must explicitly cover scheduling files/activation, guarded schema apply,
+verified staff access/configuration and synthetic pilot records. Production, inquiries,
+emergency activation, public booking and website setup remain excluded. The protected stack
+has not been tested with this candidate. [Local validation](test-results/scheduling-staff.md)
+and [Beth/Kris acceptance packet](13-scheduling-staff-acceptance.md) are review inputs.
+
+### Exact target and stop conditions
+
+- URL/home/siteurl: `https://sandbox.cornerstonefarmomak.com`.
+- Absolute root: `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`.
+- Expected configured DB: `wp_mdf4x`; prefix inferred from the recorded options table is
+  `TXGEh_`. Verify both authoritatively before **any** write; stop if either differs.
+- Excluded: sibling `httpdocs`, production DB `wp_iacb7`, unassigned DB `wp_mdoaq`, DNS,
+  Plesk/server configuration, WordPress/Kadence files/settings, csf-core and csf-emergency.
+- Owner's prior inspection reports no installed scheduling plugin and zero scheduling tables.
+  Recheck read-only. Unexpected plugin files/tables, unknown prior data, target mismatch,
+  unverified MFA/staff identities, failed backup or incompatible storage must stop the pilot.
+  Do not silently adopt, overwrite or delete an unexpected state.
+
+Use the existing authorized secure connection/secret bindings; never print credentials,
+wp-config, client records or the process environment. Existing Basic Auth and hardening
+constants remain in place. Do not redo environment onboarding, hardening or publication.
+Use the subscription identity and preserve reviewed ownership; no broad recursive chown.
+
+The following are **future operator steps after approval**, not commands run by Codex here.
+
+### 1. Read-only target and backup gate
+
+Verify real path, exact home/siteurl, development/staging environment, DB/prefix and active
+plugins from the actual WordPress configuration. Capture versions of WordPress, PHP,
+MariaDB/MySQL and Kadence, storage engines, cache/auth behavior and a metadata-only baseline:
+public page/menu IDs and counts, active plugins and the disabled inquiry setting. Explicitly
+confirm emergency is inactive. No site setup, permalink regeneration or content rebuild.
+
+Verify the fresh scheduling prefix currently has **zero** tables. The expected future names
+are `TXGEh_csf_sched_` plus settings, resources, appointments, allocations, commands, audit,
+riders, horses, availability, restrictions, details, history, slots and participants.
+Any existing table needs a reviewed existing-state/recovery plan instead of this first-install
+proposal. Never query or migrate a fallback database.
+
+Make a **fresh target-bound full DB/wp-content backup** outside the public root using the
+existing backup process; preserve config privately through the existing backup facility.
+Record capture time, exact target, archive/export checksums, ownership, restricted modes,
+off-server recovery location and restore evidence. Verify export readability/representative
+counts and rehearse the approved restore to an isolated target. Retain prior historical
+backup evidence, but do not claim an older pre-photo/pre-calendar bundle captures this state
+or that its structural restoration proved current functional recovery.
+
+Freeze unrelated sandbox edits for this change window. Baseline and rollback must describe
+this actual current site. Current fresh backup/restore evidence and any unsupported PHP/DB
+version/engine must be resolved before file copy, not after an unsuccessful migration.
+
+### 2. Exact scheduling-only file comparison and activation
+
+Stage an archive of the pinned SHA privately. Extract only the scheduling plugin and its
+checksum manifest; exclude test fixtures, tests, screenshots, WordPress core, vendor,
+node_modules, local configuration and all other plugin directories. Verify all 15 hashes
+and absence of extra plugin files before comparing the exact destination.
+
+The existing generic website deploy script is not assumed to support scheduling; do not
+expand it or run an all-plugin deployment. For an approved first installation, the operator
+may compare precisely these two directory endpoints (no parent-directory sync or deletion):
+
+```sh
+PILOT_SOURCE='6f5a9bf51747399a309b39637a135841fe4cf2a1'
+PILOT_TARGET='/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com'
+PILOT_URL='https://sandbox.cornerstonefarmomak.com'
+# PILOT_RELEASE is the private verified extraction of PILOT_SOURCE, not another checkout.
+(cd "$PILOT_RELEASE" && sha256sum -c docs/test-results/scheduling-staff-files.sha256)
+rsync -anic --no-owner --no-group "$PILOT_RELEASE/wp-content/plugins/csf-scheduling/" "$PILOT_TARGET/wp-content/plugins/csf-scheduling/"
+```
+
+Review/save the comparison privately. It must propose only the absent scheduling directory
+and those 15 files. No `--delete`, csf-core/emergency, theme, page/menu, installation script or
+production change is allowed. Once that concrete comparison and scope are approved, the
+corresponding file apply is the same exact-endpoint rsync without `n`; rehash the installed
+15 files and confirm their version. Activate **only** `csf-scheduling` on this exact root.
+Activation changes WordPress active-plugin metadata but must create zero scheduling tables,
+records or grants. Verify that property and that all other active-plugin states are unchanged.
+
+### 3. Preview, review and explicitly apply the schema
+
+Select an **owner-verified numeric operator ID** with manage_options. Do not infer Beth/Kris
+IDs from display names/emails or automatically create users. With the plugin active, the
+existing `wp --path="$PILOT_TARGET" --user="$PILOT_OPERATOR_ID" csf scheduling migrate`
+is a **read-only preview**. Capture its actual-prefix 14-table DDL/physical inspection and
+compare it with the tested [v2 schema](test-results/scheduling-calendar-preview.txt).
+MySQL/MariaDB + InnoDB/expected collation, exact schema and future-version checks must pass;
+SQLite/nontransactional storage, drift or unknown existing data blocks application.
+
+The required migration constant must not be enabled globally in wp-config. Inspect its
+current defined/value status read-only first. If an existing configuration explicitly defines
+it false, stop for policy review; do not override that protection with a CLI bootstrap. After migration
+approval, the operator can create a private, owner-only CLI bootstrap outside the public root
+containing only `<?php define('CSF_SCHEDULING_MIGRATION_ALLOWED', true);`. Its path is
+`PILOT_MIGRATION_GATE`; it contains no credentials. Use it for this one guarded invocation:
+
+```sh
+wp --path="$PILOT_TARGET" --user="$PILOT_OPERATOR_ID" --require="$PILOT_MIGRATION_GATE" \
+  csf scheduling migrate --apply --expected-url="$PILOT_URL"
+```
+
+Remove that temporary CLI bootstrap after the command. Do not alter completed environment
+constants or leave a migration flag in web configuration. Inspect all 14 physical tables,
+schema version **2**, seed/audit identity and empty appointment/resource/roster counts.
+Re-preview/reapply idempotency only through the same authorized gate if needed. Interrupted
+DDL is unready; inspect its physical state and captured error before any reviewed retry.
+Never manually stamp a version, convert an engine or delete unexplained tables to force success.
+
+### 4. Staff identities, policies and synthetic records
+
+Before provisioning, obtain the actual owner-approved staff IDs and account/MFA evidence.
+Confirm their WordPress login and Basic Auth independently on the protected site. The
+foundation's provision command grants **view/manage/confirm/audit** to the verified allowlist;
+review that scope, operator inclusion and any reduced-access requirement explicitly.
+Generic administrators never become schedulers merely by having that role. Do not run
+provisioning against guessed IDs, and do not mistake an instructor resource for a user account.
+
+Read the current singleton revision, choose a new UUID and use the existing explicit
+`csf scheduling provision --user-ids=... --owner-verified --revision=... --command-id=...`
+under the verified operator. No direct SQL/user-role edits. Configure the owner-reviewed full
+policy via the existing `configure --file=... --revision=... --command-id=...` service using
+an authorized staff identity. Record command IDs/revisions privately; never repeat an uncertain
+command with a different ID until the original outcome has been resolved.
+
+**Inputs still needed:** timezone; all seven service-hour days; enabled service names,
+capacities/durations, required instructor/arena/location/horse kinds, school/client/either
+sources and travel needs; daily/consecutive workload and recovery limits; training enrollment
+cap; Academy disabled/enabled/season/capacity decision; preferred off-site day and travel
+buffer; verified staff permission/MFA roster; actual suitability/availability decisions.
+No null/unknown policy or horse availability should be silently made permissive.
+
+For the pilot, use only agreed fictional **Pilot** records, finite test availability and
+explicit sample suitability. Beth/Kris use the native forms, not JSON. Do not execute local
+test runners on the VPS: they deliberately require disposable `/test/site/`/fixture DB guards.
+Never install the stand-in theme or copy a local wp-config. Actual-client onboarding and
+signature evidence remain absent; evidence flags are manual and must not be represented as
+signed waivers or approval to start a real service.
+
+### 5. Protected synthetic acceptance and no-change verification
+
+Run the [walkthrough](13-scheduling-staff-acceptance.md) on actual Beth/Kris devices and the
+real protected WordPress/Kadence/DB stack. Record each task, reviewer, device/browser and
+outcome privately. Test day/week/filter, four riders/two horses/recovery, partial-slot title
+edit, client horse, missing availability/suitability, welfare block/release, moving/canceling,
+clearance warnings, two staff saves, stale drafts and exact uncertain-command replay.
+Do not deliberately damage a live connection/database to simulate hardware failure; injected
+failure tests belong to disposable fixtures.
+
+Verify private page/tool access for owner-approved roles, logged-out and missing-nonce
+requests, Basic Auth, MFA and no private response caching. Logged-out Basic Auth HTTP401 is
+expected. Check actual headers/proxy behavior, not just plugin nocache_headers. Review for
+private data in URLs/logs/public REST/search; static JS/CSS must contain no records.
+
+Compare public page/menu metadata and active-plugin/inquiry baselines. Smoke-check Home,
+Lessons and Contact on phone/tablet/desktop: Contact Beth to Schedule still links to Contact,
+no public self-booking or inquiry form appears, emergency stays inactive and no production
+operation occurred. Preserve existing header/footer/photos/owner edits; do not repair unrelated
+website issues as part of this pilot. Any compatibility, privacy, policy or staff usability
+failure blocks real bookings and needs a recorded follow-up.
+
+### 6. Containment, rollback and operational decision
+
+If acceptance fails, first deactivate **only scheduling**, retain its data/audit and verify
+that public website, inquiry and emergency states match the baseline. This is containment,
+not a claim of full rollback: custom per-user grants/tables can remain inert and must be
+tracked privately. There is no automatic destructive down migration.
+
+A full rollback requires review of any changes since the fresh backup. Preserve/export
+post-install scheduling records privately before restoring a DB. Do not restore the whole
+website DB over later owner page/photo/menu edits without reconciliation/approval. Use the
+matched backup and reviewed plugin version, verify restored table/plugin/grant/page/menu
+state, and rerun private/public checks. Removing recorded pilot grants or synthetic data
+also requires an explicit reviewed cleanup; do not delete audit history via ad hoc SQL.
+The local restore results prove fixture mechanics, not completed protected recovery.
+
+The owner must separately accept the synthetic pilot, policy/permission mapping and device
+results before considering real appointments. Household onboarding, verified signatures,
+service-start enforcement, payments, recurrence, notifications, emergency safety release and
+production launch remain separate decisions. No step in this proposal enables inquiries,
+emergency operations or automatic public booking.

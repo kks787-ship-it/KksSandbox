@@ -2,7 +2,9 @@
 
 November 1, 2026 · Issue #10 · `codex/takeover-audit` · base
 `e2e266e29be8ddf11df7919e6cdb7a7e894e75e2`.
+Validated code pin: [`6f5a9bf51747399a309b39637a135841fe4cf2a1`](https://github.com/kks787-ship-it/KksSandbox/commit/6f5a9bf51747399a309b39637a135841fe4cf2a1).
 Candidate **csf-scheduling 0.2.1**, retaining **schema v2 / 14 tables**.
+A subsequent documentation-only commit pins the [synthetic pilot proposal](../05-backup-rollback-deploy.md#scheduling-021--pinned-synthetic-pilot-proposal-not-executed) to this exact code; the scheduling plugin tree is unchanged.
 
 **Local development passed; protected pilot and Beth/Kris acceptance remain unapproved.**
 No protected sandbox connection, install, migration, provisioning or deployment occurred.
