@@ -1,22 +1,23 @@
 # 07 — Website Installation and Acceptance (Sandbox)
 
-**Current state — October 31, 2026:** the owner reports csf-core **0.2.0 active**, all
-21 pages published, navigation assigned and Home selected on real **Kadence 1.5.2**,
-WordPress 7.1.4 and PHP 8.3.36. **Do not reinstall the foundation or recreate the site.**
-csf-emergency 0.1.0 is installed but remains **inactive** and non-operational. Production is excluded.
+**Current state — October 31, 2026:** Gateway verified and deployed **csf-core 0.3.0**, commit `0f8530e`, to the password-protected sandbox only. All 21 generated site pages were preserved; no setup or Contact content update was run. Kadence 1.5.2, WordPress 7.1.4 and PHP 8.3.36 remain. **Do not reinstall the foundation or recreate the site.** `csf-emergency` 0.1.0 remains **inactive**; production is excluded.
 
-The newer remote roadmap reports **[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1)**: shared intro paragraphs reach the viewport edge while headings are inset, observed on Meet Beth and Camps & Clinics. This supersedes the earlier no-confirmed-defects report. A shared CSS candidate now reproduces/corrects it on a disposable local installation using downloaded Kadence 1.5.2. **Authenticated Plesk sandbox review is still NOT RUN**; local results do not approve deployment or close Issue #1. The historic substitute-theme tests and WordPress do_blocks() results
+The newer remote roadmap reports **[Issue #1](https://github.com/kks787-ship-it/KksSandbox/issues/1)**: shared intro paragraphs reach the viewport edge while headings are inset, observed on Meet Beth and Camps & Clinics. This supersedes the earlier no-confirmed-defects report. A shared CSS correction has been **deployed to the protected sandbox**, and the owner visually accepted the mobile layout on the pages viewed. **Authenticated all-21-page Plesk acceptance remains NOT RUN**; tablet/desktop and comprehensive audit are pending, so Issue #1 remains open. The historic substitute-theme tests and WordPress do_blocks() results
 cannot establish real-theme compatibility; HTTP 401 is expected without Basic Authentication.
+
+## Canceled Acuity — new scheduling workflow (owner confirmed October 31, 2026)
+
+The owner canceled Acuity. The public call to action must be **Contact Beth to Schedule** linked to `/contact/`. Show only approved, verified call/message channels. The inquiry form remains **disabled**; it is not a public scheduling fallback. Do not advertise available times, online booking, automated confirmations, or Acuity imports. Beth or Kris confirms appointments directly, and the future staff calendar uses only their confirmed entries. The code/default and previously saved page text have **not yet been migrated**; see [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3). The website update and saved-page/menu update require separate explicit approvals.
 
 ## Staged installation approval boundaries
 
 | Stage | Current state / next action |
 |---|---|
 | Preparation | Full backup, structural/file restoration, private staging and exact-target preflight/dry run completed through Gateway; preserve those results |
-| Core installation/setup | Completed through Gateway: active 0.2.0, 21 published pages, primary/mobile/footer menus, static Home |
+| Core installation/setup | Completed through Gateway: 0.3.0 active in protected sandbox, 21 generated pages/menus and static Home preserved; no latest-update site setup run |
 | Routes | /%postname%/, 162 rewrite rules, standard sandbox .htaccess and passed Apache syntax reported; do not change them again |
 | Protected sandbox acceptance | NOT RUN: no verified network access or private Basic Auth file in this task; local downloaded-theme results are separate |
-| Core update candidate | 0.3.0 in Git, not deployed: deployment permissions, truthful setup errors, shared gutter fix, optional inquiry form disabled by default |
+| Core release | 0.3.0 deployed after fresh target-bound backup and exact-source core-only dry run. Shared gutter fix installed; inquiry form disabled/unconfigured and Contact saved page unchanged. |
 | Emergency | Inactive; no activation or operational testing authorized |
 
 The original d360dbf staging/dry run describes the old release. Do not silently advance that
@@ -24,7 +25,9 @@ pin or claim it validates new code. A reviewed core update needs its own exact s
 current target-bound backup gate, and **core-only** comparison. Do not repeat the completed
 infrastructure preparation or structural restore.
 
-## Next sandbox update plan — separate approval required
+## Procedure for any future sandbox update — separate approval required
+
+The reviewed 0.3.0 core-only update has **already been deployed** through Gateway. The following procedure is retained for a future revision only; it is **not** authorization to rerun 0.3.0 or site setup.
 
 1. Review the candidate Git diff and [local validation](test-results/website-finishing.md).
    Retrieve the actual private source path from Gateway records. Review/stage an exact
@@ -98,7 +101,7 @@ locks; do not label it a strict database-read-only operation.
 
 Known configuration/content work: synced **Site Footer block 27 exists but is not placed**
 in Kadence Footer Builder; header/palette/typography/navigation await visual review; original
-logo/photos are missing; 23 owner-confirmation notes and the Acuity destination remain open.
+logo/photos are missing; 23 owner-confirmation notes and verified public call/message channels remain open. The former Acuity booking provider is canceled; [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3) covers its removal from code and saved public copy.
 These configuration tasks are separate from the shared gutter candidate. Verify that candidate
 on the actual sandbox; do not treat a local theme run as site acceptance. With emergency inactive, its landing/banner links are a deferred acceptance
 item, not authorization to activate it for a smoke test.
@@ -213,7 +216,7 @@ mail delivery, header/footer configuration or the isolated backup's functional r
 | Screen | What to enter |
 |---|---|
 | **Settings → Farm Details** | Confirmed public phone, email, location, hours note, social links, legal name. Empty fields are hidden. Leave *Brand typography* on unless you set fonts in Kadence (step 5b). |
-| **Settings → Booking** | Open the Acuity URL, confirm it books the right appointment type, then tick **Verified**. |
+| **Settings → Booking** | **Deprecated.** Do not configure or verify the canceled Acuity provider. [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3) will replace the old booking link/default with **Contact Beth to Schedule → /contact/** and remove online-booking claims. |
 | **Farm Emergency → Settings** | Unchanged from Phase 1 — emergency contacts are separate on purpose. |
 | **Settings → Reading** | Confirm *Your homepage displays → A static page → Home*. |
 | **Settings → Permalinks** | Already /%postname%/; inspect only. No save/rewrite change is authorized. |
@@ -261,9 +264,7 @@ Do not do both.
 | Mobile | Mobile Navigation + trigger | Menu = *Primary Navigation*. |
 | Header background | | Palette 8 (Linen). Optional bottom border in Warm Tan. |
 
-The last menu item, **Book a Lesson**, carries the CSS class `csf-menu-cta` and is styled as a
-button by the plugin; it links to the Booking page, which uses the verified Acuity link.
-(Alternatively add a Kadence *Button* element pointing to `/booking/` and remove the menu item.)
+The existing **Book a Lesson** nav CTA is styled via `csf-menu-cta` and currently links to the saved Booking page. [Issue #3](https://github.com/kks787-ship-it/KksSandbox/issues/3) changes the visitor-facing CTA to **Contact Beth to Schedule** and routes scheduling inquiries to `/contact/`, with verified phone/message details only. Update the saved menu and Booking page through a reviewed, owner-safe content migration; do not use canceled external URLs or invent a live booking calendar.
 
 Do not make the header sticky until checked with the emergency banner: the banner prints at the
 top of the page (`wp_body_open`) and should remain visible.
