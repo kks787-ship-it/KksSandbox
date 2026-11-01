@@ -140,3 +140,14 @@ desktop **42/42 passed**, tablet **21 views need the same header link-name corre
 Branding still shows the demo site title/default footer and the CSF footer is not placed.
 Issue #3's deployed contact workflow is verified, but overall site acceptance stays open for
 these finishing items and remaining owner notes. No theme settings were changed by the review.
+
+## Development handoff — scheduling implementation starts November 1, 2026
+
+The existing `csf-scheduling` calendar document in [doc 01](01-architecture.md#digital-ranch-staff-scheduling--issue-4-architecture-for-review) is **architecture only**; no scheduling plugin or real appointment tables are delivered yet. Issues below are newly authorized as **local development instructions only**. Never infer permission to install or migrate the protected sandbox.
+
+1. **[Sprint 1 — scheduling foundation, Issue #8](https://github.com/kks787-ship-it/KksSandbox/issues/8):** separate modular plugin, fail-closed configuration, private owner-verified staff permissions, exact migration preview/explicit apply, versioned minimal InnoDB tables, idempotent commands/audit and MariaDB integration tests. No real appointments or public pages.
+2. **[Sprint 2 — staff calendar, Issue #9](https://github.com/kks787-ship-it/KksSandbox/issues/9):** manual appointment entries, requested/hold/confirmed/canceled states, staff-only week/day view, concurrent resource conflicts, horse welfare, rider-clearance distinctions, cancellation audit. No Acuity or public self-booking.
+3. **[Product discovery, Issue #7](https://github.com/kks787-ship-it/KksSandbox/issues/7):** Corner Stone Farm is the first pilot; future barn policy must be configurable instead of hard-coding Beth/Kris, Sunday closure, Wednesday off-site, Monday Academy or the five-full-training-horse cap into all customer installations. Beth additionally identifies QR-tag emergency horse identification, evacuation accountability and responder coordination as a possible unique value proposition **for later independent market/safety evaluation**, not a reason to suspend calendar development or activate the existing emergency plugin.
+4. **Website finishing continues separately:** [Issue #5](https://github.com/kks787-ship-it/KksSandbox/issues/5) photo/branding and [Issue #6](https://github.com/kks787-ship-it/KksSandbox/issues/6) content/owner approvals. The protected sandbox already has some recent photo updates that are not reflected in this repository's static historical document sections; inspect live state before proposing a website mutation.
+
+Build and test local code against disposable WordPress/MariaDB fixtures. Owner must separately approve any protected sandbox schema, staff access, use of real horse/client records, or production deployment. Inquiry disabled and emergency inactive; no production changes.
