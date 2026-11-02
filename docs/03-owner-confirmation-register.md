@@ -90,3 +90,34 @@ separate decisions. See the current owner package and permission release report.
 | Public booking/payment launch timing | Remains **NOT AUTHORIZED**; Acuity canceled and Contact Beth to Schedule remains unchanged. Gate B and admin MFA continue independently. |
 
 **This register does not start collection of cards, signer data, new WordPress accounts, real invoices or executed releases.** Every actual provider, template, portal, signature and payment launch requires its own protected deployment, legal/financial and owner approval.
+
+## Existing WordPress administrator and Plesk access — November 2, 2026
+
+**Owner-confirmed account relationship:** The sole current WordPress Administrator account is
+controlled by Kris and is also used to manage WordPress through Plesk. The owner said they
+likely logged in while the latest read-only Gate B inspection was running. This is owner
+attestation about the login controller, **not a verified numeric account ID, proof of independent
+MFA, validated Plesk authentication mechanism or identified changed database option**.
+
+**Current planning decision:** Preserve Kris's existing native Administrator account, and
+**do not create a duplicate Kris Subscriber account by default**, rename/demote/promote this
+Administrator or grant it Digital Ranch Farm Master simply from existing WordPress privileges.
+A Farm Master may be linked to the same verified numeric WordPress ID only after the separately
+approved ownership ceremony and MFA/recovery. Beth needs her own individually verified identity
+and scoped permissions. Exact usernames, private login/recovery emails, numeric IDs, passwords,
+MFA factors and recovery materials belong only in an approved private record, not this file.
+
+**Plesk compatibility gate:** Owner confirms use of Plesk's WordPress management integration.
+Before mandatory admin MFA enforcement (which blocks WordPress application passwords and
+authenticated XML-RPC), determine whether its actual management/login/SSO flow depends on the
+changed authentication pathways, test safely with approved recovery, and preserve existing
+management access. Do **not** infer Plesk's particular implementation from account reuse.
+
+**Options digest:** An unchanged row count (163) and mismatched full-table hash occurred
+while the owner reports probable login activity. Normal WordPress/Plesk activity is a plausible
+explanation; the changed option and actual writer are **not confirmed**. No compromise is
+established by this observation. At an approved change window, check critical site/security
+settings and capture a consistent new baseline. If security-critical options differ
+unexpectedly, investigate those specific changes. Do not force a hash match or restore
+old WordPress options. Gate B remains held; no backup/install/account/security action has
+been authorized here.
