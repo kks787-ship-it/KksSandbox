@@ -843,3 +843,74 @@ SQL logging is suppressed with caller-state restoration; raw registry payloads a
 A sole-master mirror failure is recoverable by the verified operator's guarded exact replay of
 the original identity-bootstrap command, reconciling the **current** authoritative state without
 changing permissions or duplicating an audit event. No unauthenticated fallback is introduced.
+
+## Client readiness: signatures, booking and payments integration contract (planned, not built)
+
+This section is the integration **design boundary**, not a shipped capability. Full
+business flow, authority and acceptance examples are in
+[docs/14-client-readiness-onboarding-payments.md](14-client-readiness-onboarding-payments.md)
+and GitHub [#15 onboarding](https://github.com/kks787-ship-it/KksSandbox/issues/15),
+[#16 billing](https://github.com/kks787-ship-it/KksSandbox/issues/16),
+[#17 client booking](https://github.com/kks787-ship-it/KksSandbox/issues/17).
+
+### Canonical entities and module ownership
+
+| Owner module | Canonical entities | Exposes to other modules |
+| --- | --- | --- |
+| csf-onboarding (future) | household, adult/contact, rider, guardian/consent relationship, payer and horse owner/agent relationship, horse intake, signer/document template/version, signed agreement envelope and per-service requirement satisfaction | Stable opaque household/rider/horse-owner IDs, authorized service-readiness status/reason codes and signed-template reference only; never replicate full signed PDF or guardian health data in scheduler |
+| csf-scheduling (existing local source) | Service appointment/request/hold/confirmation, horse/instructor/arena/travel allocations, suitability and welfare, cancellation audit and attendance flags | Resolved slot/resource state, stable appointment/rider/horse refs; no payment record or invented e-signature |
+| csf-billing (future) | Contract/version-linked price plan, quote, invoice, line item, payer ledger, payment attempt/settlement/refund/dispute, package credit and approved autopay consent | Paid/pending/credit authorization + invoice/quote ID by reservation/service/household; no PAN/CVV |
+| csf-portal (future) | Authenticated client views and allowed actions for household/rider/horse-owned records | Only correctly scoped read projections, secure signer/checkout links with explicit authorization |
+| Digital Ranch Master (existing locally) | Farm operations and fine-grained employee permission grants | Only approved domain-scoped roles; **no implied future finance/contract/signature power** |
+
+Cross-module references must be stable, non-public, facility-scoped and referentially
+verified. The onboarding rider/horse owner mapping must not overwrite the existing
+scheduling v3 schema, create a second appointment source of truth, or expose a child's
+guardian/medical or payer data in public calendar assets.
+
+### Service readiness state matrix
+
+- A **confirmed** appointment is a resource allocation, never evidence that waiver,
+  payment or suitability is satisfied.
+- A **paid** lesson is verified by the processor and internal ledger; it never grants
+  a riding release or confirms a reservation when instructor/horse has become
+  unavailable.
+- An **executed** document is bound to its approved immutable text, legal signer(s),
+  time and audit evidence; historical manual Boolean 'release_verified' is distinct
+  from electronic signature completion.
+- **Ready to Ride** = relevant executed documents/guardian/authority + service payment
+  or approved account credit + verified participation/horse-welfare/suitability.
+- **Ready for Horse Arrival** = approved intake/owner authorization and care prerequisites
+  + executed boarding/training terms + initial contract payment or approved exception
+  + staffed stall/paddock allocation. The horse's emergency welfare must not be
+  denied for late paperwork/financial issues; preserve an audited exception.
+- An unsigned/expired document, pending ACH, processor reversal, unapproved
+  training horse or active welfare hold means **Action required / Not cleared**;
+  changing the appointment or invoice cannot silently clear it.
+
+States must be recomputed from authoritative revisions and independently signed evidence
+with an auditable, idempotent event bridge. Two clients cannot capture one riding slot;
+duplicate or reordered webhooks cannot charge twice or create double credits. Checkout
+must be hosted/tokenized by the chosen provider, not process raw payment-card data
+on the CSF web server. All client portals and public endpoints have separately scoped
+guardian/ownership authentication and privacy controls. Public website remains
+**Contact Beth to Schedule** until a distinct approved client booking pilot.
+
+### Proposed small, testable release order
+
+1. Confirm technical/legal requirements and service/guardian/signer authority matrix.
+2. Implement one-household canonical model and versioned, legally reviewed signing;
+   keep all financial and public endpoints disabled.
+3. Implement processor-independent billing ledger and provider sandbox integration
+   with duplicate/out-of-order/refund/reconciliation tests; processor owner selection
+   precedes enabling anything.
+4. Implement private paid appointment completion and read-only readiness adapter;
+   test Beth/Kris's actual check-in workflow and protected rollback.
+5. Add optional controlled client request/instant booking only after owner approval
+   of service policy, authentication, verified email, published availability and
+   secure payment endpoints.
+
+No real client data, signed contracts, merchant transfers, webhooks, account creation
+or protected/production deployment is authorized by this design. The previously
+approved Gate A recovery and pending admin MFA/Gate B reviews are **separate release
+prerequisites**, not inherited permissions for new modules.
