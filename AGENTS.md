@@ -1,5 +1,14 @@
 # Corner Stone Farm development
 
+Latest Nov2 identity correction: read the Accounts & Access section in docs/01-architecture.md,
+owner register and current Gate B worksheet. HTTP Basic Auth and Plesk control-panel access do
+not identify the Plesk-created WordPress Administrator or prove farm ownership/MFA. Its human
+controller/UID remain privately unverified. Recommend retaining technical admin unchanged and
+separately approving Kris's Subscriber business identity and Beth's staff identity; do not infer
+accounts from login names. Preserve current distinct-UID browser bootstrap and source2fd02a2.
+Separate accounts are not proof of separate humans. Accounts & Access is design only; no server,
+account, MFA, grant, schema or installation action is authorized by the correction.
+
 Issue #14 current local candidate: scheduling0.4.0 / csf-mfa0.2.0, same schema3/15 tables.
 Read docs/test-results/scheduling-security.md and the current Gate B package override before
 security work. Official Two-Factor0.17.0 ZIP bytes/all21 files are now verified; the Issue13

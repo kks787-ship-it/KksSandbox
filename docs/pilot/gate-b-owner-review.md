@@ -1,27 +1,48 @@
 # Digital Ranch — Gate B owner decision package
 
-## Owner clarification — existing WordPress Administrator and options drift (November 2, 2026)
+## Current identity correction — November 2, 2026; design only
 
-**Owner attestation (not a server-side identity/MFA proof):** Kris confirms that the **sole existing WordPress Administrator login is his account** and that he uses the same account through **Plesk's WordPress management integration**. **Do not publish the precise username, numeric account ID, login/recovery email, credentials or factors in GitHub, reports or chat.** Preserve the existing account and its current Administrator role; do not default to creating a *duplicate* Kris WordPress login or automatically demoting/upgrading it. A single verified WordPress identity can later be considered for the separately owner-approved **Digital Ranch Farm Master** role, which remains independent of native WordPress Administrator powers. Owner attestation resolves the *human-owner ambiguity at the planning level*, not secure numeric-ID verification, recovery custody, independent MFA enrollment or the one-use Farm Master ceremony.
+[Owner instructions](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6584204812)
+supersede the recent same-account reuse recommendation. **HTTP Basic Auth is only the protected
+site gate; it is not the Plesk-created WordPress Administrator, a staff account or an MFA proof.**
+The reported Plesk screenshot establishes a configured technical WordPress login, not its human
+controller, numeric UID, recovery custody or authority to become Farm Master. Keep all actual
+logins, private emails, IDs, factors and screenshots outside Git/chat. Plesk control-panel
+management is separate; a native WP Administrator does not automatically gain Plesk rights.
 
-**New implementation-specific O-Master prerequisite:** The pinned `CSF_Scheduling_Identity`
-bootstrap validator explicitly requires **different WordPress numeric identities** for the
-technical operator and the proposed Farm Master. Its current flow therefore **cannot** simply
-use Kris's sole existing Administrator account as *both* actor roles. This is distinct from
-the policy decision to **retain that same existing account for Kris**. Do not fabricate a
-second Kris login, grant Beth administrative rights, create a throwaway Administrator or
-relax the distinct-actor check merely to pass the gate. Before O-Master, submit a **local-only
-design choice** for owner review: (A) independently verified, separately approved trusted
-technical operator with its own account/MFA and narrowly scoped authority; or (B) a newly
-reviewed and tested one-owner/one-admin bootstrap using independent, auditable out-of-band
-approval and real factor verification. Any code change requires a new immutable release pin,
-regression tests and exact Gate B review. **O-Master remains blocked until resolved.**
+**Recommended model, requiring owner approval:** preserve the existing technical WordPress
+Administrator unchanged for maintenance/operator duties after private verification, and establish
+a separately approved Kris business WordPress Subscriber account for protected Farm Master.
+Beth receives her own independently verified Subscriber/staff identity and reviewed farm rights.
+No actual identity is mapped/created by this design; no throwaway or additional Administrator,
+Beth promotion, account renaming/demotion or same-UID bootstrap exception is proposed.
 
-**Plesk integration is a confirmed dependency to protect.** Before `M-Enforce` (which deliberately disables WordPress application-password authentication and authenticated XML-RPC), verify the exact Plesk/WordPress Toolkit login and management mechanism in a separately approved, recoverable test; **do not assume** it does or does not depend on either pathway. Preserve owner access and establish MFA/recovery before enforcement. No Plesk, WordPress or authentication settings change is authorized here.
+The current source **2fd02a2** already supports this model: operator and owner must be different
+WordPress IDs with their own fresh actual MFA browser approvals. Preserve that constraint and
+transaction/audit. Different accounts do not prove different humans; privately verify controllers
+and decide whether separate-human approval is required before O-Master. A sole-UID alternative
+would need a new independently reviewed protocol, tests and release pin; do not remove the
+constraint or use a checkbox/CLI/Plesk screenshot as approval. **No code change is recommended.**
 
-**Options-table drift revised risk interpretation:** Kris reports logging in to check progress around the inspection; ordinary WordPress or Plesk-managed login activity is a **credible potential** source of option updates. The previous 163-row options-table digest mismatch is still a real observation, but a changed digest without per-option comparison **does not prove malicious activity, altered security settings or this specific cause**. The preflight observed stable plugin activation, selected configuration and user-role aggregates. Treat this as **expected-activity candidate / attribution unconfirmed**, rather than an automatic forensic escalation. Avoid a lengthy root-cause investigation when the change-window baseline can be freshly and consistently captured and security-critical settings reviewed; if a sensitive option unexpectedly changed, investigate that exception. **Do not restore old options, disable cron, alter settings or claim a frozen DB baseline** just to make the hash match.
+Review the [canonical account inventory, bootstrap analysis and Accounts & Access UI proposal](../01-architecture.md#accounts--access--corrected-identity-model-november-2-2026)
+and [owner register](../03-owner-confirmation-register.md#corrected-account-layers-and-owner-decisions--november-2-2026).
+The proposed dashboard distinguishes native administration, farm group/overrides, enrollment,
+**your own** current-session proof, recovery-readiness and Plesk/API dependencies without exposing
+secrets or giving farm owners server-administration powers. It is **design only**; reuse the
+existing Team & Permissions engine in any later authorized UI implementation.
 
-**Next proposed sequence, still unapproved:** privately confirm the account's numeric ID and credential/recovery custody with the owner, check Plesk/Toolkit SSO compatibility, ask for separate **R-Backup** and **R-Restore** authorization for a fresh transactionally consistent change-window backup and isolated functional recovery. Stop again before account/MFA/security/software changes. **No Gate B execution row is approved by this clarification.**
+**Plesk integration remains a dependency to protect:** verify its actual Toolkit/login/SSO and
+recovery pathways before separately approved mandatory MFA. Do not assume application-password
+or XML-RPC use, infer a completed challenge from SSO, or weaken enforcement to accommodate it.
+The earlier options digest difference is an unattributed observation, not evidence of compromise;
+reported backend activity is plausible but unproven. Review critical settings and a fresh baseline,
+without a broad automatic investigation, repairing options or disabling cron.
+
+**Decisions still held:** separate business-account design, exact private controllers/UIDs and
+human-independence policy; Kris/Beth account details and rights; technical-inventory visibility,
+recovery/notifications; Plesk compatibility; every existing R/A/M/I/O/G/P/C/D/T/X execution row.
+This correction uses GitHub/local documentation/source review only. No server calls, accounts,
+passwords, MFA, privileges, schema, backup/restore, plugins or public-site changes occurred.
 
 ## November 2 current-server decision sheet — execution remains on hold
 
@@ -55,13 +76,13 @@ Do not submit IDs, private emails, passwords, factors, codes or verification evi
 
 | Decision | Concrete scope for owner review | Prerequisite / status |
 | --- | --- | --- |
-| V-Identity | Owner identifies the existing sole WordPress Administrator as Kris's account, also used by Plesk's WordPress management; privately verify its exact numeric ID, independent control, MFA/recovery custody; separately verify Beth's intended account | **Owner-attested, implementation not yet verified.** Reuse Kris's existing account by default; no duplicate user, promotion, demotion or Farm Master grant implied |
+| V-Identity | Privately verify the existing Plesk-created technical WordPress administrator's controller/UID and separate HTTP/Plesk contexts; independently verify proposed Kris business and Beth staff identities | **Unverified.** Screenshot/protection login does not establish the WordPress controller or MFA. No account linkage/reuse inferred |
 | V-Baseline | Owner reports likely admin login activity during inspection; confirm stable security-critical options and capture a fresh consistent change-window snapshot | **Likely routine owner activity; specific changed option unproven.** No automatic breach conclusion or expensive forensic hold; investigate only unexpected security-sensitive drift. No settings repair/restore authorized |
 | M-Choice / M-Update | Choose exact official0.17.0 + adapter0.2.0, TOTP and single-use backups, supervised update custodian | Hold. Actual ZIP/inventory verified; manual monitoring/staged repinning must have a named owner |
 | R-Backup | Fresh exact sandbox DB/wp-content/config/salts backup; current file/table/role/settings baseline and private0700/0600 custody | Hold. No backup created here; current GateA evidence is historical recovery proof |
 | R-Restore | Functional restore of that fresh bundle into private isolation; integrity, clone login, dashboard/pages and security-secret recoverability | Hold separately. No live restore, real password verification, public clone or mail delivery implied |
 | A-Operator | Confirm existing maintenance authority/recovery duties for verified administrator | Hold; no new admin promotion, account reassignment or farm membership |
-| A-Kris / A-Beth | **Kris: reuse existing Administrator account by default;** Beth: separately verify and (if approved) create her own appropriately scoped account | Hold per account/action. No duplicate Kris login, change to his existing native role, Farm Master bootstrap, staff grants, MFA enrollment or notifications implied |
+| A-Kris / A-Beth | **Proposal: separate Kris Subscriber business account, plus independent Beth Subscriber staff account;** preserve existing technical administrator unchanged | Hold per account/action, with private verified identities and separately approved details. No creation, native role change, Farm Master bootstrap, staff grant, MFA enrollment or notification implied |
 | M-Install / M-Adapter | Separately install/activate exact21 provider /4 adapter files; only approved adapter enablement constant | Hold per component. No mandatory enforcement or scheduling install implied |
 | M-Notify | Approve exact native account/provider security-notification behavior, private recipients and any test delivery | Hold before steps that could send mail. Inquiry disabled does not suppress security mail; no email sent/tested here |
 | M-Enroll-operator / M-Recovery-operator | Actual operator TOTP, fresh independent login/logout, single-use backup-code rehearsal, tested trusted physical recovery and custody | Hold. Complete before enforcement; no seed/code/cookie logging |
@@ -70,6 +91,7 @@ Do not submit IDs, private emails, passwords, factors, codes or verification evi
 | I-Files | Install/activate only exact20 scheduling files with source comparison | Hold. Native active_plugins change is separate from file copy; no schema/grants implied |
 | I-Schema | Preview exact15-table schema3, then separately authorized guarded apply and temporary migration flag | Hold. No raw DDL, destructive repair or automatic adoption. Close migration window afterward |
 | O-Master | Private verified Kris/operator numeric mapping, finite source/target/policy-bound invitation, independent fresh MFA browser approvals and one-use consumption | Hold; requires schema readiness and fresh proofs after all activation/config changes. No retired CLI bootstrap |
+| V-Independence / UI-Design | Decide required human independence and approve/revise Accounts & Access inventory/audience/privacy design | Hold for design review; two accounts do not prove two humans. UI not implemented; no new privileges, source/schema or server operation authorized |
 | G-Beth / G-person | Approve exact group, each override, active/verified status and optional resource scope below | Hold per person; owner uses native Team & Permissions after bootstrap |
 | P-hours / P-capacity / P-welfare / P-restrictions | Approve fictional-only values and finite test week in the readable table below | Hold separately; no actual horse-care/suitability or published-hours decision inferred |
 | C-Policy / D-Fixture | Apply only approved fictional settings / named synthetic records | Hold independently. No actual client, minor or horse data |

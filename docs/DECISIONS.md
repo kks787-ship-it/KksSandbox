@@ -1,5 +1,24 @@
 # Project decisions
 
+## November 2 — separate protected-site, technical and farm identities
+
+The [owner's latest account clarification](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6584204812)
+supersedes the recent assumption that HTTP Basic Auth identifies the Plesk-created WordPress
+administrator or that the technical account should default to Kris's Farm Master identity.
+Its actual human controller/WordPress UID/MFA remain privately unverified. Preserve it for
+technical maintenance; recommend a separately approved Kris Subscriber business account and
+independent Beth staff account, without additional administrator or inference from login names.
+
+Retain the pinned different-UID, independently MFA-authenticated ownership ceremony. Different
+accounts do not prove different humans; owner must decide and privately verify the desired
+human-independence assurance. No sole-UID bypass or redesign is needed for the recommended model.
+Accounts & Access is **design only**, reusing existing farm permissions and provider/session
+verification while clearly separating native roles, farm rights, enrollment, own-session proof,
+recovery-readiness and Plesk integration. No new UI/source/schema is shipped by this correction.
+Source remains2fd02a2 / Scheduling0.4.0 / adapter0.2.0 /45 files /schema3/15tables. Existing source
+and historical reports are preserved. All GateB execution decisions remain held; no server calls,
+private identity disclosure, accounts, factors, roles, backup/restore or website changes occurred.
+
 ## November 1, 2026 — Issue #14 local security implementation
 
 Use exact official Two-Factor0.17.0 ZIP + csf-mfa0.2.0 and scheduling0.4.0 as the next **review

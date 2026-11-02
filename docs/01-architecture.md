@@ -1,5 +1,197 @@
 # 01 — Platform Architecture
 
+## Accounts & Access — corrected identity model, November 2, 2026
+
+**Design only; no dashboard or account change is implemented by this correction.** The owner
+clarification in [Issue11 comment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6584204812)
+supersedes the recent proposal to identify Kris with the existing technical WordPress admin
+and reuse that identity for Farm Master. The reported Plesk screenshot establishes a configured
+WordPress administrator login; its human controller/numeric ID and MFA remain privately unverified.
+The screenshot/private account fields are not reproduced here. A protected-site login is a
+different authentication layer and is never joined to a WordPress user by matching names.
+
+### Canonical identity inventory
+
+| Context / account | Identity source and authority | Current planning state |
+| --- | --- | --- |
+| Plesk control panel / WordPress Toolkit | Hosting-management identity outside WordPress; may manage or initiate a WordPress login through its own integration | Preserve existing management access. Exact mechanism, human controller and recovery mapping require private verification |
+| Plesk-created WordPress technical Administrator | Existing native WordPress account created at installation; WordPress maintenance capabilities | Preserve account/native role. Do not infer its controller, UID, farm membership or MFA from Plesk access or an HTTP protection login |
+| Sandbox HTTP Basic Auth gate | Web-server directory/site protection, not a WordPress account | Allows reaching the protected site only. No WordPress UID, farm role or second-factor proof is created |
+| Kris's Farm Owner / Master | **Proposed separate, individually controlled WordPress Subscriber identity** plus protected Digital Ranch ownership after approved bootstrap | Owner-review recommendation, not account creation or permission authorization. Actual login/email/UID remain private and undecided |
+| Beth / other employees | Individually verified WordPress accounts with proposed Subscriber baseline plus reviewed farm group/overrides | No native administrator promotion or automatic farm membership. Beth's Head Trainer/resource/availability choices remain separate decisions |
+
+WordPress Administrator does not grant a Plesk control-panel account; Plesk access does not prove
+that a WordPress session completed MFA. A future Farm Master controls only implemented farm
+privileges, not WordPress/server administration, emergency, payments or contract authority.
+The same person may control multiple separately approved accounts, but distinct accounts are
+**not proof of distinct people** or an independent human approval. Never claim two-person control
+solely because two numeric IDs or browser sessions differ.
+
+The diagram shows proposed **protected actions after approved MFA enforcement**, not a claim
+about the current deployment or a new restriction on legitimate public read views.
+
+```mermaid
+flowchart LR
+    Gate["HTTP Basic Auth: reach protected site"] --> WP["Separate WordPress identity"]
+    Plesk["Plesk / Toolkit management identity"] -. "Mechanism must be verified" .-> WP
+    WP --> MFA{"Current approved MFA proof?"}
+    MFA -- No --> Locked["Protected actions denied; own enrollment grace only"]
+    MFA -- Yes --> Native["Native WordPress role determines WP administration"]
+    MFA -- Yes --> Farm["Verified facility membership determines farm privileges"]
+```
+
+### Bootstrap decision and source review
+
+**Recommend retaining the pinned two-identity design**, using the privately verified existing
+technical WordPress Administrator as operator and a separately approved Kris business account
+as proposed owner. The business account is intentional separation of duties, not a duplicate
+created by assuming a Basic Auth name is a WordPress identity. No new administrator, Beth
+promotion, throwaway operator or same-ID exception is needed for this model.
+
+Source remains **`2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`**, Scheduling0.4.0/adapter0.2.0,
+schema3/15 tables and the same45-file candidate. Source review confirms:
+
+- `CSF_Scheduling_Identity::invitation()` rejects equal operator/owner WordPress IDs and binds
+  site/environment/facility/source/schema/policy/registry/revision/action/expiry/exact UUIDs.
+- `authorize()` requires the actual approving account's own browser proof, mandatory-admin
+  policy enabled and challenge age<=300seconds; CLI and Basic Auth cannot satisfy it.
+- Operator request/consumption requires the exact native administrator with `manage_options`;
+  proposed owner approval requires the exact other identity. Transfer also needs outgoing-master
+  consent. No checkbox, Plesk screenshot, role or matching login string substitutes for these.
+- Prior approvals are signed, revalidated for revocation/credentials/expiry under the transaction
+  lock, and consumed atomically with registry, mirrors, sessions, revision, history and audit.
+  Uncertain responses resolve by the original command UUID, preserving idempotency/last-master rules.
+
+Private verification must establish who independently controls the operator and owner channels.
+If owner policy requires a second human, name/verify that authorized operator privately before
+bootstrap; code cannot establish human independence. A single human with separate maintenance
+and business accounts provides role/session separation, not an independent second-person check.
+Trusted technical WordPress administrators and hosting/root operators remain privileged trust
+boundaries. Account separation reduces routine exposure; it does not make the hosting owner or
+an administrator able to install executable extensions an untrusted party the plugin can defeat.
+
+**Alternative, not recommended for this pilot:** reusing one WordPress UID for operator and
+owner requires a newly reviewed sole-owner protocol with an independently controlled approval
+authority, explicit recovery/expiry/replay/audit model and new source pin plus full security tests.
+A checkbox, second tab, copied factor proof, CLI bypass or deletion of the unequal-ID check is
+not such a protocol. Do not change current code merely to fit an unverified account mapping.
+
+### Proposed owner-facing Accounts & Access dashboard
+
+Extend the existing Digital Ranch navigation with **Accounts & Access** in a later explicitly
+authorized UI build. Reuse Team & Permissions as the only farm-privilege editor and the existing
+MFA provider/adapter; do not build a second grant or authentication engine. This design adds no
+current route, schema, role, option, identity directory or server-side discovery job.
+
+| Proposed view | What the owner sees | Boundary / allowed next action |
+| --- | --- | --- |
+| Account inventory | Approved person label, account type/purpose, reported vs privately verified identity source, native WP role and separate farm role | HTTP gate and Plesk are separate context cards, never selectable employee WordPress accounts |
+| Farm access | Group, explicit grants/denials, effective privileges and provenance; protected Master identity shown separately | Existing Team & Permissions preview/confirm/audit; no create_users/promote_users/manage_options implied |
+| Authentication | Provider availability, enrollment status, **your own** current-session proof/expiry; other employees' current session labeled unknown | Enrollment is not verified login. No borrowing/probing an employee's session or declaring them authenticated from their enabled factor |
+| Recovery readiness | Reviewed/needs review, review date and private custody-record reference | No seed, QR image, password, recovery code, browser token, raw proof or private evidence contents |
+| Integrations & admin access | Plesk/Toolkit path: unverified/tested/incompatible; HTTP gate distinct; application-password/XML-RPC impact | Review-only technical change request; no silent provider/config/SSO action or disabling MFA to pass a test |
+| History | Authorized farm permission audit and reviewed change/recovery references | No raw infrastructure credentials, login logs or unscoped user directory |
+
+Suggested small-screen layout:
+
+```text
+Digital Ranch > Accounts & Access                     [Design only]
+Farm access | Authentication & recovery | Technical access
+
+Kris — proposed business account
+WordPress: Subscriber (proposed)     Farm: Master (not provisioned)
+Identity: needs private verification MFA enrolled: not verified
+Your current session: unavailable    Recovery custody: needs review
+[Review farm permissions] [Review account/MFA setup requirements]
+
+Beth — proposed staff account
+WordPress: Subscriber (proposed)     Farm: Head Trainer (not provisioned)
+[Group defaults / individual choices / effective-access preview]
+
+Technical WordPress administrator — existing, controller unverified
+WordPress: Administrator             Farm: no automatic membership
+[Private technical review required]
+
+Protected-site HTTP gate / Plesk management: separate contexts
+These do not identify an employee or satisfy WordPress MFA.
+```
+
+Technical identity/recovery detail is owner/master-only by design; existing ordinary
+`team_view` delegates keep their currently authorized employee projection. New sensitive
+inventory privileges require a later reviewed capability change, not inferred access. Mask
+private logins/emails/UIDs by default; any necessary exact mapping is available only in a
+separately authorized private review, never a URL/public asset. Distinguish pending/unknown,
+reported, privately verified, enrolled and currently authenticated states; unknown fails closed.
+
+Creating WordPress accounts, changing native roles/passwords, resetting someone else's factors,
+Plesk operations, ownership bootstrap/transfer and infrastructure recovery are controlled change
+requests outside routine employee permission editing. Do not expose one generic “Make admin,”
+“Verify MFA” or “Make Master” checkbox. Persisting new identity/custody metadata or shipping this
+view needs its own storage/privacy/capability/test proposal; no new writes enter the current pin.
+
+Existing membership `verified` flags are farm-assignment state, not independent legal/person
+verification or factor/session evidence. Recovery-code availability is not proof of secure custody.
+Until an approved private review/reference integration exists, the new identity/custody fields
+must stay **unknown**; never turn an existing checkbox or similar display name into a verification.
+
+Initial setup uses the existing own-profile enrollment and nonce-protected ownership-approval
+screen, not this future dashboard, so it does not require an already bootstrapped owner. Plesk
+control-plane security remains independent; WordPress MFA cannot enforce authentication inside
+the hosting panel. Test the actual supported Toolkit-to-WordPress session/revalidation path in
+an approved window rather than promising that hosting access and WP login are the same thing.
+
+Offboarding also names the layer: **remove farm access** uses the existing audited membership
+revocation; native WP account deletion/role/factor changes and HTTP/Plesk access removal remain
+separate controlled actions. Do not label all access removed merely because one layer changed.
+Retain identity/history and last-master protection; no automatic deletion or shared-gate rotation.
+
+### Threat model, acceptance and owner choices
+
+| Risk / acceptance scenario | Required result |
+| --- | --- |
+| HTTP protection login resembles a WP username | No account match, lookup, grant, enrollment or proof inferred |
+| Plesk screenshot or Toolkit SSO creates a WP session | Reported identity only; fresh approved MFA required for protected actions. Verify actual Toolkit maintenance/SSO/recovery in an approved window |
+| Operator/admin tries to appoint their own UID | Existing validator denies, no authority/audit-consumption mutation |
+| Separate proposed Subscriber owner approves | Own current MFA required; successful approved ceremony grants farm rights without WP administrator promotion |
+| Different IDs controlled by one person | Do not claim independent human review; require the owner's explicitly chosen assurance policy |
+| Enrollment displayed on another employee | Never display it as proof that their current session is authenticated |
+| Staff opens technical inventory/recovery details | Denied outside explicitly approved scope; no credential values or public user directory |
+| Farm membership removed while WP/HTTP/Plesk identities persist | Farm access/session revocation is immediate under the existing engine; UI names the layer and shows separate offboarding checks, not a false all-access-revoked claim |
+| Wrong/expired/revoked/stale approval or replay | Existing fail-closed signed transaction/idempotency rules retained |
+| Lost owner/operator factor or lost last Master | Separately reviewed same-UID physical recovery; no replacement by matching name/email or Basic Auth identity |
+| Proposed UI changes a permission | Show group/default/override/effective result, confirm sensitivity, audit and revoke immediately through existing engine |
+
+Distinct-actor denial, Subscriber-owner bootstrap and revocation/expiry/replay/rollback behavior
+have historical local coverage in [the security validation](test-results/scheduling-security.md);
+they were **not rerun** for this documentation-only correction. Plesk-specific end-to-end behavior,
+identity-inference presentation and new Accounts & Access UI cases are design acceptance criteria,
+not implemented/passed tests. Future UI work must include role/nonce/privacy/axe/mobile checks
+and preserve the underlying two-engine security/calendar suite.
+
+Owner choices: approve/revise separate technical/business accounts; privately identify each
+controller/UID and required human independence; approve Kris/Beth account details and per-person
+farm grants; decide sensitive inventory audience and recovery custody; verify Plesk integration;
+then review existing separate backup, MFA, source/schema, bootstrap and pilot gates. No account
+creation, role change, provider installation, source deployment or Gate B execution follows from
+accepting this design. See [owner register](03-owner-confirmation-register.md) and
+[single Gate B worksheet](pilot/gate-b-owner-review.md).
+
+**Minimal current delivery:** documentation/guidance corrections in AGENTS, architecture, owner
+register, canonical runbook, master tracker, decisions, security and the Gate B worksheet only.
+No plugin files,45-file inventory, provider hashes, schema, roles, account records or runtime
+tests change. A later Accounts & Access implementation would add only a permission-checked native
+inventory/read projection and links to existing reviewed flows initially; no public REST/user
+directory, Plesk credential integration, new grant engine or automatic account mutation. Any
+new stored metadata/sensitive capability/action needs its own approved source/storage/privacy
+diff, tests and version/pin. Neither that future implementation nor a same-UID redesign is
+authorized by this documentation correction.
+
+Validation for this correction:119 relative documentation links/new anchors, all24 pinned custom
+file hashes and unchanged plugin/tests/release manifests verified; whitespace and added-text
+privacy checks passed. Existing local deployment/backup guards22, mocked Plesk checks6 and
+preflight units14 passed. No feature/runtime regression suite was rerun and no farm-server call
+was made. This validates the design/document delivery, not a working new dashboard or account.
+
 ## Issue #14 security candidate — local only
 
 Scheduling0.4.0 and separate csf-mfa0.2.0 retain schema3/15 tables and the existing calendar,

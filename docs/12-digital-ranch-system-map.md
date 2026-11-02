@@ -1,23 +1,19 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
-**Owner update — November 2, 2026 (after preflight):** Kris states he controls the existing sole WordPress Administrator
-login and also uses it through Plesk's WordPress management feature. **Preserve and reuse that
-existing WordPress account by default**, rather than creating a duplicate Kris login; native
-WordPress Administrator and future Digital Ranch Farm Master are still separate privileges.
-Actual numeric ID, independent MFA/recovery and finite ownership ceremony remain private,
-separately approved release checks. **Technical blocker:** the currently pinned finite
-bootstrap requires separate operator and proposed-owner WordPress IDs, so the single existing
-Kris Administrator identity cannot fill both roles. Either approve an independently verified
-separate technical operator, or design and locally test an independent one-owner/one-admin
-ceremony before changing the source pin. No duplicate Kris login or implicit Beth
-Administrator promotion is authorized. Verify Plesk WordPress management/SSO compatibility before
-enabling mandatory MFA because app-password/XML-RPC routes may be disabled; no claim is made
-about how Plesk authenticates. The owner also reports likely logging in during the read-only
-inspection, a plausible benign source of the changed `options` digest. **The specific change
-is unproven and no incident is established.** Obtain a fresh, consistent change-window baseline,
-review critical configuration, and only escalate unexpected security-sensitive changes;
-no broad forensic investigation or database repair is automatically required. Gate B, accounts,
-backup/restore and installation remain individually held. See [owner worksheet](pilot/gate-b-owner-review.md).
+**Account-model correction — November 2, 2026:** [owner instructions](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6584204812)
+distinguish the Plesk-created technical WordPress Administrator, HTTP Basic Auth site gate,
+proposed Kris Farm Master business account and Beth's future staff account. Prior statements
+reusing the technical admin as Kris's business identity are superseded. Its human controller/UID
+and MFA remain privately unverified; no login/email is published. Recommend retaining technical
+admin unchanged and separately approving a Kris Subscriber business account plus Beth's staff
+identity. That fits the existing distinct-ID, independently authenticated bootstrap at source
+`2fd02a2`; no code, schema or release-pin change is needed. Different accounts do not themselves
+prove different humans. [Canonical inventory/bootstrap/UI proposal](01-architecture.md#accounts--access--corrected-identity-model-november-2-2026)
+adds **Accounts & Access design only**, reusing Team & Permissions and exposing no factors or
+native admin power through farm roles. Plesk/Toolkit compatibility, private identity/recovery,
+human-independence policy and all Gate B approvals remain open. The options digest has no proven
+key/writer or established incident; review critical settings/fresh baseline without automatic
+repair. This correction made no server calls or account/MFA/security/site changes.
 
 **November 2 — Gate B readiness:** [current read-only sandbox assessment](test-results/gate-b-readiness.md)
 completed against documentation head `1fe8947`, retaining implementation `2fd02a2`. Expected

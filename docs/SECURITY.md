@@ -1,5 +1,23 @@
 # Security and operational boundaries
 
+## November 2 identity correction
+
+HTTP Basic Auth is a web-server access gate, not a WordPress identity, farm role or MFA proof.
+Plesk/Toolkit management identity, its installed technical WordPress administrator, Kris's
+proposed separate business identity and Beth's staff identity must be mapped/verified separately.
+No username/email matching, Plesk screenshot or control-panel access establishes a person's WP
+UID, current factor proof or farm ownership. Native WordPress Administrator does not grant a
+Plesk account, and WordPress MFA does not secure the hosting control plane.
+
+The technical account's controller/numeric ID remain private and unverified. Recommend keeping
+it for maintenance and separately approving Kris's Subscriber/Master business account; preserve
+the existing distinct-UID browser approval protocol. Separate accounts are not proof of separate
+humans; privately establish the owner's required independence, recovery and integration policy.
+Do not relax source checks, promote Beth, create a throwaway admin or copy factor proofs to solve
+an inferred identity problem. [Accounts & Access](01-architecture.md#accounts--access--corrected-identity-model-november-2-2026)
+is a local design, not a deployed UI or new grant path. Exact identities, screenshots and secrets
+stay out of Git/chat; current-session authentication is shown only for the requesting identity.
+
 ## Current Issue #14 override — no protected execution
 
 The [local security release](test-results/scheduling-security.md) supersedes earlier unresolved

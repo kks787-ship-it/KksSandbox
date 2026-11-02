@@ -91,42 +91,50 @@ separate decisions. See the current owner package and permission release report.
 
 **This register does not start collection of cards, signer data, new WordPress accounts, real invoices or executed releases.** Every actual provider, template, portal, signature and payment launch requires its own protected deployment, legal/financial and owner approval.
 
-## Existing WordPress administrator and Plesk access — November 2, 2026
+## Corrected account layers and owner decisions — November 2, 2026
 
-**Owner-confirmed account relationship:** The sole current WordPress Administrator account is
-controlled by Kris and is also used to manage WordPress through Plesk. The owner said they
-likely logged in while the latest read-only Gate B inspection was running. This is owner
-attestation about the login controller, **not a verified numeric account ID, proof of independent
-MFA, validated Plesk authentication mechanism or identified changed database option**.
+Source: [owner clarification on Issue11](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6584204812).
+The reported Plesk screenshot concerns the **WordPress Administrator created at installation**;
+the owner's separate protected-site login is **HTTP Basic Authentication**, not that WordPress
+administrator. Neither literal login, private recovery email nor screenshot is reproduced here.
+The screenshot does not verify the human controller, numeric WordPress ID, factor enrollment or
+an ownership approval. Plesk control-panel access is also separate from native WordPress roles.
 
-**Current planning decision:** Preserve Kris's existing native Administrator account, and
-**do not create a duplicate Kris Subscriber account by default**, rename/demote/promote this
-Administrator or grant it Digital Ranch Farm Master simply from existing WordPress privileges.
-A Farm Master may be linked to the same verified numeric WordPress ID only after the separately
-approved ownership ceremony and MFA/recovery. Beth needs her own individually verified identity
-and scoped permissions. Exact usernames, private login/recovery emails, numeric IDs, passwords,
-MFA factors and recovery materials belong only in an approved private record, not this file.
+**Superseded:** recent planning statements identifying the sole WordPress Administrator as
+Kris's business login, treating that identity mapping as resolved, or preferring reuse of that
+same UID for Farm Master. Those statements remain in historical commits; they are not current
+instructions. Do not create or link an account from a Basic Auth name or inferred email match.
 
-**Master bootstrap two-identity limitation:** Pinned scheduling v0.4.0 code currently
-rejects a Farm Master invitation when the proposed owner and technical operator have the
-same WordPress numeric user ID. Reusing Kris's existing Administrator account for his
-eventual Farm Master role remains the preferred **account-identity** outcome, but requires
-a separately verified independent technical operator or a secure, locally tested and
-owner-approved one-owner bootstrap redesign. **Do not** create a duplicate Kris login
-or confer Administrator rights on Beth just to satisfy this condition; no bypass is
-authorized. See current [Gate B decision package](pilot/gate-b-owner-review.md).
+**Recommended for owner review:** retain the existing Plesk-created WordPress technical
+Administrator unchanged for maintenance; separately approve an individually controlled native
+Subscriber account for Kris's Digital Ranch business role and an independent Beth staff account.
+Kris becomes protected Farm Master only after the existing separately approved bootstrap. This
+is intentional maintenance/business separation, not permission to create duplicate or throwaway
+accounts. No extra administrator or Beth promotion is proposed. Human controllers and exact
+private account mappings are still unverified. Existing accounts may be used only after their
+actual identities/purposes and approved reuse are privately established.
 
-**Plesk compatibility gate:** Owner confirms use of Plesk's WordPress management integration.
-Before mandatory admin MFA enforcement (which blocks WordPress application passwords and
-authenticated XML-RPC), determine whether its actual management/login/SSO flow depends on the
-changed authentication pathways, test safely with approved recovery, and preserve existing
-management access. Do **not** infer Plesk's particular implementation from account reuse.
+| Decision | Current position / owner choice still required |
+| --- | --- |
+| Existing technical WordPress administrator | Preserve native role and Plesk relationship; privately verify controller, UID, maintenance authority and recovery. No farm membership inferred |
+| Kris's business identity | Approve/revise separate Subscriber business account and private login/recovery details; no values have been chosen, published or provisioned |
+| Beth's identity and scope | Independently verified Subscriber plus reviewed Head Trainer/individual choices, no native WordPress admin |
+| Human independence | Different UIDs and MFA sessions establish account separation, not two people. Decide whether operator and owner must be independently controlled by different people and privately verify that requirement |
+| Current bootstrap | Keep distinct operator/owner IDs, own fresh MFA, finite exact-action invitation, atomic/idempotent audit. Same-UID redesign is not recommended for this pilot and would require new security review/tests/source pin |
+| Accounts & Access UI | Approve/revise the proposed inventory, separate native/farm permissions, enrollment versus own-session proof, recovery-readiness status and restricted technical audience; **not implemented** |
+| Plesk management / SSO | Dependency to protect, precise mechanism unverified. Test maintenance/login/MFA/recovery only in a separately approved recoverable window; do not weaken MFA to preserve a password-only path |
+| MFA, custody and notifications | Separately approve exact provider, individual enrollment, recovery custody, privileged enforcement and security notifications; HTTP protection is not the second factor |
+| Actual execution | All account, backup/restore, provider/security, source/schema, ownership, employee grants and pilot changes remain held independently |
 
-**Options digest:** An unchanged row count (163) and mismatched full-table hash occurred
-while the owner reports probable login activity. Normal WordPress/Plesk activity is a plausible
-explanation; the changed option and actual writer are **not confirmed**. No compromise is
-established by this observation. At an approved change window, check critical site/security
-settings and capture a consistent new baseline. If security-critical options differ
-unexpectedly, investigate those specific changes. Do not force a hash match or restore
-old WordPress options. Gate B remains held; no backup/install/account/security action has
-been authorized here.
+The existing Scheduling0.4.0 validator's distinct-UID constraint fits the recommended separate
+technical/business account model. It does **not** authorize the existing admin as operator by
+inference, prove two independent humans or grant any actual farm ownership. No source change
+is required by the recommended model. See [canonical account/UI/security design](01-architecture.md#accounts--access--corrected-identity-model-november-2-2026)
+and [single Gate B worksheet](pilot/gate-b-owner-review.md).
+
+**Options digest context retained:** the prior163-row options digest difference remains real;
+reported backend/Plesk activity is a plausible ordinary explanation but the exact key/writer is
+unknown. No incident is established, no broad forensic investigation or database repair is
+implied, and no older options table should be restored to force a match. Check critical settings
+and obtain a fresh consistent change-window baseline before any approved write. This correction
+performs no server reinspection or change and does not resolve the historical drift's attribution.

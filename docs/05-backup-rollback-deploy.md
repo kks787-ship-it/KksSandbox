@@ -9,6 +9,16 @@ Implementation remains `2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`, Scheduling0.4
 adapter0.2.0 and official Two-Factor0.17.0. Historical commands/version plans below are not
 authority for the current release. The readiness assignment did not execute these steps.
 
+**Account-model correction:** HTTP Basic Auth is not the Plesk-created WordPress technical
+administrator or a farm identity. Its human controller/UID remain privately unverified.
+Recommend preserving that native admin for maintenance and separately approving Kris's
+Subscriber business identity plus Beth's staff identity. This fits the existing distinct-UID
+bootstrap; no new admin or same-UID exception is proposed. Different accounts do not prove
+independent humans: owner must decide/verify controller independence before O-Master.
+[Canonical account/bootstrap/UI design](01-architecture.md#accounts--access--corrected-identity-model-november-2-2026)
+and the current owner worksheet supersede recent same-account reuse assumptions. No server
+reinspection or change was performed for this local correction.
+
 ### Ordered checkpoints for separately authorized windows
 
 1. **Private verification:** owner confirms the technical administrator, distinct Kris/Beth
@@ -16,9 +26,10 @@ authority for the current release. The readiness assignment did not execute thes
    logins/evidence in the approved private record. Confirm HTTP Basic Auth access, trusted
    recovery route, security notifications, external API/Toolkit dependencies and update custodian.
    Zero current application passwords does not approve disabling an unrecorded integration.
-   Review the observed options-table digest drift (11 other tables/all4,479 files matched) and
-   resolve unexplained concurrent activity before freezing a fresh baseline. No automatic repair
-   or attribution is justified by aggregate snapshots.
+   Review critical settings and a fresh consistent baseline after the prior options digest
+   difference (11 other tables/all4,479 files matched). Reported backend activity is plausible,
+   not a proven cause or incident. Investigate unexpected sensitive differences; no broad
+   forensic investigation, automatic repair or forced hash match is required by aggregate drift.
 2. **R-Backup, then R-Restore:** authorize each separately for the exact sandbox root/URL,
    `wp_mdf4x`/`TXGEh_`. Freeze unrelated owner edits, capture current file/table/content/options/
    role/authentication baselines and a fresh DB/wp-content/root/config/salts recovery bundle.
