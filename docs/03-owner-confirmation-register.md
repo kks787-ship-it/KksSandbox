@@ -69,3 +69,24 @@ candidate 19-file source pin, schema 3/15 tables, fresh backup/recovery and acce
 proposal before Gate B. The historical 0.2.1 pin remains evidence, not permission for old grants.
 Actual facility/pilot policies, protected-stack/device acceptance and later real use remain
 separate decisions. See the current owner package and permission release report.
+
+## Client intake, legal agreements, scheduling checkout and payments — product approval vs. execution
+
+**Owner's November 2026 requirement is approved as a PRODUCT GOAL, not as legal terms, payment terms or deployment permission.** A family must be able to complete correct intake and releases before the first lesson, ideally paying when booking. A boarding/training owner must complete horse intake, executed agreements and initial financial arrangements before horse arrival. One household needs multiple riders, horse owners and payers. Beth should not collect signatures/payments at lesson time; Kris should manage exceptions. [Single combined specification](14-client-readiness-onboarding-payments.md), [onboarding #15](https://github.com/kks787-ship-it/KksSandbox/issues/15), [billing #16](https://github.com/kks787-ship-it/KksSandbox/issues/16) and [client booking #17](https://github.com/kks787-ship-it/KksSandbox/issues/17).
+
+| Owner decision still required | Current position (do not publish/execute without approval) |
+| --- | --- |
+| Executable legal waiver/hold-harmless, adult vs. minor guardian/signer authority | Washington equine counsel review required; prior PDFs are only candidates. Separate optional photo/video permission. |
+| Exact agreement set and signature levels by service | Parent/guardian, horse-owner and payer may differ; avoid duplicate household intake, but separate necessary signers. |
+| Board/training contract notice and first-payment/deposit terms | Amounts, rates, grace periods, termination notice, prorations and default consequences unconfirmed; old historical agreements may be stale. |
+| Lesson/camp cancellation and makeup policy | 48-hour cancellation is an owner-requested policy direction; fee/refund/credit terms, weather/fire/smoke/horse welfare exceptions still need a finalized signed policy. |
+| Current service catalog and prices | Private lesson known as $60/hour in Nov 2026 planning, but every new online price, package/camp/Academy/billing rate requires confirmation. |
+| Lesson booking payment logic | Owner wants payment at scheduling; approve whether deposit/full prepay, staff-approved hold then checkout, card on file, package redemption or later instant booking for each service. No public self-booking approval yet. |
+| Payment provider / merchant account | Unselected for Digital Ranch. Compare Stripe, Square and previous camp PayPal usage against hosted checkout, recurring board auto-pay and fees; separate nonprofit accounting and merchant authority. |
+| Autopay and stored payment-method consent | Optional explicit written client authorization, payment timing, variable fee/extras/proration handling, retries and opt-out; no card numbers on farm server. |
+| Client portal identity, adult/guardian invitations, consent and privacy | Authorize account/email delivery setup, restricted PDF storage, optional secure verification, document retention, access and legal hold. Public inquiry remains disabled. |
+| Staff/readiness exception powers | Define which verified staff may approve a safe emergency horse arrival, payment exception, duplicate signer correction or document review. Don't bypass legal signature or horse welfare by a generic override. |
+| Tax, insurance, legal entity and nonprofit boundaries | Review merchant entity, CSF Riding Program scholarship/nonprofit separation, invoicing/tax treatment, privacy compliance and insurance requirements. |
+| Public booking/payment launch timing | Remains **NOT AUTHORIZED**; Acuity canceled and Contact Beth to Schedule remains unchanged. Gate B and admin MFA continue independently. |
+
+**This register does not start collection of cards, signer data, new WordPress accounts, real invoices or executed releases.** Every actual provider, template, portal, signature and payment launch requires its own protected deployment, legal/financial and owner approval.
