@@ -298,3 +298,16 @@ the Issue #13 report. M-Choice is a selection decision, not M-Install/M-Adapter/
 The provider ZIP/source-build choice, mandatory WordPress-admin enforcement, safe master identity
 handoff and protected-stack compatibility remain blockers. None of A/M/I/O/G/C/D/T is approved.
 Earlier 0.2.1/0.3.0 tables and source pins are historical evidence, never execution authorization.
+
+## Issue #14 owner-approval hold — mandatory WP admin MFA and safe Master bootstrap
+
+**Current technical candidate (LOCAL ONLY):** Scheduling 0.3.1 / schema v3 / 15 tables at [2c08321](https://github.com/kks787-ship-it/KksSandbox/commit/2c08321d98566bc50ccb6d62712abf798cc16d0d), separate `csf-mfa` 0.1.0 and proposed WordPress Two-Factor 0.17.0. The [current validation](../test-results/scheduling-mfa.md) reports 732 scheduling assertions, 16 MFA prerequisite assertions, 198 browser checks and 86 PHP files in disposable fixtures. [Issue #13](https://github.com/kks787-ship-it/KksSandbox/issues/13) is closed as **local code complete**, NOT installed. The exact historical code/source pins and Gate A evidence are preserved. 
+
+**New execution blockers tracked as [Issue #14](https://github.com/kks787-ship-it/KksSandbox/issues/14):**
+
+1. Complete and test a **one-use, operator/owner independently authenticated Master bootstrap/recovery handoff**. The previous CLI gate **correctly cannot** present proof of a browser MFA challenge; nobody may set a fake filter, bypass flag or WordPress role to bootstrap owner privileges.
+2. **Require MFA for privileged WordPress administration**, not merely Digital Ranch. WordPress Two-Factor 0.17.0 is current and compatible by published minimum versions, but its ordinary configuration does not independently mandate enrollment for all admins. Protect/review alternate login and app-password paths, the sole existing unknown administrator account, enrollment, recovery and last-admin lockout.
+3. Verify the exact **official two-factor.zip release bytes** (vendor metadata: 91,837 bytes, SHA-256 `59d7c75f57966b93cc59657a0c14d58f247ba6f350b081c8602b3cacdc51e473`) and extracted file inventory. This digest is the **published GitHub metadata**, not an independent hash of downloaded bytes; existing local fixtures used a separately reviewed reconstructed source distribution. Do not silently substitute or disable provider integrity checks.
+4. New immutable code source/release hashes, updated exact plugin/MFA/provider file and option/user-meta changes, specific owner M-Choice/M-Install/M-Adapter/M-Enforce and A/O/G/P/I/D/T permissions, Gate A freshness/restore and real protected WP7.1.4/PHP8.3.36/MariaDB10.6.23/Plesk/Basic Auth checks all remain **separate owner decisions**.
+
+**No Gate B approval is granted or implied.** No provider installation, login setting, WP account creation, MFA enrollment, Master bootstrap, scheduling activation/migration, staff provisioning, fictional pilot, real horse/client record, production, inquiry or emergency changes. If Issue #14 cannot close the security gaps, retain default deny and request an alternate reviewed design rather than bypassing controls.
