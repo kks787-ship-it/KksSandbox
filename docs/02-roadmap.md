@@ -66,17 +66,56 @@ the production domain until the owners approve the replacement.
 - `csf-assist`: assistance request record, responder form, dispatch dashboard,
   offered-vs-committed capacity counters, no automatic dispatch
 
-## Phase 4 — Onboarding & agreements
+## Phase 4 — Client readiness: onboarding, digital agreements and pre-arrival clearance (Issue #15)
 
-- Household accounts with multiple riders and emergency contacts
-- Agreement templates (legally reviewed) with version tracking and e-signature
-- Service gating: a rider or horse cannot be marked active for a service until the required
-  agreement version is signed
+**Owner requirement added November 2026; PLANNED ONLY, NOT BUILT.**
+[One integrated blueprint](14-client-readiness-onboarding-payments.md) joins onboarding,
+service-specific legally reviewed e-signatures, protected scheduling and payment status without
+copying private records across modules.
 
-## Phase 5 — Portals
+- One verified **household** with multiple adults/guardians, minor/adult riders,
+  emergency contacts, payer(s), horse owner(s)/authorized agents and 0+ horses; save/resume
+  and no re-entering the same household intake on every lesson.
+- Send only the required adult/minor liability/hold harmless, instruction, boarding,
+  training, leasing, sales and camp agreements for selected services, with correct
+  signer authority, opt-in media consent separate from mandatory documents, immutable
+  approved template versions, complete signed PDFs, audit/counter-signature and expiry.
+- **Pre-arrival gating**: 'Ready to Ride' and 'Ready for Horse Arrival' are computed from
+  executed legal evidence + verified authority/guardian and approved safety/care
+  prerequisites + applicable finance status, never inferred from a booked slot or a
+  paid invoice alone. Missing paperwork remains 'Not Cleared'; unexpected horse-care
+  emergencies have a documented welfare-first exception.
+- Signing legal templates requires qualified Washington counsel review of RCW 1.80
+  e-signatures and RCW 4.24.530/.540 equine liability, including minors and boarding
+  terms; historical agreements/old prices/notice periods are not approved by default.
+- The source of truth for contract execution lives in a distinct csf-onboarding module,
+  linked through stable IDs to scheduling and payments. **Existing manual rider evidence
+  checkboxes are not an electronic-signature system**.
 
-- Client portal, horse-owner portal, staff portal, with per-record authorization
-- Horse sales and leasing listings with inquiry forms
+## Phase 4B — Invoicing, processor checkout and auto-pay (Issue #16)
+
+**PLANNED, NOT BUILT.** Implement a separate owner-approved csf-billing module for
+hosted provider checkout, per-household/horse/service invoices, package balances,
+lesson prepayment, deposits, recurring board/training invoices, optional consented
+card/ACH auto-pay, receipts, statement/aged receivables, ledger and reconciliation.
+Refunds, cash/check payments, charge disputes, partial payments and smoke/horse welfare
+cancellation exceptions must retain separate auditable states. Payment processor
+(Stripe/Square/PayPal candidate) is **not selected**; do not store card details or
+initiate live charges. Separate nonprofit program financial identity/merchant records.
+
+## Phase 5 — Client/horse-owner portal and controlled scheduling (Issue #17)
+
+- Portal for each authorized adult household, horse owner, payer and guardian with
+  relevant appointments, document/signature status, invoices, receipts, program credits,
+  rider/horse readiness and staff review requests, with strict per-record authorization.
+- Initial path: **Beth/Kris confirm appointments**, clients sign/pay using a secure
+  completion/checkout link. Optional public client request/instant self-booking only
+  after explicit owner approval of availability/safety, privacy, payment and security
+  constraints; one canonical scheduling engine with resource collision prevention.
+- Acuity canceled. **Public Contact Beth to Schedule must remain unchanged until a
+  separate public booking launch is authorized.** Inquiry form remains disabled.
+- Horse sales and leasing listings with authorized contract/owner proof and later
+  service-specific inquiry/inventory workflows.
 
 ## Phase 6 — Growth
 
@@ -96,8 +135,7 @@ audit/outbox consistency, permanent token reservation, coordinator security and 
 concurrency tests precede operational approval. The [proposed persistence fix](DECISIONS.md#proposed-emergency-concurrency-fix--design-before-operational-approval)
 remains a design, not an implemented notification or evacuation system.
 
-Onboarding, legally reviewed agreements, records and portals remain separate future phases.
-Do not rebuild the 21-page site or combine the management roadmap into a giant plugin.
+Onboarding, legally reviewed agreements, client payment/recurring billing, and portals are now explicitly designed as [Issue #15](https://github.com/kks787-ship-it/KksSandbox/issues/15), [Issue #16](https://github.com/kks787-ship-it/KksSandbox/issues/16), and [Issue #17](https://github.com/kks787-ship-it/KksSandbox/issues/17), with a [joined client-readiness blueprint](14-client-readiness-onboarding-payments.md). **They are not built or operational**, and the old calendar MVP deliberately excludes public booking and payment. Design can proceed in parallel with security Issue #14; protected installs and merchant/personal data require distinct approval. Do not rebuild the 21-page site or combine the management roadmap into a giant plugin.
 
 Gateway preparation is complete: original hardened configuration and full backup at the private
 csf-sandbox-backup-20261031 directory, structural 12-table/4,336-file restore, private d360dbf
