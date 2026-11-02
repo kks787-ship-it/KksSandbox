@@ -1,0 +1,115 @@
+{
+  "comparison": "manifest-derived; destination verified absent; no rsync executed",
+  "source": "6f5a9bf51747399a309b39637a135841fe4cf2a1",
+  "plugin_tree": "893edbe31278946aa2aaa830a56d5d1812b87323",
+  "added": 15,
+  "replaced": 0,
+  "deleted": 0,
+  "files": [
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/assets/staff.css",
+      "git_blob": "a240c1f68b215a4a8cfbb9a5e9017fd7e08b3d8f",
+      "sha256": "3051d46a062d0a245d19d3ba2028ae5e499c14ffe0360b86fe4cc1db268e4ab1",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/assets/staff.js",
+      "git_blob": "6b29e6a3f5a379bf338af908db6ddc9c9c5f5043",
+      "sha256": "2f474873bcd6b700bfde47ae226d71a3d3fa3a06ec4cc7bcea534bf376806e76",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/csf-scheduling.php",
+      "git_blob": "def0715dc4638bd915b4caac7eaf2275abbe8e6a",
+      "sha256": "6e60bf7df6e0089662118581dd950d8c5151bebf6fcf93c7a9047c9123e8b67a",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-access.php",
+      "git_blob": "184e9b92412dc3766d4200f3793ea8bf2c7cd355",
+      "sha256": "db98448525502043706c32ea21b17ec5691b033c83f864c6b5511575f4fa5c49",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-admin.php",
+      "git_blob": "a5c70e7ff5db874e6195569710263b45103e1f18",
+      "sha256": "35b23cfa7f9d1bd8ddcdddab7d24fbb5a3a63299a75be4ea6503a698805eb61e",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-audit.php",
+      "git_blob": "f68b0e43dc58dda60e195a97906f51223f95af8d",
+      "sha256": "6108e49007b383649b0a49bacd89481cf185b8fb6598e8dba855dba9606a6326",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-calendar.php",
+      "git_blob": "e7008474c2593882b8be3f109a2714d5a4146945",
+      "sha256": "8b0042df3fa86fe709cc01b9fb5477abbe9bf8b7a9674625eb7d0c9eb946a157",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-cli.php",
+      "git_blob": "47d1f7904a44f3050facfb40ff047ca675a173ec",
+      "sha256": "c3b3070e6807f6f7285ed8ca9ddbcb42475442538b4330f3c624ae3500fe496e",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-conflict.php",
+      "git_blob": "ac09cbc27363afc829bf7c22cc2e81a4155c5051",
+      "sha256": "75fba13414d029aae6c27396ff4cfe80780fcc72a391f02cb13a6c98873c51c1",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-diagnostics.php",
+      "git_blob": "3d99a3ecdba3babcc101c78224c4a2a2d74c21e9",
+      "sha256": "46228d1eda22969de5e73c27e4cf72f55b7ab1fe0861fe89f769149cc88325f7",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-policy.php",
+      "git_blob": "6bd9992752b64148e0fe8592059c6a200daa310b",
+      "sha256": "3ee1193b5251fc11de9d74e72267b310c345c8eee956c690dc8a92ba5e34214a",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-schema.php",
+      "git_blob": "53130cf496107f632ed9da76bb8565d56fc52c5f",
+      "sha256": "066d32a1687fd26d1c86387ffc5f58773abeacad3d4c6ce7b8d6c8a0f4c9ad59",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-store.php",
+      "git_blob": "d80018e253e3ae2c4b0b99d1862dec411c2ecacd",
+      "sha256": "a7d0ee5fc3f671e849693898aff5dcae4f20f03dd6bffc60ab2d46382202d6b5",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-time.php",
+      "git_blob": "307b0509352d38ca080ca2973326d837541528a6",
+      "sha256": "cef24403a438357626d968c21d72699aebdeb56784856efdb32ef94866b81279",
+      "mode": "0644"
+    },
+    {
+      "change": "add",
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-ui.php",
+      "git_blob": "d17b0cc209f6d14a0edc534d610600d42963e5da",
+      "sha256": "4722ffc49f526f0f92514459c23e30372b23b615e596a06c05fd663455c2f2ac",
+      "mode": "0644"
+    }
+  ]
+}

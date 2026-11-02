@@ -1,0 +1,80 @@
+{
+  "checked_at_utc": "2026-11-02T00:28:05+00:00",
+  "source_pin": "6f5a9bf51747399a309b39637a135841fe4cf2a1",
+  "plugin_tree": "893edbe31278946aa2aaa830a56d5d1812b87323",
+  "wordpress": "7.1.4",
+  "php_cli": "8.3.36",
+  "mariadb": "10.6.23-MariaDB-0ubuntu0.22.04.1",
+  "kadence": "1.5.2",
+  "database": "wp_mdf4x",
+  "prefix": "TXGEh_",
+  "active_plugins": [
+    "csf-core/csf-core.php"
+  ],
+  "scheduling_tables": [],
+  "user_account_count": 1,
+  "staff_identities_verified": false,
+  "mfa_verified": false,
+  "public_content_rows": 59,
+  "public_content_baseline_equal": true,
+  "settings_rows_hash": {
+    "sha256": "e12a82fddc66ec6d859e69fe62e36076284ea27a1fdad4911cb37faa58ecd5f0"
+  },
+  "settings_baseline_equal": true,
+  "baseline_counts": [
+    {
+      "post_type": "attachment",
+      "post_status": "inherit",
+      "records_count": "9"
+    },
+    {
+      "post_type": "nav_menu_item",
+      "post_status": "publish",
+      "records_count": "25"
+    },
+    {
+      "post_type": "page",
+      "post_status": "draft",
+      "records_count": "1"
+    },
+    {
+      "post_type": "page",
+      "post_status": "publish",
+      "records_count": "22"
+    },
+    {
+      "post_type": "wp_navigation",
+      "post_status": "publish",
+      "records_count": "1"
+    }
+  ],
+  "resource_permissions": [
+    {
+      "path": "/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com",
+      "uid": 10007,
+      "gid": 1002,
+      "mode": "0750",
+      "symlink": false
+    },
+    {
+      "path": "/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com/wp-content/plugins",
+      "uid": 10007,
+      "gid": 1003,
+      "mode": "0755",
+      "symlink": false
+    },
+    {
+      "path": "/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com/wp-config.php",
+      "uid": 10007,
+      "gid": 1003,
+      "mode": "0600",
+      "symlink": false
+    }
+  ],
+  "inspection_jobs": [
+    "job_01M6CSKZ9800HJGTJESE60ENG4",
+    "job_01M6CTFNQJ00GBGT3EWWDRPE1W"
+  ],
+  "backup_checksum_job": "job_01M6CSNPJ700Q6MN6FC5H1T984",
+  "restore_evidence_job": "job_01M6CSP7RJ00H6Q640J73F2ZRJ"
+}

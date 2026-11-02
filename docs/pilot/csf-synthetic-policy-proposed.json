@@ -1,0 +1,111 @@
+{
+  "timezone": "America/Los_Angeles",
+  "service_hours": [
+    [],
+    [
+      [
+        "09:00",
+        "18:00"
+      ]
+    ],
+    [
+      [
+        "09:00",
+        "18:00"
+      ]
+    ],
+    [
+      [
+        "09:00",
+        "18:00"
+      ]
+    ],
+    [
+      [
+        "09:00",
+        "18:00"
+      ]
+    ],
+    [
+      [
+        "09:00",
+        "18:00"
+      ]
+    ],
+    [
+      [
+        "09:00",
+        "18:00"
+      ]
+    ]
+  ],
+  "services": {
+    "lesson": {
+      "enabled": true,
+      "capacity": 1,
+      "duration_minutes": 60,
+      "horse_source": "either",
+      "requires_travel": false,
+      "required_resources": [
+        "instructor",
+        "arena"
+      ]
+    },
+    "group": {
+      "enabled": true,
+      "capacity": 4,
+      "duration_minutes": 60,
+      "horse_source": "school",
+      "requires_travel": false,
+      "required_resources": [
+        "instructor",
+        "horse",
+        "arena"
+      ]
+    },
+    "haul_in": {
+      "enabled": true,
+      "capacity": 1,
+      "duration_minutes": 60,
+      "horse_source": "client",
+      "requires_travel": false,
+      "required_resources": [
+        "instructor",
+        "arena"
+      ]
+    },
+    "off_site": {
+      "enabled": true,
+      "capacity": 1,
+      "duration_minutes": 60,
+      "horse_source": "client",
+      "requires_travel": true,
+      "required_resources": [
+        "instructor",
+        "location"
+      ]
+    },
+    "horse_training": {
+      "enabled": true,
+      "capacity": 1,
+      "duration_minutes": 60,
+      "horse_source": "school",
+      "requires_travel": false,
+      "required_resources": [
+        "instructor",
+        "horse"
+      ]
+    }
+  },
+  "workload": {
+    "daily_minutes": 300,
+    "consecutive_minutes": 120,
+    "break_minutes": 15
+  },
+  "training_horse_cap": 5,
+  "academy": {
+    "enabled": false
+  },
+  "preferred_offsite_day": 3,
+  "travel_buffer_minutes": 15
+}
