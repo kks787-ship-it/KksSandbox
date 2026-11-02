@@ -50,12 +50,8 @@ grep -q 'Exact home/siteurl required' /test/wrong-target.log
 if "${WP[@]}" --user=1 csf scheduling master --user-id=1 --owner-verified --revision=0 --command-id=00000000-0000-4000-8000-000000000011 --expected-url=https://wrong.invalid > /test/wrong-master-target.log 2>&1; then echo 'ERROR: wrong owner-bootstrap URL accepted'; exit 1; fi
 grep -q 'Exact home/siteurl required for owner identity ceremony' /test/wrong-master-target.log
 printf 'MASTER_WRONG_TARGET_DENIED\n'
-PILOT_OWNER_ID="$("${WP[@]}" eval 'echo json_decode(file_get_contents("/test/permissions-fixture.json"),true)["owner"];')"
-for PILOT_MASTER_TARGET in "$PILOT_OWNER_ID" 1; do
- PILOT_MASTER_REVISION="$("${WP[@]}" --user=1 eval 'echo CSF_Scheduling_Schema::settings()["revision"];')"
- PILOT_MASTER_COMMAND="$("${WP[@]}" eval 'echo wp_generate_uuid4();')"
- "${WP[@]}" --user=1 csf scheduling master --transfer --user-id="$PILOT_MASTER_TARGET" --owner-verified --revision="$PILOT_MASTER_REVISION" --command-id="$PILOT_MASTER_COMMAND" --expected-url=http://localhost:8899 > /test/master-transfer-result.json
- done
-printf 'MASTER_GUARDED_CLI_TRANSFER_AND_RECOVERY_PASS\n'
+if "${WP[@]}" --user=1 csf scheduling master --user-id=1 --owner-verified --revision=0 --command-id=00000000-0000-4000-8000-000000000012 --expected-url=http://localhost:8899 > /test/master-retired.log 2>&1; then echo 'ERROR: retired CLI ownership accepted';exit 1;fi
+grep -q 'CLI ownership mutation retired' /test/master-retired.log
+printf 'MASTER_CLI_RETIRED_DENIED\n'
 
 CSF_TEST_ENV=production "${WP[@]}" --user=1 eval '$v=CSF_Scheduling_Schema::migrate();if(!is_wp_error($v)||$v->get_error_code()!=="migration_denied"){WP_CLI::error("Production migration not blocked");}echo "PRODUCTION_MIGRATION_DENIED\n";'

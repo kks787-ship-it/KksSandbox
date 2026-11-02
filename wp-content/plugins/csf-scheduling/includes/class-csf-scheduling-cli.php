@@ -95,20 +95,7 @@ class CSF_Scheduling_CLI {
 	public function master( $args, $assoc ) {
 		if ( empty( $assoc['expected-url'] ) || get_option( 'home' ) !== $assoc['expected-url'] || get_option( 'siteurl' ) !== $assoc['expected-url'] ) {
 			WP_CLI::error( 'Exact home/siteurl required for owner identity ceremony.' ); }
-		$id = $assoc['user-id'] ?? '';
-		if ( ! preg_match( '/^[1-9][0-9]{0,9}$/D', $id ) ) {
-			WP_CLI::error( 'Verified numeric identity required.' ); }
-		$this->result(
-			CSF_Scheduling_Store::permissions(
-				isset( $assoc['transfer'] ) ? 'master_transferred' : 'master_bootstrapped',
-				array(
-					'user_id'        => (int) $id,
-					'owner_verified' => isset( $assoc['owner-verified'] ),
-				),
-				$this->revision( $assoc ),
-				$assoc['command-id'] ?? ''
-			)
-		);
+		WP_CLI::error( 'CLI ownership mutation retired. Use the independently approved browser ownership ceremony.' );
 	}
 
 	/** Replace policy from a private JSON file.

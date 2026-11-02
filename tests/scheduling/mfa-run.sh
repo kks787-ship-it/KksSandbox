@@ -3,7 +3,7 @@
 set -euo pipefail
 umask 077
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-[[ -f "$ROOT/.wp-local/site/wp-includes/version.php" && -f "$ROOT/.wp-local/mfa-provider/two-factor/two-factor.php" ]] || { echo 'Prepare pinned local WordPress and provider source first.' >&2; exit 1; }
+[[ -f "$ROOT/.wp-local/site/wp-includes/version.php" && -f "$ROOT/.wp-local/mfa-official/two-factor/two-factor.php" ]] || { echo 'Prepare pinned local WordPress and provider source first.' >&2; exit 1; }
 D=(docker --host=unix:///var/run/docker.sock)
 # Keep other fixture lifecycles from changing network interfaces during browser assertions.
 exec 8>"$ROOT/.wp-local/docker-fixture.lock"
@@ -30,7 +30,8 @@ done
 sleep 2
 exec 9>"$ROOT/.wp-local/browser-relay.lock"
 flock 9
-CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/mfa-browser.js"
+if [[ "${CSF_TEST_SECURITY_ONLY:-0}" != 1 ]]; then CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/mfa-browser.js";fi
+if [[ "${CSF_TEST_SECURITY:-0}" == 1 ]]; then CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/security-browser.js";fi
 flock -u 9
 "${D[@]}" exec -e CSF_TEST_MFA_DISABLED=1 "$STAMP-web" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'if(CSF_MFA_Session::ready()||CSF_MFA_Session::enrolled(true,1)||CSF_MFA_Session::verified(true,1)){throw new RuntimeException("disabled adapter granted access");}echo "MFA_DISABLED_DEFAULT_DENY_PASS\n";'
 "${D[@]}" exec "$STAMP-web" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'global $wp_version;echo "MFA_STACK WordPress=".$wp_version." PHP=".PHP_VERSION." SQL=".$GLOBALS["wpdb"]->db_version()."\n";'

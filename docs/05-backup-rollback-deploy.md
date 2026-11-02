@@ -1,5 +1,46 @@
 # 05 — Backup, Rollback & Deployment
 
+## Issue #14 release preparation — no execution approval
+
+Current local scheduling0.4.0/csf-mfa0.2.0 candidate uses the actual verified official
+Two-Factor0.17.0 ZIP, unchanged scheduling schema3/15tables, and an exact45-file combined
+distribution (20 scheduling,4 adapter,21 vendor). Read the [security report and release
+inventory](test-results/scheduling-security.md) and **current override** in the [single GateB
+decision package](pilot/gate-b-owner-review.md). Historical source/installation proposals below
+are not execution authority for this candidate. No general deploy script is changed or reused
+to install these plugins without a separately approved exact comparison.
+
+GateB is held: A-person/operator, M-choice/files/adapter/enrollment/enforcement/recovery/update,
+I-files/schema, O-master, G-person, P-policy, C/D-fictional records and T-protected acceptance
+remain independent. Mandatory admin MFA is a separate default-off setting, not activation's
+side effect. The old CLI ownership bootstrap/transfer is retired; never set its flag as recovery.
+
+Before an authorized change, inspect the exact sandbox URL/root/DB/prefix and active plugins,
+PHP/SQL/WordPress/Kadence/proxy/caching stack. Compare all45 proposed file hashes against current
+target without touching unrelated directories. Confirm fifteen exact owned schema3 tables and
+native users/usermeta/options are InnoDB. Back up DB/wp-content and securely recoverable config,
+record timestamps/target/checksums and perform the separately approved isolated functional
+restore/login/page/integrity rehearsal. GateA evidence alone cannot establish fresh rollback.
+No production or shared/unassigned DB enters the plan.
+
+On later authorized execution, install only approved inventory; provider enrollment and
+enforcement need separate identity/recovery verification and fresh real browser MFA. Preview
+and explicitly apply the existing guarded schema3 migration if absent, with a temporary
+authorized migration window closed afterward. No Issue14 physical migration is introduced.
+The finite private ownership invitation is separately approved, exact release/target/policy/
+revision/actor/action-bound, <=600seconds and outside webroot; each independent browser approval
+needs MFA<=300seconds. No shell impersonation, root SQL owner assignment or reusable bypass.
+Resolve uncertain command results by original UUID before repeating a ceremony.
+
+Keep baseline/postchange hashes, schema/options/user-meta diffs, source and actor evidence
+private where sensitive. Repeat mandatory-authentication, owner/employee boundaries and existing
+synthetic calendar/mobile acceptance. No SQL fault injection into the farm DB; use the isolated
+restore. If a check fails, stop further writes. Scheduling-only containment does not authorize
+dropping data, restoring the whole database, modifying public content or disabling MFA. Same-UID
+physical recovery and any full restore each need their own owner-approved incident plan,
+intervening-write reconciliation and post-restore session revocation. No real operational
+records until independent final authorization and Beth/Kris acceptance.
+
 ## Latest approved release — October 31, 2026
 
 The owner approved core-only deployment and the separate scheduling content/settings change.

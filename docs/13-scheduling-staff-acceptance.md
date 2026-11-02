@@ -1,5 +1,22 @@
 # Staff calendar acceptance — Beth and Kris
 
+## Security prerequisite for the current local candidate
+
+For scheduling0.4.0 / csf-mfa0.2.0, the [current GateB decision package](pilot/gate-b-owner-review.md)
+supersedes earlier provisioning/CLI directions below. No protected pilot is approved. Before
+staff acceptance, an independently authorized operator must verify separate real identities,
+MFA/recovery custody, the exact release/schema and granular grants. The owner's finite bootstrap
+requires independent browser MFA approvals; no legacy CLI flag or WordPress Administrator role
+substitutes for ownership. Users complete a fresh factor challenge, not just enrollment.
+
+In the later authorized pilot, record that password-only access cannot use native administration
+or the private calendar, enrolled-but-unchallenged access stays locked, the real owner can open
+Team & Permissions without WordPress administrator rights, employee denials take immediate
+effect and logout/revocation removes access. Verify private recovery-code handling without
+recording codes/seeds/passwords in acceptance notes. Beth and Kris must each personally test
+the calendar tasks below; automation is not their acceptance. Local security results are in
+[the Issue14 report](test-results/scheduling-security.md).
+
 **Sprint #9.1 / Issue #10 · candidate 0.2.1 · synthetic records only.**
 This is a walkthrough for a disposable local fixture or a **separately approved** protected
 sandbox pilot. It does not authorize installation, real appointments or real client data.

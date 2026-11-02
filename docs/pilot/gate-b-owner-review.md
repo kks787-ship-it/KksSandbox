@@ -1,5 +1,80 @@
 # Digital Ranch — Gate B owner decision package
 
+## Current Issue #14 decision override — all execution rows held
+
+**Current local review candidate:** Scheduling **0.4.0** / csf-mfa **0.2.0** / official Two-Factor
+**0.17.0**, unchanged schema3/15tables. The [new security report](../test-results/scheduling-security.md)
+and its exact45-file installation inventory supersede the older candidate specifications below.
+Earlier source pins, reports, GateA recovery and the owner's Issue14 **local development** approval
+are preserved. None authorizes protected changes. The officialZIP is now independently verified
+(91,837bytes; SHA256 `59d7c75f57966b93cc59657a0c14d58f247ba6f350b081c8602b3cacdc51e473`).
+Do not execute the historical CLI bootstrap or substitute earlier source to bypass this review.
+
+Each row can independently be **Approve / Reject / Revise / Hold**; blank means Hold. Approval
+must name its row, exact release/target/values, authorized actor and scope. Selection/review is
+not execution approval, and no row approves its dependencies or successors.
+
+| Row | Concrete proposed change | Current status / owner decision needed |
+| --- | --- | --- |
+| A-Operator | Privately identify the existing technical administrator, numeric UID and recovery custodian; retain existing native role | Hold. Existing account ownership remains unverified; no automatic farm ownership |
+| A-Beth / A-Kris | Separate individually controlled accounts, proposed native Subscriber baseline; no farm grants on creation | Hold separately for each identity/login/private email/UID and handoff; do not reuse public contact information without consent |
+| M-Choice | Select Two-Factor0.17.0 + exact adapter0.2.0 candidate | Hold; selection alone does not install or enroll |
+| M-Install | Install/activate only21 verified vendor files | Hold; exact release comparison, fresh backup/recovery evidence and private access prerequisites |
+| M-Adapter | Install/activate only4 exact adapter files, approve `CSF_MFA_ENABLED=true` | Hold; no enforcement or account enrollment implied |
+| M-Enroll-person | Per-identity enrollment, fresh real challenge, single-use recovery-code rehearsal and private custody record | Hold for each verified person; no shared factor or unsolicited email |
+| M-Enforce | Separately set `CSF_MFA_ENFORCE_ADMIN=true` after enrollment/recovery verification | Hold; acknowledge privileged-web/API impact, disable WP application passwords/authenticated XML-RPC, no bypass for unknown administrators; BasicAuth remains separate |
+| M-Recover-person / M-Notify | Exact same-UID physical recovery procedure / any requested notification | Hold separately; no master replacement, MFA switch-off or automatic email approval |
+| M-Update | Manual monitoring custodian and staged pinned security-update process | Hold; no silent vendor auto-update/hash exception |
+| I-Files | Install only20 exact scheduling files; no core/emergency/theme/media/site-content changes | Hold; source pin, manifest comparison and fresh target-bound backup required |
+| I-Schema | Explicit guarded preview/application of schema3/15tables if still absent; no new Issue14 DDL | Hold; exact current target/prefix, InnoDB/DDL, config migration window, supported SQL/PHP and restore evidence |
+| O-Master | Independently verify proposed Kris owner (not assumed), exact numeric operator/owner IDs and private verification record; approve one finite bootstrap invitation and independent browser ceremony | Hold; protected MFA/recovery prerequisites must pass first. This does not create accounts or farm members |
+| O-Transfer | Any later finite transfer with outgoing-master independent consent | Hold separately, never implied by bootstrap; lost/deleted identities require separately reviewed recovery |
+| G-person / G-group | Exact preset/custom group and individual privilege overrides selected through native dashboard | Hold separately; no equal broad grants to Beth/Kris; master doesn't grant WordPress administration |
+| P-hours / P-capacity / P-welfare / P-restrictions | Review each fictional value against the readable policy table below | Hold; test values are not actual farm policy |
+| C-Policy / D-Fixture | Apply only approved fictional configuration / finite synthetic records | Hold independently; no real customer/horse information |
+| T-Pilot | Protected-stack security/calendar/mobile synthetic tests and Beth/Kris hands-on review | Hold; tests cannot claim owner acceptance |
+| X-Contain | Scope-specific non-destructive containment after a failed approved change | Hold; deactivate scheduling only if explicitly authorized; retain audit/data and MFA enforcement |
+| X-Restore / X-Cleanup | A separately identified restore or destructive cleanup | Hold; reconcile intervening website/user writes first; no blind whole-DB restore |
+
+**Exact proposed footprint:** 20 scheduling +4 adapter +21 vendor files; unchanged15-table
+schema3. Provider/adapter use native options/usermeta for MFA enrollment, attempt state, credential
+epochs and session-bound proofs. Ownership writes existing authorization/history/settings/commands/
+audit and native farm-capability mirrors/session revocations atomically. A private0600 invitation
+outside the webroot is temporary approval scope, not a public file or reusable bypass. No invitation
+for actual people is prepared by this local work. Exact fields, expiry, signatures and tables are
+in the security report and source inventory. No extra role, new WordPress admin right or table is implied.
+
+**Safe execution sequence, only after specific approvals:** privately confirm identities and
+recovery access → fresh target-bound DB/wp-content/config backup plus isolated functional restore
+and reconciled change baseline → exact45-file dry-run comparison → independently approved vendor/
+adapter install/enrollment/enforcement → independently approved scheduling files/schema preview
+and guarded application → fresh MFA/browser proof tests → exact one-use owner bootstrap → approved
+per-person grants/policies/fictional records → synthetic protected acceptance → Beth/Kris own
+hands-on checklist. Never bundle these gates. Use the [canonical runbook](../05-backup-rollback-deploy.md)
+and [staff walkthrough](../13-scheduling-staff-acceptance.md).
+
+**Release/recovery acceptance:** check every source/vendor hash, all15 table definitions and
+InnoDB native security tables; password-only admin must have only own enrollment grace; factor
+enrollment alone must not unlock; test fresh TOTP/backup code, logout/revocation/credential reset,
+native REST/nonces, blocked alternate auth and owner role boundaries. Rehearse separate owner
+approval, denied selfappointment, expiry, outgoing consent, concurrent/exact UUID replay, SQL
+rollback and lost-response status. Then repeat the calendar's private/group/rotation/haul-in/
+welfare/conflict/cancel/clearance scenarios at390/768/1280 on the actual Plesk/Kadence stack.
+Do not inject SQL failures or destructive recovery experiments into the protected sandbox; those
+belong in its separately isolated restore. Preserve native current-master deletion/role guards.
+
+**Rollback:** stop at any mismatch before files/schema; after approved installation, contain
+scheduling without deleting its tables/audit or treating older CLI code as a recovery path. Do
+not disable/remove mandatory MFA merely to regain web access. Use separately approved private
+same-UID physical recovery if factors are lost; maintain enforcement and repeat real MFA. A
+full database/config restore needs its own exact artifact/target approval, reconciliation of
+intervening website/account writes, protected recovery rehearsal and post-restore revocation.
+Earlier code cannot safely read a new authorization policy unless compatibility was tested;
+schema reset/drop is never implied. GateA's existing evidence is not a fresh change backup.
+
+The remaining sections preserve earlier evidence and detailed policy/group choices; where
+versions, counts, CLI or ZIP status differ, **this current override and the new pinned report control**.
+
 **Prepared November 1, 2026 (America/Los_Angeles). Proposal only: every execution decision below is unapproved.** This document is the single review entry point for staff access, MFA, fictional policy and installation. Supporting files are evidence, not additional permissions. No server inspection, backup, installation, account change or configuration change was performed while preparing this package.
 
 Tracker commit **1b9a4182ff0e3229dfac5f945ae5788e732f049a** is preserved as the parent baseline. Historical reviewed scheduling remains **v0.2.1**, source **6f5a9bf51747399a309b39637a135841fe4cf2a1**, plugin tree **893edbe31278946aa2aaa830a56d5d1812b87323**, schema2/14 tables. A documentation commit never substitutes a new source pin.

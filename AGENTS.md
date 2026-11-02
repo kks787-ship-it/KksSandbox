@@ -1,5 +1,15 @@
 # Corner Stone Farm development
 
+Issue #14 current local candidate: scheduling0.4.0 / csf-mfa0.2.0, same schema3/15 tables.
+Read docs/test-results/scheduling-security.md and the current Gate B package override before
+security work. Official Two-Factor0.17.0 ZIP bytes/all21 files are now verified; the Issue13
+source-build limitations below remain historical evidence. CSF_MFA_ENFORCE_ADMIN is a separate
+default-off approval decision, never an implicit deployment setting. Ownership needs a finite
+private invitation and independently MFA-authenticated operator/owner browser approvals (plus
+outgoing master for transfer), not the retired CLI flag. Never re-enable that historical CLI
+ownership path or copy fixture seeding/probes to a farm. GateB identities, MFA files/enforcement,
+source/schema, bootstrap and every pilot write remain independently held.
+
 Continue the existing plugins; do not rebuild without evidence and a documented decision.
 Use the existing checkout in this isolated cloud task; do not create a worktree unless requested.
 Work on a separate development branch; preserve Claude's branch and existing user changes.

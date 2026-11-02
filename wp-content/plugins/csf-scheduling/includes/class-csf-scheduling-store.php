@@ -112,6 +112,23 @@ class CSF_Scheduling_Store {
 			$wpdb->suppress_errors( $previous_error_suppression ); }
 	}
 
+	/** Identity steps use the existing transaction; their exact UUIDs come from the finite invitation.
+	 *
+	 * @param string $kind Step.
+	 * @param array  $body Invitation.
+	 * @param int    $revision Expected revision.
+	 * @param string $command Exact manifest UUID.
+	 * @return array|WP_Error
+	 */
+	public static function identity( $kind, $body, $revision, $command ) {
+		if ( ! in_array( $kind, CSF_Scheduling_Identity::COMMANDS, true ) || ! is_array( $body ) || ( $body['commands'][ $kind ] ?? null ) !== $command || strlen( wp_json_encode( $body ) ) > 8192 ) {
+			return new WP_Error( 'forbidden', 'Exact reviewed identity command required.' ); }
+		$result = self::change( $kind, $body, $revision, $command );
+		foreach ( array_filter( array( $body['owner'] ?? null, $body['previous_master'] ?? null ), 'is_int' ) as $id ) {
+			clean_user_cache( $id ); }
+		return $result;
+	}
+
 	/** Calendar commands share the foundation transaction and command ledger.
 	 *
 	 * @param string $kind Operation.
@@ -154,7 +171,7 @@ class CSF_Scheduling_Store {
 		global $wpdb;
 		$previous_error_suppression = $wpdb->suppress_errors( true );
 		try {
-			if ( ! CSF_Scheduling_Schema::inspect()['ready'] || ! is_int( $revision ) || $revision < 0 || ! CSF_Scheduling_Audit::uuid( $command ) || ! in_array( $kind, array_merge( array( 'policy_replaced', 'resource_created' ), CSF_Scheduling_Permissions::COMMANDS, CSF_Scheduling_Calendar::COMMANDS ), true ) ) {
+			if ( ! CSF_Scheduling_Schema::inspect()['ready'] || ! is_int( $revision ) || $revision < 0 || ! CSF_Scheduling_Audit::uuid( $command ) || ! in_array( $kind, array_merge( array( 'policy_replaced', 'resource_created' ), CSF_Scheduling_Permissions::COMMANDS, CSF_Scheduling_Identity::COMMANDS, CSF_Scheduling_Calendar::COMMANDS ), true ) ) {
 				return new WP_Error( 'not_ready', 'Verified schema, command and revision required.' );
 			}
 			if ( ! CSF_Scheduling_Permissions::authorize( $kind, $payload ) ) {
@@ -201,10 +218,10 @@ class CSF_Scheduling_Store {
 					$update['staff_json']     = wp_json_encode( $payload );
 				} elseif ( 'policy_replaced' === $kind ) {
 					$update['policy_json'] = wp_json_encode( $payload );
-				} elseif ( in_array( $kind, array_merge( CSF_Scheduling_Calendar::COMMANDS, CSF_Scheduling_Permissions::COMMANDS ), true ) ) {
+				} elseif ( in_array( $kind, array_merge( CSF_Scheduling_Calendar::COMMANDS, CSF_Scheduling_Permissions::COMMANDS, CSF_Scheduling_Identity::COMMANDS ), true ) ) {
 					self::$calendar_transaction = true;
 					try {
-						$result = in_array( $kind, CSF_Scheduling_Permissions::COMMANDS, true ) ? CSF_Scheduling_Permissions::apply( $kind, $payload ) : CSF_Scheduling_Calendar::apply( $kind, $payload, $row );
+						$result = in_array( $kind, CSF_Scheduling_Identity::COMMANDS, true ) ? CSF_Scheduling_Identity::apply( $kind, $payload, $row ) : ( in_array( $kind, CSF_Scheduling_Permissions::COMMANDS, true ) ? CSF_Scheduling_Permissions::apply( $kind, $payload ) : CSF_Scheduling_Calendar::apply( $kind, $payload, $row ) );
 					} finally {
 						self::$calendar_transaction = false; }
 					$entity             = $result['uuid'];

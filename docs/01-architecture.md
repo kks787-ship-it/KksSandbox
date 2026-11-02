@@ -1,5 +1,25 @@
 # 01 — Platform Architecture
 
+## Issue #14 security candidate — local only
+
+Scheduling0.4.0 and separate csf-mfa0.2.0 retain schema3/15 tables and the existing calendar,
+granular authorization and InnoDB transaction model. The actual official Two-Factor0.17.0 ZIP
+and all21 distribution files are verified. Mandatory WordPress administration MFA is a separate
+explicit default-off policy; current browser proof, never enrollment alone, controls access.
+Native nonce/cookie REST may verify the same web session for WordPress administration while
+Digital Ranch REST remains denied. Application-password/XML-RPC restrictions and enrollment
+grace require independent operator/owner review before any protected enablement.
+
+Ownership approval commands use the existing immutable ledger/audit and singleton lock, adding
+no tables. A finite private invitation binds the complete action/source/target/policy/revision;
+separate operator, proposed-owner and (for transfer) outgoing-owner browsers approve with
+MFA no older than300seconds. Approvals remain revocable until atomic consumption. Registry,
+native capability mirrors, outgoing sessions, audit and idempotent result commit together.
+The old CLI master mutation path is retired, without a web-MFA bypass. Independent real-world
+identity verification remains an explicit human prerequisite. See the [security release
+report](test-results/scheduling-security.md) and [single Gate B package](pilot/gate-b-owner-review.md).
+These supersede older CLI/bootstrap/artifact blockers as local design; no protected release is approved.
+
 ## Principles
 
 **Latest security candidate:** Issue #13 adds a separate `csf-mfa` 0.1.0 adapter for pinned

@@ -180,7 +180,7 @@ class CSF_Scheduling_Permissions {
 	 * @param int $id Verified numeric identity.
 	 */
 	public static function identity_gate( $id ) {
-		return defined( 'WP_CLI' ) && WP_CLI && defined( 'CSF_SCHEDULING_MASTER_BOOTSTRAP_ALLOWED' ) && true === CSF_SCHEDULING_MASTER_BOOTSTRAP_ALLOWED && in_array( wp_get_environment_type(), array( 'local', 'development', 'staging' ), true ) && get_current_user_id() && current_user_can( 'manage_options' ) && get_userdata( $id ) && self::mfa( $id ) && self::mfa( get_current_user_id() );
+		return class_exists( 'CSF_Scheduling_Identity' ) && CSF_Scheduling_Identity::allows_master( $id );
 	}
 
 	/** Record visibility shared by reads and mutations; assigned means explicit resources or author.
@@ -212,6 +212,8 @@ class CSF_Scheduling_Permissions {
 	public static function authorize( $kind, $b ) {
 		try {
 			global $wpdb;
+			if ( in_array( $kind, CSF_Scheduling_Identity::COMMANDS, true ) ) {
+				return CSF_Scheduling_Identity::authorize( $kind, $b ); }
 			$map = array(
 				'policy_replaced'      => 'policy_manage',
 				'resource_created'     => 'resource_manage',

@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 /** Narrow integration with the pinned Two-Factor release and WordPress session API. */
 final class CSF_MFA_Session {
 
-	const VERSION = '0.1.0';
+	const VERSION = '0.2.0';
 	const KEY     = 'csf-mfa-proof-v1';
 	const METHODS = array( 'Two_Factor_Totp', 'Two_Factor_Backup_Codes' );
 	const MAX_AGE = 28800;
@@ -106,6 +106,19 @@ final class CSF_MFA_Session {
 		if ( ! is_array( $manifest ) || empty( $manifest['files'] ) ) {
 			return false;
 		}
+		$paths = array();
+		$root  = WP_PLUGIN_DIR . '/two-factor/';
+		foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ) ) as $file ) {
+			if ( $file->isLink() ) {
+				return false; }
+			if ( $file->isFile() ) {
+				$paths[] = substr( $file->getPathname(), strlen( $root ) ); }
+		}
+		$expected = array_keys( $manifest['files'] );
+		sort( $paths );
+		sort( $expected );
+		if ( $paths !== $expected ) {
+			return false; }
 		foreach ( $manifest['files'] as $path => $sha ) {
 			$file = WP_PLUGIN_DIR . '/two-factor/' . $path;
 			if ( ! is_file( $file ) || ! hash_equals( $sha, (string) hash_file( 'sha256', $file ) ) ) {
@@ -284,7 +297,7 @@ final class CSF_MFA_Session {
 	private static function core_fingerprint( $id ) {
 		global $wpdb;
 		$pass = $wpdb->get_var( $wpdb->prepare( "SELECT user_pass FROM {$wpdb->users} WHERE ID=%d", $id ) );
-		return hash_hmac( 'sha256', wp_json_encode( array( $id, $pass, self::meta( $id, '_two_factor_totp_key' ), self::meta( $id, '_two_factor_enabled_providers' ), self::meta( $id, '_two_factor_provider' ), self::option( 'csf_mfa_epoch' ), self::option( 'two_factor_enabled_providers' ), home_url(), site_url() ) ), wp_salt( 'auth' ) );
+		return hash_hmac( 'sha256', wp_json_encode( array( self::VERSION, defined( 'CSF_MFA_ENFORCE_ADMIN' ) && true === CSF_MFA_ENFORCE_ADMIN, $id, $pass, self::meta( $id, '_two_factor_totp_key' ), self::meta( $id, '_two_factor_enabled_providers' ), self::meta( $id, '_two_factor_provider' ), self::option( 'csf_mfa_epoch' ), self::option( 'two_factor_enabled_providers' ), home_url(), site_url() ) ), wp_salt( 'auth' ) );
 	}
 
 	/** Bind a proof to the validated configuration even if it changes during proof storage.
@@ -376,17 +389,66 @@ final class CSF_MFA_Session {
 	 */
 	public static function verified( $unused, $id ) {
 		unset( $unused );
-		if ( self::$api || ( defined( 'WP_CLI' ) && WP_CLI ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || get_current_user_id() !== $id || ! self::enrolled( false, $id ) || (int) wp_validate_auth_cookie( '', 'logged_in' ) !== $id ) {
+		return ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) && self::web_verified( $id );
+	}
+
+	/** Current cookie proof for WordPress web administration, including nonce-authenticated REST.
+	 *
+	 * @param int $id Current identity.
+	 * @return bool
+	 */
+	public static function web_verified( $id ) {
+		if ( self::$api || ( defined( 'WP_CLI' ) && WP_CLI ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || get_current_user_id() !== $id || ! self::enrolled( false, $id ) || (int) wp_validate_auth_cookie( '', 'logged_in' ) !== $id ) {
 			return false;
 		}
 		$token   = wp_get_session_token();
 		$session = self::session( $id, $token );
-		$proof   = $session[ self::KEY ] ?? null;
-		if ( ! is_array( $proof ) || array_keys( $proof ) !== array( 'user', 'token', 'method', 'issued', 'expires', 'fingerprint', 'signature' ) || $proof['user'] !== $id || ! in_array( $proof['method'], self::METHODS, true ) || ! is_int( $proof['issued'] ) || ! is_int( $proof['expires'] ) || $proof['issued'] > time() || $proof['expires'] <= time() || $proof['expires'] - $proof['issued'] > self::MAX_AGE || (int) ( $session['expiration'] ?? 0 ) <= time() || ! hash_equals( hash( 'sha256', $token ), (string) $proof['token'] ) || ! hash_equals( self::fingerprint( $id ), (string) $proof['fingerprint'] ) ) {
+		return self::proof_valid( $id, $session, hash( 'sha256', $token ) );
+	}
+
+	/** Validate an exact persisted proof without authorizing a request.
+	 *
+	 * @param int    $id User.
+	 * @param array  $session Primary record.
+	 * @param string $token_hash Session key.
+	 * @return bool
+	 */
+	private static function proof_valid( $id, $session, $token_hash ) {
+		$proof = $session[ self::KEY ] ?? null;
+		if ( ! is_array( $proof ) || array_keys( $proof ) !== array( 'user', 'token', 'method', 'issued', 'expires', 'fingerprint', 'signature' ) || $proof['user'] !== $id || ! in_array( $proof['method'], self::METHODS, true ) || ! is_int( $proof['issued'] ) || ! is_int( $proof['expires'] ) || $proof['issued'] > time() || $proof['expires'] <= time() || $proof['expires'] - $proof['issued'] > self::MAX_AGE || (int) ( $session['expiration'] ?? 0 ) <= time() || ! hash_equals( $token_hash, (string) $proof['token'] ) || ! hash_equals( self::fingerprint( $id ), (string) $proof['fingerprint'] ) ) {
 			return false;
 		}
 		$signature = $proof['signature'];
 		unset( $proof['signature'] );
 		return is_string( $signature ) && hash_equals( hash_hmac( 'sha256', wp_json_encode( $proof ), wp_salt( 'auth' ) ), $signature );
+	}
+	/** Non-bearer reference captured only from the approving user's own current browser.
+	 *
+	 * @return array|null
+	 */
+	public static function attestation() {
+		$id = get_current_user_id();
+		if ( ! self::verified( false, $id ) ) {
+			return null; }
+		$session = self::session( $id, wp_get_session_token() );
+		return array(
+			'user'      => $id,
+			'session'   => hash( 'sha256', wp_get_session_token() ),
+			'signature' => $session[ self::KEY ]['signature'],
+		);
+	}
+
+	/** Revalidate a prior, durable web approval; never a CLI/session authorization verdict.
+	 *
+	 * @param array $ref Exact persisted approval reference.
+	 * @param int   $max_age Maximum challenge age for the sensitive operation.
+	 * @return bool
+	 */
+	public static function attested( $ref, $max_age = self::MAX_AGE ) {
+		if ( ! is_array( $ref ) || array_keys( $ref ) !== array( 'user', 'session', 'signature' ) || ! is_int( $ref['user'] ) || ! is_string( $ref['session'] ) || ! preg_match( '/^[a-f0-9]{64}$/D', $ref['session'] ) || ! is_string( $ref['signature'] ) || ! self::enrolled( false, $ref['user'] ) ) {
+			return false; }
+		$all     = self::meta( $ref['user'], 'session_tokens' );
+		$session = is_array( $all ) ? ( $all[ $ref['session'] ] ?? array() ) : array();
+		return self::proof_valid( $ref['user'], $session, $ref['session'] ) && is_int( $max_age ) && $max_age > 0 && time() - $session[ self::KEY ]['issued'] <= $max_age && hash_equals( $session[ self::KEY ]['signature'], $ref['signature'] );
 	}
 }

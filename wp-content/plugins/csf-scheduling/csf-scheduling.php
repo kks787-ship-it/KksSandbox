@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Digital Ranch Staff Scheduling
  * Description: Private staff calendar with explicit confirmation and resource protection.
- * Version: 0.3.1
+ * Version: 0.4.0
  * Requires PHP: 8.1
  * Requires at least: 6.6
  * Text Domain: csf-scheduling
@@ -13,8 +13,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CSF_SCHEDULING_VERSION', '0.3.1' );
-foreach ( array( 'schema', 'audit', 'policy', 'permissions', 'access', 'store', 'time', 'conflict', 'calendar', 'admin', 'ui', 'diagnostics', 'team', 'cli' ) as $csf_module ) {
+define( 'CSF_SCHEDULING_VERSION', '0.4.0' );
+foreach ( array( 'schema', 'audit', 'policy', 'permissions', 'access', 'store', 'time', 'conflict', 'calendar', 'admin', 'ui', 'diagnostics', 'team', 'identity', 'cli' ) as $csf_module ) {
 	require_once __DIR__ . '/includes/class-csf-scheduling-' . $csf_module . '.php';
 }
 unset( $csf_module );
@@ -32,3 +32,10 @@ add_action( 'admin_menu', array( 'CSF_Scheduling_Team', 'menu' ) );
 add_action( 'admin_init', array( 'CSF_Scheduling_Team', 'post' ) );
 
 add_action( 'admin_enqueue_scripts', array( 'CSF_Scheduling_Team', 'assets' ) );
+
+add_action( 'admin_menu', array( 'CSF_Scheduling_Identity', 'menu' ) );
+add_action( 'admin_init', array( 'CSF_Scheduling_Identity', 'post' ) );
+add_filter( 'map_meta_cap', array( 'CSF_Scheduling_Identity', 'protect_master' ), PHP_INT_MAX, 4 );
+add_action( 'delete_user', array( 'CSF_Scheduling_Identity', 'deleting' ), -100 );
+add_action( 'remove_user_from_blog', array( 'CSF_Scheduling_Identity', 'deleting' ), -100 );
+add_filter( 'rest_pre_dispatch', array( 'CSF_Scheduling_Identity', 'rest_user' ), PHP_INT_MAX, 3 );

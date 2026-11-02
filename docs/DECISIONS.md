@@ -1,5 +1,19 @@
 # Project decisions
 
+## November 1, 2026 — Issue #14 local security implementation
+
+Use exact official Two-Factor0.17.0 ZIP + csf-mfa0.2.0 and scheduling0.4.0 as the next **review
+candidate**, not an installation decision. Actual vendorZIP bytes now match SHA256
+59d7c75f57966b93cc59657a0c14d58f247ba6f350b081c8602b3cacdc51e473 and all21 expected files.
+Keep administration enforcement explicitly separate/default off; enforce real current-session
+MFA for protected native actions and deny alternate authenticated API paths when selected.
+Replace unusable CLI ownership mutation with short-lived, independent browser approvals and
+atomic/idempotent ledger consumption, not a CLI MFA exemption. Retain existing schema3/15tables.
+Same-identity physical recovery requires separate verification/approval; no silent replacement
+master. Pin updates manually after staged security regression; assign maintenance ownership
+before installation. See [release evidence](test-results/scheduling-security.md). GateB remains
+held for each account, provider, enforcement, source/schema, ownership and synthetic-pilot decision.
+
 Current execution state is in [the sandbox report](test-results/sandbox-preflight.md). The pre-installation decisions below retain historical context; the latest owner correction and local candidate decision supersede their pending-stage wording.
 
 ## Continue the existing implementation

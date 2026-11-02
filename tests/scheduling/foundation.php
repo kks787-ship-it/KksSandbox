@@ -51,7 +51,7 @@ foreach(array(0,$editor,$client)as$id){as_user($id);expect(!CSF_Scheduling_Acces
 as_user(1);
 failed(CSF_Scheduling_Access::provision(array(1,$staff),false,0,wp_generate_uuid4()),'owner identity acknowledgment required');
 failed(CSF_Scheduling_Access::provision(array(999999),true,0,wp_generate_uuid4()),'unresolved staff ID rejected');
-$cmd=wp_generate_uuid4();$boot=CSF_Scheduling_Store::permissions('master_bootstrapped',['user_id'=>1,'owner_verified'=>true],0,$cmd);expect(!is_wp_error($boot),'separately verified master bootstraps');$provision=fixture_member($staff,true);expect(!is_wp_error($provision),'explicit owner-verified staff provisioning succeeds');
+$cmd=wp_generate_uuid4();$boot=fixture_master(1);expect(!is_wp_error($boot),'synthetic fixture master seeded; production bootstrap tested separately');$provision=fixture_member($staff,true);expect(!is_wp_error($provision),'explicit owner-verified staff provisioning succeeds');
 as_user(1);expect(CSF_Scheduling_Access::can('policy_manage')&&!CSF_Scheduling_Access::can('csf_schedule_manage'),'verified master gets granular rights and retired manage never grants access');
 $t=CSF_Scheduling_Schema::table('authorization');$saved_staff=CSF_Scheduling_Permissions::state();$raw=$wpdb->get_var("SELECT registry_json FROM `$t` WHERE id=1");$wpdb->update($t,['registry_json'=>'{"invalid_key":1}'],['id'=>1]);expect(!CSF_Scheduling_Access::can(),'malformed authoritative registry cannot grant access');$wpdb->update($t,['registry_json'=>$raw],['id'=>1]);
 as_user($staff);expect(CSF_Scheduling_Access::can(),'verified staff can view private diagnostics');

@@ -1,5 +1,15 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**Issue #14 local update:** scheduling0.4.0 + csf-mfa0.2.0 implement separately enabled mandatory
+administration MFA and a finite, independently authenticated browser ownership ceremony.
+The official Two-Factor0.17.0 ZIP/all21 distribution hashes are now locally verified. Schema3
+and15tables are preserved. [Current security validation](test-results/scheduling-security.md)
+supersedes earlier local design blockers below; historical pins/reports remain intact.
+**GateB still held:** actual identities, provider choice/files, enforcement/recovery custody,
+exact release/schema, ownership approval, staff grants/policy and synthetic pilot each need
+separate authorization and protected acceptance. No calendar/MFA deployment or actual accounts
+were changed; do not mark Beth/Kris acceptance, operational readiness or real scheduling complete.
+
 **Snapshot:** November 1, 2026 (America/Los_Angeles). **Scope:** Corner Stone Farm Digital Ranch, CSF-OS and prospective barn-management product. This is a **capability inventory and conceptual product map**, not a replacement for the canonical [delivery roadmap](02-roadmap.md), [architecture](01-architecture.md), [owner decisions](03-owner-confirmation-register.md) or [security rules](SECURITY.md). Entries must be updated as real code, installations or owner approvals occur. Do not treat a proposed feature or issue assignment as implemented software.
 
 **Evidence reviewed:** GitHub branch `codex/takeover-audit` at [a105868](https://github.com/kks787-ship-it/KksSandbox/commit/a1058688544fed2c7103c59612b6f53a35d07118), Issues #1–#10, local [Sprint #8 foundation](test-results/scheduling-foundation.md) and [Sprint #9 calendar](test-results/scheduling-calendar.md) validation, plus a **November 1, 2026 read-only Gateway verification** of the actual protected sandbox. The public website baseline remains separately verified. **The current 0.2.1 source adds locally validated native staff forms; it is not installed, migrated or operational on the protected sandbox.** The prior read-only inspection reported zero scheduling tables, and this sprint made no server changes. Protected compatibility and Beth/Kris acceptance remain release gates.

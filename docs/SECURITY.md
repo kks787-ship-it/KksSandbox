@@ -1,5 +1,23 @@
 # Security and operational boundaries
 
+## Current Issue #14 override — no protected execution
+
+The [local security release](test-results/scheduling-security.md) supersedes earlier unresolved
+officialZIP/enforcement/CLI-handoff design statements below. Scheduling0.4.0/csf-mfa0.2.0 use
+the verified official Two-Factor0.17.0 distribution. Mandatory WordPress administration MFA
+is an independent default-off policy. Its enrollment grace cannot mutate general profiles or
+privileges; enrollment does not authenticate a session. Selected enforcement also disables
+WordPress application passwords/authenticated XML-RPC; review integration impact separately.
+
+Ownership requires independently reviewed real identities plus separate actual browser MFA
+approvals against a private finite exact-action invitation. No CLI ownership exception or
+bearer handoff token exists. Protect the current master from native deletion/role changes;
+lost factors require same-numeric-identity recovery under a separately approved private
+physical procedure. Trusted host/SQL access remains a security boundary, not something this
+WordPress plugin can make untrusted. A new owner cannot be inferred from admin role/email.
+Maintain manual vendor monitoring/staged repinning; a hash mismatch fails closed. No farm
+provider, account, role, schema, policy, inquiry, emergency or production change is authorized.
+
 ## Digital Ranch MFA — local candidate only
 
 The separate csf-mfa adapter requires a successful approved challenge bound to the current
