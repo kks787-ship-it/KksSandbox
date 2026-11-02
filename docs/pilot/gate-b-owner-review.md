@@ -19,6 +19,14 @@ The owner requests:
 
 **Gate B account creation, MFA vendor installation/enforcement, scheduling files/schema, policy/fictional fixture, and staff grants remain on HOLD.** The account/MFA and policy decision rows below are still useful for owner review, but none is authorization to act. Once Issue #12 is implemented and independently tested locally, produce a revised, pinned, capability-granular Gate B package; do not treat `b312bdd` as approval for the new plugin.
 
+## MFA candidate correction — November 1, 2026 (supercedes historical proposal)
+
+**CURRENT HOLD:** The previously suggested **standalone Wordfence Login Security** plugin should **not be selected for a new deployment**. [Wordfence's official help documentation](https://www.wordfence.com/help/login-security-plugin/) states its standalone product was scheduled for discontinuation around July 2026. Any earlier standalone-plugin recommendation in this document is **historical and superseded**.
+
+[Issue #13 — MFA provider and verified current-session adapter](https://github.com/kks787-ship-it/KksSandbox/issues/13) now owns read-only candidate review and, if supported, disposable local adapter tests. Evaluate maintained [WordPress Two-Factor](https://wordpress.org/plugins/two-factor/) (TOTP and backup codes, **no built-in comprehensive mandatory-MFA enforcement**) versus [full Wordfence](https://wordpress.org/plugins/wordfence/) (2FA with broader WAF/security operational footprint), or a separately verified alternative. Owner choice **M-Choice remains unapproved**. Do not use a plugin's mere *enrolled* flag as proof that the current login session completed MFA. Test real session/token binding, alternate login methods, recovery and lockout before authorizing any provider or Digital Ranch master/bootstrap privileges.
+
+**Latest scheduling code candidate:** v0.3.0, exact implementation commit [c04a243](https://github.com/kks787-ship-it/KksSandbox/commit/c04a24387e3d26f7cb0a7a13683a3981675a086b), 19 files, schema v3/15 owned tables, [test/release report](../test-results/scheduling-permissions.md). The older 0.2.1 15-file/14-table proposal is **not the current installation specification**. [Issue #12](https://github.com/kks787-ship-it/KksSandbox/issues/12) is closed as local implementation complete. **No Gate B execution row is approved**; Gate A backup/restore evidence remains historical, not permission to install, migrate, create accounts or enroll staff.
+
 ## How to decide without authorizing a deployment
 
 For each ID, record **Approve / Reject / Revise / Hold**, the exact approved values, owner and date. A blank entry is Hold. Approving a proposal or one row does not approve its implementation, dependencies or later rows. Execution requires explicit authorization naming the applicable row IDs and satisfying the prerequisites below. Do not interpret “approve Gate B” as blanket permission.
