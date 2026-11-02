@@ -4,6 +4,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 [[ -f "$ROOT/.wp-local/scheduling-core/wp-load.php" && -f "$ROOT/.wp-local/wp-cli.phar" ]] || { echo 'Provide unmodified WordPress core in .wp-local/scheduling-core and the existing WP-CLI fixture first.' >&2; exit 1; }
 D=(docker --host=unix:///var/run/docker.sock)
+python3 - "$ROOT" <<'PYV2'
+import pathlib,subprocess,hashlib,sys
+root=pathlib.Path(sys.argv[1]);pin='6f5a9bf51747399a309b39637a135841fe4cf2a1'
+for row in (root/'docs/test-results/scheduling-staff-files.sha256').read_text().splitlines():
+ digest,path=row.split();data=subprocess.check_output(['git','-C',str(root),'show',pin+':'+path]);assert hashlib.sha256(data).hexdigest()==digest
+ target=root/'.wp-local/permissions-v2-source'/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+PYV2
 STAMP="csf-foundation-$$"
 cleanup(){ "${D[@]}" rm -f "$STAMP-web" "$STAMP-db" >/dev/null 2>&1 || true; "${D[@]}" volume rm "$STAMP-site" >/dev/null 2>&1 || true; "${D[@]}" network rm "$STAMP-net" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
@@ -31,12 +38,19 @@ if [[ "${CSF_TEST_BROWSER:-0}" == 1 ]]; then
   sleep .2
  done
  CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/browser.js"
+ CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/permissions-browser.js"
  "${D[@]}" rm -f "$STAMP-web" >/dev/null
 fi
+# Preserve the populated v3 fixture, test a genuine populated v2 upgrade and old-code fail-closed, then restore v3.
+"${D[@]}" exec "$STAMP-db" sh -c 'DUMP=$(command -v mariadb-dump || command -v mysqldump); "$DUMP" -uroot -pfixture-only --single-transaction csf_fixture > /tmp/before-permission-upgrade.sql'
+"${PHP[@]}" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/permissions-migration.php
+"${PHP[@]}" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root --skip-plugins=csf-scheduling eval-file /repo/tests/scheduling/permissions-v2-read.php
+"${D[@]}" exec "$STAMP-db" sh -c 'DB=$(command -v mariadb || command -v mysql); "$DB" -uroot -pfixture-only csf_fixture < /tmp/before-permission-upgrade.sql'
+"${PHP[@]}" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root --user=1 eval 'global $wpdb;$before=json_decode(file_get_contents("/test/v3-before-permission-migration.json"),true);foreach(CSF_Scheduling_Schema::definitions()as$n=>$d){$t=CSF_Scheduling_Schema::table($n);if($before[$n]!==$wpdb->get_results("SELECT * FROM `$t` ORDER BY 1",ARRAY_A)){WP_CLI::error("V3 restore data mismatch");}}if(!CSF_Scheduling_Schema::inspect()["ready"]||!CSF_Scheduling_Access::can("team_assign")){WP_CLI::error("V3 restore lost owner or schema");}echo "POPULATED_V3_LOGICAL_BACKUP_RESTORE_OWNER_AND_DATA_PASS\n";'
 "${PHP[@]}" csf-scheduling-php81 bash /repo/tests/scheduling/migration-race.sh
 # Restore the real populated v1 logical backup with v2 code still present: access must fail closed.
-"${D[@]}" exec "$STAMP-db" sh -c 'DB=$(command -v mariadb || command -v mysql); for name in settings resources appointments allocations commands audit riders horses availability restrictions details history slots participants; do "$DB" -uroot -pfixture-only csf_fixture -e "DROP TABLE IF EXISTS fixture_csf_sched_$name"; done; "$DB" -uroot -pfixture-only csf_fixture < /tmp/before-v2.sql'
+"${D[@]}" exec "$STAMP-db" sh -c 'DB=$(command -v mariadb || command -v mysql); for name in settings resources appointments allocations commands audit riders horses availability restrictions details history slots participants authorization; do "$DB" -uroot -pfixture-only csf_fixture -e "DROP TABLE IF EXISTS fixture_csf_sched_$name"; done; "$DB" -uroot -pfixture-only csf_fixture < /tmp/before-v2.sql'
 "${PHP[@]}" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root --user=1 eval '$s=CSF_Scheduling_Schema::inspect(1);$before=json_decode(file_get_contents("/test/v1-settings.json"),true);if($s["errors"]||$s["missing"]||$s["version"]!==1||CSF_Scheduling_Access::can()||CSF_Scheduling_Schema::settings()!==$before){WP_CLI::error("v1 restore mismatch");}echo "POPULATED_V1_BACKUP_RESTORE_PASS_V2_ACCESS_DENIED\n";'
 
-"${D[@]}" exec "$STAMP-db" sh -c 'DB=$(command -v mariadb || command -v mysql); for name in settings resources appointments allocations commands audit riders horses availability restrictions details history slots participants; do "$DB" -uroot -pfixture-only csf_fixture -e "DROP TABLE IF EXISTS fixture_csf_sched_$name"; done; "$DB" -uroot -pfixture-only csf_fixture < /tmp/before-foundation.sql'
-"${PHP[@]}" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'global $wpdb; if (DB_NAME!=="csf_fixture" || is_plugin_active("csf-scheduling/csf-scheduling.php") || $wpdb->get_var("SHOW TABLES LIKE \"fixture_csf_sched_%\"") || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_value LIKE \"%csf_schedule_%\"")!=0) { WP_CLI::error("Fixture restore mismatch"); } echo "LOGICAL_BACKUP_RESTORE_PASS\n";'
+"${D[@]}" exec "$STAMP-db" sh -c 'DB=$(command -v mariadb || command -v mysql); for name in settings resources appointments allocations commands audit riders horses availability restrictions details history slots participants authorization; do "$DB" -uroot -pfixture-only csf_fixture -e "DROP TABLE IF EXISTS fixture_csf_sched_$name"; done; "$DB" -uroot -pfixture-only csf_fixture < /tmp/before-foundation.sql'
+"${PHP[@]}" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'global $wpdb; if (DB_NAME!=="csf_fixture" || is_plugin_active("csf-scheduling/csf-scheduling.php") || $wpdb->get_var("SHOW TABLES LIKE \"fixture_csf_sched_%\"") || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_value LIKE \"%csf_schedule_%\" OR meta_value LIKE \"%csf_dr_%\"")!=0) { WP_CLI::error("Fixture restore mismatch"); } echo "LOGICAL_BACKUP_RESTORE_PASS\n";'

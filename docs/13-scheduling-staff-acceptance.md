@@ -75,3 +75,35 @@ They are evidence of rendered controls and geometry, not human acceptance or phy
 Record reviewer, device/browser, date, task, outcome, help needed and issue reference in a
 private pilot record. Do not put client records, credentials or medical evidence in GitHub.
 No checkboxes above have been signed off by Beth/Kris in this development sprint.
+
+## Issue #12 — synthetic owner and staff permission walkthrough
+
+Local candidate 0.3.0 changes the access prerequisites above. Do not provision a real person with
+the retired four-capability command. Use separately approved existing numeric accounts, tested MFA
+and guarded owner bootstrap; no account is inferred to be Kris/Beth. In disposable tests, use
+fictional owner/trainer identities. On a future approved pilot, Kris/Beth perform their own tasks.
+
+1. Verified owner opens **Digital Ranch → Team & Permissions**. Select the trainer account and
+   load **Head Trainer**. Review group defaults, individual overrides and effective results.
+   This is an example, not approval of Beth's actual privileges.
+2. Toggle a confirmation checkbox with keyboard/touch. Observe the explicit deny/grant selector
+   and effective result. Return to Inherit and verify it follows the group's default.
+3. Preview: confirm exact numeric identity/group, newly granted/revoked rights and sensitive
+   administration choices. Saving requires a fresh reviewed revision and explicit confirmation.
+4. Trainer opens the calendar and books/confirms synthetic work and applies a horse safety hold.
+   Farm policy, team security, rider-evidence verification and hold release must fail unless
+   independently granted. Calendar confirmation must not clear a PRE-RIDE BLOCK.
+5. Owner copies a preset to **Assistant Trainer**, previews affected employees, and saves. Assign
+   it to selected existing verified employees through bulk review. Individual overrides remain.
+6. Owner edits a group default; review every affected member and confirm that an individual deny
+   remains denied. Trainer cannot forge group/checkbox requests to raise their own rights.
+7. Keep the trainer browser signed in while the owner disables farm access. The next protected
+   request/save must fail and the old session must be revoked. Re-enable only after review.
+8. Attempt to deactivate/unverify/deny the protected owner's team controls. Preview must refuse,
+   with registry/audit unchanged. Do not actually exercise administrative recovery on a protected
+   site without separate identity/recovery approval.
+9. Review private permission history by person and UTC dates, including actor and affected members.
+   Record device/browser, clarity, assistance needed, expected/observed result and issue references.
+
+Ordinary employees need no WordPress Administrator rights. No invitations, emails, MFA enrollment,
+account creation, public booking, emergency or operational acceptance is implied by these tasks.

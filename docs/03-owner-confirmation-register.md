@@ -52,3 +52,20 @@ header accessibility defect and unfinished branding/footer still prevent full si
 The protected sandbox contains **23 unresolved Owner-to-Confirm notes** across 20 of its 21 generated program pages, **19 unique photo designs in 30 image placements**, and **zero uploaded Media Library attachments**. The legacy production archive was inspected read-only; the verified farm logo candidates above were not imported or published. See [canonical asset inventory](08-content-and-asset-inventory.md#actual-protected-sandbox-finishing-audit--november-1-2026), [photo recovery issue #5](https://github.com/kks787-ship-it/KksSandbox/issues/5) and [content decisions issue #6](https://github.com/kks787-ship-it/KksSandbox/issues/6).
 
 No prior program fee, operating-hour proposal, client waiver, age minimum, return policy, family photograph, or permission is converted into approved public content merely because it was discussed in an earlier planning session. Confirm each current value before removing its associated note.
+
+
+## Issue #12 — owner/master and individual staff access (all protected changes held)
+
+The local Team & Permissions build supersedes equal broad Beth/Kris grants. The owner must
+privately verify numeric master/operator/staff identities and actual strong login/MFA before
+any separately authorized bootstrap or access. No existing Administrator ownership is inferred.
+Review/edit preset defaults and each person's explicit grants/denials/resource scope, including
+welfare hold versus release, clearance versus legal signatures, farm policy and team security.
+Beth's Head Trainer and Kris's master walkthrough are examples, not assigned real permissions.
+
+Approve the actual security provider and effective-session adapter separately; default scheduling
+MFA status is denied, and the local fake adapter is never a deployment artifact. Review the new
+candidate 19-file source pin, schema 3/15 tables, fresh backup/recovery and acceptance/rollback
+proposal before Gate B. The historical 0.2.1 pin remains evidence, not permission for old grants.
+Actual facility/pilot policies, protected-stack/device acceptance and later real use remain
+separate decisions. See the current owner package and permission release report.

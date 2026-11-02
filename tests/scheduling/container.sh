@@ -13,9 +13,11 @@ cat > /test/site/wp-config.php <<'PHP'
 // Synthetic credentials for a non-published, internal Docker test network only.
 define('DB_NAME','csf_fixture');define('DB_USER','root');define('DB_PASSWORD','fixture-only');define('DB_HOST','fixture-db');
 define('DB_CHARSET','utf8mb4');define('DB_COLLATE','');define('WP_ENVIRONMENT_TYPE',getenv('CSF_TEST_ENV') ?: 'local');
-define('CSF_SCHEDULING_MIGRATION_ALLOWED',true);define('DISABLE_WP_CRON',true);
+define('CSF_SCHEDULING_MIGRATION_ALLOWED',true);define('CSF_SCHEDULING_MASTER_BOOTSTRAP_ALLOWED',true);define('DISABLE_WP_CRON',true);
 $table_prefix='fixture_';if(!defined('ABSPATH')){define('ABSPATH',__DIR__.'/');}require_once ABSPATH.'wp-settings.php';
 PHP
+mkdir -p /test/site/wp-content/mu-plugins
+cp /repo/tests/scheduling/auth-fixture.php /test/site/wp-content/mu-plugins/auth-fixture.php
 WP=(php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root)
 "${WP[@]}" core install --url=http://localhost:8899 --title=FoundationFixture --admin_user=fixture_operator --admin_password=fixture-only --admin_email=fixture@example.invalid --skip-email --quiet
 "${WP[@]}" option update show_avatars 0 --quiet
@@ -38,9 +40,22 @@ fi
 bash /repo/tests/scheduling/races.sh
 "${WP[@]}" eval-file /repo/tests/scheduling/usability.php
 bash /repo/tests/scheduling/usability-races.sh
+"${WP[@]}" eval-file /repo/tests/scheduling/permissions.php
+bash /repo/tests/scheduling/permission-races.sh
 "${WP[@]}" --user=1 csf scheduling migrate > /test/migration-preview.json
 "${WP[@]}" --user=1 csf scheduling health > /test/health.json
 printf 'CLI_PREVIEW_AND_HEALTH_PASS\n'
 if "${WP[@]}" --user=1 csf scheduling migrate --apply --expected-url=https://wrong.invalid > /test/wrong-target.log 2>&1; then echo 'ERROR: wrong URL accepted'; exit 1; fi
 grep -q 'Exact home/siteurl required' /test/wrong-target.log
+if "${WP[@]}" --user=1 csf scheduling master --user-id=1 --owner-verified --revision=0 --command-id=00000000-0000-4000-8000-000000000011 --expected-url=https://wrong.invalid > /test/wrong-master-target.log 2>&1; then echo 'ERROR: wrong owner-bootstrap URL accepted'; exit 1; fi
+grep -q 'Exact home/siteurl required for owner identity ceremony' /test/wrong-master-target.log
+printf 'MASTER_WRONG_TARGET_DENIED\n'
+PILOT_OWNER_ID="$("${WP[@]}" eval 'echo json_decode(file_get_contents("/test/permissions-fixture.json"),true)["owner"];')"
+for PILOT_MASTER_TARGET in "$PILOT_OWNER_ID" 1; do
+ PILOT_MASTER_REVISION="$("${WP[@]}" --user=1 eval 'echo CSF_Scheduling_Schema::settings()["revision"];')"
+ PILOT_MASTER_COMMAND="$("${WP[@]}" eval 'echo wp_generate_uuid4();')"
+ "${WP[@]}" --user=1 csf scheduling master --transfer --user-id="$PILOT_MASTER_TARGET" --owner-verified --revision="$PILOT_MASTER_REVISION" --command-id="$PILOT_MASTER_COMMAND" --expected-url=http://localhost:8899 > /test/master-transfer-result.json
+ done
+printf 'MASTER_GUARDED_CLI_TRANSFER_AND_RECOVERY_PASS\n'
+
 CSF_TEST_ENV=production "${WP[@]}" --user=1 eval '$v=CSF_Scheduling_Schema::migrate();if(!is_wp_error($v)||$v->get_error_code()!=="migration_denied"){WP_CLI::error("Production migration not blocked");}echo "PRODUCTION_MIGRATION_DENIED\n";'

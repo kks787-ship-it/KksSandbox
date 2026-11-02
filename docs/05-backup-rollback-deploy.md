@@ -555,3 +555,70 @@ and file/database comparison; its files are outside the scheduling-only 15-file 
 This package preserves tracker commit `1b9a4182ff0e3229dfac5f945ae5788e732f049a` and the
 existing scheduling source pin/tree. Preparing it made no server calls or changes. Existing
 Gate A recovery remains evidence, not a new execution approval or a backup of future changes.
+
+## Issue #12 — new granular-permissions candidate (local only; all Gate B execution held)
+
+The tested local candidate is **scheduling 0.3.0/schema 3**, with the native Team & Permissions
+owner dashboard. The old 0.2.1 source pin/15-file manifest remain historical evidence, **not an
+approved installation or acceptable blanket provisioning path**. Review the new exact candidate
+pin, 19-file manifest, DDL and validation in [the release report](test-results/scheduling-permissions.md).
+[The current owner package](pilot/gate-b-owner-review.md) separates every approval below.
+
+1. Reconfirm scope and exact protected sandbox root/URL/wp_mdf4x/TXGEh_ from the canonical target.
+   Record verified numeric operator, master and staff identities without name/email inference.
+   Resolve the actual approved MFA mechanism **and effective-session adapter**; absence defaults
+   to denied access. Do not install a security provider, adapter, account or WordPress role as
+   part of the scheduling-only file copy. Explicit approval for each prerequisite is required.
+2. Freeze unrelated edits, refresh the exact-target backup and private config/source recovery
+   after any intervening website/account/MFA changes. Verify six standard artifacts plus recovery
+   supplement, age, hashes and isolated functional recovery. Gate A is retained evidence, not
+   authority to create a new backup or proof of full Plesk/MFA/off-server recovery for later state.
+3. After I-Files approval, stage only the new pinned scheduling directory and its 19-file manifest
+   privately. Recheck destination; the last protected observation was absent, not a current dry
+   run. Require an exact endpoint-only comparison with no core/emergency/theme/parent deletion,
+   no tests/vendor/node_modules/config/MFA fixture. Copy only approved files, modes 0755/0644 and
+   subscription ownership, then rehash. Activate only scheduling; verify zero schema/grants/data.
+4. After I-Schema approval, capture the real v3 guarded preview. Fresh install owns 15 tables;
+   additive v2 upgrade adds only authorization(id,registry_json) and retains the physical 14-table
+   contracts. Review [source-derived DDL](pilot/scheduling-v3-TXGEh-proposed.ddl.txt), engine,
+   collation, future/drift checks and any existing state before the one-shot CLI migration gate.
+   Apply only with exact home/siteurl, then remove the temporary gate. Verify schema 3, singleton,
+   seed/audit and domain counts. No automatic staff/master promotion; legacy IDs are quarantined
+   inactive/unverified with provenance retained. Stop on partial DDL, unknown data or failed audit.
+5. Master identity is **another approval**, not migration/provisioning. The existing technical
+   operator needs manage_options; chosen farm owner need not have it. Verify exact numeric ID,
+   independent MFA and strong login, backup and owner acknowledgment. Inspect that the separate
+   identity gate is undefined; an explicitly false guard stops review. Use an owner-only private
+   CLI bootstrap defining only CSF_SCHEDULING_MASTER_BOOTSTRAP_ALLOWED=true, never a global web
+   flag. Invoke the existing `csf scheduling master` with --user=<verified operator>,
+   --user-id=<verified owner>, --owner-verified, --expected-url=<exact sandbox URL>, current
+   --revision and unique --command-id, under --require=<private gate>. Remove the gate and verify
+   master/audit/mirror/MFA and no WordPress role promotion. --transfer is a separately approved
+   recovery ceremony; it disables the former master's farm access/sessions. No UI self-assignment.
+6. Initial G decisions name exact group/default/override/resource-scope mappings. The verified
+   master uses **Team & Permissions** to preview/save. Ordinary later employee/group changes need
+   no developer CLI. Preserve explicit denies and audit every action. Recheck actual MFA after
+   raw capability mirrors change; never revive the retired four-capability provision command.
+   Configure only approved fictional policy via the existing controlled service, then create
+   approved synthetic fixtures. No invitation/outbound messages or actual client records.
+7. Run [owner/staff acceptance](13-scheduling-staff-acceptance.md), protected-stack privacy/MFA/
+   proxy/cache/device checks, concurrent bookings and welfare/clearance/cancellation scenarios.
+   Beth/Kris record their own results. Compare content/file/menu/theme/inquiry/emergency baselines,
+   accounting only for separately approved account/MFA/scheduling changes. No real use follows
+   automatically from a successful synthetic pilot.
+8. On failure, only specifically approved containment deactivates scheduling, retaining audit/data.
+   A full matched-backup rollback must preserve/reconcile subsequent site/account/MFA/booking
+   changes and needs explicit restore/cleanup scope. No table dropping, audit deletion, grant
+   SQL edits, destructive down migration or MFA bypass. Pinned v2 code correctly refuses v3.
+
+No protected installation, MFA/account change, bootstrap, grant, migration or pilot occurred in
+Issue #12. Production, inquiries, emergency management and public website configuration remain
+excluded. New code completion is not Gate B or real operational authorization.
+
+
+If a sole master's post-commit mirror fails, farm access remains denied. An independently verified
+original operator may, under separate approved private identity-gate scope, replay the exact original
+bootstrap actor/body/revision/UUID to reconcile current mirrors without altering authority or adding
+an audit event. Preserve that command identity privately. If original verification/command custody
+cannot be established, stop for separately approved identity transfer/recovery; never use ad hoc SQL
+capability grants or a global bypass. Normal employee changes remain native owner-dashboard work.

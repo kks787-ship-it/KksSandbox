@@ -25,7 +25,9 @@ class CSF_Scheduling_Admin {
 
 	/** Register private page. */
 	public static function menu() {
-		add_menu_page( 'Digital Ranch Calendar', 'Digital Ranch', 'csf_schedule_view', 'csf-scheduling', array( __CLASS__, 'render' ), 'dashicons-calendar-alt' );
+		if ( ! CSF_Scheduling_Access::can() && ! CSF_Scheduling_Access::writer() && ! CSF_Scheduling_Access::can( 'team_view' ) ) {
+			return; }
+		add_menu_page( 'Digital Ranch Calendar', 'Digital Ranch', 'read', 'csf-scheduling', array( __CLASS__, 'render' ), 'dashicons-calendar-alt' );
 	}
 
 	/** Authenticated nonce-checked command handler. No automatic mutations on GET.
@@ -40,7 +42,7 @@ class CSF_Scheduling_Admin {
 		}
 		if ( ! isset( $_POST['csf_calendar_command'] ) ) {
 			return; }
-		if ( ! CSF_Scheduling_Access::can( 'csf_schedule_manage' ) ) {
+		if ( ! CSF_Scheduling_Access::writer() ) {
 			wp_die( 'Private scheduling access required.', '', array( 'response' => 403 ) ); }
 		check_admin_referer( 'csf_calendar_write' );
 		$raw     = isset( $_POST['body'] ) && is_string( $_POST['body'] ) ? wp_unslash( $_POST['body'] ) : '';// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Strict service validation, no lossy sanitization of JSON.
@@ -86,7 +88,7 @@ class CSF_Scheduling_Admin {
 	 * @throws RuntimeException Caught and converted to fixed validation errors.
 	 */
 	public static function ajax() {
-		if ( ! CSF_Scheduling_Access::can( 'csf_schedule_manage' ) ) {
+		if ( ! CSF_Scheduling_Access::writer() ) {
 			wp_send_json_error( array( 'message' => 'Private scheduling access required.' ), 403 ); }
 		check_ajax_referer( 'csf_calendar_write', '_wpnonce' );
 		nocache_headers();

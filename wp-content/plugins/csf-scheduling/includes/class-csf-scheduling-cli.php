@@ -63,11 +63,52 @@ class CSF_Scheduling_CLI {
 	 * @param array $assoc Options.
 	 */
 	public function provision( $args, $assoc ) {
-		$raw = $assoc['user-ids'] ?? '';
-		if ( ! preg_match( '/^[1-9][0-9]*(?:,[1-9][0-9]*)*$/D', $raw ) ) {
-			WP_CLI::error( 'Explicit positive integer user IDs required.' );
-		}
-		$this->result( CSF_Scheduling_Access::provision( array_map( 'intval', explode( ',', $raw ) ), isset( $assoc['owner-verified'] ), $this->revision( $assoc ), $assoc['command-id'] ?? '' ) );
+		unset( $args, $assoc );
+		WP_CLI::error( 'Blanket provisioning retired. Use Team & Permissions after verified master bootstrap.' );
+	}
+
+	/** Bootstrap or recover the single separately verified master identity.
+	 *
+	 * ## OPTIONS
+	 *
+	 * --expected-url=<url>
+	 * : Must match home and siteurl for the separately approved ceremony.
+	 *
+	 * --user-id=<id>
+	 * : Owner-confirmed existing numeric ID.
+	 *
+	 * [--owner-verified]
+	 * : Required acknowledgment of separate owner identity/MFA authorization.
+	 *
+	 * --revision=<revision>
+	 * : Reviewed singleton revision.
+	 *
+	 * --command-id=<uuid>
+	 * : Idempotent command ID.
+	 *
+	 * [--transfer]
+	 * : Separately authorized transfer/recovery, not ordinary staff assignment.
+	 *
+	 * @param array $args Positional arguments.
+	 * @param array $assoc CLI options.
+	 */
+	public function master( $args, $assoc ) {
+		if ( empty( $assoc['expected-url'] ) || get_option( 'home' ) !== $assoc['expected-url'] || get_option( 'siteurl' ) !== $assoc['expected-url'] ) {
+			WP_CLI::error( 'Exact home/siteurl required for owner identity ceremony.' ); }
+		$id = $assoc['user-id'] ?? '';
+		if ( ! preg_match( '/^[1-9][0-9]{0,9}$/D', $id ) ) {
+			WP_CLI::error( 'Verified numeric identity required.' ); }
+		$this->result(
+			CSF_Scheduling_Store::permissions(
+				isset( $assoc['transfer'] ) ? 'master_transferred' : 'master_bootstrapped',
+				array(
+					'user_id'        => (int) $id,
+					'owner_verified' => isset( $assoc['owner-verified'] ),
+				),
+				$this->revision( $assoc ),
+				$assoc['command-id'] ?? ''
+			)
+		);
 	}
 
 	/** Replace policy from a private JSON file.

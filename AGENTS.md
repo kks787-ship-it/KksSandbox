@@ -176,3 +176,15 @@ See docs/13-scheduling-staff-acceptance.md and docs/test-results/scheduling-staf
 policy/provisioning stays controlled operator work. The pinned sandbox pilot is a proposal in
 the canonical deployment runbook, not permission to install/migrate/provision. No production,
 public self-booking, inquiry enablement, emergency activation or website setup changes.
+
+Issue #12 local candidate is now scheduling 0.3.0/schema 3: Team & Permissions, protected verified
+master identity, editable groups and individual grant/deny/inherit rights. Read the implemented
+contract in doc 01 and docs/test-results/scheduling-permissions.md before changing authorization.
+Use the one transactional authorization registry and existing singleton lock/ledger/audit; do not
+restore blanket four-capability provisioning. The old 0.2.1 pin/15-file manifest is historical,
+not permission to install it or substitute the new 19-file candidate. Gate B remains held.
+Independent MFA integration defaults false; no provider/bypass is bundled. The synthetic adapter
+in tests/scheduling/auth-fixture.php is strictly disposable-fixture-only and must never be copied
+to a farm. Master bootstrap/transfer needs its separate guarded numeric-ID/MFA/URL approval;
+routine staff/group changes use the native reviewed dashboard. No actual accounts, real grants,
+protected migration, provider installation, inquiry enablement, emergency or production changes.

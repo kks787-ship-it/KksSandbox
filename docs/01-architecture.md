@@ -733,7 +733,7 @@ acceptance remain separate release gates; no deployment or live migration occurr
 
 ## Owner-requested master permissions and staff groups — pre-Gate-B redesign (Issue #12)
 
-**Status: owner requirement confirmed; proposed design, not implemented code.** This supersedes the original equal-permission assumption for Beth and Kris in Gate B. See [Issue #12](https://github.com/kks787-ship-it/KksSandbox/issues/12) and the revised [Gate B decision package](pilot/gate-b-owner-review.md). **No protected scheduling installation, schema migration, staff provisioning, account creation or MFA deployment has been authorized.** The current 0.2.1 15-file release pin is retained as historical validated code, but **must not be installed/provisioned for the owners under blanket four-capability grants** until this design is built, tested and separately reviewed.
+**Historical requirement snapshot: implemented locally in the Issue #12 candidate below, not deployed or operational.** This supersedes the original equal-permission assumption for Beth and Kris in Gate B. See [Issue #12](https://github.com/kks787-ship-it/KksSandbox/issues/12) and the revised [Gate B decision package](pilot/gate-b-owner-review.md). **No protected scheduling installation, schema migration, staff provisioning, account creation or MFA deployment has been authorized.** The current 0.2.1 15-file release pin is retained as historical validated code, but **must not be installed/provisioned for the owners under blanket four-capability grants** until this design is built, tested and separately reviewed.
 
 ### Functional model
 
@@ -750,3 +750,89 @@ acceptance remain separate release gates; no deployment or live migration occurr
 
 Codex must provide a reviewed fine-grained capability matrix, updated implementation and **MariaDB/MySQL transaction/concurrency regression tests** for group inheritance, explicit denies, individual overrides, preset modifications, revocation of a logged-in user, stale and concurrent access changes, last-master safety, attempted self-promotion, access escalation to WordPress administrator or inactive emergency functions, incorrect group migration, missing MFA/identity, and all server handlers. Verify accessible mobile/keyboard checkbox controls, no unintended page/plugin/content changes, and an owner-visible human acceptance walkthrough. Publish exact new file hashes, schema differences, backup/recovery strategy and a separate Gate B release proposal. No deployment is implied by code completion.
 
+
+## Implemented local permission refinement — Issue #12, candidate 0.3.0
+
+The owner requirement above is implemented in the **local development candidate only**.
+Protected installation, actual account/MFA setup and any staff grants remain unauthorized.
+The historical 0.2.1 pin is retained; it cannot be silently substituted with this candidate.
+Validation and the new candidate pin are recorded in the permissions release report.
+
+### Authoritative state and independent checks
+
+Schema 3 adds one `csf_sched_authorization` InnoDB table (id/registry_json singleton) to the
+unchanged 14-table v2 contract. One registry contains protected master identity, editable
+preset/custom groups, active/verified membership, resource assignments and individual
+grant/deny overrides. Deny wins; unknown keys, malformed state, unverified/inactive identities,
+missing independent MFA or a mismatched primary-DB WordPress capability mirror deny access.
+No role/display-name/email implies master status. Facility scope is this installation/prefix,
+not multi-tenant SaaS. No future payment/emergency/signature/export power is registered.
+
+The 20-key registry separates all/assigned calendar scope; requested/held editing; confirmed
+editing/confirmation; cancellation; rider view/identity/clearance; resource view/identity;
+availability; suitability; protective welfare hold; hold release; farm policy; appointment
+history; and team view/assign/group/history. New confirmed creation requires creation and
+confirmation rights; existing confirmed work requires confirmation rights. Mixed rider/horse
+commands independently check changes to identity, evidence and suitability, so submitting an
+existing flag cannot manufacture a verified agreement or release another person's hold.
+Confirmed appointments remain separate from rider clearance and legal signatures.
+
+Assigned calendar scope includes appointments created by that employee or explicitly assigned
+resources; mutations recheck the record and submitted scope. Assigned-only staff cannot enumerate
+the farm's rider roster. Appointment history is limited to visible appointments. Private team
+history is separate and never exposed through the appointment-history API. All reads, forms,
+AJAX/preview and CLI writes enforce server authorization; button visibility is supplementary.
+No public route/user directory, account creation, invitations or outbound notifications are added.
+
+### Ordering, review and recovery
+
+Every authorization and scheduling mutation uses the **same settings row FOR UPDATE lock**,
+revision, actor-bound UUID ledger and audit transaction. Authorization is repeated inside the
+lock. Group and employee previews run the real service and roll back. Native Save is bound to
+the actor, exact payload/revision/UUID and a short-lived signed review, plus nonce and sensitive
+confirmation. Group previews list all affected members, including overrides that leave effective
+rights unchanged. Bulk group assignment preserves individual overrides and explicit resource
+scope; unknown/unverified identities and the master are excluded from bulk assignment.
+
+WordPress `csf_dr_*` capabilities are mirrors only. Post-commit reconciliation never infers
+membership; raw primary-DB checks avoid stale WP_User/object-cache grants. Revocation is effective
+on the next protected request; disabling a member invalidates their WordPress sessions after
+commit. Failed reconciliation reports incomplete acknowledgment; exact command replay repairs
+mirrors without another audit event. A stale command needs review, not a silent overwrite.
+
+Farm Owner / Master is a protected identity, not an assignable group. Team edits cannot remove,
+deactivate, unverify or deny the last master's security controls. Ordinary delegates cannot
+self-escalate, assign master/WP administration, delegate rights they lack or alter policy/security
+rights. Bootstrap/transfer/recovery requires a separately owner-verified numeric identity,
+independently verified MFA, an existing privileged technical operator, exact URL, local/development
+migration boundary and an explicit private CLI-only identity gate. Transfer disables the former
+master's farm access and sessions. It does not create/promote a WordPress account. No web password
+reset or unauthenticated recovery mechanism exists. Routine employee/group changes use the UI.
+
+### MFA integration and migration boundary
+
+The integration contract is `csf_scheduling_mfa_verified`, default **false**, called with the
+numeric account ID. A separately approved trusted provider adapter must attest effective MFA
+and authenticated-session enforcement, including alternate-login/bypass coverage; a checkbox,
+WordPress Administrator role or stored scheduling group cannot attest MFA. No MFA provider or
+production bypass is bundled. The fake adapter exists only in explicitly guarded disposable
+test fixtures. Protected readiness remains blocked until the actual mechanism is approved/tested.
+
+The guarded v2→v3 migration preserves existing 14-table rows, policy, staff provenance and history,
+creates the authorization registry with no master, and quarantines legacy IDs as inactive/unverified.
+It neither promotes old manage grants nor silently discards their provenance. The old blanket
+provisioner rejects requests. Existing accounts/grants need explicit new owner review. Physical
+partial/future/drifted state stops migration. There is no destructive down migration: pinned v2
+code denies v3, and rollback uses a matched backup after reconciling later data/credential changes.
+
+
+Owner display/recovery refinements: the matrix distinguishes **Effective now** (current verified
+membership, independent MFA and complete raw mirror) from the proposed after-save result. A
+configured checkbox is never evidence that an inactive or MFA-failed employee currently has
+access. Protected-master defaults are identified separately from employee group defaults.
+Permission history filters run in SQL before 500-result keyset pagination, so unrelated appointment
+history cannot hide older matching permission events. Sensitive transaction, migration and mirror
+SQL logging is suppressed with caller-state restoration; raw registry payloads are not logged.
+A sole-master mirror failure is recoverable by the verified operator's guarded exact replay of
+the original identity-bootstrap command, reconciling the **current** authoritative state without
+changing permissions or duplicating an audit event. No unauthenticated fallback is introduced.

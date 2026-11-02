@@ -10,8 +10,13 @@ defined( 'ABSPATH' ) || exit;
 
 /** One facility lock orders all configuration, roster and appointment mutations. */
 class CSF_Scheduling_Calendar {
-	const COMMANDS = array( 'resource_saved', 'rider_saved', 'horse_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
-	const ERRORS   = array( 'forbidden', 'invalid_body', 'invalid_time', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
+	/** Internal bounded visibility-checked read traversal.
+	 *
+	 * @var bool
+	 */
+	private static $reading = false;
+	const COMMANDS          = array( 'resource_saved', 'rider_saved', 'horse_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
+	const ERRORS            = array( 'forbidden', 'invalid_body', 'invalid_time', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
 
 	/** Fixed private table lookup.
 	 *
@@ -60,8 +65,24 @@ class CSF_Scheduling_Calendar {
 	public static function find( $name, $uuid ) {
 		global $wpdb;
 		self::require( CSF_Scheduling_Audit::uuid( $uuid ) );
-		$t = self::table( $name );
-		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `$t` WHERE uuid=%s", $uuid ), ARRAY_A );
+		$t   = self::table( $name );
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `$t` WHERE uuid=%s", $uuid ), ARRAY_A );
+		if ( ! CSF_Scheduling_Store::in_calendar_transaction() && ! self::$reading ) {
+			if ( in_array( $name, array( 'appointments', 'details' ), true ) ) {
+				$ap = 'appointments' === $name ? $row : self::find( 'appointments', $uuid );
+				return $ap && CSF_Scheduling_Permissions::appointment_visible( $ap ) ? $row : null;
+			}
+			$cap = array(
+				'riders'       => 'rider_view',
+				'horses'       => 'resource_view',
+				'resources'    => 'resource_view',
+				'availability' => 'resource_view',
+				'restrictions' => 'resource_view',
+			)[ $name ] ?? null;
+			if ( ! $cap || ! CSF_Scheduling_Access::can( $cap ) || ( 'riders' === $name && ! CSF_Scheduling_Access::can( 'calendar_all' ) ) ) {
+				return null; }
+		}
+		return $row;
 	}
 
 	/** Checked database write.
@@ -118,7 +139,7 @@ class CSF_Scheduling_Calendar {
 		global $wpdb;
 		// A raw public PHP call must not bypass the transaction boundary.
 		self::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
-		self::require( CSF_Scheduling_Access::can( 'csf_schedule_manage' ), 'forbidden' );
+		self::require( CSF_Scheduling_Permissions::authorize( $kind, $body ), 'forbidden' );
 		$policy = json_decode( $settings['policy_json'], true );
 		if ( in_array( $kind, array( 'appointment_saved', 'appointment_canceled' ), true ) ) {
 			return self::appointment( $kind, $body, $policy );
@@ -279,8 +300,33 @@ class CSF_Scheduling_Calendar {
 	 */
 	public static function documents( $name ) {
 		global $wpdb;
+		if ( ! CSF_Scheduling_Store::in_calendar_transaction() && ! self::$reading ) {
+			$cap = array(
+				'riders'       => 'rider_view',
+				'horses'       => 'resource_view',
+				'availability' => 'resource_view',
+				'restrictions' => 'resource_view',
+				'history'      => 'audit_view',
+			)[ $name ] ?? null;
+			if ( ! $cap || ! CSF_Scheduling_Access::can( $cap ) || ( 'riders' === $name && ! CSF_Scheduling_Access::can( 'calendar_all' ) ) ) {
+				return array(); }
+		}
 		$t    = self::table( $name );
 		$rows = $wpdb->get_results( "SELECT * FROM `$t` ORDER BY id", ARRAY_A );
+		if ( 'history' === $name && ! CSF_Scheduling_Store::in_calendar_transaction() && ! self::$reading ) {
+			$rows = array_values(
+				array_filter(
+					$rows,
+					static function ( $r ) {
+						$d = json_decode( $r['body_json'], true );
+						if ( in_array( $d['kind'] ?? '', CSF_Scheduling_Permissions::COMMANDS, true ) ) {
+							return false; }
+						$a = self::find( 'appointments', $r['entity_uuid'] );
+						return $a && CSF_Scheduling_Permissions::appointment_visible( $a );
+					}
+				)
+			);
+		}
 		return array_map(
 			static function ( $row ) {
 				$row['data'] = json_decode( $row['body_json'], true );
@@ -638,9 +684,13 @@ class CSF_Scheduling_Calendar {
 			self::require( count( $rows ) <= 500, 'capacity' );
 			$result = array();
 			foreach ( $rows as $row ) {
-				$d         = json_decode( self::find( 'details', $row['uuid'] )['body_json'], true );
-				$resources = $d['resources'];
-				$horses    = array_column( $d['rides'], 'horse' );
+				self::$reading = false;
+				if ( ! CSF_Scheduling_Permissions::appointment_visible( $row ) ) {
+					continue; }
+				self::$reading = true;
+				$d             = json_decode( self::find( 'details', $row['uuid'] )['body_json'], true );
+				$resources     = $d['resources'];
+				$horses        = array_column( $d['rides'], 'horse' );
 				if ( $filter && ! in_array( $filter, array_merge( $resources, $horses ), true ) ) {
 					continue; }
 				$clear = true;
@@ -688,8 +738,10 @@ class CSF_Scheduling_Calendar {
 					'hold_expired'   => 'held' === $row['state'] && $row['hold_expires_utc'] <= CSF_Scheduling_Audit::now(),
 				);
 			}
+			self::$reading = false;
 			return $result;
 		} catch ( Throwable $error ) {
+			self::$reading = false;
 			return new WP_Error( 'calendar_unavailable', 'Set a valid facility timezone and bounded date range.' ); }
 	}
 }

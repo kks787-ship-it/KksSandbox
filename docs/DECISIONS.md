@@ -353,3 +353,20 @@ acceptance is not claimed. Initial owner policy, staff IDs/MFA and protected-sta
 remain prerequisites to the separately approved pilot. See [validation](test-results/scheduling-staff.md)
 and the scheduling pilot section in the canonical deployment runbook. Household onboarding
 and legally reviewed versioned agreements remain the next development boundary.
+
+## Farm master and employee permission ownership — Issue #12
+
+The owner's Team & Permissions requirement supersedes equal blanket grants to Beth/Kris.
+Implement local 0.3.0/schema 3 with one authoritative registry and the existing scheduling
+transaction/command/audit boundary. Editable groups and individual grant/deny/inherit controls
+are Digital Ranch configuration, never WordPress roles. Master is a separately verified protected
+principal; ordinary group editing cannot create/remove the last master or grant WordPress admin.
+Do not silently infer master/MFA identity from legacy manage privileges or migrate them to active
+verified staff. Preserve legacy provenance and require explicit reassignment. Welfare hold/release,
+rider identity/evidence, policy, confirmation and team security are independently checked.
+
+No MFA provider is installed by this work; absent independent verification denies access. No actual
+account creation, bootstrap, grants, protected migration or pilot is authorized. Historical0.2.1
+release evidence stays intact, and a new pinned candidate/file comparison/owner review is required
+before Gate B. New local regression results and operational blockers belong in the permissions
+release report; local code/test completion does not establish Beth/Kris or protected-stack acceptance.

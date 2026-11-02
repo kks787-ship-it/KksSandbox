@@ -1,0 +1,79 @@
+{
+  "candidate": "0.3.0",
+  "schema": 3,
+  "owned_tables": 15,
+  "source_files": 19,
+  "historical_pin": "6f5a9bf51747399a309b39637a135841fe4cf2a1",
+  "base_commit_preserved": "71a235f825444f766bf80099bcaf16d975f0baca",
+  "scope": "local disposable development only",
+  "mfa_provider": "not installed; default-deny integration hook; synthetic adapter only in guarded fixtures",
+  "engines": {
+    "MariaDB": {
+      "version": "10.6.28",
+      "assertions": {
+        "foundation": 88,
+        "calendar": 131,
+        "staff_usability": 66,
+        "permissions": 81
+      },
+      "total_assertions": 366,
+      "booking_race_cases": 6,
+      "permission_race_cases": 2,
+      "migration_race_cases": 1,
+      "guarded_cli_transfer_recovery": true,
+      "sole_master_mirror_recovery": true,
+      "raw_payload_error_logging_suppressed": true,
+      "history_filtered_before_pagination": true,
+      "v2_data_preservation": true,
+      "v3_full_data_restore": true,
+      "old_code_downgrade_denied": true,
+      "v1_restore_access_denied": true,
+      "initial_db_restore": true,
+      "log_sha256": "b47f897029e84416f62579c2aee8170a0e4520678036a1fa3399df26665a8bfc"
+    },
+    "MySQL": {
+      "version": "8.0.46",
+      "assertions": {
+        "foundation": 88,
+        "calendar": 131,
+        "staff_usability": 66,
+        "permissions": 81
+      },
+      "total_assertions": 366,
+      "booking_race_cases": 6,
+      "permission_race_cases": 2,
+      "migration_race_cases": 1,
+      "guarded_cli_transfer_recovery": true,
+      "sole_master_mirror_recovery": true,
+      "raw_payload_error_logging_suppressed": true,
+      "history_filtered_before_pagination": true,
+      "v2_data_preservation": true,
+      "v3_full_data_restore": true,
+      "old_code_downgrade_denied": true,
+      "v1_restore_access_denied": true,
+      "initial_db_restore": true,
+      "log_sha256": "14329a8fa830e9a85b36ef8b4ce78d0e713f575bb87d40733ac559ad0366667a"
+    }
+  },
+  "browser": {
+    "database": "MariaDB",
+    "wordpress": "6.8.3",
+    "theme": "local stand-in, not protected Kadence",
+    "php": "8.1.34",
+    "widths": [
+      390,
+      768,
+      1280
+    ],
+    "calendar_checks": 59,
+    "permissions_checks": 39,
+    "permission_axe_violations": 0,
+    "calendar_transport_get_recoveries": 0,
+    "protected_acceptance": false,
+    "javascript_exceptions": 0,
+    "subscriber_master_dashboard_verified": true,
+    "current_and_proposed_access_verified": true
+  },
+  "protected_changes": false,
+  "schema_review_sha256": "45ca1b585f5f8bccfdff8b350b2942c65115a57ecf5c648c073fb22f21803dab"
+}

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+WP=(php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root)
+"${WP[@]}" --user=1 eval 'if(DB_NAME!=="csf_fixture"||ABSPATH!=="/test/site/"){WP_CLI::error("Fixture required");}$f=json_decode(file_get_contents("/test/permissions-fixture.json"),true);$s=CSF_Scheduling_Permissions::state();$id=$f["manager"];$m=$s["members"][$id];$m["overrides"]["team_view"]="grant";$m["overrides"]["team_groups"]="grant";$r=CSF_Scheduling_Store::permissions("team_member_saved",["user_id"=>$id,"member"=>$m,"sensitive_confirmed"=>true],(int)CSF_Scheduling_Schema::settings()["revision"],wp_generate_uuid4());if(is_wp_error($r)){WP_CLI::error(wp_json_encode($r));}$s=CSF_Scheduling_Permissions::state();$b=[];foreach(["head_trainer","assistant_trainer"]as$key){$g=$s["groups"][$key];$g["label"].=" race";$b[]=["id"=>$key,"group"=>$g,"sensitive_confirmed"=>true];}file_put_contents("/test/permission-race-groups.json",wp_json_encode(["revision"=>(int)CSF_Scheduling_Schema::settings()["revision"],"manager"=>$id,"bodies"=>$b]));'
+for worker in 1 2;do
+ CSF_PERMISSION_RACE=groups CSF_PERMISSION_WORKER="$worker" "${WP[@]}" eval-file /repo/tests/scheduling/permission-worker.php > "/test/permission-groups-$worker.log" 2>&1 &
+ if [[ "$worker" == 1 ]];then P1=$!;else P2=$!;fi
+done
+for i in $(seq 1 200);do [[ -f /test/permission-ready-1 && -f /test/permission-ready-2 ]] && break;sleep .1;done
+touch /test/permission-go
+wait "$P1"
+wait "$P2"
+"${WP[@]}" eval '$a=json_decode(file_get_contents("/test/permission-outcome-groups-1"),true);$b=json_decode(file_get_contents("/test/permission-outcome-groups-2"),true);$r=[$a["reason"],$b["reason"]];sort($r);if($r!==["committed","stale_revision"]){WP_CLI::error(wp_json_encode($r));}echo "TWO_ACTOR_PERMISSION_RACE_ONE_COMMIT_ONE_STALE_PASS\n";'
+"${WP[@]}" --user=1 eval '$p=json_decode(file_get_contents("/test/permissions-fixture.json"),true);$f=json_decode(file_get_contents("/test/usability-fixture.json"),true);$a="2027-02-02T09:00-08:00";$b=["uuid"=>wp_generate_uuid4(),"expected"=>0,"title"=>"Revocation race","service_type"=>"group","state"=>"confirmed","start"=>$a,"end"=>"2027-02-02T10:00-08:00","hold_expires"=>null,"resources"=>[$f["instructor"],$f["arena"]],"riders"=>array_slice($f["riders"],0,2),"rides"=>[["horse"=>$f["horses"][0],"rider"=>$f["riders"][0],"start"=>$a,"end"=>"2027-02-02T09:20-08:00"],["horse"=>$f["horses"][0],"rider"=>$f["riders"][1],"start"=>"2027-02-02T09:35-08:00","end"=>"2027-02-02T09:55-08:00"]]];file_put_contents("/test/permission-race-revocation.json",wp_json_encode(["revision"=>(int)CSF_Scheduling_Schema::settings()["revision"],"body"=>$b,"trainer"=>$p["trainer"]]));'
+CSF_PERMISSION_RACE=revocation CSF_PERMISSION_WORKER=1 "${WP[@]}" eval-file /repo/tests/scheduling/permission-worker.php > /test/permission-revocation.log 2>&1 &
+P1=$!
+for i in $(seq 1 200);do [[ -f /test/permission-preauthorized ]] && break;sleep .1;done
+"${WP[@]}" --user=1 eval '$f=json_decode(file_get_contents("/test/permission-race-revocation.json"),true);$s=CSF_Scheduling_Permissions::state();$m=$s["members"][$f["trainer"]];$m["active"]=false;$r=CSF_Scheduling_Store::permissions("team_member_saved",["user_id"=>$f["trainer"],"member"=>$m,"sensitive_confirmed"=>true],(int)CSF_Scheduling_Schema::settings()["revision"],wp_generate_uuid4());if(is_wp_error($r)){WP_CLI::error(wp_json_encode($r));}'
+touch /test/permission-revoked
+wait "$P1"
+"${WP[@]}" --user=1 eval '$r=json_decode(file_get_contents("/test/permission-outcome-revocation-1"),true);global$wpdb;$t=CSF_Scheduling_Schema::table("appointments");if($r["reason"]!=="forbidden"||$wpdb->get_var("SELECT COUNT(*) FROM `$t` WHERE title=\"Revocation race\"")!=0){WP_CLI::error("Revocation race allowed a stale write");}$f=json_decode(file_get_contents("/test/permission-race-revocation.json"),true);$s=CSF_Scheduling_Permissions::state();$m=$s["members"][$f["trainer"]];$m["active"]=true;$r=CSF_Scheduling_Store::permissions("team_member_saved",["user_id"=>$f["trainer"],"member"=>$m,"sensitive_confirmed"=>true],(int)CSF_Scheduling_Schema::settings()["revision"],wp_generate_uuid4());if(is_wp_error($r)){WP_CLI::error(wp_json_encode($r));}echo "REVOKE_BETWEEN_PRECHECK_AND_LOCK_DENIES_BOOKING_PASS\n";'

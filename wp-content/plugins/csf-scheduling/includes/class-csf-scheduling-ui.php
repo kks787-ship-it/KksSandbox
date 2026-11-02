@@ -224,9 +224,10 @@ class CSF_Scheduling_UI {
 	 * @param string $label Label.
 	 * @param mixed  $value Value.
 	 * @param string $type Type.
+	 * @param bool   $locked Preserve a field the actor cannot change.
 	 */
-	public static function input( $key, $label, $value = '', $type = 'text' ) {
-		echo '<label>' . esc_html( $label ) . ' <input data-field="' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" value="' . esc_attr( $value ?? '' ) . '"' . ( 'checkbox' === $type ? checked( (bool) $value, true, false ) : ' required' ) . '></label>';
+	public static function input( $key, $label, $value = '', $type = 'text', $locked = false ) {
+		echo '<label>' . esc_html( $label ) . ' <input data-field="' . esc_attr( $key ) . '" type="' . esc_attr( $type ) . '" value="' . esc_attr( $value ?? '' ) . '"' . ( $locked ? ( 'checkbox' === $type ? ' disabled' : ' readonly' ) : '' ) . ( 'checkbox' === $type ? checked( (bool) $value, true, false ) : ' required' ) . '></label>';
 	}
 
 	/** Present an existing instant in the current facility zone without moving it.
@@ -319,6 +320,8 @@ class CSF_Scheduling_UI {
 	 * @param string $id ID.
 	 */
 	public static function appointment( $body, $ctx, $id = '' ) {
+		if ( ( ! CSF_Scheduling_Access::can( 'appointment_edit' ) && ( ! $body['expected'] || ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) || ( 'confirmed' === ( $body['state'] ?? '' ) && ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) {
+			return; }
 		self::begin( 'appointment_saved', $body, $id );
 		self::input( 'title', 'Appointment title', $body['title'] );
 		self::select( 'service_type', 'Service', $ctx['services'], $body['service_type'] );
@@ -329,6 +332,8 @@ class CSF_Scheduling_UI {
 		);
 		if ( ! CSF_Scheduling_Access::can( 'csf_schedule_confirm' ) && 'confirmed' !== $body['state'] ) {
 			unset( $states['confirmed'] ); }
+		if ( ! CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
+			unset( $states['requested'], $states['held'] );}
 		self::select( 'state', 'State', $states, $body['state'] );
 		self::time( 'start', 'Appointment start', $body['start'] );
 		self::time( 'end', 'Appointment end', $body['end'] );
@@ -375,6 +380,8 @@ class CSF_Scheduling_UI {
 	 * @param array $body Cancellation.
 	 */
 	public static function cancel( $body ) {
+		if ( ! CSF_Scheduling_Access::can( 'appointment_cancel' ) ) {
+			return; }
 		self::begin( 'appointment_canceled', $body );
 		self::select(
 			'initiator',
@@ -401,10 +408,22 @@ class CSF_Scheduling_UI {
 	 * @param array  $ctx Choices.
 	 */
 	public static function setup_form( $kind, $body, $ctx ) {
+		$cap = array(
+			'resource_created'     => 'resource_manage',
+			'resource_saved'       => 'resource_manage',
+			'rider_saved'          => CSF_Scheduling_Access::can( 'rider_edit' ) ? 'rider_edit' : 'rider_clearance',
+			'horse_saved'          => CSF_Scheduling_Access::can( 'suitability_manage' ) ? 'suitability_manage' : 'resource_manage',
+			'availability_saved'   => 'availability_manage',
+			'restriction_added'    => 'welfare_hold',
+			'restriction_released' => 'welfare_release',
+		)[ $kind ] ?? null;
+		if ( ! $cap || ! CSF_Scheduling_Access::can( $cap ) ) {
+			return; }
+
 		self::begin( $kind, $body );
 		$d = $body['data'] ?? $body;
 		if ( in_array( $kind, array( 'resource_created', 'resource_saved', 'rider_saved', 'horse_saved' ), true ) ) {
-			self::input( 'label', 'Name', $d['label'] ); }
+			self::input( 'label', 'Name', $d['label'], 'text', 'rider_saved' === $kind ? ! CSF_Scheduling_Access::can( 'rider_edit' ) : ( 'horse_saved' === $kind && ! CSF_Scheduling_Access::can( 'resource_manage' ) ) ); }
 		if ( 'resource_created' === $kind ) {
 			self::select(
 				'kind',
@@ -426,7 +445,11 @@ class CSF_Scheduling_UI {
 				'guardian_verified'  => 'Guardian permission checked by staff',
 				'emergency_verified' => 'Emergency contact evidence checked by staff',
 			) as $key => $label ) {
-				self::input( $key, $label, $d[ $key ], 'checkbox' ); }
+				if ( CSF_Scheduling_Access::can( 'rider_clearance' ) ) {
+					self::input( $key, $label, $d[ $key ], 'checkbox' );
+				} else {
+					echo '<p>' . esc_html( $label . ': ' . ( $d[ $key ] ? 'Yes' : 'No' ) . ' (verification permission required)' ) . '</p>'; }
+			}
 		}
 		if ( 'horse_saved' === $kind ) {
 			if ( ! $body['expected'] ) {
@@ -443,7 +466,7 @@ class CSF_Scheduling_UI {
 				echo '<p>' . esc_html( ucfirst( $d['source'] ) . ' horse · identity retained' ) . '</p>'; }
 				self::checks( 'suitable_services', 'Approved services', $ctx['services'], $d['suitable_services'] );
 				self::checks( 'suitable_riders', 'Approved riders', $ctx['riders'], $d['suitable_riders'] );
-				self::input( 'training_enrolled', 'Enrolled in full training (counts toward facility cap)', $d['training_enrolled'], 'checkbox' );
+				self::input( 'training_enrolled', 'Enrolled in full training (counts toward facility cap)', $d['training_enrolled'], 'checkbox', ! CSF_Scheduling_Access::can( 'resource_manage' ) );
 		}
 		if ( 'availability_saved' === $kind ) {
 			echo '<p>No intervals means unavailable. Add explicit dates that cover the appointment and any travel buffers.</p><div class="csf-rows" data-rows="intervals">';
@@ -522,10 +545,12 @@ class CSF_Scheduling_UI {
 	 * @return array
 	 */
 	public static function context( $policy = null ) {
+		if ( ! CSF_Scheduling_Access::can() && ! CSF_Scheduling_Access::writer() ) {
+			return array(); }
 		global $wpdb;
 		$t   = CSF_Scheduling_Schema::table( 'resources' );
 		$ctx = array(
-			'resource_rows'    => $wpdb->get_results( "SELECT * FROM `$t` ORDER BY kind,label", ARRAY_A ),
+			'resource_rows'    => CSF_Scheduling_Access::can( 'resource_view' ) ? $wpdb->get_results( "SELECT * FROM `$t` ORDER BY kind,label", ARRAY_A ) : array(),
 			'rider_rows'       => CSF_Scheduling_Calendar::documents( 'riders' ),
 			'horse_rows'       => CSF_Scheduling_Calendar::documents( 'horses' ),
 			'services'         => array(),
@@ -573,7 +598,7 @@ class CSF_Scheduling_UI {
 	 * @param array|null          $draft Unsent edits.
 	 */
 	public static function render( $result, $retry, $draft ) {
-		if ( ! CSF_Scheduling_Access::can() ) {
+		if ( ! CSF_Scheduling_Access::can() && ! CSF_Scheduling_Access::writer() ) {
 			wp_die( 'Private scheduling access required.', '', array( 'response' => 403 ) ); }
 		self::$reviewed = CSF_Scheduling_Schema::settings();
 		try {
@@ -589,7 +614,7 @@ class CSF_Scheduling_UI {
 	 * @param array|null          $draft Unsent edits.
 	 */
 	private static function page( $result, $retry, $draft ) {
-		if ( ! CSF_Scheduling_Access::can() ) {
+		if ( ! CSF_Scheduling_Access::can() && ! CSF_Scheduling_Access::writer() ) {
 			wp_die( 'Private scheduling access required.', '', array( 'response' => 403 ) ); }
 		if ( isset( $_POST['csf_calendar_view'] ) ) {
 			check_admin_referer( 'csf_calendar_view' ); }
@@ -660,9 +685,9 @@ class CSF_Scheduling_UI {
 				echo '<article><h2>' . esc_html( $row['title'] ) . '</h2><p>' . esc_html( self::display_time( $row['start'] ) . ' – ' . self::display_time( $row['end'] ) ) . '</p><p>Status: <strong>' . esc_html( $row['state'] ) . ( $row['hold_expired'] ? ' (expired; not reserved)' : '' ) . '</strong></p><p class="' . ( $row['rider_cleared'] ? 'csf-clear' : 'csf-blocked' ) . '">' . ( $row['rider_cleared'] ? ( $d['riders'] ? 'Rider evidence verified' : 'No rider participation recorded' ) : 'PRE-RIDE BLOCK: rider evidence incomplete' ) . '</p><p class="' . ( $row['welfare_review'] ? 'csf-blocked' : '' ) . '">' . ( $row['welfare_review'] ? 'WELFARE BLOCK: staff review required' : 'No recorded welfare restriction' ) . '</p>';
 				echo '<p>' . esc_html( implode( ', ', array_map( static fn( $id ) => $ctx['resources'][ $id ] ?? 'Unavailable resource', $d['resources'] ) ) ) . '</p><ul class="csf-rotation">';
 				foreach ( $d['rides'] as $ride ) {
-					echo '<li>' . esc_html( ( $ctx['riders'][ $ride['rider'] ?? '' ] ?? 'Horse training' ) . ' · ' . ( $ctx['horses'][ $ride['horse'] ] ?? 'Unknown horse' ) . ' · ' . self::display_time( $ride['start'] ) . '–' . self::display_time( $ride['end'] ) ) . '</li>'; }
+					echo '<li>' . esc_html( ( $ctx['riders'][ $ride['rider'] ?? '' ] ?? 'Rider details restricted' ) . ' · ' . ( $ctx['horses'][ $ride['horse'] ] ?? 'Unknown horse' ) . ' · ' . self::display_time( $ride['start'] ) . '–' . self::display_time( $ride['end'] ) ) . '</li>'; }
 				echo '</ul>';
-				if ( CSF_Scheduling_Access::can( 'csf_schedule_manage' ) && 'canceled' !== $row['state'] ) {
+				if ( CSF_Scheduling_Access::writer() && 'canceled' !== $row['state'] ) {
 					$d['expected'] = $row['revision'];
 					echo '<details><summary>Edit or confirm appointment</summary>';
 					self::appointment( $d, $ctx );
@@ -691,7 +716,7 @@ class CSF_Scheduling_UI {
 				echo '</article>';
 			}
 			echo '</div>';
-			if ( CSF_Scheduling_Access::can( 'csf_schedule_manage' ) ) {
+			if ( CSF_Scheduling_Access::writer() ) {
 				if ( $draft && is_wp_error( $result ) && 'commit_unknown' !== ( $result->get_error_data()['reason'] ?? '' ) ) {
 					echo '<section><h2>Your unsaved draft</h2><p>Compare with current records before previewing. A changed record still requires a fresh edit; it will not be overwritten.</p>';
 					if ( 'appointment_saved' === $draft['kind'] ) {
@@ -700,7 +725,8 @@ class CSF_Scheduling_UI {
 							self::setup_form( $draft['kind'], $draft['body'], $ctx );
 										} echo '</section>';
 				}
-				echo '<section id="csf-create"><h2>Create manual appointment</h2>';
+				if ( CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
+					echo '<section id="csf-create"><h2>Create manual appointment</h2>'; }
 				self::appointment(
 					array(
 						'uuid'         => wp_generate_uuid4(),
@@ -718,7 +744,8 @@ class CSF_Scheduling_UI {
 					$ctx,
 					'csf-new-appointment'
 				);
-				echo '</section>';
+				if ( CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
+					echo '</section>'; }
 				self::setup( $ctx );
 			}
 			echo '</div>';

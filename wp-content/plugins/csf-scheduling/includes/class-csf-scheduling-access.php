@@ -1,78 +1,101 @@
 <?php
-/** Explicit capabilities plus an authoritative staff allowlist.
+/** Authoritative farm membership and fail-closed, non-authoritative WP mirrors.
  *
  * @package CSF_Scheduling
  */
 
 defined( 'ABSPATH' ) || exit;
-
-// Authoritative transactional data must bypass WordPress object caches.
-// phpcs:disable WordPress.DB.DirectDatabaseQuery
-
-/** Generic WordPress roles never imply scheduling access. */
+// phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+/** Current authoritative authorization and cache-independent capability reconciliation. */
 class CSF_Scheduling_Access {
-	const CAPS = array( 'csf_schedule_view', 'csf_schedule_manage', 'csf_schedule_confirm', 'csf_schedule_audit' );
-
-	/** Permission checks fail closed before schema creation or with malformed membership.
+	/** Check for an independently granted native write action.
 	 *
-	 * @param string $cap Scheduling capability.
 	 * @return bool
 	 */
-	public static function can( $cap = 'csf_schedule_view' ) {
-		if ( ! in_array( $cap, self::CAPS, true ) || ! get_current_user_id() || ! current_user_can( $cap ) || ! CSF_Scheduling_Schema::inspect()['ready'] ) {
-			return false;
-		}
-		$staff = json_decode( CSF_Scheduling_Schema::settings()['staff_json'], true );
-		return is_array( $staff ) && array_is_list( $staff ) && count( $staff ) <= 50 && count( array_filter( $staff, static fn( $id ) => is_int( $id ) && $id > 0 ) ) === count( $staff ) && count( array_unique( $staff ) ) === count( $staff ) && in_array( get_current_user_id(), $staff, true );
+	public static function writer() {
+		foreach ( array( 'appointment_edit', 'appointment_confirm', 'appointment_cancel', 'rider_edit', 'rider_clearance', 'suitability_manage', 'resource_manage', 'availability_manage', 'welfare_hold', 'welfare_release' )as$p ) {
+			if ( self::can( $p ) ) {
+				return true;
+			}
+		}return false;
 	}
 
-	/** Explicit owner-verified IDs, not email/display-name inference. No new roles.
+	const CAPS = array( 'csf_schedule_view', 'csf_schedule_manage', 'csf_schedule_confirm', 'csf_schedule_audit' );
+
+	/** Every protected operation reads current membership/MFA/capability metadata.
 	 *
-	 * @param array  $ids Verified WP user IDs.
-	 * @param bool   $verified CLI operator acknowledgment.
-	 * @param int    $revision Reviewed singleton revision.
-	 * @param string $command Idempotency UUID.
-	 * @return array|WP_Error
+	 * @param string $cap Implemented permission key.
+	 */
+	public static function can( $cap = 'calendar_view' ) {
+		if ( 'calendar_view' === $cap || 'csf_schedule_view' === $cap ) {
+			return self::can( 'calendar_all' ) || self::can( 'calendar_assigned' ); }
+		$aliases = array(
+			'csf_schedule_confirm' => 'appointment_confirm',
+			'csf_schedule_audit'   => 'audit_view',
+		);
+		$cap     = $aliases[ $cap ] ?? $cap;
+		$id      = get_current_user_id();
+		if ( ! isset( CSF_Scheduling_Permissions::registry()[ $cap ] ) || ! $id || ! CSF_Scheduling_Schema::inspect()['ready'] || ! CSF_Scheduling_Permissions::mfa( $id ) ) {
+			return false; }
+		$s = CSF_Scheduling_Permissions::state();
+		if ( ! $s || ! ( CSF_Scheduling_Permissions::effective( $s, $id )[ $cap ] ?? false ) ) {
+			return false; }
+		return self::mirror_matches( $id, CSF_Scheduling_Permissions::effective( $s, $id ) );
+	}
+
+	/** Verify the complete raw primary-DB mirror, never cached current_user caps.
+	 *
+	 * @param int   $id Verified numeric identity.
+	 * @param array $rights Effective rights.
+	 */
+	public static function mirror_matches( $id, $rights ) {
+		global $wpdb;
+		$raw  = $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id=%d AND meta_key=%s", $id, $wpdb->prefix . 'capabilities' ) );
+		$caps = maybe_unserialize( $raw );
+		if ( ! is_array( $caps ) ) {
+			return false;}
+		foreach ( $rights as$p => $yes ) {
+			if ( $yes ? true !== ( $caps[ 'csf_dr_' . $p ] ?? null ) : ( isset( $caps[ 'csf_dr_' . $p ] ) && false !== $caps[ 'csf_dr_' . $p ] ) ) {
+				return false;}
+		}
+		return true;
+	}
+
+	/** Any native command may have its own fine-grained write privilege.
+	 *
+	 * @param array  $ids Ids.
+	 * @param bool   $verified Verified.
+	 * @param int    $revision Revision.
+	 * @param string $command Command.
 	 */
 	public static function provision( $ids, $verified, $revision, $command ) {
-		if ( true !== $verified || ! get_current_user_id() || ! current_user_can( 'manage_options' ) || ! is_array( $ids ) || count( array_filter( $ids, 'is_int' ) ) !== count( $ids ) || array_values( array_unique( $ids ) ) !== $ids || ! $ids || count( $ids ) > 50 ) {
-			return new WP_Error( 'provision_denied', 'Verified owner operator and explicit user IDs required.' );
-		}
-		foreach ( $ids as $id ) {
-			if ( ! is_int( $id ) || $id < 1 || ! get_userdata( $id ) ) {
-				return new WP_Error( 'provision_ids', 'All staff IDs must resolve to real WordPress users.' );
-			}
-		}
-		sort( $ids );
-		$result = CSF_Scheduling_Store::staff( $ids, $verified, $revision, $command );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-		// Capabilities are a reconciled mirror, never the authoritative membership gate.
-		// A crash/failure here denies access until replay reconciles; removal is immediate.
-		$current = json_decode( CSF_Scheduling_Schema::settings()['staff_json'], true );
-		if ( ! is_array( $current ) || ! array_is_list( $current ) ) {
-			return new WP_Error( 'provision_reconcile', 'Membership changed unexpectedly; review before replay.' );
-		}
-		foreach ( array_unique( array_merge( $result['previous_staff'], $ids, $current ) ) as $id ) {
-			$user = new WP_User( $id );
-			foreach ( self::CAPS as $cap ) {
-				if ( in_array( $id, $current, true ) ) {
-					$user->add_cap( $cap );
+		unset( $ids, $verified, $revision, $command );
+		return new WP_Error( 'provision_retired', 'Use the verified master Team & Permissions review. No blanket grants are made.' );
+	}
+
+	/** Post-commit reconciliation; authoritative deny is already immediate. Exact retry repairs mirrors. */
+	public static function reconcile() {
+		$s = CSF_Scheduling_Permissions::state();
+		if ( ! $s ) {
+			return new WP_Error( 'permission_state', 'Permission registry unavailable.' ); }
+		foreach ( $s['members'] as $id => $m ) {
+			$u      = new WP_User( (int) $id );
+			$rights = CSF_Scheduling_Permissions::effective( $s, (int) $id );
+			foreach ( self::CAPS as $p ) {
+				$u->remove_cap( $p ); }
+			foreach ( $rights as $p => $yes ) {
+				if ( $yes ) {
+					$u->add_cap( 'csf_dr_' . $p );
 				} else {
-					$user->remove_cap( $cap );
-				}
+					$u->remove_cap( 'csf_dr_' . $p ); }
 			}
-			clean_user_cache( $id );
+			clean_user_cache( (int) $id );
 			global $wpdb;
-			$raw  = $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id=%d AND meta_key=%s", $id, $wpdb->prefix . 'capabilities' ) );
-			$caps = maybe_unserialize( $raw );
-			foreach ( self::CAPS as $cap ) {
-				if ( ! is_array( $caps ) || ! empty( $caps[ $cap ] ) !== in_array( $id, $current, true ) ) {
-					return new WP_Error( 'provision_reconcile', 'Membership recorded; capability synchronization incomplete. Replay the same command.' );
-				}
-			}
+			$raw    = $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id=%d AND meta_key=%s", $id, $wpdb->prefix . 'capabilities' ) );
+			$actual = maybe_unserialize( $raw );
+			if ( ! self::mirror_matches( (int) $id, $rights ) ) {
+				return new WP_Error( 'provision_reconcile', 'Membership committed; mirror reconciliation incomplete. Retry the same command.' ); }
 		}
-		return $result;
+		return true;
 	}
 }

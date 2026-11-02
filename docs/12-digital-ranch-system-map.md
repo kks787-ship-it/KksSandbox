@@ -78,8 +78,8 @@ The arrows describe **future data flow**, not integrations that already exist.
 
 | Capability | Current state | Target and first dependency |
 |---|---|---|
-| **Staff scheduling foundation** | BUILT — locally tested through scheduling 0.2.1; [validation](test-results/scheduling-staff.md); no protected installation | Separate plugin, explicit migration, resource policies and **new granular group/owner access model requested in Issue #12 before any protected staff grants** |
-| **Farm Master Account and permission groups** | **REQUIRED — NOT BUILT**; existing scheduling v0.2.1 offers four coarse capabilities granted together | [Issue #12](https://github.com/kks787-ship-it/KksSandbox/issues/12): Kris's verified master dashboard, editable group presets, individual allow/deny checkboxes, effective permissions preview, audited instant revocation and last-master protection. **Supersedes blanket Beth/Kris grants in Gate B; no execution approval.** |
+| **Staff scheduling foundation** | BUILT — locally tested through scheduling 0.2.1; [validation](test-results/scheduling-staff.md); no protected installation | Separate plugin, explicit migration, resource policies and **granular group/owner access model implemented locally in Issue #12; protected staff grants remain unauthorized** |
+| **Farm Master Account and permission groups** | **BUILT — LOCAL ONLY** in scheduling 0.3.0/schema 3; [permissions validation](test-results/scheduling-permissions.md); not installed or operational | [Issue #12](https://github.com/kks787-ship-it/KksSandbox/issues/12): Kris's verified master dashboard, editable group presets, individual allow/deny checkboxes, effective permissions preview, audited instant revocation and last-master protection. **Supersedes blanket Beth/Kris grants in Gate B; no execution approval.** |
 | **Usable day/week calendar** | BUILT — local-only Sprint [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) candidate; [tests/limits](test-results/scheduling-calendar.md); no real staff acceptance | Beth/Kris manual requested/hold/confirmed/canceled appointments; audited changes, robust horse/instructor/arena/participant conflicts, protected blocks |
 | **Recurring lessons and Horse Academy roster** | DESIGNED, not coded | DST-safe recurrence, exceptions, resource rotations, participant/group cap, makeups only after policy approval |
 | **Household CRM / one-time intake** | NOT BUILT; workflow requirements documented from experience with multi-rider families | One household, parents/guardians, multiple riders, related horse owners/horses, emergency contacts; avoid duplicate entry |
@@ -212,7 +212,7 @@ Stages B/C/E can have overlapping **design** work without merging their deployme
 | [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) | Working staff calendar | Local v0.2.0 at `a105868` and tests delivered; remains open for protected install/real staff acceptance |
 | [#10](https://github.com/kks787-ship-it/KksSandbox/issues/10) | Staff usability and pilot readiness | **Local implementation delivered** — native staff forms and synthetic acceptance packet; protected pilot/human acceptance pending |
 | [#11](https://github.com/kks787-ship-it/KksSandbox/issues/11) | Scheduling synthetic sandbox pilot | **Gate A passed** at `0c5bb66` (backup and isolated functional restore); **Gate B not authorized**, no plugin install, grants or real data |
-| [#12](https://github.com/kks787-ship-it/KksSandbox/issues/12) | Master account + permission groups/checkboxes | **New owner requirement / code not built**; local RBAC redesign needed before any Gate B staff grants |
+| [#12](https://github.com/kks787-ship-it/KksSandbox/issues/12) | Master account + permission groups/checkboxes | **Local implementation/tested candidate delivered**; master dashboard, granular groups/overrides and v3 migration; Gate B/staff/MFA acceptance still held |
 
 **Update this ledger from evidence, not assumptions.** Mark a task DONE only with commit/test references and, if relevant, installation/operational-acceptance evidence. If code is finished but not deployed, mark it BUILT — inactive or local-only. If active in a sandbox but unapproved for real emergency/financial use, do not mark it operational. Preserve historical sources; later evidence supersedes older paragraphs elsewhere in the repository.
 
@@ -220,3 +220,13 @@ Sprint #9.1 follow-up: the local calendar candidate is now 0.2.1, with no raw st
 required for staff tasks. Schema stays v2; owner-approved policy, staff identities/MFA, actual
 protected-stack testing and Beth/Kris acceptance remain outstanding. See [current validation](test-results/scheduling-staff.md).
 No website baseline, inquiry state, emergency activation or production status was changed.
+
+
+Issue #12 follow-up: local scheduling 0.3.0/schema 3 now provides Team & Permissions, editable
+employee/custom groups, individual grant/deny/inherit controls, audited previews, immediate
+revocation and protected master recovery. Validation: 732 assertions across MariaDB/MySQL,
+59 calendar + 39 permissions browser checks, 84 PHP files lint/standards. See the new candidate
+release report/checksum inventory. The owner-required tracker/architecture history is preserved.
+No actual owner or staff identity is assigned; MFA/provider adapter, new source/schema approval,
+protected installation and Beth/Kris acceptance remain held. No server, inquiry, emergency or
+production changes occurred. This does not establish operational or commercial-product acceptance.

@@ -33,15 +33,16 @@ class CSF_Scheduling_Diagnostics {
 			}
 		}
 		global $wpdb;
-		foreach ( json_decode( $row['staff_json'], true ) as $id ) {
-			$raw  = $wpdb->get_var( $wpdb->prepare( "SELECT meta_value FROM {$wpdb->usermeta} WHERE user_id=%d AND meta_key=%s", $id, $wpdb->prefix . 'capabilities' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$caps = maybe_unserialize( $raw );
-			foreach ( CSF_Scheduling_Access::CAPS as $cap ) {
-				if ( ! is_array( $caps ) || empty( $caps[ $cap ] ) ) {
-					$missing[] = 'staff_permissions';
-				}
-			}
+		$auth = CSF_Scheduling_Permissions::state();
+		if ( ! $auth || null === $auth['master'] ) {
+			$missing[] = 'verified_master'; }
+		foreach ( $auth['members'] ?? array() as $id => $member ) {
+			if ( ! CSF_Scheduling_Access::mirror_matches( (int) $id, CSF_Scheduling_Permissions::effective( $auth, (int) $id ) ) ) {
+				$missing[] = 'staff_permissions'; }
+			if ( $member['active'] && ( ! $member['verified'] || ! CSF_Scheduling_Permissions::mfa( (int) $id ) ) ) {
+				$missing[] = 'staff_verification'; }
 		}
+
 		return array(
 			'plugin_version'               => CSF_SCHEDULING_VERSION,
 			'schema'                       => CSF_Scheduling_Schema::inspect(),
