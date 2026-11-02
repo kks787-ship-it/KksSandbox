@@ -516,3 +516,29 @@ Execute this checklist only after explicit owner authorization, in order; stop o
 10. Deliver observed compatibility, failures, backup/recovery evidence, no-change checks and Beth/Kris outstanding tasks. Leave real operational scheduling closed pending separate final owner authorization. Production, inquiries, public self-booking and emergency management remain excluded throughout.
 
 **Owner approval requested:** authorize the fresh backup/isolated recovery and the conditional synthetic pilot sequence above; privately identify the operator and each staff account with MFA evidence, and approve/revise the proposed fictional policy. Installation/migration/provisioning remain blocked until those prerequisites are satisfied. This gate comes from Issue#11 and the owner's Phase2 instruction, not an inferred new approval requirement.
+
+## Sprint #11 — Gate A completed, Gate B held (November 1, 2026 PST)
+
+After explicit owner approval limited to fresh backup and isolated functional recovery,
+[Gate A passed](test-results/scheduling-pilot-gate-a.md). Fresh private bundle:
+`csf-gate-a-20261102-004845-8d96d856`, captured November 1 16:48:45–16:48:54 PST
+(November 2 00:48:45–00:48:54 UTC). Six standard and 12 supplementary recovery checksums
+passed; exact config recovery is included privately. All 4,479 restored files and 12 tables
+matched source hashes/row fingerprints; isolated MariaDB integrity, cloned-account login,
+authenticated dashboard, Home/Lessons/Contact and Kadence stylesheet checks passed.
+
+The isolated drill used a separate MariaDB process/datadir/socket and loopback-only network
+namespace, with PHP 8.3.36's built-in HTTP server. It did not reproduce Plesk/Nginx/Apache/FPM,
+MFA or Basic Auth. Temporary cloned credentials were cleared and services stopped; the new
+private recovery resource is retained 0700. Historical recovery resources are unchanged.
+Final live comparison matched all 12 DB fingerprints and 4,479 files; the existing backup
+verification script passed against this exact bundle and new functional evidence. Off-server
+encrypted custody remains unverified. See the report for job IDs, failed fixture attempts,
+checksums, scope and limitations. Do not infer full disaster-recovery or operational acceptance.
+
+**Stop remains in force:** no scheduling files/activation/migration, staff creation/grants,
+policy application or pilot records were authorized or performed. Gate B needs separate owner
+approval plus verified staff identities/MFA and fictional policy. Gate C real operations remain
+unauthorized. Refresh the backup when stale or after intervening changes; never restore over
+later owner edits without reconciliation. Existing inquiry/emergency/production boundaries
+and the pinned scheduling release/checklist above remain unchanged.

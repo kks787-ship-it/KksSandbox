@@ -1,0 +1,149 @@
+{
+  "gate": "A only",
+  "owner_authorization": "Explicit owner approval in this conversation; Gate B and real operations excluded",
+  "backup": {
+    "status": "backup_verified",
+    "bundle": "/var/www/vhosts/cornerstonefarmomak.com/private/csf-gate-a-20261102-004845-8d96d856",
+    "capture_start": "2026-11-02T00:48:45.528906+00:00",
+    "capture_end": "2026-11-02T00:48:54.695720+00:00",
+    "database": "wp_mdf4x",
+    "prefix": "TXGEh_",
+    "tables": 12,
+    "files": 4479,
+    "unchanged_database": true,
+    "unchanged_files": true,
+    "standard_checksums": 6,
+    "recovery_checksums": 12,
+    "config_recovery": true,
+    "archives": {
+      "database.sql.gz": {
+        "bytes": 58361,
+        "sha256": "5ea84a96f4b01d155c842be36d1da704a8ea6929bba4a7c04e41d5ff7c7c0f86"
+      },
+      "wp-content.tar.gz": {
+        "bytes": 18167953,
+        "sha256": "cc8f4586133e7f74ae5ba6046c2e8c4245fd750f9d7205416699f3c783ebc090"
+      },
+      "wordpress-root.tar.gz": {
+        "bytes": 21991905,
+        "sha256": "b4979639c3a8ec29194535aae77407c3115f0636135afb78a850ff1a8dac21d3"
+      }
+    },
+    "mode": "0700 directory / 0600 files",
+    "off_server_copy": "not performed"
+  },
+  "functional_restore": {
+    "status": "functional_restore_passed",
+    "recovery_directory": "/var/www/vhosts/cornerstonefarmomak.com/private/csf-gate-a-recovery-20261102-005054-a6b56e84",
+    "bundle": "/var/www/vhosts/cornerstonefarmomak.com/private/csf-gate-a-20261102-004845-8d96d856",
+    "restored_files": 4479,
+    "restored_tables": 12,
+    "table_data_hashes_match_before_clone_changes": true,
+    "integrity_tables_ok": 12,
+    "php": "8.3.36",
+    "database_engine": "MariaDB 10.6.23",
+    "network": "private namespace; loopback only; no external route",
+    "database_isolation": "separate process/datadir; skip-networking; private socket; scoped clone user",
+    "live_paths": "masked only inside private mount namespace",
+    "login": "existing cloned administrator; temporary random clone-only password; original cloned hash restored and test sessions removed",
+    "accounts_created": 0,
+    "pages": [
+      {
+        "path": "/",
+        "status": 200,
+        "bytes": 121889,
+        "kadence": true
+      },
+      {
+        "path": "/lessons/",
+        "status": 200,
+        "bytes": 96118,
+        "kadence": true
+      },
+      {
+        "path": "/contact/",
+        "status": 200,
+        "bytes": 75426,
+        "kadence": true
+      }
+    ],
+    "checks": [
+      "distinct_network_namespace",
+      "exact_private_bundle",
+      "existing_recovery_only",
+      "existing_recovery_site",
+      "all_restored_files_exact",
+      "existing_private_datadir",
+      "existing_database_only",
+      "dump_has_no_database_switch",
+      "restored_table_count",
+      "mariadb_integrity_12_tables",
+      "all_restored_tables_innodb",
+      "all_table_rows_and_hashes_match",
+      "no_external_network_route",
+      "loopback_only_network",
+      "local_response_/wp-login.php",
+      "login_form_rendered",
+      "local_response_/wp-login.php",
+      "authenticated_login",
+      "local_response_/wp-admin/",
+      "authenticated_dashboard",
+      "local_response_/",
+      "render_Home",
+      "kadence_Home",
+      "local_response_/lessons/",
+      "render_Lessons",
+      "kadence_Lessons",
+      "contact_scheduling_Lessons",
+      "local_response_/contact/",
+      "render_Contact",
+      "kadence_Contact",
+      "contact_scheduling_Contact",
+      "inquiry_stays_disabled",
+      "local_response_/wp-content/themes/kadence/style.css",
+      "kadence_stylesheet_served",
+      "core_only_active",
+      "inquiry_off",
+      "zero_scheduling_tables",
+      "no_accounts_created",
+      "test_password_and_sessions_removed"
+    ],
+    "limitations": [
+      "PHP built-in HTTP server, not restored Plesk/Nginx/Apache/FPM",
+      "No live password/MFA/Basic Auth validation",
+      "No device/accessibility or scheduling acceptance",
+      "Encrypted off-server custody not tested"
+    ],
+    "completed_utc": "2026-11-02T00:56:27.155684+00:00",
+    "services_stopped": true
+  },
+  "final_live_safeguards": {
+    "status": "verified",
+    "checked_utc": "2026-11-02T00:57:37.290947+00:00",
+    "live_all_12_table_fingerprints_unchanged": true,
+    "live_all_4479_file_hashes_unchanged": true,
+    "live_file_count": 4479,
+    "backup_gate_exit": 0,
+    "backup_gate_passed": true,
+    "live_active_plugins_core_only": true,
+    "live_inquiry_option_absent": true,
+    "scheduling_directory_absent": true,
+    "recovery_processes_remaining": 0,
+    "bundle_mode": "0o700",
+    "recovery_mode": "0o700",
+    "backup_config_mode": "0o600",
+    "live_config_mode": "0o600"
+  },
+  "jobs": {
+    "inspection": "job_01M6CVDYDX00R1SRMXFJG00J9G",
+    "isolation_check": "job_01M6CVFHGG00GKSXSJX98TWETC",
+    "initial_backup_attempt": "job_01M6CVHQ2J00YS6Y1J0Z7YPMBX",
+    "successful_backup": "job_01M6CVNHM600FZ8M2P8091XHM3",
+    "initial_restore": "job_01M6CVS49V00SZY7XB5H7C2HWD",
+    "isolated_cli_retry": "job_01M6CVWW4A00RAH6YQDVYEM4M9",
+    "discarded_syntax_attempt": "job_01M6CW0BV90017FPWAYY2X7SH6",
+    "router_diagnosis": "job_01M6CW0TX100KXGC0YB0YCZHKE",
+    "successful_restore": "job_01M6CW36Z900CTWJH46TP6BDQ6",
+    "final_safeguards": "job_01M6CW5GCY00A4DH2NQ4187ZAJ"
+  }
+}
