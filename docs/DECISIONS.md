@@ -389,3 +389,51 @@ and review a safe one-use identity handoff separately before O-Master. Mandatory
 MFA, actual identities, provider artifact selection/verification, protected-stack compatibility,
 notifications/recovery and all GateB execution decisions remain held. No bypass for convenience.
 See docs/test-results/scheduling-mfa.md and the single revised GateB package for exact evidence.
+
+## Owner scope decision — fully onboarded and paid before farm arrival (November 2026)
+
+**Owner's binding PRODUCT REQUIREMENT, not authorization to make live changes:** Digital Ranch
+must cover the full client journey: **one household/family with multiple riders, horse owners
+and payers; legally reviewed waiver/hold-harmless and instruction forms, boarding/training
+agreements and applicable service contracts; complete authenticated electronic signatures
+before service; payment processing at lesson scheduling; recurring or optional auto-paid
+board/training bills; client/horse-owner account portal and a clear arrival/readiness status.**
+
+The central business outcome is that **Beth teaches and handles horses instead of waiting
+for signatures or collecting overdue lesson money**, while **Kris supervises exceptions
+and accurate billing**. A newly arriving boarder/horse-in-training client should have
+approved intake, signatures, care/emergency authorizations and initial account setup
+complete remotely *before the trailer arrives*. A lesson parent should not repeat a
+long packet for every child or visit. Consent and payment are separate authoritative
+events: a booking confirmation is not a signature; a checked waiver is not proof of
+execution; a payment redirect is not a settled payment; a horse in need still receives
+appropriate animal care.
+
+**This extends the earlier calendar MVP scope as a LATER INTEGRATED PHASE.** The existing
+staff-only schedule and public Contact Beth to Schedule are unchanged now; no public
+self-booking is approved merely because the owner wants future 'pay when scheduling.'
+Bookable client request/checkout and published instant slots require later separate owner
+approval and cannot bypass Beth/Kris confirmation, horse suitability/rest, Sunday closure,
+trainer workload or resource collision constraints. Old Acuity remains canceled.
+
+Implementation roadmap: [joint pre-arrival requirements](14-client-readiness-onboarding-payments.md);
+[#15 — onboarding, signature, pre-arrival readiness](https://github.com/kks787-ship-it/KksSandbox/issues/15);
+[#16 — billing, lesson prepay, boarding/training autopay](https://github.com/kks787-ship-it/KksSandbox/issues/16);
+[#17 — controlled client booking and checkout](https://github.com/kks787-ship-it/KksSandbox/issues/17).
+
+**Unapproved decision inputs:** exact legal templates/guardian waiver authority under
+Washington law; boarded/trained horse contract terms, deposits and notice; processor
+(Stripe/Square/PayPal or other) and merchant identity; consent to variable charges or
+auto-pay; actual service prices, packages, lesson cancellation/refund/carryforward,
+wildfire/smoke/horse-health exceptions, accounting/taxes and CSF Riding Program nonprofit
+financial separation; client portal authentication/notifications and stored document
+retention. Existing prior intake PDFs, payment practices and public contact details are
+evidence, **not** automatic approval of the new system's terms or processor.
+
+**No execution approval:** This decision does not authorize coding against live private
+records, installation/activation/migration of a contract/payments plugin, client-account
+creation, sending emails, signing a real document, payment-provider linking, live charges,
+autobilling, public bookings, sandbox release, production changes, inquiry-form enablement
+or emergency activation. Admin MFA/Master issue #14 and protected scheduling Gate B #11
+retain their independent gates. Phase 1 UX/architecture and synthetic local tests may be
+planned without altering the VPS.
