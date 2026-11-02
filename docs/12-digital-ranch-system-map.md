@@ -82,8 +82,8 @@ The arrows describe **future data flow**, not integrations that already exist.
 | **Farm Master Account and permission groups** | **BUILT — LOCAL ONLY** in scheduling 0.3.0/schema 3; [permissions validation](test-results/scheduling-permissions.md); not installed or operational | [Issue #12](https://github.com/kks787-ship-it/KksSandbox/issues/12): Kris's verified master dashboard, editable group presets, individual allow/deny checkboxes, effective permissions preview, audited instant revocation and last-master protection. **Supersedes blanket Beth/Kris grants in Gate B; no execution approval.** |
 | **Usable day/week calendar** | BUILT — local-only Sprint [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) candidate; [tests/limits](test-results/scheduling-calendar.md); no real staff acceptance | Beth/Kris manual requested/hold/confirmed/canceled appointments; audited changes, robust horse/instructor/arena/participant conflicts, protected blocks |
 | **Recurring lessons and Horse Academy roster** | DESIGNED, not coded | DST-safe recurrence, exceptions, resource rotations, participant/group cap, makeups only after policy approval |
-| **Household CRM / one-time intake** | NOT BUILT; workflow requirements documented from experience with multi-rider families | One household, parents/guardians, multiple riders, related horse owners/horses, emergency contacts; avoid duplicate entry |
-| **Digital agreements & e-signatures** | NOT BUILT; prior paper/PDF forms exist outside the software | Review state-specific agreements, version them, capture who signed and when, securely store executed documents and gate service start |
+| **Household CRM / one-time intake** | **NOT BUILT — Issue #15 planned** | One household, guardians, multiple riders and horses, separate owner/payer authority; mobile intake once and before arrival; [integrated blueprint](14-client-readiness-onboarding-payments.md) |
+| **Digital agreements & e-signatures** | **NOT BUILT — Issue #15 planned**; historical PDFs only | Attorney-approved liability/hold harmless, instruction, boarding/training, lease/camp/sale agreements, exact adult/guardian/horse-owner signers, executed immutable PDFs, independent consent and readiness checks |
 | **New-rider check-in and participation clearance** | BUILT — local manual evidence flags; onboarding/signatures NOT BUILT | Separate calendar confirmation from signed release/guardian/emergency details; staff-visible not-cleared status |
 | **Lesson delivery** | NOT BUILT | Attendance, instructor notes, school horse assignments, rider goals, learning plans and makeup rules |
 | **School horses / resource welfare** | BUILT — local suitability/workload/restriction checks; care workflows NOT BUILT | Workload, suitability, rest, injury/unavailable periods, tack fit and staff-confirmed horse care blocks |
@@ -94,9 +94,9 @@ The arrows describe **future data flow**, not integrations that already exist.
 | **Camps and clinics registration** | Marketing structures ONLY | Registrations, age/capacity, staff assignments, camp-specific signed permissions, emergency contacts, rosters and check-in |
 | **Youth mentorship and working students** | NOT BUILT | Staff-approved work/lesson exchange, eligibility, mentorship hours, assignments, parental clearance and safeguards |
 | **Nonprofit / scholarships / 4-H/Pony Club outreach** | NOT BUILT | Separate scholarship application/awards and impact accounting from fee-based farm operations; legally appropriate separation |
-| **Billing and payments** | NOT BUILT | Service ledger, recurring board/lessons, invoices, payment reconciliation, deposits/credits/commissions; do not automate unapproved fees |
+| **Billing and payments** | **NOT BUILT — Issue #16 planned** | Hosted pay-at-booking checkout, lesson credits/packages, board/training recurring invoices and optional consented auto-pay, deposits, ACH, auditable ledger, manual receipts, refunds, reconciliation, nonprofit separation; no provider selected |
 | **Inventory / feed / expenses and reporting** | NOT BUILT | Feed and supplies stock, cost attribution, care consumption, maintenance, financial dashboards and cost/time reporting |
-| **Client and horse-owner portals** | NOT BUILT | Family-specific schedule, agreement status, invoices, horse reports and education; per-record authorization |
+| **Client and horse-owner portals** | **NOT BUILT — Issues #15–17 planned** | Secure pre-arrival checklist, required signatures, invoices, receipts, approved bookings and horse services; household/guardian/payer per-record authorization |
 | **Trainer, staff and volunteer portal** | NOT BUILT | Role-restricted tasks, lesson rosters, facility maintenance, training time, delegated scheduling and audit history |
 | **Client notifications** | NOT BUILT | Email/push/SMS opt-in, verified provider delivery, client preferences, retries, no unverified “delivered” claims |
 | **Educational AI / learning assistant** | NOT BUILT | Restrict public advice to approved published knowledge; any private assistant needs separate authorization controls |
@@ -154,19 +154,54 @@ This whole module stays isolated from private client/payment data and from routi
 - [ ] Approve owner-specific actual capacities, resource roster, timezone and staffing identities before adding real appointments to the protected sandbox.
 - [ ] Pilot Beth/Kris calendar with manual existing appointments; no Acuity import or public self-booking.
 
-### Stage C — remove the paperwork bottleneck (highest-value connected workflow)
+### Stage C — remove the paperwork and payment bottleneck (joined client-readiness workflow)
 
-- [ ] Household/guardian/horse-owner intake once per family.
-- [ ] Legally reviewed versioned rider, training, board, lease, camp and sale agreements with required signers.
-- [ ] Staff audit, completion checks, no-service-before-required-signature gates and secure copy/receipt for clients.
-- [ ] Link verified participation clearance to scheduling without duplicating sensitive records.
+**Owner requirement, November 2026:** A new lesson family must complete onboarding,
+the appropriate signed adult/guardian rider waivers and **applicable prepayment** before
+arriving at the barn. A board/training horse owner must complete approved horse intake,
+care/emergency authorizations, executed board/training contracts and initial payment
+(or approved exception) **before trailering the horse to the property**. New [end-to-end
+specification](14-client-readiness-onboarding-payments.md) links [#15](https://github.com/kks787-ship-it/KksSandbox/issues/15)
+onboarding/e-sign, [#16](https://github.com/kks787-ship-it/KksSandbox/issues/16)
+billing/payments and [#17](https://github.com/kks787-ship-it/KksSandbox/issues/17)
+controlled paid booking. ALL THREE ARE PLANNED ONLY, NOT BUILT OR INSTALLED.
+
+- [ ] One secure household/family profile, adults/guardians, multiple riders, horse
+  owner/authorized agents, payer, emergency contacts; mobile save/resume and
+  no duplicate rider/owner/billing questions.
+- [ ] Legally reviewed executed/versioned liability/hold harmless, rider instruction,
+  boarding/training, sales/lease, camp/clinic, volunteer and optional independent
+  photo/media consent; signed by properly verified adults/guardians/owners.
+- [ ] Signed documentary audit/countersignatures in protected storage and only
+  applicable renewed/updated agreements; service cannot be represented as
+  cleared by a false 'verified' Boolean, a submitted invitation or paid invoice.
+- [ ] Pre-arrival 'Ready to Ride' and 'Ready for Horse Arrival' status aggregates
+  **legal signatures + applicable finance + horse/rider safety**; clear actions for
+  Beth/Kris and welfare-first emergencies. Proper document and payment evidence
+  are separate sources of truth, linked by canonical IDs.
+- [ ] Client/owner portal shows completed documents, missing tasks, scheduled
+  lessons, invoices and receipts without exposing other households.
+- [ ] Initial paid scheduling remains **Beth/Kris-confirmed**; client request,
+  published availability and instant self-booking are distinct later owner
+  decisions with strong anti-conflict and payment-state checks.
+
+No payment-processor account, signed document, real rider, invoice or booking was
+created by accepting this product design. Public site still says Contact Beth
+to Schedule, inquiry remains disabled and emergency inactive.
 
 ### Stage D — connect daily barn work to financial operations
 
 - [ ] Lesson attendance, progress and horse use/workload.
 - [ ] Training/FEI progression, owner reports, care plans and horse-provider scheduling.
 - [ ] Boarding/care/extras, leases, mentorship and camp capacity.
-- [ ] Completed service events → invoices/recurring charges, deposits, financial records and analytics.
+- [ ] **Issue #16:** Provider-hosted checkout linked to an approved reservation,
+  recurring board/training billing, authorized card-on-file/ACH, invoice ledger,
+  refunds/credits, manual cash/check postings and verified webhook reconciliation.
+- [ ] **Issue #17:** Client request/hold/confirmed/paid stages without double booking or
+  billing; smoke/fire/horse-welfare exceptions and signed 48-hour policy under
+  owner-configured rules.
+- [ ] Completed service events → audited invoices/recurring charges, deposits,
+  financial records and analytics, with separate nonprofit entity.
 - [ ] Client/owner/staff portals and communications based on proved workflows.
 
 ### Stage E — emergency operational hardening and advanced incident coordination
@@ -189,7 +224,8 @@ Stages B/C/E can have overlapping **design** work without merging their deployme
 
 ## 10. Owner decisions still open (do not invent values)
 
-- Exactly what riders and horses need for arrival/lesson/boarding and legally enforceable agreement templates. Existing camp registration has a photo-consent clause, but its stored execution/coverage is not yet integrated into the new software.
+- Exactly what riders and horses need for arrival/lesson/boarding and legally enforceable agreement templates; verify signer authority, minor/guardian requirements, optional photo consent, waiver/counsel review and signed document retention. Existing camp registration has a photo-consent clause, but its stored execution/coverage is not yet integrated into the new software.
+- Processor choice for Digital Ranch (Stripe/Square/PayPal or alternative), existing merchant accounts, ACH/card fees, card-on-file and autobill consent, refund/48-hour cancellation terms, board deposits/prorations/notice and camp/nonprofit payment entity separation. No processor or payment policy is approved yet.
 - Current ages, helmets, rider observation, cancellation/makeup rules, current pricing/package terms, Academy enrollment limits, service area/travel minimum, actual training terms, sales/lease commission and camp enrollment.
 - Staff user IDs/permissions, resource capacity, horse welfare hours/rest, arena allocation, timezone and health privacy gates.
 - Official original brand mark variants and accurate photography of Beth, Kris, sales horses and actual facilities, plus publication rights.
@@ -215,6 +251,9 @@ Stages B/C/E can have overlapping **design** work without merging their deployme
 | [#12](https://github.com/kks787-ship-it/KksSandbox/issues/12) | Master account + permission groups/checkboxes | **Closed — code completed locally**, v0.3.0/20 privileges at `c04a243` with [reported validation](test-results/scheduling-permissions.md); no protected install or owner acceptance |
 | [#13](https://github.com/kks787-ship-it/KksSandbox/issues/13) | Maintained MFA provider / current-session integration | **Closed — local-only implementation delivered** at `2c08321`: separate csf-mfa 0.1.0 session adapter with scheduling 0.3.1; [Codex validation](test-results/scheduling-mfa.md); no installation or human acceptance |
 | [#14](https://github.com/kks787-ship-it/KksSandbox/issues/14) | WordPress admin MFA enforcement + one-use Master bootstrap + official ZIP verification | **Open — next local-only security engineering gate.** Must be independently tested before any Gate B account, master or protected installation approval |
+| [#15](https://github.com/kks787-ship-it/KksSandbox/issues/15) | Household/horse onboarding, electronic agreements and pre-arrival clearance | **PLANNED — NOT BUILT**, legally reviewed signatures and portal needs; see [joint blueprint](14-client-readiness-onboarding-payments.md) |
+| [#16](https://github.com/kks787-ship-it/KksSandbox/issues/16) | Billing/processor checkout, board/training auto-pay and ledger | **PLANNED — NOT BUILT**, payment provider and real merchant authorization unselected |
+| [#17](https://github.com/kks787-ship-it/KksSandbox/issues/17) | Controlled client lesson booking and pay-at-scheduling | **PLANNED — NOT BUILT**, no public booking until separate approval; no Acuity |
 
 **Update this ledger from evidence, not assumptions.** Mark a task DONE only with commit/test references and, if relevant, installation/operational-acceptance evidence. If code is finished but not deployed, mark it BUILT — inactive or local-only. If active in a sandbox but unapproved for real emergency/financial use, do not mark it operational. Preserve historical sources; later evidence supersedes older paragraphs elsewhere in the repository.
 
@@ -253,3 +292,7 @@ hands-on acceptance and real operational scheduling are not claimed by local tes
 Codex's [recorded local tests](test-results/scheduling-mfa.md) cover 732 scheduling assertions, 16 MFA prerequisite checks, 198 browser checks and 86 custom PHP files across the stated disposable WordPress/MariaDB/MySQL fixtures. Source [2c08321](https://github.com/kks787-ship-it/KksSandbox/commit/2c08321d98566bc50ccb6d62712abf798cc16d0d) adds a separate challenge-backed `csf-mfa` adapter, and documentation head `69e51da` preserves the source. The *official vendor release metadata* for WordPress Two-Factor 0.17.0 lists a 91,837-byte ZIP and SHA-256 `59d7c75f57966b93cc59657a0c14d58f247ba6f350b081c8602b3cacdc51e473`; the **ZIP itself has not been independently downloaded/hashed**. Source-built fixtures are distinct.
 
 [Issue #13](https://github.com/kks787-ship-it/KksSandbox/issues/13) is closed as **local development complete only**. [Issue #14](https://github.com/kks787-ship-it/KksSandbox/issues/14) is the next local build: safe one-use verified Master bootstrap, mandatory WordPress-admin MFA/session enforcement and official vendor artifact proof. None of the provider, adapter, scheduling plugin, schema, owners/staff accounts, MFA enrollment or pilot fixtures has been installed or approved on the protected sandbox. **Gate B [#11](https://github.com/kks787-ship-it/KksSandbox/issues/11) remains held;** production, inquiry and emergency remain unchanged. Historical Gate A isolated restoration remains evidence, not an authorization for new writes.
+
+## Integrated client readiness — owner requirement (November 2026)
+
+The full requirement is documented in [docs/14-client-readiness-onboarding-payments.md](14-client-readiness-onboarding-payments.md). Lessons: **family completes necessary releases + payment or approved credit before saddle time**. Boarding/training: **horse-owner completes intake, care/emergency authorization, signed contracts and initial financial obligation before arrival**, with documented welfare-first exceptions. Every event is checked against the appropriate authoritative source; a signed waiver cannot be fabricated from a rider evidence flag and a paid transaction cannot fabricate a confirmed lesson. One household/horse/contract/payer relationship avoids repeat forms. This is **future design, NOT delivered code or live payment/signed contracts**, and does not change current staff scheduling source, protected Gate B, public Contact CTA, inquiry, emergency or production.
