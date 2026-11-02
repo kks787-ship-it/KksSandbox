@@ -1,0 +1,159 @@
+# Digital Ranch — client-ready onboarding, digital agreements, billing and checkout
+
+**Owner requirement recorded November 2026.**
+**Status: PRODUCT BLUEPRINT ONLY.** Household intake, signed agreements, client payment/billing, client portal and client checkout are **not implemented or deployed**. Staff scheduling v0.3.1 and Farm Master permissions are locally coded/tested, but still not installed on the protected sandbox. No public self-booking or payment processor integration is authorized. Parent scheduling/security Gate B #11 and security development #14 remain separate.
+
+**Related issues:**
+- [#15 — Household/horse onboarding and versioned e-signatures](https://github.com/kks787-ship-it/KksSandbox/issues/15)
+- [#16 — Billing/payments, pay-at-booking and boarding autopay](https://github.com/kks787-ship-it/KksSandbox/issues/16)
+- [#17 — Controlled client scheduling + waiver/payment readiness](https://github.com/kks787-ship-it/KksSandbox/issues/17)
+- [#11 — Protected staff-calendar pilot, Gate B held](https://github.com/kks787-ship-it/KksSandbox/issues/11)
+- [#14 — Staff/admin MFA and Master bootstrap security development](https://github.com/kks787-ship-it/KksSandbox/issues/14)
+
+## 1. Business outcomes and no-repeat-paperwork promise
+
+**For riders/families:** One family account. Complete basic contact information once, add multiple adults/riders and guardian/emergency relationships, sign only applicable liability/instruction/camp/lease documents, accept optional media permissions separately, pay or redeem lesson credit, then arrive ready to ride. Returning clients update only changed fields or newly required documents. Never stop a lesson to chase a signature or payment.
+
+**For a horse owner/boarder:** An approved intake link allows horse ownership/authorized agent, board/training services and care plan, vaccinations/health documents as actually required by farm policy, veterinary/emergency authorization, feed instructions, signed board/training agreements and approved first payment or autopay setup **before trailer arrival**. Arrival board shows signed/financial/care/welfare/routing gates. Signed contracts should not be promised or treated as executed until every required signer and countersigner completes the exact approved version.
+
+**For Beth:** A short attendance screen says Ready / NOT CLEARED, with concise action items. She should not have to ask repeatedly for paperwork, chase clients for monthly fees, or troubleshoot payment webhooks.
+
+**For Kris:** One account-level operations dashboard for contracts, invoices, outstanding approvals, signed cancellations, charge failures and activity logs; manual overrides only with documented reason and proper permission.
+
+**Previous failure this prevents:** A family with several riders plus a horse in training/board formerly required multiple lengthy, overlapping intake forms and signature packets. Unsigned agreements could leave the barn without enforceable contract terms. The new workflow cannot mark a service-arrival state ready on the basis of an email invitation, verbal promise, appointment confirmation, or unsigned document.
+
+## 2. Nonnegotiable source-of-truth rules
+
+| Domain | Canonical truth | What must never imply it |
+| --- | --- | --- |
+| Appointment | Scheduling's transactionally confirmed reservation/resources | An online payment redirect, payment intent or mere request |
+| Person/guardian/horse owner | Verified household/onboarding relationships, owner-authority evidence | Matching names/emails, a self-declared minor, or card payer |
+| Executed contract | Signed exact immutable template version, all required authorized signers and audit evidence | A checked 'verified' flag, viewed draft, photo consent or paid invoice |
+| Rider attendance clearance | Owner-approved legal evidence + rider/horse suitability/welfare + required age/guardian/emergency policies | Appointment confirmed or payment paid alone |
+| Payment | Authoritative verified processor event/API and corresponding internal auditable ledger | Browser query parameters, payment link sent, pending ACH or checkout open |
+| Care and emergency | Human horse-welfare duties and authorized emergency decisions | Invoice delinquency, missing digital form or an offline device |
+
+There must be no competing client identity, appointment, financial balance or waiver-signature copy in multiple modules. Expose only stable references and authorized readiness status between modules. Signing a release does not substitute for a trainer's suitability decision or make a horse sound.
+
+## 3. Complete family intake UX
+
+1. New adult contact starts an authorized invitation/registration and explicitly consents to electronic records. No public signup/inquiry switch is activated until separately approved.
+2. Collect minimal family basics once: adult(s), contact, authorized guardians/payers, emergency contacts; add 1+ riders, optional 1+ horses and approved ownership/agency relationship. Support separated/divorced household guardian signers and payer not identical to guardian.
+3. Choose requested service(s) and riders. Server builds a requirements matrix by service, rider age, horse ownership, signer roles and agreement version. Show a **short checklist** with progress and estimated steps, support safe Save & Resume on a phone.
+4. Present full legally approved agreement versions in readable order. Do not bundle optional marketing photo consent with mandatory risk release. Where legal/owner-reviewed, allow one adult to execute a multi-rider document; where rider-specific or distinct guardian/horse-owner signatures are required, collect them individually with verified signer identity.
+5. Client reviews per-document fee/contract/cancellation terms, selects authorized method of paying, and completes hosted processor checkout, or an approved prepaid lesson/program credit. Payment and agreement outcomes are independent and reconciliation may be asynchronous.
+6. Portal resolves Ready / Action needed (e.g. Parent must sign / Owner authorization missing / Payment pending / Horse vaccine record pending). Clients see only their own records, receipts, upcoming appointments and executed PDFs. Staff dashboard sees readiness without private medical/payment credentials.
+7. Returning family resumes the same household/riders/horses, with no retyping and only incremental signatures/consents when policies change, agreements expire or a new service needs new documents.
+
+Do not force clients through a two-hour paper-equivalent online application. Use service-specific progressive disclosure and collect only data necessary for a particular program. The planned short first-time lesson intake target is a UX objective, not a guaranteed completion time.
+
+## 4. Boarder and training horse pre-arrival flow
+
+1. Inquiry/intake requested → Kris/Beth accepts the horse/service/arrival date. Never auto-accept all horses; boutique training max 5 horses.
+2. Capture horse name/identification, owner and any authorized agent, relevant care/feed/emergency-veterinary instructions; upload **only** vetted facility-required documents into restricted storage, never public media. Support 1+ horses and separate horse/owner signatures.
+3. Generate and execute board/care agreement; add training agreement or signed service addendum when applicable. Horse-owner authorization, rates and service start/termination notice are explicit and versioned.
+4. Show initial board/training invoice, permitted deposit/first-period payment, optional consented recurring payment. A saved payment method does not imply authorization for arbitrary future charges.
+5. Staff arrival checklist: ownership authorized, legal agreements executed, appropriate health/care prerequisites verified, first agreed invoice/deposit fulfilled (or an explicit owner-approved payment exception), stall/paddock prepared, welfare resource available. Mark **Ready for Arrival** only when all approved gates pass.
+6. If a horse arrives unexpectedly/in emergency or an animal requires immediate care, log the exception and provide necessary care; legal/finance staff resolve paperwork and payment later. Never lock out a horse from essential welfare solely over unpaid invoices.
+
+Include a time-stamped 30-day (or otherwise approved) notice workflow: online termination/notice request, date received, contract-defined notice length, final invoice/proration, pending care and signed acknowledgment. The notice period is **an owner/legal decision, not inferred from legacy PDFs**. Preserve complete executed prior versions and notices even after moving out.
+
+## 5. Agreement and signature catalog (legal review mandatory)
+
+| Service / person | Candidate required records | Signing authority |
+| --- | --- | --- |
+| Adult lesson/riding/haul-in | Equestrian assumption-of-risk and liability release, instruction terms, safety/helmet policies, optional equipment/participant consent | Adult participant and other legally required signers |
+| Minor rider | Minor-specific guardian permission plus service/rider release and emergency-contact information | Legally authorized parent/guardian; avoid assuming parent may waive minor's claims |
+| Student in working-student / mentorship | Participant/volunteer or employment-related agreement as applicable, risk/safety terms and guardian consent where applicable | Legally appropriate signer(s); separate labor-law review |
+| Boarding | Board/full care and facility rules, emergency vet/care authorization, service rates and termination/notice rules, horse ownership/agency evidence | Owner(s), authorized agent(s) and farm as applicable |
+| Boarding + training | Boarding plus training addendum/service plan, trainer authority and horse-specific intake; charges/changes and sale-prep when applicable | Horse owner/authorized contracting party, farm and other required signers |
+| Camp/clinic/Academy | Family/program enrollment, waiver/guardian consents, program/refund/smoke safety policies | Each authorized signer |
+| Leases and sales | Lease/half-lease terms, seller/consignor written authority, commission/fees, bill of sale and disclosures | True horse owner/authorized signers, counterparties |
+| Marketing/media | Separate optional photo/video use, identifiable family/rider coverage, withdrawal and retention handling | Appropriate adult/guardian; not bundled with mandatory release |
+
+Historical CSF rider and training/boarding forms are **inputs to counsel review**, not approved templates. Do not hard-code stale rates, cancellation/notice terms or a generic waiver for every service. For Washington, review the Uniform Electronic Transactions Act **RCW Chapter 1.80** (electronic-record consent and signatures) and equine activity definitions and exceptions **RCW 4.24.530/.540**. Electronic form alone does not prove a clause valid or release enforceable, particularly with minors.
+
+Required evidence model: complete immutable template and plain language disclosure, version and content hash; all required signer IDs and authority; affirmative electronic-consent record, displayed document and each assent/signature event; date/time, signed PDF hash and nonpublic retrieval, revocation/expiry, audit/correction log, retention/legal hold. The signing provider/engine must be evaluated and approved separately, including final signed artifact not just webhook success.
+
+## 6. Billing and payment design
+
+**Recommended UX:** payment at the time a booking is approved/confirmed, without collecting before an uncertain lesson reservation. Offer a card/payment method for authorized future charges and consented subscriptions. A bank transfer or ACH can be pending; do not show Paid until settled by provider evidence.
+
+**Services:** private/group lessons, lesson packages/credits, Horse Academy tuition, camps/clinics, annual/quarterly beginner programs, boarding, training, sales prep/consignment, lease, haul-in, travel, approved care extras. The known Nov 2026 private lesson rate is **$60/hr**; all prices/rates may be changed by owner and are not silently fixed by this document.
+
+**Boarding:** charges recurring by approved contract/plan and cycle, with first invoice, deposits, prorations, extras, credits, late/notice policies only when approved. Client portal has invoice history and current balance; optional authorized auto-pay and secure provider hosted card/ACH setup. Record cash/check/manual settlements with audit/reconciliation; do not automatically penalize a horse or deny care for unpaid charges.
+
+**Lessons:** configurable per-service charge policy (pay in full, approved deposit, or consume validated prepaid credit). Distinguish pending request / reserved hold / appointment confirmed / payment authorized / settled / refunded / canceled / disputed. No double spend on package credits. For staff-confirmed appointments, a secure payment/completion link can finalize an approved hold; instant self-booking is a later **separately approved** mode only for published safe availability.
+
+**Cancellation:** Owner-requested 48-hour cancellation policy to be embedded in versioned lesson terms after approval. Fire-season smoke, evacuation, horse illness/welfare and weather rescheduling create authorized exception/credit workflows. No automatic no-show fee, refund, forfeiture or makeup charge unless signed terms and explicit configured policy support it; preserve actual notice time/actor.
+
+**Processor:** None selected for Digital Ranch. Compare existing prior PayPal camp workflow to Stripe Checkout/Billing and Square. Favor hosted checkout and a single provider gateway behind a portable internal ledger. Do not store PAN/CVV/payment details on CSF WordPress. Require separate merchant identity for nonprofit activity or separate accounting/processor setup consistent with actual entities.
+
+**Safety:** processor webhooks need signature verification, idempotent event IDs, exact payer/invoice/appointment/amount/currency reconciliation, event replay and out-of-order guards, delayed bank settlements, disputes/chargebacks, refunds and merchant account routing. A returned success URL does not prove paid. **Do not bypass protected site's Basic Auth or publish a webhook endpoint without a separately reviewed public endpoint/security plan.** Payment endpoints/keys/autobill/email remain off until owner approval.
+
+## 7. Booking and readiness modes
+
+### Phase A: Existing staff-confirmed model (safe initial path)
+
+- Customer sends request through currently authorized channel (Contact Beth while public booking remains disabled).
+- Beth/Kris reviews rider and horse suitability and available resources; creates held/confirmed appointment through the existing scheduling engine.
+- Private onboarding invitation and signed-document workflow resolves eligibility. Approved payment link / credit redemption takes place on a verified held/approved reservation.
+- Staff sees Ready when legal/financial/suitability checks permit. If not complete, appointment may exist but PRE-RIDE BLOCK remains prominent; do not suggest automatic clearance.
+
+### Phase B: Client request and online checkout (separately approved)
+
+- Client selects a service and requests limited offered windows; no resource slot confirmation until staff acceptance.
+- Staff approves; system creates an expiring hold and sends secure checkout/action link. Pay/sign then confirm. Unpaid/expired requests are visible to Kris, not silently booked.
+- Client can change/cancel according to signed policies; refunds/credits use Finance's audited state machine.
+
+### Phase C: Narrow instant self-booking (only if Beth/Kris opt in)
+
+- Show only approved service/person/horse resources and protected openings, constrained by Sunday closed, Wednesday off-site/travel grouping, five training horses, arena conflicts, school-horse suitability/rest and trainer burnout limits.
+- Server uses existing transactional scheduling collision engine. No second calendar or public list of client names/horse welfare notes.
+- Ready requires all gates; booking, payment and release are separate verified events. A client cannot pay their way past an unsafe horse or unsigned waiver.
+
+For all modes, no Acuity integration, and **public "Contact Beth to Schedule" CTA stays until owner signs off on the new flow**.
+
+## 8. Platform and permissions
+
+Proposed independently deployable components:
+- **csf-onboarding**: households, adult/guardian identities, rider/horse ownership, required agreements, signer authority and legally executed documents.
+- **csf-billing**: service catalog, price/contract-versioned invoice items, account ledger, credits, payments, provider adapter and reconciliation.
+- **csf-portal**: minimum authorized client/family view into appointments, contracts, balances, receipts, readiness; client authentication, guardian and privacy model.
+- **csf-scheduling** (existing local source): sole resource and appointment reservation truth, with existing conflict/availability and pre-ride gates; new adapter reads aggregate readiness.
+- **csf-mfa** (separate staff/admin module): staff/operator session security; **does not automatically grant access to client-family accounts**. Design appropriate client identity/guardian authentication separately.
+
+New Digital Ranch privileges are independent from WordPress Administrator and existing scheduling permissions, e.g. onboarding-review, contract-template-approve, signature-evidence-verify, finance-invoice, finance-refund, payment-settlement, household-read-scoped. Beth may read readiness, not raw banking or full minor records; Kris has explicitly approved owner/finance oversight with dual review for high-risk financial/legal corrections. The CSF Riding Program nonprofit must be accounted for separately from commercial barn obligations.
+
+### Client readiness aggregator (read-only computation)
+
+- **Ready to Ride** = required current executed waiver/consents and guardian relationship resolved + payer's approved lesson charge/credit condition satisfied + owner-reviewed rider/service suitability and horse welfare/availability at lesson time.
+- **Ready for Horse Arrival** = boarding/training service approved + ownership/care/health information complete + every required service agreement executed + owner-approved initial finance requirement satisfied or formally waived + actual paddock/stall/resources ready.
+- **Blocked** displays a reason and authorized next action; do not show a false green success merely because a calendar reservation or payment exists.
+- Delayed/reversed payment or an expired/withdrawn agreement re-evaluates applicable readiness and flags staff; preserve history, don't silently cancel a confirmed appointment or remove a horse from care.
+
+Use transactional idempotency, private auditable revisions, direct authorization checks, secure PDFs outside public document root, limited health/minor records, GDPR/Washington privacy/legal review, backups/restore and replay-safe provider/webhook mechanics. All cross-module read models should be privacy-scoped and non-public. Include data export and supported manual fallback if online signing/payment unavailable, with actual verification before participation.
+
+## 9. Acceptance examples
+
+**Family lesson:** One parent + 3 riding children → household form once → correct guardian-specific signatures + release per legal requirement → optional separate photo choices → owner-approved 1-hour private booking/payment or credit → readiness for each rider. The parent can complete it without a printed form. A missing child's signature blocks only that child's attendance; does not remove other riders' legal identities.
+
+**Boarding + training:** One parent/contracting owner with 1 horse, 2 riders → board + training package, horse intake/vet authorizations, waiver for each rider, required signatures, deposit/initial invoice, monthly autopay consent → authorized Ready for Arrival. The notice/change-in-contract workflow is signed and enforceable only after legal review; future month price changes don't retroactively rewrite history.
+
+**Existing customer:** Book another lesson → no duplicate intake, only new program terms/expired waiver and payment/credit step. Email or QR code is not a bypass.
+
+**Failures:** unsigned release, wrong guardian/agent, duplicate click, card declines, webhook replay, ACH pending/reversed, chargeback, late cancellation/fire closure, horse welfare hold, two clients choosing same horse/instructor, revised agreement after calendar confirm, server offline/partial restore. Never double charge, overbook, mark unsigned riders as cleared or erase historical audit.
+
+**Human acceptance:** Beth tests lesson-day check-in; Kris tests a full family/horse plus charge/notice workflow. Actual time taken, steps reused, help required, privacy and failed payments are recorded.
+
+## 10. Sequencing and approval gates
+
+1. **Current separate security prerequisite:** Finish admin MFA/Master bootstrap and the controlled staff-calendar protected pilot on Issue #14/#11, with explicit owner authorization.
+2. **Work in parallel without deployment:** UX/canonical schema/signature evidence design and legal document review for #15; provider/ledger/checkout architecture and business policy choices for #16; controlled client booking UX for #17.
+3. Build and locally test household model, agreement template/signature system and client portal auth. Verify signer authority and owner/counsel-reviewed templates before protected signing.
+4. Build and locally test billing ledger/provider hosted checkout, payment idempotency and reconciliation; choose/authorize merchant account and processor only after owner review.
+5. Integrate a read-only readiness adapter into scheduling and a private family portal; ship first as **staff-approved booking and paid intake**, not unrestricted public booking.
+6. Conduct separately approved protected synthetic pilot with fictional households, rider/horse documents and **test-mode** payment provider, no real cards/funds/client data.
+7. Owner/attorney/privacy/financial review and human Beth/Kris acceptance; only then consider actual signed documents, real money, public booking and production.
+
+**No GitHub issue/document, code test or planning conversation is deployment permission.** No existing protected client identity, contracts, payment provider, real invoices, MFA, scheduling plugin or production data should be changed until its separate approval.
