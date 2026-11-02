@@ -1,10 +1,11 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
-**November 2 — final backup execution review:** [decision card](pilot/r-backup-approval.md#final-execution-review--november-2-2026)
-identifies a NO-GO until the exact job, private scope and current prerequisite checks are bound.
-Host-default client inheritance corrected in the proposed commands; whole-job timeout specified.
-No farm calls or execution occurred. Local capture, encrypted off-server custody and isolated
-restore remain independent approvals; source2fd02a2 unchanged.
+**November 2 — R-Backup local executable delivered:** [read-only approval card](pilot/r-backup-approval.md#owner-authorization-card--read-only-prerequisites-only)
+is the next owner decision. Complete hash-pinned B1–B3 payload, malicious-header/byte checks,
+anonymous credentials/spool, deterministic manifests/receipts, drift reporting and bounded
+cleanup are locally tested. No Gateway/farm call, backup, restore or deployment occurred.
+Current binding/compatibility checks remain unverified; capture, transfer, restore and Gate B
+stay held. Implementation2fd02a2 and existing website/security source are unchanged.
 
 **November 2 — recovery/account-security preparation delivered (docs/local tests only):**
 [separate R-Backup](pilot/r-backup-approval.md) and [R-Restore](pilot/r-restore-approval.md)

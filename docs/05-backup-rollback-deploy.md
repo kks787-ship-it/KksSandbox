@@ -19,27 +19,23 @@ backup prerequisite. No temporary cloned login is evidence of the real person's 
 
 ### R-Backup proposed command catalogue
 
-Final execution review is **NO-GO pending exact payload/private bindings**, not another design
-phase. The [single decision card](pilot/r-backup-approval.md#final-execution-review--november-2-2026)
-lists missing executable validators/receipts, whole-job limits and the proposed read-only checks.
-No server call or capture is authorized. Local capture, off-server custody and restore are three
-separate claims; restore namespace dependencies do not block a local capture.
+Local engineering is complete: [standalone executable](../scripts/recovery/payload.py),
+[reviewable source](../scripts/recovery/backup.py), deterministic build, strict archive/receipt
+validators and [release hashes](../scripts/recovery/PAYLOAD.sha256). The earlier b5ea68e missing
+helpers are implemented and tested with synthetic private bindings. Historical snippets are not
+an execution substitute. Application implementation remains2fd02a2.
 
-Use the [reviewable B1–B4 command specification](pilot/recovery-command-catalogue.md#r-backup-command-payload).
-It binds the exact sandbox root/URL/DB/prefix, a new exclusive private bundle, literal config
-parsing without WordPress execution, transient0600 DB-client material, MVCC dump and diagnostic
-snapshots, source/config archives, fixed16-artifact checksums and separately bound encrypted
-off-server custody. Proposed timeout<=30minutes and file/disk/size bounds are owner decisions,
-not measured current capacity. No package install, cron disable, source edit, global database
-lock, arbitrary parent sync or restore is included. Existing `backup-dev.sh` alone does not
-provide this scope and is not modified or used by this preparation.
+**Only next decision:** [read-only prerequisite approval card](pilot/r-backup-approval.md#owner-authorization-card--read-only-prerequisites-only).
+Its exact hash-verified command runs code/bindings in memory; no source staging or temporary file
+is needed. No Gateway/server call occurred. Current private bindings/installed compatibility
+remain unverified; capture, encrypted transfer, restore and all Gate B deployment gates stay held.
 
-**Before execution**, resolve private actor/window/run token, exact sandbox-only protected-config
-source/destination list, command/generator hashes, source-state/disk budget and selected off-server
-recipient/destination/custodian. These are deliberate fail-closed inputs, not invented defaults.
-The script fragments/SQL operations must be assembled into the exact approved lifecycle payload;
-do not treat them as a tested automated backup program or run an incomplete fragment. Private
-bindings and actual artifact hashes cannot truthfully be filled during a no-server assignment.
+B1–B3 inventory/MVCC diagnostics/consistent dump/config archives/byte and header verification/
+manifest/receipt/drift/cleanup run as one bounded lifecycle. Capture1770s TERM+30s kill grace;
+inspection115s+5s; no source mutation, WP bootstrap, global locks, maintenance/cron changes,
+package installation or user actions. Raw SQL spools and credential descriptors are anonymous;
+only the new private capture artifacts are retained. See [technical contract](pilot/recovery-command-catalogue.md#current-b1b3-executable--supersedes-the-historical-fragments-below)
+and [local validation evidence](test-results/recovery-readiness.md).
 
 ### R-Restore proposed command catalogue
 

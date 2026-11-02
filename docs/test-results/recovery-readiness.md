@@ -7,6 +7,103 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Executable R-Backup completion — November 2, 2026
+
+Continuation from b5ea68e, **local engineering only**. The complete executable workflow and
+[read-only authorization card](../pilot/r-backup-approval.md#owner-authorization-card--read-only-prerequisites-only)
+supersede the earlier local NO-GO findings below. Capture is still HELD for actual private
+bindings/live prerequisites and separate approval; local helpers are no longer missing.
+Implementation2fd02a2 and all scheduling/security/plugin/installation sources remain untouched.
+
+**Delivered:** reviewable Python source, reproducible standalone payload, exact separate
+in-memory inspection/capture commands, local checksum launcher, fixed release manifest and
+synthetic test modules. B1–B3 includes empty-directory/file/attribute inventories, independent
+MVCC snapshots and consistent dump, explicit protected-config path/hash scope, anonymous client
+and raw-SQL descriptors, compressed stream CRC, archive header AND file-content verification,
+pre/post raw drift categories,16-artifact manifest, receipt/hash and strict accepted-state verifier.
+No server-side staging is needed for the proposed inspection. No missing path is guessed. A non-executing opaque-token config checker validates literal DB name/host, development environment and table prefix; comments, quoted fake declarations, duplicate/conditional/dynamic targets fail closed. This does not replace private review of the complete PHP configuration or prove WordPress runtime behavior.
+
+Archive tests cover effective PAX/GNU traversal/absolute/control names, normalized duplicates,
+links/special/sparse/unknown types, both prefix-collision orders, oversized metadata, byte/entry
+limits, CRC truncation, hidden headers after tar EOF, missing expected members and wrong file
+bytes. Metadata is inspected, never extracted. Source reads and archive hashing stream large
+files. A2GiB free-space floor is checked throughout streamed capture writes; initial
+capacity additionally requires5×(source+DB estimate+protected bytes)+64MiB workspace overhead.
+Loss of reserve mid-workflow is covered by a failing-path test. Snapshot responses are bounded64MiB/250,000 rows; client output has kernel RLIMIT_FSIZE
+and a conservative rejection at the exact cap (the truncation-with-exit0 regression is covered).
+Anonymous descriptors close on interruption; no named credential file or uncompressed SQL
+spool can be orphaned. Partial restricted capture artifacts are intentionally retained, never
+accepted solely because a checksum file exists. Hard kill/no receipt/nonzero job is incomplete.
+
+### Final validation rerun
+
+| Check | Result and practical limit |
+| --- | --- |
+| Recovery suite | **82 tests passed**: previous25 reference/SELECT tests plus57 new workflow/negative/archive/packaging/syntax/link/privacy tests. Fixtures are disposable synthetic files, fake DB responses and mock client subprocesses; no farm target/config access |
+| Existing protections | **14** sandbox-preflight units, **22** development guard scenarios, **6** mocked Plesk scenarios passed |
+| Real local native-client defaults | **2 checks passed**, one each for mariadb and mariadb-dump: explicit first-option defaults-file on inherited descriptor excludes hostile user defaults. No SQL server/network/database dump was run |
+| Syntax and packaging | Source/build/generated Python parsed;4 shell entrypoints passed bash -n; generated payload/commands reproduce byte-for-byte;8 release files match manifest; relative doc links and secret-pattern/receipt privacy tests pass |
+| Application | Scheduling, browser/PHP/MFA/security historical results were NOT rerun; no application source changed |
+
+**Total126 checks:82 recovery +42 existing +2 native-client checks.** This is not a live backup,
+restore, Plesk compatibility test, authenticated server inspection or operational acceptance.
+The actual protected stack's current client versions/flags, descriptor support, paths, disk,
+private config scope/environment mapping and DB credentials remain unverified. No Docker
+network/service, real secret, real customer record or farm-server call was used. The local
+Docker daemon required normal tool escalation; it was not a farm access approval.
+
+Local client evidence: MariaDB10.6.28 (not the historical farm10.6.23), Debian x86_64.
+Image `sha256:d29a34d05b1de1afa84c88bdad35cbba6dc1d1135ad2a95a8ceb56a710819e82`.
+Client SHA256 `553e43e119fe85ee663669e989f1cc865356fdd79392f8de70a10ca91db1e651`;
+dump client SHA256 `b378c34489e61a72eb756949a66ee304ec7a3c23a81b7fcb1487789895c0e672`.
+The fixture test is pinned to that existing image, without pulling/installing an environment.
+
+Release SHA256:
+
+| Artifact | SHA256 |
+| --- | --- |
+| PAYLOAD.sha256 | `116f61fbfc9f3f7a45bf7d550118198a2873e0adb72349489b25c22e61912f49` |
+| Standalone payload | `8bd20008c495a3dacdacae29324d98c0264307a54dc28a82f4f3229b2088f2ed` |
+| Inspection command | `6a362d2c18072b3230a9f5fd2db0705696ad5cff222040821f2468314acd2138` |
+| Capture command — held | `2f8d864733c2a8aebf949f21ca37c8c5b7b1a55a479c98f05e29a689cfc02745` |
+
+[The fixed manifest](../../scripts/recovery/PAYLOAD.sha256) pins all8 runtime/build/source inputs.
+No execution approval follows a Git commit or matching hash. Private stdin uses the exact
+allowlisted JSON fields; it is not part of the public source release. Config/plugin hashes may
+be null ONLY to establish observations in inspection; capture requires a newly reviewed exact
+hash binding. DB credentials never enter argv, child environment, stdout or named files.
+
+### Remaining blockers — owner decisions only
+
+1. Approve/reject the single **read-only inspection** card. Privately bind actor/approval,
+   <=120second UTC window/run token, exact complete sandbox-only protected-config path/alias
+   map with scope attestation, permission to read root/config, and existing DB credential
+   selector. Code selector contains exactly the pinned public payload. No literal credential,
+   UID, email or private path is requested in chat/Git; no path discovery is implied.
+2. After inspection, review actual hashes/versions/permissions/table/plugin/disk results. Any
+   unsupported/mismatched prerequisite is BLOCKED, not permission to install/change/relax a
+   guard. Capture needs its own exact private non-null-hash binding/UTC window and explicit
+   owner authorization. Read-only PASS does not authorize capture or create a new baseline.
+3. Local-only custody is fixed for this payload. Select retention custodian with capture approval;
+   encrypted off-server recipient/destination/transfer and R-Restore are later separate decisions.
+   Do not queue restore until the new accepted receipt/manifest exists. MFA/accounts/security/
+   scheduling Gate B, production, inquiry and emergency remain held/unchanged.
+
+Reproduce locally: `python3 -B scripts/recovery/build.py`, then
+`PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests/recovery -p 'test_*.py'`;
+run existing guard/preflight commands and `bash tests/recovery/mariadb-defaults.sh` on the
+local Docker fixture only. **Do not invoke capture/inspection against any farm target** under
+this assignment. Existing local logs are /workspace/work/r-backup-executable-*; public hashes
+of those synthetic logs follow (no private data):
+
+- units: `06d55a2c0a2e7bfdd44b2847ea0b69299481c7d6f6543c2a5cbd612bd822cc9e`
+- preflight: `3b82a5edb3bd49215f35f4dc7214845621b4788fb7d7ded298f1465ff900db15`
+- guards: `460e8584f7cae831f2627f11400f4b049bc3b2dcecac39663b8c68a6fbb66d98`
+- plesk: `cc8c58f5dd1428a983c6d5214a1bf4a53b653cd50e1a48ef51b7274e7803ae52`
+- mariadb-defaults: `c1391f503efcffb4c5da9bf1cc20b49164bd5b35ec608d2f0af51de6e009043b`
+
+Earlier sections are historical planning/review evidence, not outstanding local engineering tasks.
+
 ## Final execution review of367294c — November 2, 2026
 
 [Assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6586718406).

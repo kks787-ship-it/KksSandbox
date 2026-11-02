@@ -6,6 +6,50 @@ decisions. Bind the exact approved documentation commit/command-text digests and
 record before execution. A placeholder is **not** a runnable default or permission to improvise.
 No farm connection, staging, command or backup/restore occurred while writing this appendix.
 
+## Current B1–B3 executable — supersedes the historical fragments below
+
+Use [backup.py](../../scripts/recovery/backup.py), deterministically built into the standalone
+[payload.py](../../scripts/recovery/payload.py), with [fixed file hashes](../../scripts/recovery/PAYLOAD.sha256).
+[build.py](../../scripts/recovery/build.py) produces the in-memory inspect/capture commands; no
+server staging is needed. The owner approves only the exact inspection command first, using
+[the current card](r-backup-approval.md#owner-authorization-card--read-only-prerequisites-only).
+The distinct capture command is **not** authorized by inspection approval.
+
+All B1–B3 helpers are implemented: bounded no-follow inventory/attributes, empty directories,
+private native-client descriptor, one-connection MVCC diagnostic SELECT plans, independent
+single-transaction dump, private anonymous raw spool and CRC-tested gzip, protected-config
+allowlist/hash/attributes, archives whose effective headers AND file bytes are verified, full
+pre/post raw drift report, fixed16-artifact manifest, strict verifier, sanitized receipt/hash
+and incomplete/error cleanup. Output state is complete/review-required/incomplete; CLI exit0
+only for complete or inspection PASS. No drift is discarded or assigned to a writer.
+
+Operational constants: source2GiB/100,000 files/100,000 directories; DB estimate1GiB/dump2GiB;
+protected<=64 files/16MiB; diagnostic response64MiB and250,000 rows; metadata header<=1MiB;
+archive entry/count/decompressed-byte caps. Native children have RLIMIT_FSIZE, sanitized env,
+first-option defaults-file and reaping in finally. Capture checks free space before export,
+during native dump and before completion. Files are streamed; large media are not loaded whole.
+The complete source, parser/build/synthetic integration/negative/privacy tests are reviewable.
+
+Payload JSON has EXACT fields: mode, source_pin, run_token, actor_ref, approval_ref, start/end
+(strict UTC Z), custody(local-only), config_reviewed(true), wp_config_sha256, plugins_sha256,
+protected and db_secret. protected is an explicit nonempty list of path/name/sha256/scope_verified;
+no glob/discovery/default paths. db_secret has user/password/host(localhost or127.0.0.1) only.
+Inspection permits null expected hashes to establish fresh private bindings. Capture permits no
+null hash. No target override, custom SQL, custom executable or owner policy bypass is exposed
+by CLI. Injectable scope/DB parameters exist for local fixtures only, never from input JSON.
+
+No field is an authentication substitute: private approval references are owner-controlled
+records, not cryptographic proof or blanket authorization. Complete means captured/checked,
+**not restored**. Caller MUST follow the Gateway job to terminal exit0, match the returned receipt
+hash to receipt.json and verify its exact manifest; do not choose latest/retry/accept partial data.
+Hard kill can prevent a receipt. Anonymous descriptors close on death; the new restricted attempt
+remains incomplete and is not automatically deleted. There is no live rollback because source
+writes/restore are absent. Manifest excludes receipt to avoid circular hashing; output separately
+binds the canonical receipt hash. verify_receipt() rejects incomplete/review-required receipts.
+
+The B4/off-server and R-Restore specifications below remain separately held and are NOT bundled.
+The older B1–B3 shell snippets are historical review context, **not the execution payload**.
+
 Gateway operation proposed for each composed lifecycle: `execute_command`, canonical server
 `srv_01M687VB1R009Y0C3HRN7NMP3A`, shell `/bin/bash`, umask077, existing verified privilege only,
 bounded timeout. The composed capture must run under `timeout --signal=TERM --kill-after=30s 1770s /bin/bash`
