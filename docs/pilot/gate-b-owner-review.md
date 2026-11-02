@@ -4,6 +4,19 @@
 
 **Owner attestation (not a server-side identity/MFA proof):** Kris confirms that the **sole existing WordPress Administrator login is his account** and that he uses the same account through **Plesk's WordPress management integration**. **Do not publish the precise username, numeric account ID, login/recovery email, credentials or factors in GitHub, reports or chat.** Preserve the existing account and its current Administrator role; do not default to creating a *duplicate* Kris WordPress login or automatically demoting/upgrading it. A single verified WordPress identity can later be considered for the separately owner-approved **Digital Ranch Farm Master** role, which remains independent of native WordPress Administrator powers. Owner attestation resolves the *human-owner ambiguity at the planning level*, not secure numeric-ID verification, recovery custody, independent MFA enrollment or the one-use Farm Master ceremony.
 
+**New implementation-specific O-Master prerequisite:** The pinned `CSF_Scheduling_Identity`
+bootstrap validator explicitly requires **different WordPress numeric identities** for the
+technical operator and the proposed Farm Master. Its current flow therefore **cannot** simply
+use Kris's sole existing Administrator account as *both* actor roles. This is distinct from
+the policy decision to **retain that same existing account for Kris**. Do not fabricate a
+second Kris login, grant Beth administrative rights, create a throwaway Administrator or
+relax the distinct-actor check merely to pass the gate. Before O-Master, submit a **local-only
+design choice** for owner review: (A) independently verified, separately approved trusted
+technical operator with its own account/MFA and narrowly scoped authority; or (B) a newly
+reviewed and tested one-owner/one-admin bootstrap using independent, auditable out-of-band
+approval and real factor verification. Any code change requires a new immutable release pin,
+regression tests and exact Gate B review. **O-Master remains blocked until resolved.**
+
 **Plesk integration is a confirmed dependency to protect.** Before `M-Enforce` (which deliberately disables WordPress application-password authentication and authenticated XML-RPC), verify the exact Plesk/WordPress Toolkit login and management mechanism in a separately approved, recoverable test; **do not assume** it does or does not depend on either pathway. Preserve owner access and establish MFA/recovery before enforcement. No Plesk, WordPress or authentication settings change is authorized here.
 
 **Options-table drift revised risk interpretation:** Kris reports logging in to check progress around the inspection; ordinary WordPress or Plesk-managed login activity is a **credible potential** source of option updates. The previous 163-row options-table digest mismatch is still a real observation, but a changed digest without per-option comparison **does not prove malicious activity, altered security settings or this specific cause**. The preflight observed stable plugin activation, selected configuration and user-role aggregates. Treat this as **expected-activity candidate / attribution unconfirmed**, rather than an automatic forensic escalation. Avoid a lengthy root-cause investigation when the change-window baseline can be freshly and consistently captured and security-critical settings reviewed; if a sensitive option unexpectedly changed, investigate that exception. **Do not restore old options, disable cron, alter settings or claim a frozen DB baseline** just to make the hash match.
