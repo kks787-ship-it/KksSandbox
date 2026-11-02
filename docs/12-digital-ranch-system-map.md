@@ -5,7 +5,12 @@ login and also uses it through Plesk's WordPress management feature. **Preserve 
 existing WordPress account by default**, rather than creating a duplicate Kris login; native
 WordPress Administrator and future Digital Ranch Farm Master are still separate privileges.
 Actual numeric ID, independent MFA/recovery and finite ownership ceremony remain private,
-separately approved release checks. Verify Plesk WordPress management/SSO compatibility before
+separately approved release checks. **Technical blocker:** the currently pinned finite
+bootstrap requires separate operator and proposed-owner WordPress IDs, so the single existing
+Kris Administrator identity cannot fill both roles. Either approve an independently verified
+separate technical operator, or design and locally test an independent one-owner/one-admin
+ceremony before changing the source pin. No duplicate Kris login or implicit Beth
+Administrator promotion is authorized. Verify Plesk WordPress management/SSO compatibility before
 enabling mandatory MFA because app-password/XML-RPC routes may be disabled; no claim is made
 about how Plesk authenticates. The owner also reports likely logging in during the read-only
 inspection, a plausible benign source of the changed `options` digest. **The specific change
