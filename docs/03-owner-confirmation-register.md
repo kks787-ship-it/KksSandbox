@@ -107,6 +107,15 @@ approved ownership ceremony and MFA/recovery. Beth needs her own individually ve
 and scoped permissions. Exact usernames, private login/recovery emails, numeric IDs, passwords,
 MFA factors and recovery materials belong only in an approved private record, not this file.
 
+**Master bootstrap two-identity limitation:** Pinned scheduling v0.4.0 code currently
+rejects a Farm Master invitation when the proposed owner and technical operator have the
+same WordPress numeric user ID. Reusing Kris's existing Administrator account for his
+eventual Farm Master role remains the preferred **account-identity** outcome, but requires
+a separately verified independent technical operator or a secure, locally tested and
+owner-approved one-owner bootstrap redesign. **Do not** create a duplicate Kris login
+or confer Administrator rights on Beth just to satisfy this condition; no bypass is
+authorized. See current [Gate B decision package](pilot/gate-b-owner-review.md).
+
 **Plesk compatibility gate:** Owner confirms use of Plesk's WordPress management integration.
 Before mandatory admin MFA enforcement (which blocks WordPress application passwords and
 authenticated XML-RPC), determine whether its actual management/login/SSO flow depends on the
