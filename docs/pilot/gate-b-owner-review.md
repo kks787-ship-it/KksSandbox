@@ -2,6 +2,9 @@
 
 ## Current Issue #14 decision override — all execution rows held
 
+Exact implementation source **`2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`**; [pinned release and tests](../test-results/scheduling-security.md).
+This immutable source replaces no historical approval; every execution row below remains Hold.
+
 **Current local review candidate:** Scheduling **0.4.0** / csf-mfa **0.2.0** / official Two-Factor
 **0.17.0**, unchanged schema3/15tables. The [new security report](../test-results/scheduling-security.md)
 and its exact45-file installation inventory supersede the older candidate specifications below.

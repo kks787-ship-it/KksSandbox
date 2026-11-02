@@ -1,6 +1,6 @@
 {
   "scope": "local review candidate only; no protected comparison or execution",
-  "candidate_commit": null,
+  "candidate_commit": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
   "base_commit_preserved": "e10373f4acd9220ba4b5a9ae9b64fd86c8a121ec",
   "historical_mfa_implementation": "2c08321d98566bc50ccb6d62712abf798cc16d0d",
   "historical_tracker": "1b9a4182ff0e3229dfac5f945ae5788e732f049a",

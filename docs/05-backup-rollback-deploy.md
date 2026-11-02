@@ -2,6 +2,10 @@
 
 ## Issue #14 release preparation — no execution approval
 
+Immutable reviewed implementation source: **`2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`**. Scheduling tree
+`2caf847c1453821fbe633657c250917198bc79ae`; adapter tree
+`e2357a00c59c986daef5533183f963c12a8e9ac8`. Exact inventories/tests are linked below.
+
 Current local scheduling0.4.0/csf-mfa0.2.0 candidate uses the actual verified official
 Two-Factor0.17.0 ZIP, unchanged scheduling schema3/15tables, and an exact45-file combined
 distribution (20 scheduling,4 adapter,21 vendor). Read the [security report and release

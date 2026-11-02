@@ -1,6 +1,6 @@
 {
   "scope": "local synthetic fixtures only; Gate B held; no Gateway or farm changes",
-  "candidate_commit": null,
+  "candidate_commit": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
   "source_parent": "e10373f4acd9220ba4b5a9ae9b64fd86c8a121ec",
   "documentation_baselines_preserved": [
     "1b9a4182ff0e3229dfac5f945ae5788e732f049a",
