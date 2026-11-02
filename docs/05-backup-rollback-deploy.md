@@ -542,3 +542,16 @@ approval plus verified staff identities/MFA and fictional policy. Gate C real op
 unauthorized. Refresh the backup when stale or after intervening changes; never restore over
 later owner edits without reconciliation. Existing inquiry/emergency/production boundaries
 and the pinned scheduling release/checklist above remain unchanged.
+
+## Gate B — owner review only
+
+The [single owner decision package](pilot/gate-b-owner-review.md) separates account creation,
+MFA choice/install/enrollment/enforcement, fictional policy, scheduling files/activation,
+schema apply, per-person grants, policy application, synthetic records, testing and recovery
+into independent decisions. Every Gate B execution row remains on Hold. Review approval is
+not permission to execute a later row. The MFA candidate requires a separately pinned release
+and file/database comparison; its files are outside the scheduling-only 15-file release.
+
+This package preserves tracker commit `1b9a4182ff0e3229dfac5f945ae5788e732f049a` and the
+existing scheduling source pin/tree. Preparing it made no server calls or changes. Existing
+Gate A recovery remains evidence, not a new execution approval or a backup of future changes.
