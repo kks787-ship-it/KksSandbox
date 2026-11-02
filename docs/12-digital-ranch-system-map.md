@@ -233,3 +233,16 @@ protected installation and Beth/Kris acceptance remain held. No server, inquiry,
 production changes occurred. This does not establish operational or commercial-product acceptance.
 
 Issue #13 follow-up: the current v0.3.0 permission engine intentionally defaults protected access to denied until verified independent MFA session evidence exists. A Gate B review must not confuse enrolled TOTP with verified current session or assume the previously proposed standalone Wordfence Login Security provider is supported. See [MFA integration task](https://github.com/kks787-ship-it/KksSandbox/issues/13) and [Gate B corrections](pilot/gate-b-owner-review.md). No protected account/server changes are authorized.
+
+## Issue #13 local security candidate — no protected installation
+
+A separate csf-mfa0.1.0 adapter now integrates pinned Two-Factor0.17.0 successful challenges with
+current-session Digital Ranch authorization. Scheduling0.3.1 keeps schema3/15tables. Provider
+selection remains owner review; [security evidence and limitations](test-results/scheduling-mfa.md)
+distinguish the tested source build from the unverified official ZIP bytes. No real staff identity,
+MFA enrollment, master, grant or server state changed. All prior tracking updates are preserved.
+
+GateB remains held for mandatory WordPress-admin enforcement, a safe master identity ceremony
+(the old CLI gate intentionally cannot pass web-session MFA), exact artifact/security release
+review, protected-stack acceptance and separately authorized accounts/policies/pilot. Beth/Kris
+hands-on acceptance and real operational scheduling are not claimed by local tests.

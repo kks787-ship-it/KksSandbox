@@ -204,9 +204,9 @@ class CSF_Scheduling_Team {
 	 */
 	public static function matrix( $s, $id, $member, $group_mode = false, $editable = true ) {
 		$actual         = CSF_Scheduling_Permissions::effective( $s, $id );
-		$mfa            = ! $group_mode && CSF_Scheduling_Permissions::mfa( $id );
-		$current_ok     = $mfa && get_userdata( $id ) && CSF_Scheduling_Access::mirror_matches( $id, $actual );
-		$proposed_ready = ! empty( $member['active'] ) && ! empty( $member['verified'] ) && $mfa;
+		$mfa            = ! $group_mode && CSF_Scheduling_Permissions::enrolled( $id );
+		$current_ok     = CSF_Scheduling_Permissions::enrolled( $id ) && get_userdata( $id ) && CSF_Scheduling_Access::mirror_matches( $id, $actual );
+		$proposed_ready = CSF_Scheduling_Permissions::enrolled( $id ) && ! empty( $member['active'] ) && ! empty( $member['verified'] );
 		$current        = '';
 		foreach ( CSF_Scheduling_Permissions::registry() as $p => $spec ) {
 			if ( $current !== $spec[0] ) {
@@ -226,7 +226,7 @@ class CSF_Scheduling_Team {
 					'deny'    => 'Deny',
 				)as$v => $l ) {
 					echo '<option value="' . esc_attr( $v ) . '" ' . selected( $override, $v, false ) . '>' . esc_html( $l ) . '</option>';
-				}echo '</select></label><p>Effective now: <strong data-current>' . ( $current_ok && $actual[ $p ] ? 'Granted' : 'Denied' ) . '</strong></p><p>After save: <strong data-result>' . ( $yes && $proposed_ready ? 'Granted if save succeeds' : 'Denied' ) . '</strong></p>';}
+				}echo '</select></label><p>Configured now (MFA required): <strong data-current>' . ( $current_ok && $actual[ $p ] ? 'Granted' : 'Denied' ) . '</strong></p><p>After save: <strong data-result>' . ( $yes && $proposed_ready ? 'Granted if save succeeds' : 'Denied' ) . '</strong></p>';}
 			echo '</div>';
 		}
 		if ( $current ) {
@@ -296,7 +296,7 @@ class CSF_Scheduling_Team {
 			$chosen = isset( $_POST['group'] ) && is_string( $_POST['group'] ) ? sanitize_key( wp_unslash( $_POST['group'] ) ) : $m['group'];
 			if ( isset( $s['groups'][ $chosen ] ) ) {
 				$m['group'] = $chosen;}
-			echo '<h2>Employee #' . esc_html( $id ) . ( $id === $s['master'] ? ' — verified Farm Owner / Master' : '' ) . '</h2><p>Independent MFA: ' . ( CSF_Scheduling_Permissions::mfa( $id ) ? 'verified by approved mechanism' : 'unverified — active access blocked' ) . '</p>';
+			echo '<h2>Employee #' . esc_html( $id ) . ( $id === $s['master'] ? ' — verified Farm Owner / Master' : '' ) . '</h2><p>Current-session MFA (not enrollment): ' . ( CSF_Scheduling_Permissions::mfa( $id ) ? 'verified by approved mechanism' : 'no verified current session for this employee; configured privileges still require their own MFA login' ) . '</p>';
 			if ( CSF_Scheduling_Access::can( 'team_assign' ) ) {
 				self::form( 'load' );
 				self::hidden( 'employee', $id );

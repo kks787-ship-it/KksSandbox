@@ -188,3 +188,12 @@ in tests/scheduling/auth-fixture.php is strictly disposable-fixture-only and mus
 to a farm. Master bootstrap/transfer needs its separate guarded numeric-ID/MFA/URL approval;
 routine staff/group changes use the native reviewed dashboard. No actual accounts, real grants,
 protected migration, provider installation, inquiry enablement, emergency or production changes.
+
+Issue #13 local candidate: separate csf-mfa0.1.0 for exact Two-Factor0.17.0 source, scheduling0.3.1
+/schema3 unchanged physically. Read docs/test-results/scheduling-mfa.md before security edits.
+MFA enrollment does not authenticate a session; both hooks default false. Do not add fake verifiers,
+CLI exemptions, cookie export or API bypasses. The existing CLI master identity ceremony remains
+blocked pending a separately reviewed browser-to-identity handoff. Mandatory WP-admin enforcement,
+provider artifact verification/selection, actual identities and protected compatibility are held.
+Use tests/scheduling/mfa-run.sh only on disposable local synthetic fixtures; fake/test provider
+probes never ship. Preserve owner source/tracker commits and all GateB independent approvals.

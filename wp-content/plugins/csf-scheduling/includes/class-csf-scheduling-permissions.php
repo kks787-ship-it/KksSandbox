@@ -162,6 +162,19 @@ class CSF_Scheduling_Permissions {
 			return false; }
 	}
 
+	/** Enrollment permits reviewed assignment only; it never authenticates a session.
+	 *
+	 * @param int $id Existing numeric identity.
+	 * @return bool
+	 */
+	public static function enrolled( $id ) {
+		try {
+			return true === apply_filters( 'csf_scheduling_mfa_enrolled', false, $id );
+		} catch ( Throwable $error ) {
+			return false;
+		}
+	}
+
 	/** Bootstrap/transfer is a guarded CLI identity ceremony, not an ordinary permission.
 	 *
 	 * @param int $id Verified numeric identity.
@@ -317,12 +330,12 @@ class CSF_Scheduling_Permissions {
 			foreach ( $b['member']['resources'] ?? array() as $uuid ) {
 				$t = CSF_Scheduling_Schema::table( 'resources' );
 				CSF_Scheduling_Calendar::require( (bool) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$t` WHERE uuid=%s AND active=1", $uuid ) ), 'invalid_body' ); }
-			CSF_Scheduling_Calendar::require( ! $b['member']['active'] || ( $b['member']['verified'] && self::mfa( $id ) ), 'forbidden' );
+			CSF_Scheduling_Calendar::require( ! $b['member']['active'] || ( $b['member']['verified'] && self::enrolled( $id ) ), 'forbidden' );
 		} elseif ( 'team_members_grouped' === $kind ) {
 			CSF_Scheduling_Calendar::keys( $b, array( 'user_ids', 'group', 'sensitive_confirmed' ) );
 			CSF_Scheduling_Calendar::require( is_array( $b['user_ids'] ) && array_is_list( $b['user_ids'] ) && $b['user_ids'] && count( $b['user_ids'] ) <= 50 && count( array_unique( $b['user_ids'] ) ) === count( $b['user_ids'] ) && isset( $s['groups'][ $b['group'] ] ) && true === $b['sensitive_confirmed'], 'invalid_body' );
 			foreach ( $b['user_ids']as$id ) {
-				CSF_Scheduling_Calendar::require( is_int( $id ) && $id !== $s['master'] && isset( $s['members'][ $id ] ) && $s['members'][ $id ]['verified'] && self::mfa( $id ), 'forbidden' );
+				CSF_Scheduling_Calendar::require( is_int( $id ) && $id !== $s['master'] && isset( $s['members'][ $id ] ) && $s['members'][ $id ]['verified'] && self::enrolled( $id ), 'forbidden' );
 				$s['members'][ $id ]['group'] = $b['group'];
 			}
 		} else {

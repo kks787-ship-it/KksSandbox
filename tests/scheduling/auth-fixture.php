@@ -2,6 +2,7 @@
 // Trusted synthetic adapter ONLY in the disposable fixture. Never deploy this file.
 if ( ! defined('ABSPATH') || ABSPATH !== '/test/site/' || DB_NAME !== 'csf_fixture' || wp_get_environment_type() !== 'local' ) { return; }
 add_filter('csf_scheduling_mfa_verified',static fn($value,$id)=>$id>0 && (bool)get_userdata($id),10,2);
+add_filter('csf_scheduling_mfa_enrolled',static fn($value,$id)=>true===apply_filters('csf_scheduling_mfa_verified',false,$id),10,2);
 function fixture_staff($id,$denies=array()) {
  $overrides=array_fill_keys(array_keys(CSF_Scheduling_Permissions::registry()),'grant');
  foreach($denies as$p){$overrides[$p]='deny';}

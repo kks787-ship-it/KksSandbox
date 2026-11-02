@@ -4,6 +4,7 @@
 	<file>wp-content/plugins/csf-emergency</file>
 	<file>wp-content/plugins/csf-core</file>
 	<file>wp-content/plugins/csf-scheduling</file>
+	<file>wp-content/plugins/csf-mfa</file>
 	<exclude-pattern>*/assets/vendor/*</exclude-pattern>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
@@ -29,6 +30,7 @@
 				<element value="csf-emergency"/>
 				<element value="csf-core"/>
 				<element value="csf-scheduling"/>
+				<element value="csf-mfa"/>
 			</property>
 		</properties>
 	</rule>

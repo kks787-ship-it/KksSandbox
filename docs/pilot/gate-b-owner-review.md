@@ -19,13 +19,21 @@ The owner requests:
 
 **Gate B account creation, MFA vendor installation/enforcement, scheduling files/schema, policy/fictional fixture, and staff grants remain on HOLD.** The account/MFA and policy decision rows below are still useful for owner review, but none is authorization to act. Once Issue #12 is implemented and independently tested locally, produce a revised, pinned, capability-granular Gate B package; do not treat `b312bdd` as approval for the new plugin.
 
+## Current Issue #13 review candidate — no execution authorization
+
+Recommend Two-Factor0.17.0 + separate csf-mfa0.1.0 for owner selection, with scheduling0.3.1
+(schema3/15tables). Exact file/source identities, local validation and limitations are in the
+[security release report](../test-results/scheduling-mfa.md). This is a new candidate, not a
+replacement approval for c04a243/d09ad92 or the old0.2.1 pin. Mandatory WordPress-admin MFA,
+selected artifact verification, safe master bootstrap and protected compatibility remain blocking.
+
 ## MFA candidate correction — November 1, 2026 (supercedes historical proposal)
 
 **CURRENT HOLD:** The previously suggested **standalone Wordfence Login Security** plugin should **not be selected for a new deployment**. [Wordfence's official help documentation](https://www.wordfence.com/help/login-security-plugin/) states its standalone product was scheduled for discontinuation around July 2026. Any earlier standalone-plugin recommendation in this document is **historical and superseded**.
 
 [Issue #13 — MFA provider and verified current-session adapter](https://github.com/kks787-ship-it/KksSandbox/issues/13) now owns read-only candidate review and, if supported, disposable local adapter tests. Evaluate maintained [WordPress Two-Factor](https://wordpress.org/plugins/two-factor/) (TOTP and backup codes, **no built-in comprehensive mandatory-MFA enforcement**) versus [full Wordfence](https://wordpress.org/plugins/wordfence/) (2FA with broader WAF/security operational footprint), or a separately verified alternative. Owner choice **M-Choice remains unapproved**. Do not use a plugin's mere *enrolled* flag as proof that the current login session completed MFA. Test real session/token binding, alternate login methods, recovery and lockout before authorizing any provider or Digital Ranch master/bootstrap privileges.
 
-**Latest scheduling code candidate:** v0.3.0, exact implementation commit [c04a243](https://github.com/kks787-ship-it/KksSandbox/commit/c04a24387e3d26f7cb0a7a13683a3981675a086b), 19 files, schema v3/15 owned tables, [test/release report](../test-results/scheduling-permissions.md). The older 0.2.1 15-file/14-table proposal is **not the current installation specification**. [Issue #12](https://github.com/kks787-ship-it/KksSandbox/issues/12) is closed as local implementation complete. **No Gate B execution row is approved**; Gate A backup/restore evidence remains historical, not permission to install, migrate, create accounts or enroll staff.
+**Preserved Issue #12 scheduling source:** v0.3.0, exact implementation commit [c04a243](https://github.com/kks787-ship-it/KksSandbox/commit/c04a24387e3d26f7cb0a7a13683a3981675a086b), 19 files, schema v3/15 owned tables, [test/release report](../test-results/scheduling-permissions.md). The older 0.2.1 15-file/14-table proposal is **not the current installation specification**. [Issue #12](https://github.com/kks787-ship-it/KksSandbox/issues/12) is closed as local implementation complete. **No Gate B execution row is approved**; Gate A backup/restore evidence remains historical, not permission to install, migrate, create accounts or enroll staff.
 
 ## How to decide without authorizing a deployment
 
@@ -36,8 +44,10 @@ For each ID, record **Approve / Reject / Revise / Hold**, the exact approved val
 | A-Beth | Create one separate Beth account with Subscriber role and no scheduling grants initially | Owner confirms identity, private login/email and secure handoff; does not authorize Kris account or MFA installation |
 | A-Kris | Create one separate Kris account with Subscriber role and no scheduling grants initially | Same independent verification; no existing account is reassigned |
 | A-Operator | Identify the existing administrator/operator and approve their installation/migration/provisioning duties | Private numeric-ID verification and MFA; no new admin account, role promotion or scheduling membership implied |
-| M-Choice | Select TOTP authenticator + recovery codes; evaluate standalone Wordfence Login Security candidate | Choice/evaluation only; no security plugin files or settings authorized |
+| M-Choice | Select reviewed Two-Factor 0.17.0 + csf-mfa adapter, or request alternative review | Choice/evaluation only; no security plugin files or settings authorized |
 | M-Install | Install/activate the separately reviewed exact MFA release | **Hold:** vendor version, checksum/file/DB diff, isolated compatibility results and fresh recovery gate must be attached before execution approval |
+| M-Adapter | Install the exact three-file adapter and approve its private enablement switch | Separate code pin/inventory; unchanged default-deny, protected-stack acceptance and rollback evidence; no grant/schema/bootstrap implied |
+| M-Notify | Approve provider low-code/password-reset notification effects | Verified delivery/privacy/recipient scope; no email OTP, SMS or inquiry enablement |
 | M-Enroll-Beth / M-Enroll-Kris / M-Enroll-Operator | Enroll and verify each named person's MFA independently | Working approved MFA mechanism; owner presence/secure recovery custody; no scheduling grants |
 | M-Enforce | Enforce approved MFA coverage and alternate-login restrictions | Enrollment/recovery tests first; exact affected-role/custom-capability inventory and alternate-auth change diff approved |
 | P-Hours | Approve the fictional timezone/hours below | Policy approval only; no configuration write |
@@ -45,10 +55,10 @@ For each ID, record **Approve / Reject / Revise / Hold**, the exact approved val
 | P-Welfare | Approve fictional workload/recovery/travel and suitability restrictions | Test data only, not real horse-care policy |
 | P-Programs | Approve the test-only training cap, Wednesday preference and Academy-disabled choice | No recurrence, route or Academy cohort implementation |
 | R-Backup | Authorize current target-bound backup and isolated recovery validation for the next change window | Gate A evidence is retained; later changes/staleness require refresh, not reuse of its old execution approval |
-| I-Files | Install and activate only the new pinned scheduling 19-file v0.3.0 release | Approved backup/recovery, verified staff/MFA prerequisites, rechecked destination and exact dry run; no schema apply |
+| I-Files | Install and activate only the new pinned scheduling 19-file v0.3.1 release | Approved backup/recovery, verified staff/MFA prerequisites, rechecked destination and exact dry run; no schema apply |
 | I-Schema | Preview, review and explicitly apply schema3/15 tables | Scheduling active; actual preview matches reviewed DDL; one-shot private CLI gate; no staff/data population |
-| O-Master | Bootstrap or transfer the separately verified Farm Owner / Master identity | Explicit numeric owner/operator IDs, independent MFA, exact URL, reviewed private CLI gate and command UUID; no inferred identity or WordPress role promotion |
-| G-Beth / G-Kris | **SUPERSEDED / HOLD:** individually select group + permission overrides after Issue #12, not the four-capability blanket grant | New fine-grained implementation, tested effective-access preview, explicit owner-approved identities/MFA and a **new source pin/release review** required |
+| O-Master | Bootstrap or transfer the separately verified Farm Owner / Master identity | **BLOCKED:** historical CLI gate cannot satisfy web-session MFA. Require separately implemented/tested one-use identity handoff, verified numeric IDs, exact target/revision/command and explicit owner execution scope; never bypass MFA |
+| G-Beth / G-Kris | **HOLD:** approve each person’s exact group, individual overrides and resource scope; execute through the verified owner dashboard only after the safe identity ceremony | New fine-grained implementation, tested effective-access preview, explicit owner-approved identities/MFA and a **new source pin/release review** required |
 | C-Policy | Apply the exact approved fictional JSON policy | All P decisions resolved, approved authorized configuring actor, current revision and command UUID |
 | D-Fixture | Create only the agreed fictional records | Approved policy/permissions; finite availability/suitability; no real client/horse data |
 | T-Pilot | Execute protected-stack synthetic acceptance | Approved fixture/access; Beth/Kris acceptance still requires their own hands-on results |
@@ -101,25 +111,54 @@ separately approved trusted provider/session integration. A local fake adapter p
 paths only; it must never be installed on the farm. Enrollment, alternate-login coverage and
 actual staff device verification remain M decisions. No master or employee access is operational.
 
-## 2. MFA recommendation, recovery and proof
+## 2. Maintained MFA recommendation, recovery and proof — Issue #13
 
-**Recommendation:** separate passwords plus TOTP authenticator applications and individual recovery codes, behind the existing HTTPS/Basic Auth protection. SMS and email OTP are not proposed; no delivery service or phone-use permission is assumed. Recommend the **standalone Wordfence Login Security** plugin as the candidate to evaluate, rather than a full firewall/security-suite deployment. Vendor documentation describes authenticator support and recovery codes ([setup/recovery](https://www.wordfence.com/help/tools/two-factor-authentication/)) and enforcement controls ([settings](https://www.wordfence.com/help/login-security/)). These are vendor capabilities, not compatibility results for this sandbox.
+**Recommend for owner selection, not installation:** WordPress **Two-Factor 0.17.0** plus the
+separate Digital Ranch **csf-mfa 0.1.0** adapter; scheduling **0.3.1** keeps schema3/15 tables.
+Standalone Wordfence Login Security is superseded and must not be selected. Full Wordfence
+remains an unselected broader-scope alternative without a verified current artifact here.
 
-**Scope exception requiring a separate decision:** an MFA plugin adds files/settings and may create its own tables. Those are **outside** the 19-file csf-scheduling release. Do not install it under I-Files. M-Install remains blocked until a separate immutable vendor version/artifact SHA-256, complete file/table/option diff, licensing/privacy review and isolated WordPress7.1.4/PHP8.3.36/MariaDB10.6.23 compatibility test are prepared. No vendor release, database count or integration behavior is invented here. If the owner chooses a different MFA mechanism, replace this section and its release evidence before execution. Do not add custom MFA enforcement code to scheduling or modify the pinned plugin.
+Read the [single security/release evidence report](../test-results/scheduling-mfa.md) for the
+provider comparison, exact source/artifact digests, 21-file source distribution, three-file
+adapter, 19-file scheduling candidate, DB/options/meta effects, tests and limitations. The
+vendor ZIP SHA is published metadata only; its bytes have not been independently retrieved.
+The local tested source build is explicitly distinguished from the ZIP. Approve the exact
+artifact choice and verified inventory before M-Install; never substitute one silently.
 
-Proposed settings, each subject to M-Enforce approval:
+**Enforcement proposal requiring separate approval:** TOTP and single-use backup codes only;
+email/dummy/unsupported providers excluded site-wide when the private adapter switch is true;
+no trusted-device exception; signed per-token proof expires within eight hours and session
+expiry, even with Remember Me. Native provider revalidation renews a proof after another actual
+challenge. Factor/config changes and revocation invalidate proofs. Recovery-code use invalidates
+that user's other proofs conservatively. Alternative CLI/REST/XML-RPC/application-password paths
+cannot authorize Digital Ranch. No application password or shared staff identity is proposed.
 
-- Require TOTP for verified administrator/operator and the two staff accounts after enrollment. Assess the plugin's **Custom Capabilities / Multiple Roles** category as well as Subscriber/Administrator: adding scheduling capabilities can change classification. Inventory every account affected before enabling required rules; applying a rule to that whole category can affect future accounts and must be reviewed before adding them.
-- Use a supervised enrollment window, then no remaining enrollment grace for pilot access. Keep an already verified operator session and private recovery channel available while testing a fresh login; do not lock the sole administrator out before they enroll. A “Required” setting alone is insufficient proof.
-- Disable remembered-device bypasses, IP bypass allowlists, optional passkey substitutions and reCAPTCHA/cloud integrations for this proposed TOTP-only pilot. Do not add public account/MFA shortcodes or change any website page.
-- Propose disabling authenticated XML-RPC if unused, with explicit affected-integration approval; separately inventory WordPress application passwords, REST Basic Auth/custom login paths and existing sessions. The chosen MFA plugin must not be assumed to protect alternate authentication. No application passwords or API credentials are issued to staff. If an alternate path bypasses required MFA, hold access until an approved, tested restriction exists. Do not disable public REST/site functionality speculatively.
-- Verify correct server/device time and proxy handling during the approved test; no NTP/firewall/Plesk configuration changes are included. Keep plugin data on deactivation for recovery; do not enable destructive uninstall/deactivation cleanup. Any outbound service use must be included in the MFA release/privacy review.
+**Unresolved and blocking:** Two-Factor does not itself enforce enrollment/protection for all
+WordPress administration paths. Actual auth plugins, operator MFA and mandatory-admin policy
+need isolated verification. The historical CLI master bootstrap correctly fails with browser-only
+session evidence. A separately reviewed and tested one-purpose identity handoff is required;
+no browser-cookie export, fake MFA filter, blanket CLI exception or temporary global disablement.
+O-Master cannot execute until that design exists. Protected PHP8.3.36/MariaDB10.6.23/Kadence/
+Plesk/HTTPS/Basic Auth/cache/device compatibility remains unproved for this candidate.
 
-**Enrollment and recovery procedure (after approval):** each person scans their own secret privately on their own device, confirms a current code, stores recovery codes in an owner-approved encrypted vault with a separately protected offline recovery copy, and completes a fresh-browser login before closing the working session. Never put QR images, TOTP seeds, codes, passwords or private screenshots into Git/chat. Store evidence of successful checks and custody location, never the recovery values.
+**Enrollment after separately approved account/provider/security work:** privately verify each
+numeric identity, unique login/email and base role; each person scans/confirms their own TOTP,
+stores individual backup codes in an approved encrypted vault plus protected offline recovery,
+then completes fresh-browser login, intended rights/denials, logout and one-time recovery checks.
+Never put seeds, QR images, codes, cookies, passwords or recovery values in Git/chat/screenshots.
+Owner/group assignment uses verified identity plus enrollment; only that employee's own completed
+current-session challenge can unlock private features. No rights for Beth/Kris are decided here.
 
-If a phone is lost, use an individual recovery code, replace the authenticator secret, regenerate recovery codes and revoke sessions. If device and codes are both lost, the verified operator confirms identity through the owner-approved independent recovery route, records the incident and temporarily removes that person's pilot access while re-enrolling. Kris's scheduling permissions do not authorize resetting Beth's MFA or vice versa. If the sole operator is locked out, stop for owner-approved restricted recovery over the existing secure administrative channel; do not broadly disable MFA or publish an unprotected login. A full backup restore can resurrect old sessions/MFA secrets, so recovery requires credential/session review, not automatic re-opening of access.
+**Recovery:** lost device → individual recovery code → replace authenticator and backup codes →
+revoke sessions → fresh verified login. Lost device and all codes → suspend only that person's
+pilot access through an independently authorized actor, verify identity out of band and obtain
+scoped recovery approval. Sole-master/operator lockout stops work for separately reviewed secure
+recovery; do not disable MFA globally or infer master identity from WordPress Administrator.
+A backup restore can resurrect secrets/sessions; reconcile changes and revoke/rotate before
+reopening private access. Deactivation is containment, not destructive provider uninstall.
 
-**Required proof for each account:** correct Basic Auth → correct password without TOTP cannot reach an authenticated WordPress session → incorrect/expired TOTP fails → current TOTP succeeds → dashboard/calendar access matches the approved grants → logout invalidates the session. Test one recovery code successfully and confirm it cannot be reused; regenerate/store replacements. Repeat fresh-browser/mobile login and negative tests after scheduling grants, to catch custom-capability reclassification. Attempt unauthorized admin/user/plugin/page operations and confirm denial. Log operator/reviewer/date/device/result privately, without credentials or token-bearing URLs. Test modestly to avoid unnecessary lockouts; no automated guessing or real-person impersonation.
+Provider low-backup-code and compromised-password-reset emails need M-Notify review. Local tests
+intercepted all mail; no delivered-email claim, SMS use or inquiry enablement follows.
 
 ## 3. Fictional pilot policy — readable comparison
 
@@ -248,3 +287,12 @@ Exact local implementation source for the new candidate: **c04a24387e3d26f7cb0a7
 plugin tree **852837cb22fcf2b9d219cfe918c43d567cc5cc4e**. The current I-Files/I-Schema
 rows describe 19 files/schema 3. Historical v0.2.1 inventories and package-verification statements
 remain dated evidence only. No row has execution authorization.
+
+## Issue #13 current review override — no execution authorized
+
+The new local security candidate supersedes earlier 0.3.0 installation assumptions. Preserve
+c04a243/d09ad92 as provenance; review the newly pinned 0.3.1 scheduling and separate adapter in
+the Issue #13 report. M-Choice is a selection decision, not M-Install/M-Adapter/M-Enforce.
+The provider ZIP/source-build choice, mandatory WordPress-admin enforcement, safe master identity
+handoff and protected-stack compatibility remain blockers. None of A/M/I/O/G/C/D/T is approved.
+Earlier 0.2.1/0.3.0 tables and source pins are historical evidence, never execution authorization.

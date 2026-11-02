@@ -2,6 +2,13 @@
 
 ## Principles
 
+**Latest security candidate:** Issue #13 adds a separate `csf-mfa` 0.1.0 adapter for pinned
+WordPress Two-Factor 0.17.0, with Scheduling 0.3.1/schema 3 unchanged physically. Enrollment is
+not session authentication. Read the [exact security contract, evidence and blockers](test-results/scheduling-mfa.md)
+before changing either MFA filter. Gate B remains held; the historical CLI master ceremony cannot
+satisfy browser-session MFA and requires a separately reviewed identity handoff. No live provider,
+account, grant, migration or master is installed/provisioned by this local milestone.
+
 1. **Kadence + Gutenberg for presentation; plugins for behaviour.** Business logic never lives
    in the theme. Switching or breaking the theme must not break bookings, emergency pages,
    or data.

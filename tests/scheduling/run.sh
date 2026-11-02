@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 [[ -f "$ROOT/.wp-local/scheduling-core/wp-load.php" && -f "$ROOT/.wp-local/wp-cli.phar" ]] || { echo 'Provide unmodified WordPress core in .wp-local/scheduling-core and the existing WP-CLI fixture first.' >&2; exit 1; }
 D=(docker --host=unix:///var/run/docker.sock)
+# Chromium treats concurrent fixture network creation/removal as ERR_NETWORK_CHANGED.
+exec 8>"$ROOT/.wp-local/docker-fixture.lock"
+flock 8
 python3 - "$ROOT" <<'PYV2'
 import pathlib,subprocess,hashlib,sys
 root=pathlib.Path(sys.argv[1]);pin='6f5a9bf51747399a309b39637a135841fe4cf2a1'
@@ -32,6 +35,8 @@ PHP=("${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=
 "${PHP[@]}" -e CSF_TEST_PHASE=calendar csf-scheduling-php81 bash /repo/tests/scheduling/container.sh
 # The web fixture is bound to loopback only, never publicly served.
 if [[ "${CSF_TEST_BROWSER:-0}" == 1 ]]; then
+ exec 9>"$ROOT/.wp-local/browser-relay.lock"
+ flock 9
  "${D[@]}" run -d --name "$STAMP-web" --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" csf-scheduling-php81 php -S 0.0.0.0:8899 -t /test/site >/dev/null
  for attempt in $(seq 1 30); do
   if "${D[@]}" exec "$STAMP-web" php -r '$s=@fsockopen("127.0.0.1",8899);if(!$s){exit(1);}fclose($s);' >/dev/null 2>&1; then break; fi
@@ -40,6 +45,7 @@ if [[ "${CSF_TEST_BROWSER:-0}" == 1 ]]; then
  CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/browser.js"
  CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/permissions-browser.js"
  "${D[@]}" rm -f "$STAMP-web" >/dev/null
+ flock -u 9
 fi
 # Preserve the populated v3 fixture, test a genuine populated v2 upgrade and old-code fail-closed, then restore v3.
 "${D[@]}" exec "$STAMP-db" sh -c 'DUMP=$(command -v mariadb-dump || command -v mysqldump); "$DUMP" -uroot -pfixture-only --single-transaction csf_fixture > /tmp/before-permission-upgrade.sql'

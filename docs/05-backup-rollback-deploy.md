@@ -627,3 +627,44 @@ Issue #12 immutable local implementation pin: **c04a24387e3d26f7cb0a7a13683a3981
 plugin tree **852837cb22fcf2b9d219cfe918c43d567cc5cc4e**. See the 19-file release report
 and inventory. This identifies reviewable code; it is not Gate B installation, identity/MFA,
 migration, grant, policy or pilot authorization. The historical 0.2.1 pin remains preserved.
+
+## Issue #13 — MFA release review and additional Gate B holds
+
+Read [the security/release report](test-results/scheduling-mfa.md) and the revised
+[single owner decision package](pilot/gate-b-owner-review.md). Recommended selection is pinned
+Two-Factor 0.17.0 + separate csf-mfa0.1.0 with scheduling0.3.1; no owner selection/execution is
+assumed. Original c04a243/d09ad92 and historical6f5a9bf remain immutable provenance, never
+silently updated installation pins. Physical scheduling schema remains v3/15 tables.
+
+Before any future installation approval:
+
+1. Resolve M-Choice and exact source-build versus official-ZIP artifact selection. The vendor
+   publishes ZIP SHA25659d7c75f57966b93cc59657a0c14d58f247ba6f350b081c8602b3cacdc51e473;
+   local tests did not retrieve those ZIP bytes. Independently hash/unpack/compare the selected
+   provider artifact. Review all21source-distribution files, separate3adapter files and19scheduling
+   files. New plugin directories only; no parent sync/delete or existing core/emergency/site edits.
+2. Complete safe operator/admin mandatory-MFA coverage and the separately reviewed master
+   identity ceremony. CLI --user cannot establish browser MFA; O-Master is blocked, not exempt.
+   Never copy browser tokens into CLI flags/files or use the synthetic filter outside tests.
+3. Verify exact protected identity/base roles/auth paths and compatibility on an isolated
+   representative PHP8.3.36/MariaDB10.6.23/WordPress7.1.4/Kadence/Plesk/HTTPS/BasicAuth stack.
+   No new real identities, provider installation, switch, migration or records are authorized here.
+4. Obtain independent R-Backup scope; capture current exact-target DB/wp-content/config/salts,
+   private provider account/meta/option/session state and scheduling data. Hash artifacts, verify
+   encrypted recovery custody, and restore/functionally test privately. GateA only covers its
+   historical capture. Do not expose real secrets, accounts or restored private data publicly.
+5. Review M-Install, M-Adapter, M-Enforce and M-Notify separately, including the private
+   CSF_MFA_ENABLED switch, site-wide TOTP/backup-only restrictions, eight-hour proof TTL,
+   provider email effects, update pinning and session/credential revocation. No provider uninstall.
+6. Each A/M-Enroll decision names verified numeric identity privately, base role, device/recovery
+   custody and supervised native login/recovery/negative results. Initial account creation and
+   enrollment grant no farm rights. WordPress Administrator never implies master identity.
+7. Only after missing security designs/acceptance and exact I-Files/I-Schema/O-Master/G/P/C/D/T
+   approvals may later installation/pilot work execute. Activation does not migrate or grant.
+   Use the existing guarded exact-target schema preview/apply and transaction/audit boundaries.
+
+Containment keeps default-deny: stop/deactivate scheduling/adapter under separately authorized
+scope, retain provider data and scheduling audit; do not disable global MFA or guess a master.
+Restoring old files alone does not undo account/MFA/session state. Any full restore/cleanup
+requires a matched artifact, later-change reconciliation, separate authorization and post-restore
+session revocation/credential review. Production/inquiry/emergency/public content remain excluded.

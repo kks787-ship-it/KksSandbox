@@ -370,3 +370,22 @@ account creation, bootstrap, grants, protected migration or pilot is authorized.
 release evidence stays intact, and a new pinned candidate/file comparison/owner review is required
 before Gate B. New local regression results and operational blockers belong in the permissions
 release report; local code/test completion does not establish Beth/Kris or protected-stack acceptance.
+
+## Issue #13 — challenge-backed MFA, local development only
+
+Recommend maintained WordPress Two-Factor0.17.0 plus a separate csf-mfa0.1.0 adapter for owner
+selection. Reject the superseded standalone Wordfence Login Security recommendation. Pin exact
+source/build hashes and distinguish independently verified local source from vendor-published ZIP
+digest metadata. No provider is chosen/installed on behalf of the owner.
+
+Enrollment eligibility and authenticated current-session proof are separate default-false hooks.
+Bind proof to exact user/token, successful approved challenge, issuance/expiry, credentials and
+revocation. CLI/REST/XML-RPC/application passwords cannot satisfy Digital Ranch MFA. Preserve all
+existing granular permissions, audited transactions, scope and default-deny. Scheduling0.3.1
+retains schema3/15tables; no foundation rebuild or protected migration.
+
+The historical CLI master-bootstrap ceremony correctly cannot pass web-session MFA. Implement
+and review a safe one-use identity handoff separately before O-Master. Mandatory WordPress-admin
+MFA, actual identities, provider artifact selection/verification, protected-stack compatibility,
+notifications/recovery and all GateB execution decisions remain held. No bypass for convenience.
+See docs/test-results/scheduling-mfa.md and the single revised GateB package for exact evidence.

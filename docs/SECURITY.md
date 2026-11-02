@@ -1,5 +1,17 @@
 # Security and operational boundaries
 
+## Digital Ranch MFA — local candidate only
+
+The separate csf-mfa adapter requires a successful approved challenge bound to the current
+signed WordPress cookie and exact live primary-database session. It never equates provider
+enrollment, a timestamp, WP Administrator, CLI --user or an application password with MFA.
+Scheduling membership, overrides, scope, nonces, transaction checks and audit remain independent.
+See [Issue #13 security contract and release limitations](test-results/scheduling-mfa.md).
+Provider pin/credential/session/expiry failure denies access. The historical CLI master identity
+ceremony remains blocked with this web-only adapter; never export tokens or enable a fake
+verification filter to get past it. WordPress administration-wide mandatory MFA is a separate
+unresolved enforcement gate. Gate B is held and no actual provider/accounts/server changed.
+
 The current emergency system is an MVP, not an operational alert or dispatch service.
 See [ranked findings](10-takeover-audit.md) and [emergency acceptance checklist](04-emergency-plugin.md).
 

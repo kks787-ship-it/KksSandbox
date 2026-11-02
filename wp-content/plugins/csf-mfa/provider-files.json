@@ -1,0 +1,29 @@
+{
+  "provider": "WordPress/two-factor",
+  "version": "0.17.0",
+  "source_commit": "12c033f7b7ac8a1b561e1b32aa944a0e6856fff5",
+  "files": {
+    "CLI/class-two-factor-cli-command.php": "0ec5a422591a813b80a0be9dcf0cad8af10adf14495c6fe7daab4f8a5091c3c6",
+    "LICENSE.md": "d8c320ffc0030d1b096ae4732b50d2b811cf95e9a9b7377c1127b2563e0a0388",
+    "class-two-factor-compat.php": "a9a4970138a5db17262cbd7a158aa768a42193548c9041211e78b5a399bda091",
+    "class-two-factor-core.php": "9dc40cf51efa6349ced14f9406ade30a4a0529a54867d2d69b52ceed8483dfed",
+    "includes/function.login-footer.php": "055dd9305b3e7f8edb7123e6f24df074293cbd03cb9c499b8e95c765c71af6bd",
+    "includes/function.login-header.php": "0cbaf3a7947fc9ffd52e4f208ecfd44deae356a73086b2b2adffbce50547791b",
+    "providers/class-two-factor-backup-codes.php": "4404f5ff8248c8d9d8bbe4acdabe5b347477747b72f6b8599076b62fb6246716",
+    "providers/class-two-factor-dummy.php": "cfd4d1249371fa291de2a8a8de5d341d7cf19fab75ced3c2e7bd3eddb644ef38",
+    "providers/class-two-factor-email.php": "b4391b28bbb23d41793fe2278a6dceae513f14301704d13d25469bc3c52d9808",
+    "providers/class-two-factor-provider.php": "5f4ee21f3cc81e16aac83e281488db7df9f51227ba299239c26a995195278abb",
+    "providers/class-two-factor-totp.php": "770c9081ff0e9b1441030cda1b2b9d5cb21663fc8063e3c8476dcc1c4d8caecb",
+    "providers/js/backup-codes-admin.js": "61dc1a32fdf433afd2e7b871794ad10556456d8965bdd8b894a69ecb02920efe",
+    "providers/js/totp-admin-qrcode.js": "3fc587b514a8bdc3457acd8935a91d45589ab0bff72f2d1adb98aeac4f9f570b",
+    "providers/js/totp-admin.js": "70fba39163b757ff3e4c3d79f1f3e2fd1ae01240a6bf0fc281f40253d2645b4d",
+    "providers/js/two-factor-login-authcode.js": "d4448ff9f96b9f3a3e238aba2c3f1c9430148bc935b4d35fb8e841571fbfd514",
+    "providers/js/two-factor-login.js": "f0b1441a1d7d28b771a86277f536932d1d01956c2f3ef7e391a9d1e355f07184",
+    "readme.txt": "7ad1492037e147615925c90d37cf6614dfca64e44d0e06d0be53c165db789704",
+    "settings/class-two-factor-settings.php": "bff05e59bfff263c126bc1e1dcbc4b445349ff479cf943b1c6ced2e0c3637c06",
+    "two-factor.php": "1f9bdff5f23c88d5f395dc1f88ead65779b8ec4a06ee04bf61448fce5d41a20b",
+    "user-edit.css": "e712c7e4920f6c13bd31c47fbe47417eecad3aaf396980e652b64d073e1e7ccb",
+    "includes/qrcode-generator/qrcode.js": "79ec86f82856005b1c887905cfccfcfbec3821ca61c7fd5a952faa5f778f791c"
+  },
+  "qrcode_source_blob": "df13f829bf41f36b82f0ed85751ed3b4c39cfeb8"
+}
