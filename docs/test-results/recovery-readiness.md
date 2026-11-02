@@ -7,6 +7,44 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Final execution review of367294c — November 2, 2026
+
+[Assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6586718406).
+**NO-GO for capture until bindings and the composed payload are resolved.** No new broad
+redesign or application changes: the existing [R-Backup decision card](../pilot/r-backup-approval.md#final-execution-review--november-2-2026)
+now lists the minimum owner choices, proposed inspection call, private exposure and stop rules.
+
+Concrete findings: fragments lacked an enclosing30minute limit; only the dump had900seconds.
+Whole-job timeout/kill grace is now specified. Native client/dump `--defaults-extra-file` could
+inherit unreviewed host options; proposed commands now use `--defaults-file` first. These are
+local text corrections, not proof of installed-client compatibility. Archive validation,
+metadata/receipt assembly, protected-config path/copy bodies, drift review and bounded overhead
+must still be assembled/tested in the exact job; the catalogue did not implement them. Literal
+config regex matching alone cannot prove agreement with executable PHP (comments/conditionals).
+Archive traversal/links/extended names/prefix collisions require a reviewed header validator;
+no recovery extraction is authorized. Disk estimates alone do not bound config/workspace overhead.
+
+Safe proposed first choice is local-only custody. Namespace/daemon startup belongs to restore,
+not capture; off-server recipient/transfer/decrypt belongs to its own custody decision. No new
+WP identities, Master, MFA or real account enumeration is needed to authorize infrastructure
+capture. No actual server dependency, path, free space or client behavior was verified here.
+
+Rerun results:25 recovery synthetic units +14 sandbox-preflight units +22 development guards
++6 mocked Plesk checks = **67 passed**. Ten Bash fragments and four embedded Python fragments
+parsed successfully, none executed. No new runtime regression result is claimed for document
+changes. Existing application tests were not rerun; the implementation/source pin2fd02a2,
+installation scripts and historical evidence are unchanged. Five documentation files changed.
+
+Revised command catalogue SHA256:
+`be741cbef608691214f57e32efa166bc99f079b7289f56c976dd299c0a39bc5e`.
+The earlier `aa0a4e…` digest below identifies the367294c proposal only and is superseded for
+future command review. Generator digest remains unchanged. No Gateway/server call, staging,
+backup, restore, production, account, MFA, plugin, inquiry or emergency action occurred.
+
+Stop: resolve the minimum private bindings and exact prerequisite read scope, complete/hash
+and review the bounded payload, then request authorization for **one exact R-Backup**. No
+placeholder approval and no R-Restore queue: its new manifest does not yet exist.
+
 ## Delivered for owner review
 
 - **[R-Backup packet](../pilot/r-backup-approval.md):** one bounded exact-sandbox capture,

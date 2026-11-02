@@ -19,6 +19,12 @@ backup prerequisite. No temporary cloned login is evidence of the real person's 
 
 ### R-Backup proposed command catalogue
 
+Final execution review is **NO-GO pending exact payload/private bindings**, not another design
+phase. The [single decision card](pilot/r-backup-approval.md#final-execution-review--november-2-2026)
+lists missing executable validators/receipts, whole-job limits and the proposed read-only checks.
+No server call or capture is authorized. Local capture, off-server custody and restore are three
+separate claims; restore namespace dependencies do not block a local capture.
+
 Use the [reviewable B1–B4 command specification](pilot/recovery-command-catalogue.md#r-backup-command-payload).
 It binds the exact sandbox root/URL/DB/prefix, a new exclusive private bundle, literal config
 parsing without WordPress execution, transient0600 DB-client material, MVCC dump and diagnostic

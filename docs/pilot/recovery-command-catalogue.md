@@ -8,7 +8,9 @@ No farm connection, staging, command or backup/restore occurred while writing th
 
 Gateway operation proposed for each composed lifecycle: `execute_command`, canonical server
 `srv_01M687VB1R009Y0C3HRN7NMP3A`, shell `/bin/bash`, umask077, existing verified privilege only,
-bounded timeout. Private values use approved `stdin_from`/`env_from` selectors, never literals.
+bounded timeout. The composed capture must run under `timeout --signal=TERM --kill-after=30s 1770s /bin/bash`
+inside a Gateway job with `timeout_seconds=1800`; bind the complete script on stdin, not shell-interpolated
+private values. Timeout terminates the attempt, never promotes partial artifacts to success. Private values use approved `stdin_from`/`env_from` selectors, never literals.
 Fragments within a lifecycle are one reviewed shell payload; do not assume variables/functions
 persist between Gateway jobs. Follow the durable job to terminal status and inspect its actual
 sanitized acceptance receipt, not merely wrapper success.
@@ -68,7 +70,7 @@ body='[client]\nhost='+quote(host)+'\nport=3306\nuser='+quote(literal('DB_USER')
 fd=os.open(sys.argv[2],os.O_WRONLY|os.O_CREAT|os.O_EXCL|os.O_NOFOLLOW,0o600)
 with os.fdopen(fd,'w') as out:out.write(body)
 PY
-CSF_MYSQL=(/usr/bin/mariadb --defaults-extra-file="$CSF_CLIENT" --batch --raw --skip-column-names --default-character-set=utf8mb4 --database="$CSF_DB")
+CSF_MYSQL=(/usr/bin/mariadb --defaults-file="$CSF_CLIENT" --batch --raw --skip-column-names --default-character-set=utf8mb4 --database="$CSF_DB")
 CSF_GUARD=$("${CSF_MYSQL[@]}" --execute="SELECT DATABASE(),(SELECT option_value FROM TXGEh_options WHERE option_name='home'),(SELECT option_value FROM TXGEh_options WHERE option_name='siteurl')")
 test "$CSF_GUARD" = $'wp_mdf4x\thttps://sandbox.cornerstonefarmomak.com\thttps://sandbox.cornerstonefarmomak.com'
 CSF_DB_ESTIMATE=$("${CSF_MYSQL[@]}" --execute='SELECT COALESCE(SUM(DATA_LENGTH+INDEX_LENGTH),0) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE()')
@@ -77,6 +79,11 @@ CSF_NEEDED=$((5*(CSF_SOURCE_BYTES+CSF_DB_ESTIMATE)))
 test "$CSF_NEEDED" -ge 2147483648 || CSF_NEEDED=2147483648
 test "$(df -B1 --output=avail "$CSF_PARENT" | tail -n1)" -ge "$CSF_NEEDED"
 ```
+
+Use `--defaults-file` as the first client/dump option, not `--defaults-extra-file`: inheriting
+host option files could introduce unreviewed init commands, destination/protocol settings or
+dump scope flags. Bind/clear relevant client environment and verify installed binary behavior
+in the approved prerequisite check. No silent switch to another client/version is permitted.
 
 These proposed bounds need owner confirmation. Stop for changed host/environment/prefix,
 non-InnoDB/unknown tables, unexpected active/security plugins, nonzero stored routine/event/
@@ -129,7 +136,7 @@ test -f "$CSF_SELECT_PLAN_SOURCE" && test ! -L "$CSF_SELECT_PLAN_SOURCE"
 test "$(sha256sum "$CSF_SELECT_PLAN_SOURCE" | cut -d' ' -f1)" = 509c5acd35e2e165fd1c46a260bc3ec3d117a79b96e92b726cd83dfdd7b13b46
 python3 -I -B "$CSF_SELECT_PLAN_SOURCE" "$CSF_BUNDLE/before.catalog.json" > "$CSF_BUNDLE/before.select.sql"
 "${CSF_MYSQL[@]}" < "$CSF_BUNDLE/before.select.sql" > "$CSF_BUNDLE/before.rows.ndjson"
-timeout 900 /usr/bin/mariadb-dump --defaults-extra-file="$CSF_CLIENT" \
+timeout 900 /usr/bin/mariadb-dump --defaults-file="$CSF_CLIENT" \
   --single-transaction --quick --skip-lock-tables --skip-add-locks --no-tablespaces \
   --hex-blob --routines --events --triggers --skip-comments --skip-dump-date \
   "$CSF_DB" | gzip -n > "$CSF_BUNDLE/database.sql.gz"
@@ -164,7 +171,13 @@ configuration or unrelated vhosts. Exact paths and per-file copy commands are bo
 private approval record before execution. Hash the resulting protected-config archive and
 all fixed artifacts using `sha256sum`, save `SHA256SUMS`, verify with `sha256sum --check --strict`,
 then hash that manifest into the owner receipt. A missing config binding is Hold, not authority
-to copy the whole subscription. Reject unsafe/duplicate archive members before declaring success.
+to copy the whole subscription. Reject unsafe/duplicate archive members before declaring success. The composed payload must
+include a reviewed header-only tar validator (including effective PAX/GNU long names): permit
+only relative regular files/directories beneath the expected archive roots; reject absolute,
+`..`, duplicate normalized names, links, device/FIFO/sparse/unknown types, control characters
+and path-prefix file/directory collisions. Do not extract to validate. This validator is not
+implemented by the fragments below; its exact body and synthetic malicious-archive tests are
+a capture-readiness blocker. R-Restore must independently revalidate before extraction.
 Raw private records stay private; sanitized receipt contains target/run/interval/artifact hashes,
 checks/modes, drift categories and unresolved items only. Mark incomplete on any failure.
 Return only that validated whitelist receipt on preserved FD3; never cat private logs into a
@@ -345,9 +358,9 @@ assert r.returncode==0,'Private scoped import identity creation failed'
 fd=os.open(path,os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW,0o600)
 with os.fdopen(fd,'w') as out:out.write('[client]\nuser=csf_restore_import\npassword='+password+'\nprotocol=SOCKET\nsocket='+socket+'\n')
 PY
-CSF_CLONE_MYSQL=(/usr/bin/mariadb --defaults-extra-file="$CSF_RUN/import-client.cnf" --protocol=SOCKET --socket="$CSF_CLONE_SOCKET")
+CSF_CLONE_MYSQL=(/usr/bin/mariadb --defaults-file="$CSF_RUN/import-client.cnf" --protocol=SOCKET --socket="$CSF_CLONE_SOCKET")
 gzip -cd "$CSF_RUN/bundle/database.sql.gz" | "${CSF_CLONE_MYSQL[@]}" --database=wp_mdf4x
-/usr/bin/mariadb-check --defaults-extra-file="$CSF_RUN/import-client.cnf" --protocol=SOCKET --socket="$CSF_CLONE_SOCKET" \
+/usr/bin/mariadb-check --defaults-file="$CSF_RUN/import-client.cnf" --protocol=SOCKET --socket="$CSF_CLONE_SOCKET" \
   --check wp_mdf4x > "$CSF_RUN/database-integrity.log" 2>&1
 tar --extract --gzip --no-same-owner -f "$CSF_RUN/bundle/wordpress-root.tar.gz" -C "$CSF_RUN/site"
 tar --extract --gzip --no-same-owner -f "$CSF_RUN/bundle/wp-content.tar.gz" -C "$CSF_RUN/site"
