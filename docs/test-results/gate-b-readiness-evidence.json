@@ -1,0 +1,421 @@
+{
+  "scope": "Read-only Gate B deployment readiness; no installation, backup, restore, WordPress bootstrap, account or data mutation",
+  "starting_documentation_commit": "1fe8947aa5c106470b26666220dbdb7dab1e9eb2",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "observed_start_utc": "2026-11-02T16:35:17.970406+00:00",
+  "observed_final_snapshot_utc": "2026-11-02T16:57:48.592335+00:00",
+  "final_privilege_metadata_utc": "2026-11-02T16:59:54.853163+00:00",
+  "target": {
+    "url": "https://sandbox.cornerstonefarmomak.com",
+    "root": "/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com",
+    "database": "wp_mdf4x",
+    "prefix": "TXGEh_",
+    "environment": "development"
+  },
+  "versions": {
+    "wordpress": "7.1.4",
+    "php_cli": "8.3.36",
+    "php_fpm": "8.3.36",
+    "mariadb": "10.6.23-MariaDB-0ubuntu0.22.04.1",
+    "kadence": "1.5.2",
+    "plesk": "18.0-v.ubuntu.22.04+p18.0.81.6+t261027.0739",
+    "nginx": "nginx version: nginx/1.30.6",
+    "apache": "2.4.52-1ubuntu4.25"
+  },
+  "active_plugins": [
+    "csf-core/csf-core.php"
+  ],
+  "installed_plugins": {
+    "akismet": [
+      {
+        "main": "akismet/akismet.php",
+        "name": "Akismet Anti-spam: Spam Protection",
+        "version": "5.7.2"
+      }
+    ],
+    "csf-core": [
+      {
+        "main": "csf-core/csf-core.php",
+        "name": "Corner Stone Farm Core",
+        "version": "0.3.0"
+      }
+    ],
+    "csf-emergency": [
+      {
+        "main": "csf-emergency/csf-emergency.php",
+        "name": "Corner Stone Farm Emergency Management",
+        "version": "0.1.0"
+      }
+    ]
+  },
+  "identity_aggregates": {
+    "accounts": 1,
+    "adapter_meta_rows": 0,
+    "administrator_role_rows": 1,
+    "application_password_meta_rows": 0,
+    "duplicate_capability_identities": 0,
+    "farm_capability_meta_rows": 0,
+    "native_capability_rows": 1,
+    "nonempty_application_password_meta_rows": 0,
+    "provider_meta_rows": 0,
+    "subscriber_role_rows": 0
+  },
+  "identities_verified": false,
+  "existing_native_tables": [
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_commentmeta"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_comments"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_links"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_options"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_postmeta"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_posts"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_termmeta"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_terms"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_term_relationships"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_term_taxonomy"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_usermeta"
+    },
+    {
+      "collation": "utf8mb4_unicode_520_ci",
+      "engine": "InnoDB",
+      "name": "TXGEh_users"
+    }
+  ],
+  "new_scheduling_tables_observed": [],
+  "candidate_directory_presence": {
+    "csf-mfa": false,
+    "csf-scheduling": false,
+    "two-factor": false
+  },
+  "configuration": {
+    "CSF_MFA_ENABLED": null,
+    "CSF_MFA_ENFORCE_ADMIN": null,
+    "CSF_SCHEDULING_MASTER_BOOTSTRAP_ALLOWED": null,
+    "CSF_SCHEDULING_MIGRATION_ALLOWED": null,
+    "DISABLE_WP_CRON": null,
+    "DISALLOW_FILE_EDIT": true,
+    "MULTISITE": null,
+    "WP_CACHE": null,
+    "WP_DEBUG_DISPLAY": false
+  },
+  "global_wordpress_timezone": {
+    "timezone_string": "",
+    "gmt_offset": "0"
+  },
+  "native_authentication_dependencies": {
+    "application_password_rows": 0,
+    "xmlrpc_dependency_exhaustively_verified": false,
+    "external_client_toolkit_owner_attestation_required": true,
+    "bounded_access_log_signals": [
+      {
+        "bounded_bytes": 0,
+        "counts": {},
+        "file": "access_log",
+        "first_observed_timestamp": null,
+        "identities_and_uris_returned": false,
+        "last_observed_timestamp": null
+      },
+      {
+        "bounded_bytes": 90779,
+        "counts": {
+          "parsed_requests": 259,
+          "rest_requests": 14
+        },
+        "file": "access_ssl_log",
+        "first_observed_timestamp": "02/Nov/2026:17:23:21 +0100",
+        "identities_and_uris_returned": false,
+        "last_observed_timestamp": "02/Nov/2026:17:37:45 +0100"
+      },
+      {
+        "bounded_bytes": 450,
+        "counts": {
+          "parsed_requests": 3
+        },
+        "file": "proxy_access_log",
+        "first_observed_timestamp": "02/Nov/2026:06:36:09 +0100",
+        "identities_and_uris_returned": false,
+        "last_observed_timestamp": "02/Nov/2026:13:10:33 +0100"
+      },
+      {
+        "bounded_bytes": 57863,
+        "counts": {
+          "parsed_requests": 171
+        },
+        "file": "proxy_access_ssl_log",
+        "first_observed_timestamp": "02/Nov/2026:14:38:58 +0100",
+        "identities_and_uris_returned": false,
+        "last_observed_timestamp": "02/Nov/2026:17:31:18 +0100"
+      }
+    ]
+  },
+  "http_basic_auth": {
+    "method": "HEAD",
+    "path": "/wp-content/themes/kadence/style.css",
+    "status": 401,
+    "credentials_submitted": false,
+    "wordpress_bootstrap": false,
+    "nginx_and_apache_declared": true
+  },
+  "caching": {
+    "wordpress_cache_dropins": 0,
+    "mu_plugins": 0,
+    "site_user_ini": {
+      "auto_prepend_or_append_configured": false,
+      "files": 0
+    },
+    "opcache": {
+      "auto_append_present": false,
+      "auto_prepend_present": false,
+      "opcache_enable": "1",
+      "opcache_revalidate_freq": "2",
+      "opcache_validate_timestamps": "1"
+    },
+    "protected_runtime_cache_acceptance": false
+  },
+  "fpm": {
+    "relative_listen": "php-fpm.sock",
+    "prefix": "/var/www/vhosts/system/$pool",
+    "pool_section_matches": true,
+    "sandbox_socket_exists": true,
+    "relative_prefix_resolves_to_apache_handler": true,
+    "private_mode_config_checks": {
+      "open_basedir_declared_in_pool": true,
+      "pool_user_matches_site_owner": true,
+      "private_parent_allowed_by_pool_basedir": true,
+      "private_parent_mode": "0o700",
+      "private_parent_owned_by_pool_user": true,
+      "private_parent_traversable_by_mode": true
+    },
+    "effective_invitation_read_not_executed": true
+  },
+  "configured_database_account_privileges": [
+    "ALTER",
+    "ALTER ROUTINE",
+    "CREATE",
+    "CREATE ROUTINE",
+    "CREATE TEMPORARY TABLES",
+    "CREATE VIEW",
+    "DELETE",
+    "DROP",
+    "EVENT",
+    "EXECUTE",
+    "INDEX",
+    "INSERT",
+    "LOCK TABLES",
+    "REFERENCES",
+    "SELECT",
+    "SHOW VIEW",
+    "TRIGGER",
+    "UPDATE",
+    "USAGE"
+  ],
+  "ddl_trial_executed": false,
+  "source_verification": {
+    "custom_files": 24,
+    "vendor_files": 21,
+    "total_files": 45,
+    "official_zip_bytes": 91837,
+    "official_zip_sha256": "59d7c75f57966b93cc59657a0c14d58f247ba6f350b081c8602b3cacdc51e473",
+    "official_zip_bytes_and_all_members_reverified": true,
+    "php83_stdin_syntax_files": 31,
+    "php83_stdin_syntax_passed": 31,
+    "php_source_executed": false,
+    "plugin_files_staged_or_installed": false
+  },
+  "gate_a": {
+    "bundle": "/var/www/vhosts/cornerstonefarmomak.com/private/csf-gate-a-20261102-004845-8d96d856",
+    "retained_bundle_and_recovery_mode": "0700",
+    "config_and_archive_modes": "0600",
+    "checksum_sets": {
+      "RECOVERY-SHA256SUMS": {
+        "passed": 12,
+        "total": 12
+      },
+      "SHA256SUMS": {
+        "passed": 6,
+        "total": 6
+      }
+    },
+    "artifacts": {
+      "database.sql.gz": {
+        "bytes": 58361,
+        "gzip_integrity": true,
+        "mode": "0o600",
+        "sha256_matches_gate_a": true
+      },
+      "wordpress-root.tar.gz": {
+        "bytes": 21991905,
+        "member_count": 3750,
+        "mode": "0o600",
+        "safe_members": true,
+        "sha256_matches_gate_a": true
+      },
+      "wp-content.tar.gz": {
+        "bytes": 18167953,
+        "member_count": 1342,
+        "mode": "0o600",
+        "safe_members": true,
+        "sha256_matches_gate_a": true
+      }
+    },
+    "retained_functional_record": {
+      "accounts_created": 0,
+      "completed_utc": "2026-11-02T00:56:27.155684+00:00",
+      "integrity_tables_ok": 12,
+      "restored_files": 4479,
+      "restored_tables": 12,
+      "services_stopped": true,
+      "status": "functional_restore_passed"
+    },
+    "all_4479_files_still_match_gate_a": {
+      "changed": 0,
+      "expected": 4479,
+      "matching": 4479,
+      "missing": 0
+    },
+    "drill_processes_running": 0,
+    "new_backup_or_restore": false,
+    "off_server_custody_verified": false
+  },
+  "final_comparison": {
+    "website_file_inventory_unchanged": true,
+    "all_table_fingerprints_unchanged": false,
+    "core_emergency_files_unchanged": true,
+    "active_plugins_unchanged": true,
+    "identity_aggregates_unchanged": true,
+    "config_unchanged": true,
+    "selected_site_settings_unchanged": true,
+    "inquiry_still_disabled": true,
+    "emergency_still_inactive": true,
+    "no_candidate_directories": true,
+    "regular_files": 4479,
+    "unchanged_table_count": 11,
+    "total_table_count": 12,
+    "options_drift": {
+      "table": "TXGEh_options",
+      "before_rows": 163,
+      "after_rows": 163,
+      "before_sha256": "ad67d049940e0de87027e643476a13952a2ee2458ae4d32a81f3145f9abd2af1",
+      "after_sha256": "81997b6375b02dd246226b3e2a964ba94522e67fac4d8f8fac991eaf3535ae73",
+      "changed_key_unknown": true,
+      "attribution": "unknown; no attribution to actor/cron/transient justified; review concurrent activity and obtain fresh frozen baseline"
+    },
+    "task_application_configuration_or_database_writes": false,
+    "global_server_unchanged_claimed": false
+  },
+  "local_documentation_checks": {
+    "deployment_backup_guards": 22,
+    "mocked_plesk_identity_checks": 6,
+    "sandbox_preflight_units": 14,
+    "prior_748_354_88_suite_rerun": false,
+    "json_valid": true,
+    "relative_documentation_links_checked": 83,
+    "whitespace_valid": true,
+    "exact_45_file_inventory_valid": true,
+    "source_and_deployment_scripts_unchanged": true,
+    "log_sha256": {
+      "i15-preflight-units.log": "0bfe520772d610b488e917e177d885356306f6941122fbbf796849bef0e19fc0",
+      "i15-deployment-guards.log": "460e8584f7cae831f2627f11400f4b049bc3b2dcecac39663b8c68a6fbb66d98",
+      "i15-plesk-guards.log": "cc8c58f5dd1428a983c6d5214a1bf4a53b653cd50e1a48ef51b7274e7803ae52"
+    }
+  },
+  "approvals": {
+    "gate_b": "held",
+    "all_execution_rows": "held",
+    "fresh_backup": "not authorized",
+    "isolated_restore": "not authorized",
+    "accounts_mfa_files_enrollment_enforcement": "not authorized",
+    "scheduling_files_schema_owner_grants": "not authorized",
+    "fictional_records_and_pilot": "not authorized",
+    "real_operations": "not authorized"
+  },
+  "jobs": {
+    "discovery": "job_01M6EHKZ5A005WGNNJM03CTGFN",
+    "initial_snapshot": "job_01M6EHTSPV00X57AK6HWCBTCZ9",
+    "infrastructure": "job_01M6EHZTHS00VT12FVV5506WSA",
+    "existing_recovery_checks": "job_01M6EJ67XD0072PWX3TXPXVG7A",
+    "routing_resolution": "job_01M6EJ7Y8E006GP01S8GV9AE1R",
+    "static_unauthenticated_head": "job_01M6EJ2ST500NHP513CD7KG7CT",
+    "source_syntax": [
+      "job_01M6EJZX1V00KD7CF8ZAA837EX",
+      "job_01M6EJZRQF00DT2VGHZVB37R81",
+      "job_01M6EK06Y600XRHVPHGY3D26YK",
+      "job_01M6EK02NG00RY7Y52SVSFGYRK",
+      "job_01M6EK0BKS00RNCPJP2QY7RMDP",
+      "job_01M6EK0QEN008QZDHAVK9VMFB7",
+      "job_01M6EK0W2W00PE8VDZKBBNGXE3",
+      "job_01M6EK0GE000HMQ0EEE3H07HBB",
+      "job_01M6EK11DJ00P0TBZNW06HBF62",
+      "job_01M6EK16EX00Y19GS85XWF7258"
+    ],
+    "final_snapshot": "job_01M6EK3VVV002FSC5PP6MTQ2KT",
+    "target_grants_metadata": "job_01M6EK7HMS00QDKXRDCQTZXMM4",
+    "historical_gate_a": [
+      {
+        "id": "job_01M6CVNHM600FZ8M2P8091XHM3",
+        "status": "succeeded",
+        "operationStatus": "succeeded",
+        "changed": true,
+        "summary": "host.execute_argv completed."
+      },
+      {
+        "id": "job_01M6CW36Z900CTWJH46TP6BDQ6",
+        "status": "succeeded",
+        "operationStatus": "succeeded",
+        "changed": true,
+        "summary": "host.execute_argv completed."
+      },
+      {
+        "id": "job_01M6CW5GCY00A4DH2NQ4187ZAJ",
+        "status": "succeeded",
+        "operationStatus": "succeeded",
+        "changed": true,
+        "summary": "host.execute_argv completed."
+      }
+    ],
+    "all_current_inspection_and_syntax_jobs_terminal_succeeded": true
+  },
+  "private_wordpress_account_values_queried_or_returned": false
+}

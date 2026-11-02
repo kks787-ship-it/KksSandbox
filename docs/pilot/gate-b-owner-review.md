@@ -1,5 +1,141 @@
 # Digital Ranch — Gate B owner decision package
 
+## November 2 current-server decision sheet — execution remains on hold
+
+Read-only assessment complete against starting head `1fe8947`; implementation remains exactly
+**`2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`** (Scheduling0.4.0, adapter0.2.0, official
+Two-Factor0.17.0). [Current-server report](../test-results/gate-b-readiness.md),
+[exact proposed +45/replace0/delete0 diff](gate-b-installation-proposed.json),
+[ordered execution/rollback](../05-backup-rollback-deploy.md#gate-b-current-server-staged-execution-plan--november-2-2026).
+This is the **single owner decision entry point**; supporting evidence grants no permission.
+Later sections retain historical source/review context; this dated sheet controls current choices.
+
+**Verified:** expected WP7.1.4/PHP8.3.36/MariaDB10.6.23/Kadence1.5.2 stack, only csf-core active,
+one unmapped Administrator, zero scheduling/MFA files/tables/grants, no application-password
+records, no MU/cache drop-ins; BasicAuth401 on existing static CSS. Existing GateA archives and
+6+12 checksums remain intact, all4,479 live files match its baseline, drill services are stopped.
+**Not verified:** human account ownership, actual staff MFA/recovery custody, every external
+API/Toolkit dependency, new plugins' protected FPM/proxy/device behavior, off-server recovery,
+or Beth/Kris acceptance. No backup/restore, account or server change occurred in this assessment.
+The final snapshot found **options-table digest drift** with unchanged row count/selected settings;
+the other11 tables and all4,479 files matched. The changed key/actor is unknown. Review activity
+and establish a fresh frozen baseline; do not treat this preflight as an unchanged DB snapshot.
+All31 proposed PHP source files passed syntax-only checks on installed PHP8.3.36 via stdin,
+without installation or WordPress execution.
+
+### Decide each stage independently
+
+For each row record **Approve / Reject / Revise / Hold**, exact target/source/values, authorized
+actor, date and private verification reference where applicable. Blank means Hold. A review or
+selection approval does not authorize execution; dependencies and later rows remain separate.
+Do not submit IDs, private emails, passwords, factors, codes or verification evidence in chat/Git.
+
+| Decision | Concrete scope for owner review | Prerequisite / status |
+| --- | --- | --- |
+| V-Identity | Privately verify existing technical administrator; separately confirm Kris/Beth identities, private login addresses, account reuse/create preference and recovery custodian | Review only; **unknown**. One existing admin is not presumed to be any person |
+| V-Baseline | Review concurrent options-table drift and freeze unrelated activity for a fresh change-window snapshot | Hold for review; no automatic setting repair, backup restore or attribution to a person/process |
+| M-Choice / M-Update | Choose exact official0.17.0 + adapter0.2.0, TOTP and single-use backups, supervised update custodian | Hold. Actual ZIP/inventory verified; manual monitoring/staged repinning must have a named owner |
+| R-Backup | Fresh exact sandbox DB/wp-content/config/salts backup; current file/table/role/settings baseline and private0700/0600 custody | Hold. No backup created here; current GateA evidence is historical recovery proof |
+| R-Restore | Functional restore of that fresh bundle into private isolation; integrity, clone login, dashboard/pages and security-secret recoverability | Hold separately. No live restore, real password verification, public clone or mail delivery implied |
+| A-Operator | Confirm existing maintenance authority/recovery duties for verified administrator | Hold; no new admin promotion, account reassignment or farm membership |
+| A-Kris / A-Beth | Separately create/reuse individual native Subscriber accounts with reviewed private credentials/handoff | Hold per person after backup. No scheduling grants, MFA enrollment or notifications implied |
+| M-Install / M-Adapter | Separately install/activate exact21 provider /4 adapter files; only approved adapter enablement constant | Hold per component. No mandatory enforcement or scheduling install implied |
+| M-Notify | Approve exact native account/provider security-notification behavior, private recipients and any test delivery | Hold before steps that could send mail. Inquiry disabled does not suppress security mail; no email sent/tested here |
+| M-Enroll-operator / M-Recovery-operator | Actual operator TOTP, fresh independent login/logout, single-use backup-code rehearsal, tested trusted physical recovery and custody | Hold. Complete before enforcement; no seed/code/cookie logging |
+| M-Enforce | Enable mandatory privileged-web MFA after sole-operator recovery and application-password/XML-RPC/Toolkit dependency review | Hold. Explicitly acknowledge affected API/SSO paths; no password-only exception |
+| M-Enroll-Kris / M-Enroll-Beth | Individual actual-factor enrollment/challenge/recovery after approved account/security steps | Hold per person. Safe own-profile grace is not a general admin grant |
+| I-Files | Install/activate only exact20 scheduling files with source comparison | Hold. Native active_plugins change is separate from file copy; no schema/grants implied |
+| I-Schema | Preview exact15-table schema3, then separately authorized guarded apply and temporary migration flag | Hold. No raw DDL, destructive repair or automatic adoption. Close migration window afterward |
+| O-Master | Private verified Kris/operator numeric mapping, finite source/target/policy-bound invitation, independent fresh MFA browser approvals and one-use consumption | Hold; requires schema readiness and fresh proofs after all activation/config changes. No retired CLI bootstrap |
+| G-Beth / G-person | Approve exact group, each override, active/verified status and optional resource scope below | Hold per person; owner uses native Team & Permissions after bootstrap |
+| P-hours / P-capacity / P-welfare / P-restrictions | Approve fictional-only values and finite test week in the readable table below | Hold separately; no actual horse-care/suitability or published-hours decision inferred |
+| C-Policy / D-Fixture | Apply only approved fictional settings / named synthetic records | Hold independently. No actual client, minor or horse data |
+| T-Pilot | Protected-stack security/calendar390/768/1280 and staff-device tests; then Beth/Kris own walkthrough | Hold. Automated development is not personal or operational acceptance |
+| X-Contain / X-Recover-person / X-Restore / X-Cleanup | Exact scope-specific containment, same-UID physical factor recovery, reconciled full restore or destructive cleanup | Each held separately. No blanket rollback, security disablement, deleted audit or stale DB overwrite |
+
+### Private identity-verification checklist
+
+The operator and owner complete this in their approved private vault/change record, not in this
+repository. No actual identity mapping was queried or created by the assessment.
+
+1. Independently establish the existing administrator's human controller and maintenance authority;
+   compare their known independent contact channel and controlled login/recovery custody. Do not
+   rely on a display name, email similarity, this chat or Plesk/root access as farm ownership.
+2. Privately record each exact WordPress numeric ID, unique private login/email, current role,
+   verified person and proposed duty; confirm reuse versus separate account creation. Do not rename,
+   share or silently promote the existing account. Kris/Beth native baseline is Subscriber.
+3. Verify each person controls their own password and authenticator; define custody for one-use
+   backup codes and the separately trusted physical operator's recovery. Verify BasicAuth access
+   separately; it is not a second WordPress factor or individual farm identity.
+4. Approve who may recover the sole administrator and existing master **without replacing the
+   numeric identity**, how independent owner consent is checked, and where the private incident
+   record is retained. Lost/deleted/replaced identities stop the normal ceremony for separate review.
+5. Inventory mobile/publishing clients, scheduled jobs, monitoring/deployment/API clients and
+   Plesk Toolkit/SSO users. Record application-password/XML-RPC needs, owner retirement/replacement
+   decision and post-enforcement checks. Zero stored credentials/log silence is not a complete inventory.
+6. Before O-Master, approve intended ownership and distinct operator/owner IDs and evidence hash;
+   each must personally complete a fresh factor in a separate browser. Before G-Beth, approve
+   the exact effective-access preview below. Redact IDs/addresses/codes from shared screenshots.
+
+### Proposed implemented privileges — not actual grants
+
+Kris's verified master would control all20 **implemented scheduling** privileges without native
+WordPress Administrator. Future finance, operations modules, legal agreements, billing and
+emergency powers are not supplied by that identity today. The technical operator retains only
+privately reviewed native maintenance authority and receives **no automatic Digital Ranch rights**.
+
+Beth proposal: Head Trainer preset plus **two individually reviewed grants** for horse/resource
+identity management and availability. These two grants extend the preset to meet the requested
+horse-management duties; they are not silently part of the default. Rider clearance, another
+person's welfare release, policies and team security remain separate owner choices, default off.
+Kris can later change groups/individual overrides in Team & Permissions; no developer is needed.
+
+| Implemented privilege | Kris master proposal | Beth proposal |
+| --- | --- | --- |
+| View all calendar | Allow | Allow — preset |
+| View assigned calendar | Allow | Off separately; all-calendar view already proposed |
+| Create/edit requested or held appointments | Allow | Allow — preset |
+| Confirm/edit confirmed appointments | Allow | Allow — preset |
+| Cancel appointments | Allow | Allow — preset |
+| View riders | Allow | Allow — preset |
+| Edit rider identity | Allow | Allow — preset |
+| Verify participation evidence, not e-signatures | Allow | Off — separate decision |
+| View horses/resources/restrictions | Allow | Allow — preset |
+| Edit horse/resource identities | Allow | **Proposed individual grant** |
+| Manage availability/protected intervals | Allow | **Proposed individual grant** |
+| Manage horse/service/rider suitability | Allow | Allow — preset |
+| Raise protective welfare hold | Allow | Allow — preset |
+| Release welfare hold, including another person's | Allow | Off — separate decision |
+| Change farm policies | Allow | Off |
+| View permitted appointment history | Allow | Allow — preset |
+| View team/effective permissions | Allow | Off |
+| Assign groups/individual overrides | Allow | Off |
+| Edit permission groups | Allow | Off |
+| View private permission audit | Allow | Off |
+
+No public account listing or private identity directory is produced. Initial group/override
+and scope choices remain reviewable and auditable. The last verified master cannot be removed
+through ordinary group changes; ownership transfer needs its own independent consent ceremony.
+
+### Fictional policy decisions and safest next step
+
+The existing [plain-English policy table](#3-fictional-pilot-policy--readable-comparison) and
+[proposed JSON](csf-synthetic-policy-proposed.json) remain unchanged, SHA256
+`3bb1624b169a1d901ada3372b89ccb8b7c1d7cdb1436ca4060493e31d8bf2aa3`.
+Confirmed product inputs: Sunday client closure, Wednesday **preferred** off-site day and
+maximum five full-training horses. Exact hours, session/group limits, individual horse workload,
+rest/travel intervals, seasonal Academy rules and a finite pilot week still require owner review.
+For the fictional pilot only: Mon–Sat09:00–18:00;60-minute sessions; group cap4; daily300minutes,
+consecutive120minutes then15-minute recovery;15-minute travel; Academy disabled/manual examples.
+Fictional horses are Pilot Maple/Pilot Cedar and Pilot Client Horse, riders A–D, two instructors,
+two arenas and one off-site location. None has been entered. No recurrence/routes, real welfare
+guidance or electronic-signature clearance is implied.
+
+**Next:** privately resolve V-Identity/M-Choice/dependencies, then consider **R-Backup and
+R-Restore only**, with no account/security installation included. After recovery passes, review
+the smallest explicit account/provider/enrollment window. Enforce only after operator recovery;
+scheduling files/schema and all later O/G/P/C/D/T work remain separate. Do not approve “all Gate B.”
+
 ## Current Issue #14 decision override — all execution rows held
 
 Exact implementation source **`2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`**; [pinned release and tests](../test-results/scheduling-security.md).

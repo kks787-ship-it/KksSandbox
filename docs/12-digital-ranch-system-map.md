@@ -1,5 +1,19 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**November 2 — Gate B readiness:** [current read-only sandbox assessment](test-results/gate-b-readiness.md)
+completed against documentation head `1fe8947`, retaining implementation `2fd02a2`. Expected
+WP7.1.4/PHP8.3.36/MariaDB10.6.23/Kadence1.5.2 confirmed; only core active, one unmapped admin,
+no application-password records, zero scheduling/MFA installation/tables. Existing GateA archives
+and6+12 checksum sets remain intact; no recovery rerun. Exact proposed installation is45 additions,
+0 replacements/deletions,15 new tables. [Owner decisions](pilot/gate-b-owner-review.md) remain held
+for private identity/integration verification, fresh backup/restore, accounts/MFA, source/schema,
+ownership/grants and synthetic acceptance. No installation, account/MFA/DB change, production,
+inquiry/emergency operation or Issue15–17 implementation occurred. Protected runtime and personal
+Beth/Kris acceptance remain outstanding; local Sprint14 test counts are historical evidence.
+New syntax-only checks passed all31 proposed PHP files on installed PHP8.3.36 without installing
+or executing them. Final read-only fingerprints matched all4,479 files and11/12 tables; options
+digest drift remains unattributed and requires review/fresh frozen baseline before any change.
+
 **Issue #14 LOCAL IMPLEMENTATION COMPLETE:** exact source `2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`; final [reported validation](test-results/scheduling-security.md): 748 integration/prerequisite assertions, 354 browser checks, 88 PHP files passed. **Not installed or protected-stack accepted.**
 
 **Issue #14 local update:** scheduling0.4.0 + csf-mfa0.2.0 implement separately enabled mandatory

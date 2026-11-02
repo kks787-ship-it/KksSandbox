@@ -1,5 +1,135 @@
 # 05 — Backup, Rollback & Deployment
 
+## Gate B current-server staged execution plan — November 2, 2026
+
+**Proposal only; stop before all server modifications.** [Read-only current-server
+assessment](test-results/gate-b-readiness.md), [single owner worksheet](pilot/gate-b-owner-review.md)
+and [exact proposed file/config/database diff](pilot/gate-b-installation-proposed.json).
+Implementation remains `2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`, Scheduling0.4.0/schema3,
+adapter0.2.0 and official Two-Factor0.17.0. Historical commands/version plans below are not
+authority for the current release. The readiness assignment did not execute these steps.
+
+### Ordered checkpoints for separately authorized windows
+
+1. **Private verification:** owner confirms the technical administrator, distinct Kris/Beth
+   identities and intended authority through an independent channel. Keep numeric IDs/private
+   logins/evidence in the approved private record. Confirm HTTP Basic Auth access, trusted
+   recovery route, security notifications, external API/Toolkit dependencies and update custodian.
+   Zero current application passwords does not approve disabling an unrecorded integration.
+   Review the observed options-table digest drift (11 other tables/all4,479 files matched) and
+   resolve unexplained concurrent activity before freezing a fresh baseline. No automatic repair
+   or attribution is justified by aggregate snapshots.
+2. **R-Backup, then R-Restore:** authorize each separately for the exact sandbox root/URL,
+   `wp_mdf4x`/`TXGEh_`. Freeze unrelated owner edits, capture current file/table/content/options/
+   role/authentication baselines and a fresh DB/wp-content/root/config/salts recovery bundle.
+   Use private0700 directories,0600 artifacts, SHA256 manifests, target binding, integrity and
+   timestamps. Rehearse functional restore into network/private-DB isolation with outbound mail
+   blocked; compare12 native tables/files before clone-only login changes and verify representative
+   rendering. Recover config/secrets privately. Do not reuse live DB, expose a public clone or
+   copy secret values into jobs/reports. Include exact backup/config restore evidence and operator
+   recovery availability before approving security changes. Off-server custody needs its own scope.
+3. **A-person:** approve only named account reuse/creation and baseline Subscriber roles, private
+   handoff and explicit notification behavior. Verify existing administrator authority separately;
+   do not rename/share/promote it, infer farm membership or grant future finance/emergency powers.
+   Record each identity's baseline privately. Account creation alone grants no scheduling access.
+4. **M-Install / M-Adapter:** recheck all three candidate directories are absent. Verify official
+   ZIP91,837bytes/SHA25659d7c75f57966b93cc59657a0c14d58f247ba6f350b081c8602b3cacdc51e473;
+   verify exact21 provider and4 adapter files against the manifest before/after copying. Preserve
+   subscription ownership, use0644 regular files/0755 new directories, no symlinks/extras/parent
+   sync/delete. File copy and plugin activation are distinct approved operations. Only approve
+   `CSF_MFA_ENABLED=true` under M-Adapter; mandatory enforcement is not an activation side effect.
+   Security mail/credential custody must be reviewed before enrolling anyone. Vendor email/dummy
+   source files remain in the exact official distribution but are not approved authentication factors.
+5. **M-Enroll-operator / M-Recovery-operator:** verify actual TOTP plus a single-use backup-code
+   challenge in fresh independent browser sessions; record success/denials without screenshots of
+   secrets. Verify logout, revoked password-only sessions, trusted same-UID physical recovery and
+   private recovery-code custody. Stop if the sole operator cannot recover. Use a supported provider
+   procedure; no cookie export, fake factor/filter, password-only exception or farm-master CLI grant.
+6. **M-Enforce:** approve `CSF_MFA_ENFORCE_ADMIN=true` only after operator/recovery/dependency
+   evidence. Verify password-only admin/controller/role/API writes denied, safe own-profile enrollment
+   grace, actual factor unlock and public read REST/static BasicAuth boundaries. Application passwords
+   and authenticated XML-RPC become unavailable; Toolkit/SSO must also satisfy actual-factor proof
+   before privileged web access. No Plesk/shared-service configuration change is implicit.
+7. **M-Enroll-Kris / M-Enroll-Beth:** separately verify each approved identity's enrollment, fresh
+   challenge, logout/recovery custody and no native WordPress administration. No farm grant yet.
+   Enrollment alone is insufficient. Security plugin/activation/configuration changes can invalidate
+   older proofs: reauthenticate; never weaken the verifier to keep an old session.
+8. **Refresh recovery baseline:** before the calendar window, obtain the separately approved fresh
+   backup/isolated recovery that includes the now-approved accounts, MFA secrets/settings and
+   enforcement. Record/reconcile every change since the security baseline. A pre-MFA backup alone
+   is not current security recovery evidence. Do not silently authorize another backup by this plan.
+9. **I-Files:** separately approve exact20 scheduling files and activation. Reverify target and
+   +45/replace0/delete0 proposal; if any destination has appeared, stop for a new comparison. Preserve
+   core/emergency/theme/WordPress/uploads/public pages/menus/inquiry/global timezone. No new
+   scheduling data/grants arise from plugin activation itself; native active_plugins/credential epoch
+   may change, requiring fresh MFA. Do not flush shared OPcache or restart shared FPM/HTTP services.
+10. **I-Schema:** using the privately verified native administrator, first capture the plugin's
+    migration preview and compare **all15** actual-prefix CREATE statements, engines/indexes and
+    source DDL hash. This future preview bootstraps WordPress and is **not** part of this read-only
+    assessment. After separate apply authorization, allow `CSF_SCHEDULING_MIGRATION_ALLOWED=true`
+    only for that reviewed window, explicitly apply with exact home/site URL guard, then remove/set
+    false. No raw DDL or general deployment script. Inspect readiness, schema3, InnoDB/indexes,
+    empty domain tables, unconfigured facility settings and no inferred master/staff. Expected native
+    tables remain12; total becomes27. Physical DDL can survive failed transactions: stop on partial
+    creation; never drop/reseed/stamp or retry blind. Migration does not configure fictional policy.
+11. **O-Master:** after new independent challenges, privately approve distinct operator/owner IDs,
+    source digest, target, facility/policy/registry/revision and verification record. Authorize a
+    non-symlink private0600 invitation outside ABSPATH in a0700 directory owned/readable by sandbox
+    PHP. Pool prefix/listen resolve to the sandbox socket; private-parent mode and declared
+    open_basedir currently support this proposal, but verify actual FPM readability/nonpublic custody
+    after approval. Do not use root-only ownership or broad group/world permissions. Invitation<=600s;
+    approvals need MFA<=300s. Use native independent operator/owner forms, brief facility change freeze,
+    atomic one-use consumption and original-command status for uncertain responses. No CLI master
+    command or static bootstrap constant. Transfer later also needs outgoing-owner consent.
+12. **G-person/group:** owner reviews effective privileges and saves only approved groups/overrides/
+    scopes. Beth's Head Trainer plus resource/availability grants are a proposal, not implemented
+    account settings. Verify last-master protection and independent owner/trainer denials/revocation.
+13. **P / C-Policy / D-Fixture:** approve each fictional value/test week, then configuration and
+    explicit fictional records separately. No real horses/clients, autopilot recurrence, payments,
+    electronic signatures, public booking or emergency integration. WordPress global UTC stays intact.
+14. **T-Pilot:** verify exact45 hashes/no extra provider files, schema, authentication/nonces/private
+    cache/role boundaries, manual appointments/groups/rotations/client horses, conflicts, welfare,
+    missing-clearance warnings, cancellations and audit at390/768/1280 plus actual phones. Use
+    [the staff walkthrough](13-scheduling-staff-acceptance.md). Test failure injection/recovery races
+    in isolation, not against live farm data. Record each failure. Beth and Kris perform and sign off
+    their own tasks; no automated acceptance on their behalf. Real use remains a later explicit gate.
+
+### Expected database/configuration footprint
+
+No existing table is altered/dropped. Approved migration creates the15 listed InnoDB tables,
+unconfigured singleton settings/facility UUID, authorization with no master/active staff and schema
+audit. Default timezone/hours/welfare/services remain unknown and unbookable until C-Policy.
+Activation updates native active_plugins. Provider enrollment/authentication uses native options/
+user metadata for selected factors, secrets, hashed backup codes, challenge/attempt state, epochs
+and session proofs. O-Master later updates authorization/history/settings/commands/audit plus
+approved farm-capability mirrors and revocations. Account creation/role changes are their own A/G
+operations. Exact keys and file hashes are in the [security release report](test-results/scheduling-security.md).
+No old bootstrap constant is enabled. No live preview, flag, source or data change occurred here.
+
+### Failure containment and separately approved recovery
+
+- **Before activation:** stop on any target/hash/unexpected file/table/account difference. Removal
+  of even unactivated additions/config flags is X-Cleanup, not automatic authority to delete.
+- **After security activation:** remain fail closed; preserve BasicAuth and mandatory-MFA policy.
+  Diagnose from the separately trusted operator surface. Do not deactivate/bypass MFA to regain
+  privileged web access. Approved same-UID physical recovery re-verifies the person and resets
+  factors through supported provider APIs; it never elects a replacement owner or infers identity.
+- **After scheduling activation/migration:** X-Contain can authorize scheduling-only deactivation,
+  retaining all data/audit/native mirrors for diagnosis. It grants no provider removal, schema drop,
+  stale-source downgrade, role edit or whole-site restore. Last-master guards and protected data must
+  be considered before any later account deletion/cleanup. Never run destructive drills on the sandbox.
+- **X-Restore:** first preserve/reconcile all post-backup website, menu, photo, account, MFA, grant,
+  policy, appointment and audit changes. Select the exact matched target/artifact/config pair and
+  rehearse it privately. A prior config must not reopen password-only administration after enforcement
+  was approved. Restored sessions, consumed backup codes or older authenticator seeds must not be
+  revived: approved recovery revokes relevant sessions and rotates/re-enrolls stale factors/recovery
+  codes before protected access reopens, maintaining current approved enforcement. Keep custody and
+  recovery events private. An unknown command result is checked by original UUID, not overwritten
+  with an older database to retry ownership. No silent merge, blind full-DB import or data erasure.
+- **After recovery:** reverify exact source/target, physical schema/data/audit, current approved MFA,
+  account boundaries, private HTTP behavior and public content/inquiry/emergency baselines. Owner
+  approves resumption separately; synthetic pilot success never authorizes real records/production.
+
 ## Issue #14 release preparation — no execution approval
 
 Immutable reviewed implementation source: **`2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`**. Scheduling tree
