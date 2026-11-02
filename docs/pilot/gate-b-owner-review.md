@@ -4,6 +4,21 @@
 
 Tracker commit **1b9a4182ff0e3229dfac5f945ae5788e732f049a** is preserved as the parent baseline. Scheduling remains **v0.2.1**, source **6f5a9bf51747399a309b39637a135841fe4cf2a1**, plugin tree **893edbe31278946aa2aaa830a56d5d1812b87323**, schema2/14 tables. A documentation commit never substitutes a new source pin.
 
+## Owner requirement superseding equal-permission proposal — November 1, 2026
+
+**NEW DECISION / HOLD ALL STAFF GRANTS:** The owner requires a **Farm Owner / Master Account** with a graphical **Team & Permissions** console. It must offer editable **preset groups**, **per-person permission checkboxes/overrides**, and a clear effective-access preview before changes are saved. Track implementation in [Issue #12 — master dashboard and granular access](https://github.com/kks787-ship-it/KksSandbox/issues/12). This is a requested feature, **not currently delivered by scheduling v0.2.1**.
+
+The former G-Beth/G-Kris entries and later section proposing the same four scheduling capabilities for both staff are **historical options, not the owner's current approved access model**. In v0.2.1, the privileged `csf_schedule_manage` permission mixes bookings with facility policy, riders, horses, suitability and welfare. Its `provision` command grants all four capabilities to every listed user. **Do not execute G-Beth/G-Kris or provision anyone using that all-or-nothing command.** The scheduling source pin/tree remains `6f5a9bf` / `893edbe3` for the **historical** reviewed v0.2.1 candidate; Issue #12 will require a new source version, complete tests and a *fresh* explicit Gate B review before any source replacement or deployment.
+
+The owner requests:
+- Privately verified **Kris master identity**, not inferred from the sole existing WordPress Administrator account; ownership bootstrap and MFA require separate scope approval.
+- Assign a reusable staff **group** (e.g. Operations Manager, Head Trainer, Instructor, Barn Staff, Working Student, Read-only), then check/uncheck individual privileges, including explicit denials and a visible summary of resulting access.
+- Independent access controls for appointment view/edit/confirm/cancel, rider records/clearance evidence, horse availability/suitability, **raise vs release welfare blocks**, farm policies, audits and **team permission management**.
+- No granting WordPress Administrator, `manage_options`, emergency operations, payment/contract authority or future modules merely through a farm group.
+- Audit, immediate revocation, role-template edit impact previews, deny-by-default checks at the backend, and prevention of losing the last verified master.
+
+**Gate B account creation, MFA vendor installation/enforcement, scheduling files/schema, policy/fictional fixture, and staff grants remain on HOLD.** The account/MFA and policy decision rows below are still useful for owner review, but none is authorization to act. Once Issue #12 is implemented and independently tested locally, produce a revised, pinned, capability-granular Gate B package; do not treat `b312bdd` as approval for the new plugin.
+
 ## How to decide without authorizing a deployment
 
 For each ID, record **Approve / Reject / Revise / Hold**, the exact approved values, owner and date. A blank entry is Hold. Approving a proposal or one row does not approve its implementation, dependencies or later rows. Execution requires explicit authorization naming the applicable row IDs and satisfying the prerequisites below. Do not interpret “approve Gate B” as blanket permission.
@@ -24,7 +39,7 @@ For each ID, record **Approve / Reject / Revise / Hold**, the exact approved val
 | R-Backup | Authorize current target-bound backup and isolated recovery validation for the next change window | Gate A evidence is retained; later changes/staleness require refresh, not reuse of its old execution approval |
 | I-Files | Install and activate only the pinned scheduling 15-file release | Approved backup/recovery, verified staff/MFA prerequisites, rechecked destination and exact dry run; no schema apply |
 | I-Schema | Preview, review and explicitly apply schema2/14 tables | Scheduling active; actual preview matches reviewed DDL; one-shot private CLI gate; no staff/data population |
-| G-Beth / G-Kris | Provision the listed scheduling permissions for each approved ID | Explicit complete staff allowlist, ready schema, effective MFA and permission acceptance; no implied operator membership |
+| G-Beth / G-Kris | **SUPERSEDED / HOLD:** individually select group + permission overrides after Issue #12, not the four-capability blanket grant | New fine-grained implementation, tested effective-access preview, explicit owner-approved identities/MFA and a **new source pin/release review** required |
 | C-Policy | Apply the exact approved fictional JSON policy | All P decisions resolved, approved authorized configuring actor, current revision and command UUID |
 | D-Fixture | Create only the agreed fictional records | Approved policy/permissions; finite availability/suitability; no real client/horse data |
 | T-Pilot | Execute protected-stack synthetic acceptance | Approved fixture/access; Beth/Kris acceptance still requires their own hands-on results |
