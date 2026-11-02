@@ -1,5 +1,21 @@
 # 03 — Owner Confirmation Register
 
+## Recovery and account-security choices — November 2, 2026
+
+[R-Backup](pilot/r-backup-approval.md) and [R-Restore](pilot/r-restore-approval.md) are separate
+**held** execution decisions. The [current private-choice worksheet](pilot/gate-b-owner-review.md#private-owner-choices-to-finalize-before-the-applicable-gate)
+lists the exact remaining account creation/reuse, human independence, recovery custodian,
+TOTP app/device, update/escalation contact, notification/enrollment and hosting/API choices.
+Actual controllers, login/recovery addresses, numeric IDs, custody evidence and factors stay
+outside this repository/chat. No fields are invented or completed by inference.
+
+Owner must also select the backup's exact private run/window and optional off-server encryption
+recipient/destination/key custodian; R-Restore can bind only to the resulting exact bundle and
+manifest digest, which do not yet exist. Plesk/Toolkit compatibility requires a separately
+approved rehearsal mechanism/target; application recovery is not proof of that control-plane
+integration. No one has accepted a security change or operational calendar by accepting these
+documents. All account/security/software/pilot gates remain held; no farm call or change occurred.
+
 Nothing in this list may be published as fact until an owner confirms it. Each item records who
 confirmed it and when. The website must not invent testimonials, qualifications, prices,
 policies, horse records, or emergency information.

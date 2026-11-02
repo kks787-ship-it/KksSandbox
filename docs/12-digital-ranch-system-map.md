@@ -1,5 +1,17 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**November 2 — recovery/account-security preparation delivered (docs/local tests only):**
+[separate R-Backup](pilot/r-backup-approval.md) and [R-Restore](pilot/r-restore-approval.md)
+approval packets, bounded command catalogue, deterministic per-row baseline/drift contract,
+private owner-choice worksheet and recoverable Toolkit/MFA test plan are prepared under
+[Issue11](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6585062869).
+Both execution gates remain held; no new artifact, recovery result, account/factor, deployment,
+server inspection or Toolkit compatibility result exists. Implementation2fd02a2 and identity
+correction17fd654 are preserved. Local synthetic checks validate comparison/SELECT-plan safety,
+not a production capture or actual Plesk/WordPress/MFA acceptance. After an approved R-Backup
+receipt, owner separately binds/approves R-Restore; later security/calendar gates do not follow
+automatically. No Issues15–17 implementation, production, inquiry or emergency change occurred.
+
 **Account-model correction — November 2, 2026:** [owner instructions](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6584204812)
 distinguish the Plesk-created technical WordPress Administrator, HTTP Basic Auth site gate,
 proposed Kris Farm Master business account and Beth's future staff account. Prior statements

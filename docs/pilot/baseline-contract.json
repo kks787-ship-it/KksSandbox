@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "scope": "Reference comparison contract only; no capture/restore or server execution authorized",
+  "canonical_cells": "CSFBASELINE1 NUL header; each ordered cell is N; for SQL NULL or V<byte length>:<lowercase hex>; for exact non-NULL bytes",
+  "sql_bytes": "HEX(CAST(column AS BINARY)); session UTC; utf8mb4; preserve declared column order and separate physical schema descriptor",
+  "row_identity": "SHA256 of framed table name and ordered PRIMARY KEY cells; reject missing/duplicate keys",
+  "row_value": "SHA256 of framed ordered column bytes; no PHP unserialization, truthiness coercion, timestamp stripping or audit-field normalization",
+  "snapshot": "All tables in one read-only consistent MVCC transaction; stable schema/index metadata checked before/after; SHA256 manifest/approved receipt binds complete private snapshot and source",
+  "private_evidence": "Raw option names, per-row locators/digests and private lookups stay in restricted encrypted recovery artifacts; public report contains counts/categories and approved artifact hashes only",
+  "source_binding": [
+    "database",
+    "prefix",
+    "schema_digest",
+    "version",
+    "origin"
+  ],
+  "critical_options": [
+    "home",
+    "siteurl",
+    "admin_email",
+    "new_admin_email",
+    "users_can_register",
+    "default_role",
+    "active_plugins",
+    "recently_activated",
+    "auto_update_plugins",
+    "template",
+    "stylesheet",
+    "{prefix}user_roles",
+    "site_admins",
+    "two_factor_enabled_providers",
+    "csf_mfa_epoch",
+    "csf_core_inquiry",
+    "cron"
+  ],
+  "critical_option_prefixes": [
+    "csf_",
+    "two_factor_"
+  ],
+  "volatile_candidate_options": [
+    "_transient_doing_cron",
+    "_transient_timeout_doing_cron"
+  ],
+  "volatile_policy": "Exact options-table labels only; candidates remain in raw diff and require acknowledgment. No cause inferred, automatic pass, wildcard transient omission or live write",
+  "other_options": "Unclassified changes require private review; update caches/unknown transients are not silently ignored",
+  "other_tables": "Changes require review; users, usermeta, scheduling, audit and source/schema changes are always critical",
+  "metadata": "Capture time and row order are provenance, not business changes; retain raw timestamps/auto-increment observations separately without changing row cells or physical AUTO_INCREMENT column attributes",
+  "prohibited": [
+    "restore options to force equality",
+    "disable live cron",
+    "maintenance-mode freeze",
+    "global DB read-only",
+    "LOCK TABLES or FLUSH TABLES WITH READ LOCK",
+    "silently discard candidates",
+    "infer writer from hash",
+    "publish identity or secret values"
+  ]
+}

@@ -1,5 +1,53 @@
 # Digital Ranch — Gate B owner decision package
 
+## Recovery / account-security readiness — current decision summary
+
+[Next assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6585062869)
+is documentation, local synthetic checks and proposed operations only. No farm-server connection
+or inspection was made for this delivery. Preserve implementation2fd02a2 and identity correction17fd654.
+
+1. Review **[R-Backup](r-backup-approval.md)**: one bounded exact-target capture, private config/
+   salts/auth recovery, fixed artifact hashes, preserved before/after drift and explicitly chosen
+   encrypted custody. Resolve private bindings first. **HELD; not executed.**
+2. After its actual bundle/manifest receipt exists, review **[R-Restore](r-restore-approval.md)**
+   separately: that exact artifact only, private isolated functional recovery and explicit
+   clone-only credential-test choice. **HELD; input does not exist yet.**
+3. Later security/account/Toolkit/calendar gates stay held. R-Restore does not install MFA or
+   authorize a Plesk clone, real factors, accounts, source/schema, grants or fictional records.
+
+[Canonical commands, baseline and Toolkit plan](../05-backup-rollback-deploy.md#recovery-and-identity-preparation--separate-decisions-no-execution)
+and [technical command appendix](recovery-command-catalogue.md) make intended effects/stops
+reviewable. These are templates with private approval inputs, not a claim of a deployed/tested
+new backup tool. No current private field, screenshot, account ID or credential is supplied here.
+
+### Private owner choices to finalize before the applicable gate
+
+| Decision | Reviewable recommendation / exact choice needed | Scope still held |
+| --- | --- | --- |
+| Account creation/reuse | Keep existing Plesk-created technical WP admin for maintenance after verifying its human controller/UID; separately approve Kris Subscriber business account and Beth Subscriber staff identity. Reuse only an independently verified identity of that intended purpose, never infer from HTTP gate | A-Operator / A-Kris / A-Beth; no rename/promotion/duplicate-by-inference |
+| Human independence | Choose whether privileged bootstrap requires two independently controlling people. Different UIDs and own MFA are mandatory in current code; one person using two accounts gives role/session separation, not two-person approval | V-Independence / O-Master; no sole-UID redesign or bypass |
+| Business/staff recovery | Name each identity's primary controller and authorized independent recovery verifier/custodian privately; document same-UID recovery consent, custody and revocation. Farm membership removal is not native WP/HTTP/Plesk deletion | M-Recover-person / X-Recover-person; no actual factor/password change |
+| Sole technical admin recovery | Verify existing hosting/operator recovery route, actual controller and alternate authorized custodian before mandatory enforcement; rehearse loss/recovery in approved isolation | M-Recovery-operator; preserve native administration, no extra throwaway admin |
+| MFA application | Select an owner-approved TOTP app/device and secure export/offline backup policy; no shared factors, raw QR/seed collection or required vendor cloud account inferred | M-Choice / M-Enroll-person; TOTP+single-use backups proposed |
+| Security-update contact | Name technical maintainer and escalation contact privately; approve advisory review cadence/critical-response expectations and staged version/hash repinning responsibility | M-Update; automatic updates must not silently invalidate the pin |
+| Enrollment pathway | Each approved person uses their own private WordPress profile/provider challenge. Operator recovery succeeds before enforcement; Kris/Beth enrollment and ownership remain separately approved | M-Enroll-operator / M-Enforce / M-Enroll-Kris / M-Enroll-Beth |
+| Security notifications | Choose permitted native account/provider notifications, private recipients, clone interception and any separately authorized live delivery test | M-Notify; disabled inquiry does not suppress security mail; no SMTP/install or delivery success inferred |
+| Hosting / HTTP contexts | Privately confirm who controls Plesk/Toolkit and the separate HTTP gate, their custody/recovery and permitted maintenance paths | No WP role or factor proves Plesk/HTTP identity; no protection/config change |
+| Toolkit essential workflows | Name actual login/SSO versus direct maintenance/API clients, essential paths, approved retirement/replacement for app-password/XML-RPC uses and private rehearsal target | T-AuthClone / T-Toolkit separate from R-Restore; essential untested path is BLOCKED |
+| Off-server custody | Choose exact encryption recipient/fingerprint, owner-controlled destination, existing transfer identity, key custodian and decrypt receipt. Or explicitly select local-only capture with off-server readiness unproved | R-Backup export choice / separate custody authorization; no unknown bucket/recipient/key import |
+| Baseline acknowledgment | Review critical settings and all raw deltas; acknowledge volatile candidates without claiming cause. Coordinate quiet editing, not a technical site freeze or disabled live cron | R-Backup receipt / later change-window review; never repair old options to force equality |
+
+The [baseline contract](baseline-contract.json) and proposed SELECT generator have local
+synthetic validation only. Snapshots retain per-row changes; raw evidence/identity locators stay
+restricted and encrypted. The earlier163-row digest difference is not a proven incident or cause.
+No broad forensic investigation is automatically required. A fresh capture and actual recovery
+receipt remain unavailable until their separate execution approvals.
+
+**Minimal owner response:** decide R-Backup only with its private bindings/custody choice; keep
+R-Restore held until exact output is known. Then decide that exact R-Restore independently.
+Private identity/recovery/security choices may be reviewed in parallel; none starts installation.
+Blank/unspecified fields are Hold; accepting this packet is not blanket Gate B authorization.
+
 ## Current identity correction — November 2, 2026; design only
 
 [Owner instructions](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6584204812)

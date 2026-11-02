@@ -1,5 +1,161 @@
 # 05 — Backup, Rollback & Deployment
 
+## Recovery and identity preparation — separate decisions, no execution
+
+November 2, 2026: [current assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6585062869)
+is **local documentation/tests/proposed commands only**, with no farm-server connection.
+Implementation remains2fd02a2; account correction17fd654 is preserved. No new backup/restore,
+account, factor, installation, schema or production operation is authorized or claimed.
+
+Owner decision entry points: **[R-Backup only](pilot/r-backup-approval.md)** and then, after its
+exact receipt exists, **[R-Restore only](pilot/r-restore-approval.md)**. Both are HELD. Accepting
+the document is not execution permission. Neither authorizes later account/MFA/Toolkit/calendar
+changes. [Single owner worksheet](pilot/gate-b-owner-review.md) records the remaining choices.
+
+These two recovery operations use the existing owner-approved infrastructure/Gateway executor;
+they do not require a provisioned Farm Master, new staff accounts or WordPress MFA first.
+Later private WP identity/security decisions may proceed in parallel without creating a circular
+backup prerequisite. No temporary cloned login is evidence of the real person's authentication.
+
+### R-Backup proposed command catalogue
+
+Use the [reviewable B1–B4 command specification](pilot/recovery-command-catalogue.md#r-backup-command-payload).
+It binds the exact sandbox root/URL/DB/prefix, a new exclusive private bundle, literal config
+parsing without WordPress execution, transient0600 DB-client material, MVCC dump and diagnostic
+snapshots, source/config archives, fixed16-artifact checksums and separately bound encrypted
+off-server custody. Proposed timeout<=30minutes and file/disk/size bounds are owner decisions,
+not measured current capacity. No package install, cron disable, source edit, global database
+lock, arbitrary parent sync or restore is included. Existing `backup-dev.sh` alone does not
+provide this scope and is not modified or used by this preparation.
+
+**Before execution**, resolve private actor/window/run token, exact sandbox-only protected-config
+source/destination list, command/generator hashes, source-state/disk budget and selected off-server
+recipient/destination/custodian. These are deliberate fail-closed inputs, not invented defaults.
+The script fragments/SQL operations must be assembled into the exact approved lifecycle payload;
+do not treat them as a tested automated backup program or run an incomplete fragment. Private
+bindings and actual artifact hashes cannot truthfully be filled during a no-server assignment.
+
+### R-Restore proposed command catalogue
+
+Use [R1–R3](pilot/recovery-command-catalogue.md#r-restore-command-payload) only after independent
+approval of the **specific new bundle/manifest digest**, private recovery/run paths, existing
+tool paths/hashes and clone credential-test choice. A historical GateA bundle, `latest` or a
+different source phase is not an implicit substitute. The input binding remains unavailable
+until R-Backup actually succeeds and is reviewed.
+
+The dedicated mount/network/PID namespace masks live vhosts/control sockets; a private MariaDB
+daemon/socket/datadir and DB-scoped import identity cannot use the host connection. Restore
+only into the new private tree. Verify archive/schema/data/files before clone rewrites; then
+use approved clone-only config/loopback/mail/cron isolation and any explicitly authorized cloned
+account test. Stop recorded child processes, retain private evidence and never import into the
+live DB or overwrite later owner changes. App recovery via PHP built-in HTTP is not restoration
+of Plesk/BasicAuth/Toolkit or proof of real MFA/off-server disaster recovery.
+
+### Deterministic baseline and drift review
+
+The normative [baseline contract](pilot/baseline-contract.json), proposed pure
+[SELECT-plan generator](pilot/baseline-select-plan.py.txt) and synthetic specification tests
+define the new process. They are not installed on the farm or part of the45-file plugin release.
+
+1. Bind source URL/root/database/prefix, phase, version, physical schema/index descriptor and
+   origin. A live diagnostic and an artifact-derived restore are **different origins**. Obtain
+   the owner/custodian's independent expected snapshot/manifest digests; a file cannot authenticate
+   itself merely by recomputing its own checksum. Do not mix old observations/new artifacts.
+2. Coordinate a quiet edit window with the owner; do not freeze the website technically, enable
+   maintenance, disable live cron, set global read-only or take table locks to force equality.
+   HTTP protection stays unchanged. If ordinary traffic persists, record it and its limits.
+3. Read only the bound DB's catalog. Require known table set/engines, ordered unique primary keys,
+   column types/defaults/collations and all indexes. Separate AUTO_INCREMENT counter observations
+   from physical column attributes; keep them rather than resetting/ignoring them. Recheck catalog
+   after capture; schema changes invalidate an ordinary same-schema comparison.
+4. In **one connection** set session UTC/REPEATABLE READ/READ ONLY and begin a consistent snapshot;
+   read every table's rows before COMMIT. Derive each non-NULL cell from exact bytes using
+   `HEX(CAST(column AS BINARY))`, retain NULL separately and length-frame ordered cells. Hash row
+   content and ordered primary-key identity; never coerce booleans/numeric strings, unserialize
+   options or strip audit timestamps. Reject duplicate/missing row keys. Native data values and
+   account fields are not printed; row hashes/option labels remain in restricted private files.
+5. Sort table/key records for comparison, not for dropping evidence. Capture time/row order are
+   provenance; row contents, schema, file modes/source changes and audit time remain meaningful.
+   The locally tested generator emits only the twelve native pre-install table SELECTs inside
+   one read-only transaction. A future27-table/post-security phase needs a reviewed new binding,
+   not automatic adoption, ignored tables or a changed application source pin.
+6. Report added/removed/modified rows by private locator. Security-critical options include
+   home/siteurl, admin/recovery contact, registration/default role, active/auto-update plugins,
+   native role definitions, theme, factor/provider/epoch settings, inquiry and cron schedule.
+   **Every users/usermeta/scheduling/audit change is critical**, including sessions, factors,
+   recovery/application passwords and capability mirrors. No wildcard transient/cache exclusion.
+7. Only exact known doing-cron lock/timeout option names are **volatile candidates** for a review
+   projection. Preserve them in raw drift and require acknowledgment; do not assert cron wrote
+   them. Update caches and unknown transient/security keys remain unclassified/review-required.
+   The stable projection may help scan changes but can never declare the whole DB unchanged or
+   authorize a restore/apply. Unexpected sensitive differences get focused investigation; routine
+   drift alone is not evidence of compromise or authority for broad forensics.
+8. The dump's independent `--single-transaction` instant differs from before/after diagnostic
+   instants. Preserve all timestamps/rows/file observations; no atomic DB/filesystem or shared
+   snapshot claim. R-Restore derives the authoritative artifact baseline **before** clone URL/
+   account/config changes. Acknowledge/reconcile post-capture edits before any separately approved
+   live recovery; never copy old options or discard new pages/photos/accounts to make hashes agree.
+
+Public receipt: source/run/interval, artifact digests, counts/categories/acknowledgment state,
+acceptance/limits and outstanding decisions only. No per-user row locators, private option keys,
+UIDs, emails, raw values, credentials, cookies or private identity evidence in Git/chat. The local
+tests use entirely synthetic bytes/data and cannot establish an actual server baseline or cause
+of the earlier163-row options digest difference.
+
+### Plesk and WordPress Toolkit compatibility rehearsal — not R-Restore
+
+**Separate proposed gate T-AuthClone/T-Toolkit; HELD.** R-Restore is existing-site functional
+recovery, not permission to install the security stack, create test accounts/factors, provision
+a Plesk clone or change routing. Choose the exact private rehearsal target and permitted changes
+before a later explicit approval. No compatibility assertion is made from static version checks.
+
+1. Private mechanism inventory: verified operator identifies exact Toolkit version/site binding,
+   browser login/SSO versus direct file/CLI maintenance versus authenticated API use; inventory
+   client/mobile/publishing/monitoring jobs. Review selected target-only configuration and bounded
+   redacted status evidence, not raw token/Authorization/launch URLs or staff fields. Zero current
+   application-password records and a log sample cannot prove dormant dependencies absent.
+2. Rehearse pinned Two-Factor0.17.0 + csf-mfa0.2.0 in an independently approved, mail-isolated
+   private clone with synthetic operator/business identities, actual fresh TOTP/backup challenge,
+   verified recovery custody, source hashes and private exact-ID mapping. No real factor/secret
+   is reused. Clone WP sessions alone simulate an alternate-login boundary, **not actual Toolkit**.
+3. Actual Toolkit SSO requires an explicitly approved private **Plesk-managed** clone/site binding
+   or later protected window with fresh backup/recovery. A route-free PHP namespace cannot prove
+   the real control-plane integration. If that target/mechanism is unavailable, record BLOCKED,
+   not compatible or incompatible. No DNS/subscription/certificate/Plesk setup is implied now.
+4. Establish baseline with enforcement off but provider/adapter independently approved; then
+   enable M-Enforce **only on the approved rehearsal target**, complete matrix below and exercise
+   recovery. Do not change the real administrator, disable MFA on the real site or bypass HTTP
+   protection for the test. Keep independent trusted recovery available before any later live flag.
+
+| Private acceptance path | Pass after selected enforcement | Fail / blocked condition |
+| --- | --- | --- |
+| Toolkit native login/SSO | No protected capability until this WP session completes approved MFA; supported revalidation unlocks only native role | Password-only privilege bypass; inability to complete factor/recover; actual path untested is BLOCKED |
+| Toolkit direct file/CLI management | Privately verified maintenance function remains available through separately trusted operator surface, without becoming farm ownership/MFA proof | An essential approved workflow breaks with no approved replacement; do not invent how Toolkit works |
+| Application-password API | Privileged API denied as intended; dependency owner approves retirement or a separately reviewed supported alternative | Undocumented essential use; silently reenable app passwords to make test green |
+| Authenticated XML-RPC | Denied as intended; required clients have approved replacement/retirement | Unknown dependency or unauthorized XML-RPC exception |
+| Native cookie/nonce REST | Actual own-session factor plus nonce/native role works; nonce alone cannot authorize | Privilege without completed factor, cross-user proof or leaked private directory |
+| Public read REST/static HTTP | Legitimate native public-read behavior and existing BasicAuth boundary remain correct | Accidental whole-site denial, BasicAuth removal or credentials treated as MFA |
+| Subscriber business/staff | Farm rights only after separately approved membership/ownership; no native WP/Plesk administration | Automatic admin/master promotion or identity inferred from a login string |
+| Logout/revocation/credential rotation | Old session immediately loses protected access; fresh own challenge needed | Stale or restored/replayed proof authorizes |
+| Recovery code | One use succeeds, replay denied; custody/rotation private | Codes printed, reusable replay or unverified live delivery |
+| Lost factor / sole operator | Approved same-UID physical recovery demonstrated in isolation, enforcement retained | Bypass flag, replacement-by-name, disabled MFA or no safe recovery |
+| Notifications/email | Only separately approved intercepted/test delivery path; no real send implied | Unexpected mail, recipient leakage or inquiry enablement |
+
+Sanitized results must bind target/source/provider hashes, mechanism, settings before/after,
+success/denial statuses, recovery and rollback evidence. Overall PASS requires every essential
+actual mechanism, not just a simulated login. Essential FAIL/BLOCKED keeps M-Enforce held until
+owner accepts a tested safe path. Native WordPress MFA does not secure the Plesk control panel;
+its independent authentication/recovery remains an owner/hosting responsibility.
+
+### Recovery approval decision summary
+
+R-Backup may authorize only one bounded capture and explicitly selected encrypted custody.
+R-Restore may authorize only one exact-artifact isolated functional rehearsal with its explicit
+clone-only test choice. Neither authorizes T-AuthClone/Toolkit, account creation, factors,
+mandatory enforcement, scheduling files/schema, ownership, employee grants, synthetic records
+or real operation. Shared services/production/public site remain outside all proposed effects.
+Original GateA evidence is preserved, not rerun or treated as a fresh authorization.
+
 ## Gate B current-server staged execution plan — November 2, 2026
 
 **Proposal only; stop before all server modifications.** [Read-only current-server
