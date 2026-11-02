@@ -1,5 +1,19 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**Owner update — November 2, 2026 (after preflight):** Kris states he controls the existing sole WordPress Administrator
+login and also uses it through Plesk's WordPress management feature. **Preserve and reuse that
+existing WordPress account by default**, rather than creating a duplicate Kris login; native
+WordPress Administrator and future Digital Ranch Farm Master are still separate privileges.
+Actual numeric ID, independent MFA/recovery and finite ownership ceremony remain private,
+separately approved release checks. Verify Plesk WordPress management/SSO compatibility before
+enabling mandatory MFA because app-password/XML-RPC routes may be disabled; no claim is made
+about how Plesk authenticates. The owner also reports likely logging in during the read-only
+inspection, a plausible benign source of the changed `options` digest. **The specific change
+is unproven and no incident is established.** Obtain a fresh, consistent change-window baseline,
+review critical configuration, and only escalate unexpected security-sensitive changes;
+no broad forensic investigation or database repair is automatically required. Gate B, accounts,
+backup/restore and installation remain individually held. See [owner worksheet](pilot/gate-b-owner-review.md).
+
 **November 2 — Gate B readiness:** [current read-only sandbox assessment](test-results/gate-b-readiness.md)
 completed against documentation head `1fe8947`, retaining implementation `2fd02a2`. Expected
 WP7.1.4/PHP8.3.36/MariaDB10.6.23/Kadence1.5.2 confirmed; only core active, one unmapped admin,
