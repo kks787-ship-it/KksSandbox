@@ -3,7 +3,7 @@
   "historical_pin": "6f5a9bf51747399a309b39637a135841fe4cf2a1",
   "candidate_version": "0.3.0",
   "candidate_plugin_tree": "852837cb22fcf2b9d219cfe918c43d567cc5cc4e",
-  "candidate_commit": null,
+  "candidate_commit": "c04a24387e3d26f7cb0a7a13683a3981675a086b",
   "file_count": 19,
   "proposed_absent_target_comparison": "19 additions only if fresh protected inspection confirms prior absence; no server comparison executed in Issue #12",
   "source_delta": {

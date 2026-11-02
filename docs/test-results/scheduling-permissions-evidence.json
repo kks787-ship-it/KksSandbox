@@ -75,5 +75,6 @@
     "current_and_proposed_access_verified": true
   },
   "protected_changes": false,
-  "schema_review_sha256": "45ca1b585f5f8bccfdff8b350b2942c65115a57ecf5c648c073fb22f21803dab"
+  "schema_review_sha256": "45ca1b585f5f8bccfdff8b350b2942c65115a57ecf5c648c073fb22f21803dab",
+  "candidate_commit": "c04a24387e3d26f7cb0a7a13683a3981675a086b"
 }

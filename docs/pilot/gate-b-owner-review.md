@@ -37,8 +37,9 @@ For each ID, record **Approve / Reject / Revise / Hold**, the exact approved val
 | P-Welfare | Approve fictional workload/recovery/travel and suitability restrictions | Test data only, not real horse-care policy |
 | P-Programs | Approve the test-only training cap, Wednesday preference and Academy-disabled choice | No recurrence, route or Academy cohort implementation |
 | R-Backup | Authorize current target-bound backup and isolated recovery validation for the next change window | Gate A evidence is retained; later changes/staleness require refresh, not reuse of its old execution approval |
-| I-Files | Install and activate only the pinned scheduling 15-file release | Approved backup/recovery, verified staff/MFA prerequisites, rechecked destination and exact dry run; no schema apply |
-| I-Schema | Preview, review and explicitly apply schema2/14 tables | Scheduling active; actual preview matches reviewed DDL; one-shot private CLI gate; no staff/data population |
+| I-Files | Install and activate only the new pinned scheduling 19-file v0.3.0 release | Approved backup/recovery, verified staff/MFA prerequisites, rechecked destination and exact dry run; no schema apply |
+| I-Schema | Preview, review and explicitly apply schema3/15 tables | Scheduling active; actual preview matches reviewed DDL; one-shot private CLI gate; no staff/data population |
+| O-Master | Bootstrap or transfer the separately verified Farm Owner / Master identity | Explicit numeric owner/operator IDs, independent MFA, exact URL, reviewed private CLI gate and command UUID; no inferred identity or WordPress role promotion |
 | G-Beth / G-Kris | **SUPERSEDED / HOLD:** individually select group + permission overrides after Issue #12, not the four-capability blanket grant | New fine-grained implementation, tested effective-access preview, explicit owner-approved identities/MFA and a **new source pin/release review** required |
 | C-Policy | Apply the exact approved fictional JSON policy | All P decisions resolved, approved authorized configuring actor, current revision and command UUID |
 | D-Fixture | Create only the agreed fictional records | Approved policy/permissions; finite availability/suitability; no real client/horse data |
@@ -46,7 +47,7 @@ For each ID, record **Approve / Reject / Revise / Hold**, the exact approved val
 | X-Contain | Authorize only scheduling deactivation if an approved pilot fails | Non-destructive containment; preserve data/audit/grants; no MFA bypass or whole-DB restore |
 | X-Restore / X-Cleanup | Approve a specific full restore or destructive cleanup if needed | Separate incident/change reconciliation and exact target/artifact review; never implied by a failed test |
 
-**Recommended sequence:** resolve A/M/P review choices → separately approve the scoped account/MFA work with its exact release evidence → prove authentication → refresh backup/change baseline as needed → I-Files → I-Schema → G rows → C-Policy → D-Fixture → T-Pilot. Stop at each missing approval. A no-change package review authorizes none of this sequence.
+**Recommended sequence:** resolve A/M/P review choices → separately approve the scoped account/MFA work with its exact release evidence → prove authentication → refresh backup/change baseline as needed → I-Files → I-Schema → O-Master → G rows → C-Policy → D-Fixture → T-Pilot. Stop at each missing approval. A no-change package review authorizes none of this sequence.
 
 ## 1. Staff accounts and owner-controlled access — superseding the old equal grants
 
@@ -96,7 +97,7 @@ actual staff device verification remain M decisions. No master or employee acces
 
 **Recommendation:** separate passwords plus TOTP authenticator applications and individual recovery codes, behind the existing HTTPS/Basic Auth protection. SMS and email OTP are not proposed; no delivery service or phone-use permission is assumed. Recommend the **standalone Wordfence Login Security** plugin as the candidate to evaluate, rather than a full firewall/security-suite deployment. Vendor documentation describes authenticator support and recovery codes ([setup/recovery](https://www.wordfence.com/help/tools/two-factor-authentication/)) and enforcement controls ([settings](https://www.wordfence.com/help/login-security/)). These are vendor capabilities, not compatibility results for this sandbox.
 
-**Scope exception requiring a separate decision:** an MFA plugin adds files/settings and may create its own tables. Those are **outside** the 15-file csf-scheduling release. Do not install it under I-Files. M-Install remains blocked until a separate immutable vendor version/artifact SHA-256, complete file/table/option diff, licensing/privacy review and isolated WordPress7.1.4/PHP8.3.36/MariaDB10.6.23 compatibility test are prepared. No vendor release, database count or integration behavior is invented here. If the owner chooses a different MFA mechanism, replace this section and its release evidence before execution. Do not add custom MFA enforcement code to scheduling or modify the pinned plugin.
+**Scope exception requiring a separate decision:** an MFA plugin adds files/settings and may create its own tables. Those are **outside** the 19-file csf-scheduling release. Do not install it under I-Files. M-Install remains blocked until a separate immutable vendor version/artifact SHA-256, complete file/table/option diff, licensing/privacy review and isolated WordPress7.1.4/PHP8.3.36/MariaDB10.6.23 compatibility test are prepared. No vendor release, database count or integration behavior is invented here. If the owner chooses a different MFA mechanism, replace this section and its release evidence before execution. Do not add custom MFA enforcement code to scheduling or modify the pinned plugin.
 
 Proposed settings, each subject to M-Enforce approval:
 
@@ -234,3 +235,8 @@ runbook. The 15-file/14-table section above is retained **historical 0.2.1 evide
 execution specification for the new model. I-Files/I-Schema/G decisions require a fresh review
 of the new pin, target state, MFA adapter, bootstrap identity and group mappings before any write.
 Gate A recovery remains evidence, not blanket permission for this source, accounts or new schema.
+
+Exact local implementation source for the new candidate: **c04a24387e3d26f7cb0a7a13683a3981675a086b**;
+plugin tree **852837cb22fcf2b9d219cfe918c43d567cc5cc4e**. The current I-Files/I-Schema
+rows describe 19 files/schema 3. Historical v0.2.1 inventories and package-verification statements
+remain dated evidence only. No row has execution authorization.

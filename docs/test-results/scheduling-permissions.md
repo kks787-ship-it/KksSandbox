@@ -10,7 +10,7 @@ activation, production or public-site modification occurred in this assignment.
 ## Exact release identity and scope
 
 Plugin Git tree: **852837cb22fcf2b9d219cfe918c43d567cc5cc4e**. The immutable implementation
-commit pin is recorded in the release-pin follow-up below. The [19-file checksum manifest](scheduling-permissions-files.sha256)
+commit pin is **c04a24387e3d26f7cb0a7a13683a3981675a086b**. The [19-file checksum manifest](scheduling-permissions-files.sha256)
 and [exact path/blob/hash inventory](scheduling-permissions-install-inventory.json) define the
 candidate. Relative to historical 0.2.1: **four added files, ten modified, five unchanged**.
 All 19 belong under `wp-content/plugins/csf-scheduling/`; no security provider, test fixture,
@@ -185,10 +185,18 @@ Operational blockers remain:
   hours/workloads/program rules and fictional pilot values still need separate approvals.
 - Owner account creation/invitations are not implemented here; existing verified accounts are
   selected. No outbound emails, signature verification, private exports or later-module privileges.
-- Current bounded pilot limits: 50 members, 30 groups, 100 selectable WordPress accounts and 500 matching permission events per page, with older-matches navigation, with explicit assigned-calendar scope and no assigned-only whole-farm
+- Current bounded pilot limits: 50 members, 30 groups, 100 selectable WordPress accounts and 500 matching permission events per page with older-matches navigation, explicit assigned-calendar scope and no assigned-only whole-farm
   roster enumeration. Larger deployments, general multi-tenant SaaS and production rollout are not accepted.
 
 Follow the [owner walkthrough](../13-scheduling-staff-acceptance.md) and updated canonical runbook.
 Code completion does not approve Gate B installation/MFA/accounts/bootstrap/migration/grants/
 fixtures. Real operational scheduling still requires separate final authorization and Beth/Kris
 hands-on acceptance. Inquiry stays disabled, emergency inactive and production untouched.
+
+## Release pin follow-up
+
+Implementation commit **c04a24387e3d26f7cb0a7a13683a3981675a086b** is published on `codex/takeover-audit`.
+This documentation-only follow-up records that immutable candidate without changing its plugin
+tree or historical 0.2.1 pin. The candidate remains uninstalled and every Gate B execution decision
+remains held. Owner review must name this source, exact identities, effective MFA integration and
+individual approved permissions before any corresponding protected change.

@@ -622,3 +622,8 @@ bootstrap actor/body/revision/UUID to reconcile current mirrors without altering
 an audit event. Preserve that command identity privately. If original verification/command custody
 cannot be established, stop for separately approved identity transfer/recovery; never use ad hoc SQL
 capability grants or a global bypass. Normal employee changes remain native owner-dashboard work.
+
+Issue #12 immutable local implementation pin: **c04a24387e3d26f7cb0a7a13683a3981675a086b**,
+plugin tree **852837cb22fcf2b9d219cfe918c43d567cc5cc4e**. See the 19-file release report
+and inventory. This identifies reviewable code; it is not Gate B installation, identity/MFA,
+migration, grant, policy or pilot authorization. The historical 0.2.1 pin remains preserved.
