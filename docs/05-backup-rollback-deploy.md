@@ -27,7 +27,9 @@ an execution substitute. Application implementation remains2fd02a2.
 
 **Only next decision:** [read-only prerequisite approval card](pilot/r-backup-approval.md#owner-authorization-card--read-only-prerequisites-only).
 Its exact hash-verified command runs code/bindings in memory; no source staging or temporary file
-is needed. No Gateway/server call occurred. Current private bindings/installed compatibility
+is needed. The [final operator checklist](pilot/r-backup-approval.md#final-operator-checklist--redacted-no-execution)
+distinguishes verified tool contracts/local tests from private selectors/operator/live checks
+that remain unverified. The inspection command/runtime release is unchanged from48ba6b2. No Gateway/server call occurred. Current private bindings/installed compatibility
 remain unverified; capture, encrypted transfer, restore and all Gate B deployment gates stay held.
 
 B1–B3 inventory/MVCC diagnostics/consistent dump/config archives/byte and header verification/

@@ -7,6 +7,52 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Final inspection authorization readiness — November 2, 2026
+
+Continuation from48ba6b2. **No Gateway call of any kind was made.** Only the available tool
+catalog/operating-doctrine skill was read; no stored-value metadata/content, server identity,
+SSH connection or job was requested. No credentials were created/exposed. This is contract/local
+verification, not a live connection, actual privilege or stored-selector verification.
+
+Inspection command/runtime unchanged: all8 committed release-file checksums passed. Command
+SHA256 `6a362d2c18072b3230a9f5fd2db0705696ad5cff222040821f2468314acd2138`;
+payload SHA256 `8bd20008c495a3dacdacae29324d98c0264307a54dc28a82f4f3229b2088f2ed`.
+The [single authorization card/checklist](../pilot/r-backup-approval.md#owner-authorization-card--read-only-prerequisites-only)
+now records exact private bindings/storage/purpose and unverified status. No runtime change
+or fresh backup-source pin is necessary; application implementation remains2fd02a2.
+
+Available Gateway schema confirms named stored stdin/environment selectors, sensitive command
+flag, explicit none privilege, umask,120second execution timeout and separate early-yield wait.
+Doctrine confirms durable terminal-job monitoring, scope/purpose/expiry checks, one-time input
+consumption and secure setup handoffs. No live transport/40KiB environment limit/timeout test
+was performed. none is no requested sudo, **not** proof of a non-root identity or narrow SQL
+permissions. Sensitive redaction does not protect arbitrary partial/transformed echoes; reviewed
+output filtering is required. Normal Gateway wrapper records/read-atime/DB logs are acknowledged.
+
+Ten new local gate tests cover: fixed inspect dispatch with capture/file-write sentinels;
+mode=capture input rejection; every missing binding; missing and permission-denied protected
+config; sanitized timeout; unexpected DB/home/siteurl identity; unsupported client flags/version;
+fixed inspection SQL containing only SELECT and no users/usermeta row reads/writes; appended
+capture argument unable to alter the in-memory command. All use disposable synthetic files,
+fake DB responses and local subprocesses. Inspection PASS never calls dump or row-baseline query.
+
+Final rerun: **92 recovery tests +14 sandbox-preflight units +22 development guards +6 mocked
+Plesk scenarios =134 passed**. Python/shell syntax, reproducible generation, documentation links,
+privacy and8 release hashes are included. Existing real local native-client checks from48ba6b2
+remain historical and were not rerun; actual protected-client/server behavior remains untested.
+No WordPress/PHP/browser suite rerun was needed because application/runtime source is unchanged.
+
+Only4 files change: this report, canonical05, existing R-Backup decision card/operator checklist,
+and tests/recovery/test_inspection_gate.py. No new architecture, runtime rebuild, application,
+installation script or server change. Issue11 is updated by a minimal status comment only;
+no old infrastructure-rich issue body is republished. Capture, transfer, restore and Gate B held.
+
+**Stop/owner decision:** authorize or reject one exact120second read-only inspection after
+privately completing actor/approval/window/run, complete protected-config map/read consent and
+existing credential input selectors. All these private states remain explicitly unverified;
+the card is ready for a conditional decision, not a claim that execution inputs already exist.
+No server call until explicit owner authorization and verified private prerequisites.
+
 ## Executable R-Backup completion — November 2, 2026
 
 Continuation from b5ea68e, **local engineering only**. The complete executable workflow and

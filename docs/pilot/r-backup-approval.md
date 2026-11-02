@@ -101,6 +101,66 @@ null in inspection only. Public reviewed code belongs in `r-backup-reviewed-payl
 uses `r-backup-readonly-bindings`. These are selector names, not claimed existing stored values.
 The exact input contract is validated by `bindings()`; never paste credentials into chat/Git.
 
+### Final operator checklist — redacted, no execution
+
+Verified locally against48ba6b2: inspection command SHA256
+`6a362d2c18072b3230a9f5fd2db0705696ad5cff222040821f2468314acd2138`;
+payload SHA256 `8bd20008c495a3dacdacae29324d98c0264307a54dc28a82f4f3229b2088f2ed`.
+All8 release files match the committed manifest; command/payload bytes are unchanged.
+
+| Required binding/control | Secure location / transport | Status before owner authorization |
+| --- | --- | --- |
+| Public reviewed payload, exact hash above | Gateway stored value `r-backup-reviewed-payload`, purpose **environment**; `env_from.CSF_REVIEWED_PAYLOAD` | Local bytes VERIFIED; stored existence/content/expiry/scope **NOT VERIFIED** |
+| Private binding JSON, mode strictly inspect | Gateway `r-backup-readonly-bindings`, purpose **stdin**; `stdin_from` only | Exact schema/local failure tests VERIFIED; existence/content **NOT VERIFIED** |
+| Existing SSH executor and private identity/scope mapping | Owner-controlled operator register; opaque actor_ref in private JSON | **NOT VERIFIED**; none means no requested sudo, not non-root or least privilege |
+| Explicit owner approval reference | Owner-controlled approval record; approval_ref in private JSON | **PENDING**; this document is not permission |
+| UTC start/end, <=120second approved window; unique32-hex token | Private stdin JSON | **NOT VERIFIED**; no time/token guessed |
+| Exact complete sandbox-only protected-config path/alias map, scope consent | Owner-controlled config inventory; private protected list in stdin | **NOT VERIFIED**; no guessed paths, discovery or parent-tree access authorized |
+| Existing local DB credentials | Private stdin db_secret object; memory/anonymous FD only | **NOT VERIFIED**; do not collect credentials in chat, argv or environment |
+| Config/read consent and hash expectations | Private stdin config_reviewed and hash fields | Consent **PENDING**; inspection hashes may be null; supplied hashes must match |
+| Selector scope, purpose, retention and expiry compatible with canonical target | Gateway stored-value metadata, reviewed only after owner permission | **NOT VERIFIED**; file-purpose values cannot substitute for stdin/environment |
+| Privilege/read access, installed tools and /proc descriptor support, space/target | First approved bounded job only | **NOT VERIFIED LIVE**; failure is STOP, never sudo/install/guard relaxation |
+
+No selector metadata lookup, secret creation/request or Gateway call was performed for this
+checklist. Do not mark a stored value verified from its proposed name. Private details never
+belong in the issue comment. The existing BasicAuth secret is a different purpose/scope and is
+not reused as a database or input binding. Public code may be stored without credential material;
+no stored value has been created here.
+
+### Gateway contract verification and acceptance rules
+
+Available tool schema confirms `stdin_from`, `env_from`, `sensitive_command`, `timeout_seconds`,
+`wait_seconds`, `umask` and explicit `privilege="none"`. This application-specific composition
+has no typed backup/inspection equivalent; execute_command is the documented fallback. No live
+connection or end-to-end transport claim follows from schema verification. Actual environment
+size limits/scope/expiry and host compatibility remain untested.
+
+Gateway sensitive-command handling stores a digest/placeholder. Output redaction covers exact
+value echoes, **not arbitrary transformed/partial secrets**; safety relies on the reviewed payload
+never printing private values/diagnostics. Gateway may maintain its normal execution records and
+wrapper support state; the inspection code itself creates no named files/backup artifacts and
+performs no application/config writes. Normal read atimes/DB logging are not a frozen snapshot.
+
+`wait_seconds=1` only yields early: it is NOT a one-second execution limit. Outer timeout is120s;
+command enforces115s TERM+5s kill grace. Follow the returned durable job with get_job/wait_for_job
+to terminal succeeded/exit0 and valid allowlisted PASS output. A wait timeout does not cancel a
+job; cancellation is cooperative until termination is confirmed. Failed/cancelled/timed_out,
+missing output, unexpected output shape or nonzero exit is BLOCKED. No automatic retry or target
+fallback. Timeout/forced termination cannot be accepted as a completed inspection.
+
+Missing/expired/wrong-scope inputs fail before job creation according to the Gateway contract;
+one-time values are consumed when their first job starts. Do not assume a failed started job
+leaves a reusable binding. Secret setup is a later private handoff and never an execution grant.
+No sudo request or automatic privilege change is authorized on any error. If the current SSH
+identity is root, no-elevation is still true but least privilege is unproved: its exact read scope
+requires explicit owner acceptance before the first job.
+
+**Single authorization request:** approve or reject one120second read-only job using the exact
+command hash and target/permissions/output/stop rules above, conditional on privately verified
+bindings and operator scope. No execution until explicit owner approval AND those prerequisites
+are satisfied. Capture, transfer, restore, account/MFA changes and Gate B remain HELD. No server
+call is included in this preparation or inferred from approval of the documentation.
+
 The returned hashes go into a **new private capture binding** only after owner review. Before
 capture, separately approve that binding (mode=capture, exact run/window/path and non-null hashes)
 and the distinct capture command. Its hard bounds include1770second TERM +30second kill grace,
