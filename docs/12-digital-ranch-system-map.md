@@ -59,7 +59,7 @@ The arrows describe **future data flow**, not integrations that already exist.
 | Internal scheduling | Issue #4 architecture complete; csf-scheduling 0.2.1 foundation/calendar/staff forms implemented and tested locally; **no scheduling plugin or schema installed on sandbox** | BUILT — local-only calendar candidate; staff pilot pending |
 | Production replacement | Existing old production website remains separate; protected new site not launched publicly | NOT DONE |
 
-The current backup bundle includes the post-contact/pre-photo state and the later protected-sandbox photo update. Backups are private; full real-life operational recovery must still be validated beyond the prior structural restoration.
+**November 1, 2026 recovery milestone — Gate A passed:** A fresh exact-target sandbox backup and an isolated **functional** WordPress/Kadence recovery passed: all 12 InnoDB tables and 4,479 file hashes matched, cloned administrator login/dashboard and Home/Lessons/Contact rendered. [Committed evidence](test-results/scheduling-pilot-gate-a.md). The recovered app ran on isolated PHP/MariaDB rather than full Plesk/Nginx/Apache; production-like reverse-proxy/Basic Auth/MFA and encrypted off-server backup custody remain unverified. Live sandbox files and DB were hash-checked unchanged. This was **not a real sandbox rollback** or approval to install scheduling.
 
 ## 5. Capability map — public-facing farm
 
@@ -148,6 +148,8 @@ This whole module stays isolated from private client/payment data and from routi
 - [x] **Sprint 1 Issue #8 local implementation:** csf-scheduling 0.1.0 foundation, explicit schema, private staff permissions and tests are in this commit; 87 integration checks per database plus migration concurrency/backup restore. [Evidence and limitations](test-results/scheduling-foundation.md). Not installed or approved for real scheduling.
 - [x] **Sprint 2 Issue #9 local candidate:** staff day/week calendar, explicit confirmation/holds, conflicts, welfare and pre-ride flags, cancellation history. [Validation and pilot limits](test-results/scheduling-calendar.md). No protected install or Beth/Kris operational acceptance.
 - [x] **Sprint #9.1 Issue #10 local implementation:** 0.2.1 native group/roster/suitability/availability/welfare fields, local-time choices, preview and synthetic acceptance packet. [Validation](test-results/scheduling-staff.md). No protected pilot or Beth/Kris acceptance yet.
+- [x] **Gate A completed — Issue #11:** owner-approved fresh sandbox backup and isolated **functional** restore; 12/12 tables, 4,479/4,479 file hashes, cloned login/dashboard and representative public pages passed. [Recovery evidence](test-results/scheduling-pilot-gate-a.md), commit `0c5bb66`. The exact new backup's age must be rechecked before any future write. No scheduling install/migration was performed.
+- [ ] **Gate B held — Issue #11:** owner approval of pilot-only installation/scheduling migration requires verified distinct operator/Beth/Kris account IDs, effective MFA, reviewed synthetic policy, fresh target-bound backup gate, source pin, and protected-stack compatibility tests. Full Plesk/Basic Auth/off-server disaster-recovery proof is not established by Gate A.
 - [ ] Approve owner-specific actual capacities, resource roster, timezone and staffing identities before adding real appointments to the protected sandbox.
 - [ ] Pilot Beth/Kris calendar with manual existing appointments; no Acuity import or public self-booking.
 
@@ -208,6 +210,7 @@ Stages B/C/E can have overlapping **design** work without merging their deployme
 | [#8](https://github.com/kks787-ship-it/KksSandbox/issues/8) | Scheduling foundation | **Issue closed — completed local implementation and validation** at `4c9abf3`; not deployed |
 | [#9](https://github.com/kks787-ship-it/KksSandbox/issues/9) | Working staff calendar | Local v0.2.0 at `a105868` and tests delivered; remains open for protected install/real staff acceptance |
 | [#10](https://github.com/kks787-ship-it/KksSandbox/issues/10) | Staff usability and pilot readiness | **Local implementation delivered** — native staff forms and synthetic acceptance packet; protected pilot/human acceptance pending |
+| [#11](https://github.com/kks787-ship-it/KksSandbox/issues/11) | Scheduling synthetic sandbox pilot | **Gate A passed** at `0c5bb66` (backup and isolated functional restore); **Gate B not authorized**, no plugin install, grants or real data |
 
 **Update this ledger from evidence, not assumptions.** Mark a task DONE only with commit/test references and, if relevant, installation/operational-acceptance evidence. If code is finished but not deployed, mark it BUILT — inactive or local-only. If active in a sandbox but unapproved for real emergency/financial use, do not mark it operational. Preserve historical sources; later evidence supersedes older paragraphs elsewhere in the repository.
 
