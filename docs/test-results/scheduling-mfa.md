@@ -186,7 +186,7 @@ WordPress authentication metadata changes occur only inside the disposable fixtu
 [exact 43-file proposed inventory](scheduling-mfa-install-inventory.json) accompany this report.
 Scheduling plugin tree **03884538be197ea1c97c5d65aef65122cd783f69**;
 adapter plugin tree **d50ee60a71bccd55217374af1f40c3d8c173d43d**. The immutable implementation
-commit is recorded in the release-pin follow-up. No fresh protected target comparison occurred.
+commit is **2c08321d98566bc50ccb6d62712abf798cc16d0d** (recorded in the release-pin follow-up). No fresh protected target comparison occurred.
 
 Development corrections included enrollment-versus-session assignment/projection, atomic proof
 persistence and binding to the pre-challenge credential configuration. Test helpers were corrected
@@ -215,3 +215,17 @@ Provider choice, provider/adapter files, mandatory security settings, notificati
 enrollment/recovery, new scheduling source, schema migration, safe identity ceremony, individual
 grants, fictional policies, fixture records and protected acceptance require separate decisions.
 No blanket Gate B authorization is requested or implied by local test completion.
+
+## Immutable release pin and disposition
+
+Implementation source: **2c08321d98566bc50ccb6d62712abf798cc16d0d** on `codex/takeover-audit`. This documentation-only
+follow-up records the exact candidate; both plugin trees and all22 custom hashes remain unchanged.
+The source parent preserves owner changes through488c517 and historicalc04a243/d09ad92/1b9a418.
+
+**Local proof and owner-review preparation complete; not ready for Gate B execution.**
+M-Choice selects a provider/artifact only. M-Install/M-Adapter/M-Enforce/M-Notify and each
+A/M-Enroll/G decision remain independent, as do scheduling I-Files/I-Schema, safe O-Master,
+fictional P/C/D decisions and T-Pilot. Mandatory WP-admin MFA coverage and a safe identity
+handoff need separately reviewed implementation before installation readiness; exact artifact
+verification and protected-stack/device acceptance remain outstanding. No deployment, actual
+account or grant, production, inquiry or emergency change is authorized by this code pin.

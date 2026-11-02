@@ -668,3 +668,8 @@ scope, retain provider data and scheduling audit; do not disable global MFA or g
 Restoring old files alone does not undo account/MFA/session state. Any full restore/cleanup
 requires a matched artifact, later-change reconciliation, separate authorization and post-restore
 session revocation/credential review. Production/inquiry/emergency/public content remain excluded.
+
+Issue #13 immutable implementation pin: **2c08321d98566bc50ccb6d62712abf798cc16d0d**; scheduling tree
+**03884538be197ea1c97c5d65aef65122cd783f69**, adapter tree
+**d50ee60a71bccd55217374af1f40c3d8c173d43d**. Read the43-file proposed inventory and
+separate artifact/identity/security holds. No protected installation approval follows.

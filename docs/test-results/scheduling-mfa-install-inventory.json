@@ -1,6 +1,6 @@
 {
   "scope": "local-only candidate; no protected comparison executed",
-  "candidate_commit": null,
+  "candidate_commit": "2c08321d98566bc50ccb6d62712abf798cc16d0d",
   "base_commit": "488c517de2ba01f72b8abf0faefc69993ed34dd5",
   "historical_scheduling_pin": "c04a24387e3d26f7cb0a7a13683a3981675a086b",
   "scheduling_version": "0.3.1",

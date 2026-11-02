@@ -21,6 +21,8 @@ The owner requests:
 
 ## Current Issue #13 review candidate — no execution authorization
 
+Exact implementation source: **2c08321d98566bc50ccb6d62712abf798cc16d0d**. Source identity is not execution permission.
+
 Recommend Two-Factor0.17.0 + separate csf-mfa0.1.0 for owner selection, with scheduling0.3.1
 (schema3/15tables). Exact file/source identities, local validation and limitations are in the
 [security release report](../test-results/scheduling-mfa.md). This is a new candidate, not a

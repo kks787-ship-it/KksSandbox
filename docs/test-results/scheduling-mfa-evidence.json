@@ -1,6 +1,6 @@
 {
   "scope": "local synthetic fixtures only; Gate B held",
-  "candidate_commit": null,
+  "candidate_commit": "2c08321d98566bc50ccb6d62712abf798cc16d0d",
   "source_parent": "488c517de2ba01f72b8abf0faefc69993ed34dd5",
   "scheduling": "0.3.1",
   "adapter": "0.1.0",
