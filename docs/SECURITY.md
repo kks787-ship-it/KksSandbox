@@ -1,14 +1,23 @@
 # Security and operational boundaries
 
-## Owner-approved recovery-first protocol — conditional activation pending
+**Current verified status:** functional recovery passed;20 scheduling files are installed
+but inactive, with zero scheduling tables. Inquiry remains disabled and emergency inactive.
+Account, MFA and Farm Master decisions remain outstanding. The Recovery-First policy is
+already adopted; routine authority remains conditional on fresh backup/scope/rollback checks.
+[Sanitized installation evidence](test-results/recovery-qualified-staging-evidence.json). Historical sections below do not override this status.
+
+
+## Owner-approved recovery-first protocol — routine authority conditionally active
 
 The [latest policy](DECISIONS.md#november-2-2026--owner-approved-recovery-first-autonomous-development-policy)
 allows autonomous sandbox-local writes only with the required preceding24hour verified backup,
 usable isolated functional recovery, pre-change backups for major/destructive/auth changes,
 rollback and documented scope. Owner ratification of the supplied protocol is now recorded;
-current new capture is verified but current-workflow isolated functional restore verification remains pending. Existing
-read-only supervision continues. Policy registration does not authorize a restore, install,
-migration or security/account action in the current capture-reporting task. Owner exceptions
+current capture and actual isolated functional restore are VERIFIED (3ec2f3b). Routine sandbox
+authority is conditionally active under the policy; fresh-backup/scope/rollback checks apply
+to each write window, while all real account/privilege/MFA/security exceptions remain held. Existing
+read-only supervision continues. The current documentation-publication task authorizes no server operation, scheduling
+activation, account change or MFA enforcement. Owner exceptions
 remain separate even after activation; stop for exposure/security/recovery uncertainty, and
 never auto-restore over newer owner changes. No production/shared infrastructure or outside costs.
 
@@ -111,8 +120,8 @@ restoration to an isolated development subscription. Production changes require 
 Per the owner's October 31, 2026 Gateway correction, WP_ENVIRONMENT_TYPE=development,
 DISALLOW_FILE_EDIT=true and WP_DEBUG_DISPLAY=false are applied/verified; syntax, ownership
 and live wp-config mode 0600 passed. Do not reapply them. Original configuration recovery
-artifact: `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`; preserve it
-privately. It is separate from the completed full backup at the private csf-sandbox-backup-20261031 directory. Gateway verified structural restoration of 12 InnoDB tables and 4,336 regular files with zero mismatches. Functional restored-site login/rendering, actual CSF/Kadence acceptance and the emergency release gates above remain untested/outstanding. See
+artifact: `<private-recovery-path>`; preserve it
+privately. It is separate from the completed full backup at the private <private-recovery-set> directory. Gateway verified structural restoration of 12 InnoDB tables and 4,336 regular files with zero mismatches. Functional restored-site login/rendering, actual CSF/Kadence acceptance and the emergency release gates above remain untested/outstanding. See
 [the current report](test-results/sandbox-preflight.md) for provenance and scope.
 
 ## Optional public inquiries — local 0.3.0 candidate only

@@ -1,5 +1,12 @@
 # Project decisions
 
+**Current verified status:** functional recovery passed;20 scheduling files are installed
+but inactive, with zero scheduling tables. Inquiry remains disabled and emergency inactive.
+Account, MFA and Farm Master decisions remain outstanding. The Recovery-First policy is
+already adopted; routine authority remains conditional on fresh backup/scope/rollback checks.
+[Sanitized installation evidence](test-results/recovery-qualified-staging-evidence.json). Historical sections below do not override this status.
+
+
 ## November 2, 2026 — owner-approved Recovery-First Autonomous Development Policy
 
 The owner explicitly approved this protocol in chat, directed registration as FYI and continuation
@@ -42,16 +49,25 @@ problems and next milestone; report meaningful milestones rather than individual
 
 ### Activation status and current task
 
-Owner approval/ratification of this supplied protocol is recorded now; no repeat policy
-adoption request is needed. Operational sandbox write authority still requires the specified
-verified-backup and usable isolated-functional-restore protections. Current capture candidate8f8fc51 has completed LOCAL_CAPTURE_VERIFIED/exit0;
-its exact receipt/manifest is recorded separately. A functional restore of this new set has NOT
-run; historical GateA evidence is not substituted for the pending current recovery milestone.
-Activation for the current recovery workflow remains **PENDING** its required restore-readiness
-verification; policy registration or capture success alone is not that verification.
-The current task remains capture reporting/recovery preparation; no restore, installation,
-migration, account/MFA, inquiry/public-transaction or emergency activation is authorized here.
-Implementation2fd02a2 is preserved. The owner retains business/security/production authority.
+Owner ratification is recorded; do not ask again. **November3 recovery VERIFIED:** the exact
+owner-approved e1ad1ca command completed ISOLATED_RESTORE_VERIFIED/exit0 in23seconds, with
+integrity, isolated native WordPress/database recovery, cloned login/logout/auth-state restoration
+and service cleanup. [Sanitized actual evidence](test-results/isolated-restore-verified-evidence.json).
+This satisfies the initial functional-recovery prerequisite; **routine sandbox authority is
+ACTIVE CONDITIONALLY**, as directed in Issue11 comment6608774666. Check a verified backup
+captured within24hours at each write window, fresh pre-change protection for major schema,
+authentication or destructive work, exact target/scope, rollback and documented results. The
+successful capture is not indefinitely fresh. Missing protection stops writes.
+
+Same-host application recovery does not establish off-server disaster recovery, full Plesk/
+Toolkit/BasicAuth/proxy/MFA or Beth/Kris acceptance. These remain separate validation needs.
+Production/shared infrastructure, real accounts/privileges/credentials/MFA enforcement and other
+owner-controlled exceptions above retain separate approval. No next gate was entered by the
+restore itself. Completed permitted milestone:20 pinned scheduling files installed inactive under verified
+recovery conditions (17a7305); no provider/adapter,
+activation, schema, account, factor, master bootstrap or real grants implied. Synthetic local tests
+continue autonomously. No production, inquiry enablement or emergency activation.
+
 
 
 ## November 2, 2026 — owner-adopted Supervised Autonomy Policy
@@ -236,7 +252,7 @@ approval must wait for these persistence tests, MFA, physical/mobile tests and o
 ## Reconcile completed Gateway hardening — October 31, 2026
 
 The owner's correction supersedes earlier pending-hardening reports. Gateway preserved the
-original config at `/root/csf-config-backups/sandbox-wp-config-before-20261031.php.bak`, then
+original config at `<private-recovery-path>`, then
 applied and verified development environment, DISALLOW_FILE_EDIT=true and
 WP_DEBUG_DISPLAY=false, syntax, ownership and live mode 0600. Record this as completed;
 do not reapply constants or request approval for the same hardening again.
@@ -247,7 +263,7 @@ The subsequent Gateway preparation completion below supersedes the earlier pendi
 ## Historical preparation and scoped installation plan — October 31, 2026
 
 The owner's latest report confirms the full backup/checksum verification at
-/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/, isolated structural
+<private-target-path>, isolated structural
 restore (12 InnoDB tables/count samples, 4,336 regular files, zero mismatches), private source
 pin d360dbf with plugin trees matched to 52401dc, and passed exact-target Plesk preflight/dry
 run proposing only the two new plugin directories. Preserve those results; do not repeat
@@ -268,8 +284,8 @@ No plugin/permalink/production operation was authorized or executed by this docu
 ## Historical backup capture and evidence identifiers — October 31, 2026
 
 Gateway supplied DB export 10:08:58 AM PDT (17:08:58 UTC), file archive 10:09:42 AM PDT
-(17:09:42 UTC), existing scratch DB csf_sandbox_restore_20261031 and evidence at
-/var/www/vhosts/cornerstonefarmomak.com/private/csf-sandbox-backup-20261031/restore-evidence.txt.
+(17:09:42 UTC), existing scratch DB <private-recovery-database> and evidence at
+<private-target-path>
 The complete files include hardened wp-config. Structural recovery passed; functional
 login/rendering did not run. Record and reuse these facts instead of repeating work or
 recreating evidence. The 24-hour DB threshold falls November 1 at 9:08:58 AM PST

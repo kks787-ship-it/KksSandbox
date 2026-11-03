@@ -1,6 +1,47 @@
 # Digital Ranch — Gate B owner decision package
 
-## Recovery / account-security readiness — current decision summary
+**Current verified status:** functional recovery passed;20 scheduling files are installed
+but inactive, with zero scheduling tables. Inquiry remains disabled and emergency inactive.
+Account, MFA and Farm Master decisions remain outstanding. The Recovery-First policy is
+already adopted; routine authority remains conditional on fresh backup/scope/rollback checks.
+[Sanitized installation evidence](../test-results/recovery-qualified-staging-evidence.json). Historical sections below do not override this status.
+
+
+## November 3 recovery-qualified execution order
+
+This section supersedes historical R-Backup/R-Restore and blanket routine-write holds below.
+[Actual recovery](../test-results/isolated-restore-verified-evidence.json) is VERIFIED; ratified
+standing authority is conditional on current verified backup age<24h, applicable fresh
+pre-change captures, exact scope/rollback and documented results. Not a new permission request.
+Source pin2fd02a2: Scheduling0.4.0/20files, adapter0.2.0/4files, official Two-Factor0.17.0/21files;
+schema3/15tables. Inactive scheduling file installation is separate from all authentication work.
+
+| Order | Codex may do autonomously | Owner-controlled boundary / dependency |
+| --- | --- | --- |
+| 1 | Recheck exact release/ZIP hashes, run current local synthetic/security/calendar tests, update status | No source substitution, false production compatibility claim or security bypass |
+| 2 — complete |20 scheduling files installed inactive; private recovery/target/space/native-PHP/hash checks passed | No activation, MFA/provider files, account, grants, config or schema writes in this step |
+| 3 | Prepare read-only protected compatibility and Toolkit/API dependency review; test synthetic enrollment/recovery locally | Privately verify technical-admin controller/recovery custodian; approve distinct Kris/Beth business identities, base roles and notification scope before creating real accounts |
+| 4 | Prepare exact official provider/adapter installation and safe enrollment/recovery checklist | Owner selects provider/update custodian, actual factor/recovery custody and approves provider/adapter enablement/enrollment/enforcement; no password-only/SSO exemption |
+| 5 | Once security decisions permit, capture fresh pre-change backup, preview schema, apply recoverable scheduling migration under standing routine authority | First classify authentication/privilege effects; no new master/grants by activation or migration. Real security/account exceptions still need approval |
+| 6 | Prepare finite fictional scenarios/resources/appointments and mobile/tablet/desktop acceptance | Bootstrap needs private verified distinct operator/owner IDs, independent fresh real MFA and owner-approved Farm Master identity. Beth's exact farm rights selected by owner; no fixture verifier or CLI bypass |
+| 7 | Assist hands-on private/group/rotation/conflict/welfare/clearance/cancellation testing with synthetic records | Beth and Kris each perform/approve their own device/workflow acceptance; no real operations or public booking implied |
+
+**Minimum owner choices:** privately verify the existing technical administrator and recovery
+responsibility; approve separate Kris/Beth WordPress identities and native Subscriber baseline
+(no WordPress administration implied); choose actual MFA provider/device/recovery/update custody
+and allowed account-security mail; approve initial Farm Master identity/independent operator
+ceremony and Beth's specific farm rights. Known business names are proposals, not verified
+WordPress IDs or permission grants. Keep IDs/emails/factors/evidence private. Mandatory MFA
+still waits for trusted recovery and essential Plesk Toolkit/SSO/API compatibility evidence.
+
+**Containment:** before activation, verify unchanged inactive files and remove only that new
+pinned directory if needed. Later schema rollback uses matched fresh pre-change evidence with
+newer-change reconciliation; preserve audit/data. Never disable security, resurrect old sessions,
+overwrite newer owner edits, grant emergency access or infer owner/staff acceptance.
+Same-host recovery does not cover off-server DR or full Plesk/BasicAuth/MFA stack acceptance.
+
+
+## Historical recovery / account-security preparation summary
 
 [Next assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6585062869)
 is documentation, local synthetic checks and proposed operations only. No farm-server connection
@@ -522,15 +563,15 @@ and the canonical [runbook](../05-backup-rollback-deploy.md) before changing any
 | MFA/provider adapter | M-Install/M-Enforce: separately pinned security release and approved effective-session adapter; outside the 19-file scheduling release; test before any operational access |
 
 Target stays sandbox.cornerstonefarmomak.com, exact root
-`/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`, database **wp_mdf4x**,
-prefix **TXGEh_**. Production httpdocs/wp_iacb7 and unassigned wp_mdoaq remain excluded.
+`<private-target-path>`, database **<sandbox-database>**,
+prefix **<sandbox-prefix>**. Production httpdocs/<production-database-excluded> and unassigned <unassigned-database-excluded> remain excluded.
 Recheck authoritative target and destination before any future write; prior absence is historical
 observation, not a fresh dry run. Preserve core/emergency, WordPress/Kadence, pages/photos/menus,
 branding, inquiry, hardening and global timezone. No installation/environment script changes.
 
 **Schema detail:** original settings/resources/appointments/allocations/commands/audit/riders/
 horses/availability/restrictions/details/history/slots/participants remain physically unchanged.
-New `TXGEh_csf_sched_authorization` has primary id bigint unsigned (singleton 1, no auto increment)
+New `<sandbox-prefix>csf_sched_authorization` has primary id bigint unsigned (singleton 1, no auto increment)
 and registry_json longtext, InnoDB/utf8mb4_unicode_ci. First apply seeds schema 3 and no master;
 no accounts, active employees, grants or domain fixtures are invented. Captured real preview,
 physical inspection and one-shot migration gate are mandatory; no raw DDL execution, future-version
