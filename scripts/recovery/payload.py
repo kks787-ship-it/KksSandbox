@@ -217,8 +217,8 @@ def validate_gzip(path,budget,limit=MAX_DB*2):
     return total
 
 
-def validate_config(data):
-    """Conservative literal target check, never PHP evaluation or credential extraction.
+def validate_config(data, credentials=False):
+    """Conservative literal target check; optional server-local credential extraction, never PHP evaluation.
 
     Opaque string tokens avoid treating commented/quoted defines as real calls. Conditional,
     dynamic, duplicate or unsupported target declarations fail closed for private review.
@@ -233,6 +233,7 @@ def validate_config(data):
         else:value=re.sub(r"\\(['\\])",r'\1',value)
         return value
     wanted={'DB_NAME':DATABASE,'DB_HOST':None,'WP_ENVIRONMENT_TYPE':'development'}
+    if credentials:wanted.update({'DB_USER':None,'DB_PASSWORD':None})
     observed={};depth=0;statement=[];prefixes=0
     for i,t in enumerate(tokens):
         if t=='{':depth+=1;statement=[]
@@ -252,6 +253,7 @@ def validate_config(data):
     require(prefixes==1 and set(observed)==set(wanted))
     require(observed['DB_NAME']==DATABASE and observed['WP_ENVIRONMENT_TYPE']=='development')
     require(observed['DB_HOST'] in ('localhost','localhost:3306','127.0.0.1','127.0.0.1:3306'))
+    if credentials:return {'user':observed['DB_USER'],'password':observed['DB_PASSWORD'],'host':observed['DB_HOST'].split(':')[0]}
 
 
 def private_write(path,data):

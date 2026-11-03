@@ -7,6 +7,52 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Server-local inspection revision — November 2, 2026, local only
+
+Owner reports upgraded root SSH access and requests server-local credentials/discovery without
+manual secret/path assembly. Revised source and embedded, hash-verified command require no
+stored selectors. Non-secret actor/approval/window/token parameters are the only stdin fields.
+New [authorization card](../pilot/r-backup-approval.md#single-revised-inspection-authorization-card)
+explicitly reviews existing-root access vs no sudo, scoped reference discovery and credential
+read permissions. Reported root connectivity remains **unverified**, not execution authority.
+
+Credential parser extends the existing opaque-token target validator with optional literal
+DB_USER/DB_PASSWORD extraction. Unsupported double-quoted escapes/interpolation, expressions,
+comments/conditional/duplicate/dynamic declarations or remote host fail closed. No PHP execution,
+credential export or copied named client file. Existing MariaDB adapter uses private anonymous
+FD/scrubbed subprocess env and fixed SELECTs. No dump/capture dispatch or public mode selector
+exists in the new entrypoint. Immutable Python strings are not claimed securely zeroized.
+
+Discovery is bounded to sandbox-specific conf/fixed pool/.htaccess plus literal same-conf includes
+and explicitly referenced auth files in the listed protected area. Same-conf generated symlinks
+are resolved/checked; other links/traversal fail. Missing actual layout, external/wildcard includes,
+production root or nonlocal credential source is BLOCKED, not an invitation to read global files.
+Actual paths never leave the process; a map hash is returned. A later capture needs a separate
+reviewed approach to rediscover/bind its map; this revision does not authorize recovery writes.
+
+**Tests:**105 recovery tests passed (13 new server-local fixture tests), plus14 existing
+sandbox-preflight units,22 development guards and6 mocked Plesk checks = **147 local checks**.
+New tests cover successful no-export/no-write/no-dump inspection, literal escape handling,
+unsafe credential sources, missing pool, production root, external includes/auth paths,
+allowed same-conf generated symlink vs out-of-scope link, extra credential/mode parameters,
+window failure, client incompatibility, selector-free standalone command, reproducibility,
+release checksums and shell syntax. All data/scope/DBs are synthetic; no real backup occurred.
+Existing API-contract and client-only tests remain historical, not new live compatibility proof.
+
+New command SHA256 `adbea0af833502bccaee05673f3420f8d9b4125fc7cacc4c03c60afc9eb0e81a`;
+standalone payload SHA256 `5bfaa57cbb90e4676d0b4ed23a8c81f3a28ccce32835c10d8b01b3e064a21b51`;
+manifest SHA256 `be9702798e875a748b6edc790c859e83bb61880f4317af9d0dfdf8e09dcd3d6e`.
+All8 new release inputs and8 regenerated legacy inputs match checksums. Legacy generated command
+hashes changed because the shared literal validator gained the optional credential-return path;
+no previous approval applies to those rebuilt bytes. No application/security/plugin/schema or
+installation source changed; implementation2fd02a2 preserved.
+
+**Stop:** fresh explicit owner authorization for the new command/read/root scope before any
+Gateway/server call. Record non-secret exact single-attempt execution parameters at launch.
+No real credential, private selector, config path map or identity evidence was invented. No
+production, account, MFA, inquiry/emergency or server changes occurred. Capture, transfer,
+restore and Gate B remain held. Prior manual-input checklist is superseded for inspection.
+
 ## Final inspection authorization readiness — November 2, 2026
 
 Continuation from48ba6b2. **No Gateway call of any kind was made.** Only the available tool

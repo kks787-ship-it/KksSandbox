@@ -1,5 +1,15 @@
 # 05 — Backup, Rollback & Deployment
 
+## Current inspection revision — server-local credentials, not executed
+
+Owner directs a practical server-local read of the exact sandbox wp-config and bounded discovery
+of its Plesk config references. Use only the [fresh authorization card](pilot/r-backup-approval.md#single-revised-inspection-authorization-card)
+and [new source](../scripts/recovery/inspect_local.py)/[hash manifest](../scripts/recovery/LOCAL-INSPECTION.sha256).
+It replaces manual credential/path JSON and stored-code selectors for inspection only. Existing
+root SSH access is owner-reported, not verified here; reviewed scope is sandbox-only, with no sudo
+request or write. A new command hash requires fresh execution authorization; previous approvals
+are not transferred. No server/Gateway call occurred. Capture/transfer/restore/Gate B remain held.
+
 ## Recovery and identity preparation — separate decisions, no execution
 
 November 2, 2026: [current assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6585062869)
