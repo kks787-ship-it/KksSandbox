@@ -19,6 +19,9 @@ Technical Master and farm business ownership remain separate; two accounts do no
 
 ## The next executable step
 
+If matching is already complete, do not repeat it or request usernames again. Continue with
+the [single private controller/recovery process and scoped security decision](calendar-security-decision.md).
+
 Use the private handoff supplied to the owner to match the THREE EXISTING WordPress usernames
 and expected native roles. Use WordPress usernames, not HTTP protection or Plesk logins.
 [Verifier](../../scripts/pilot/verify_calendar_identities.py) and deterministic bounded builder
