@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-03",
+  "timezone": "America/Los_Angeles",
+  "issue": 11,
+  "starting_commit": "4b003547ade80ed810c13d0e39ee8c114d6937b9",
+  "scope": "Bounded read-only connectivity diagnostics; no restore retry",
+  "status": "BLOCKED",
+  "checks": {
+    "ssh_endpoint_tcp_probe": {
+      "tcp_connected": false,
+      "error_code": "CONNECTION_FAILED"
+    },
+    "same_host_https_port_tcp_only_probe": {
+      "tcp_connected": false,
+      "error_code": "CONNECTION_FAILED",
+      "http_request_sent": false
+    },
+    "minimal_authenticated_ssh_command": {
+      "gateway_status": "failed",
+      "remote_exit_code": null,
+      "error_code": "CONNECTION_FAILED",
+      "failure_cause": "unreachable",
+      "command_executed": false,
+      "output_received": false
+    },
+    "registration_comparison": {
+      "resolved_target_matches_last_successful_preflight": true,
+      "registered_hostname_unchanged": true
+    }
+  },
+  "findings": [
+    "Connection failure persists across the current bounded checks.",
+    "No DNS-resolution or credential-authentication error was reported; SSH was not established.",
+    "Current evidence cannot distinguish host outage, network routing, or firewall/filtering.",
+    "Host logs, routes and firewall rules could not be inspected through the unavailable SSH path."
+  ],
+  "restore_attempts_during_diagnostics": 0,
+  "settings_credentials_or_security_changed": false,
+  "restore_package_unchanged": true,
+  "private_bindings_published": false,
+  "next_step": "Verify host/network reachability through an independent owner/provider access path. Once SSH connectivity is confirmed, request renewed authorization for one isolated restore.",
+  "holds": [
+    "Restore retry",
+    "Broader sandbox writes",
+    "Scheduling pilot",
+    "Production and account/MFA/security changes"
+  ]
+}
