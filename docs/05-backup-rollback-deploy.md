@@ -1,5 +1,15 @@
 # 05 — Backup, Rollback & Deployment
 
+## Current diagnostic revision — local only, one new approval needed
+
+The first approved server-local command stopped BLOCKED/exit2; the specific failed guard and
+underlying cause remain unknown. New fixed allowlisted code/stage diagnostics replace the generic
+response, with no hashes/paths/errors/values in either PASS or BLOCKED output. Read scope/guards
+are unchanged. Use the [current approval card](pilot/r-backup-approval.md#single-revised-inspection-authorization-card)
+and current local-inspection manifest; previous command approval cannot transfer to new bytes.
+No server/Gateway call or retry occurred in this revision. Two-renewal behavior is not implemented
+or authorized for this failure. Implementation2fd02a2 and all deployment holds remain intact.
+
 ## Current inspection revision — server-local credentials, not executed
 
 Owner directs a practical server-local read of the exact sandbox wp-config and bounded discovery

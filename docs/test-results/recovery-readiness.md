@@ -7,6 +7,54 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Safe diagnostic revision — November 2, 2026, local only
+
+[Assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6593883604).
+The earlier authorized inspection reached terminal failed/exit2 with only generic BLOCKED.
+No failed guard or underlying cause can be established from that output. **No further Gateway,
+server, credential or configuration access occurred.** New diagnostics require a fresh approval.
+
+The local guard review covers input/window, root/path, literal config extraction, scoped Plesk/
+auth/pool/include reads, native client/target/metadata/schema, inventory/config recheck, disk,
+signals and serialization. No particular category is asserted as the original failure.
+inspect_local.py now attaches fixed code IDs to known guarded operations, maps stage solely
+from a constant allowlist, and emits only state/code/stage on success OR failure. Unknown errors,
+malformed diagnostic attributes and attempted success-code exceptions become BLOCKED_UNCLASSIFIED.
+No arbitrary exception text, source snippets, config/password/user values, private hashes, paths,
+SQL output or environment metadata are serialized. Even a private-rich successful internal
+result is reduced to CHECKS_PASSED/complete. Output uses fixed strings, avoiding arbitrary JSON
+object serialization. Codes identify operation categories, never a credential value or writer.
+
+Read-only/target/no-sudo/no-artifact/no-capture boundaries, all file/include/client/disk guards,
+non-secret input fields and one-job policy remain unchanged. Secret dictionaries clear in
+finally on both successful and failed inspections; immutable buffers are not claimed securely
+zeroized. Signal diagnostics distinguish SIGALRM=TIME_LIMIT_REACHED from TERM/INT=EXECUTION_INTERRUPTED;
+TERM could mean supervisor timeout or cancellation and is not attributed to either. Inner115s
+TERM+5s kill grace and Gateway120s cap remain. Missing receipt/forced kill is never PASS.
+
+**Final local validation:120 recovery tests +14 preflight units +22 deployment guards +6 mocked
+Plesk checks =162 passed.** Fifteen new diagnostic tests cover real synthetic failures at each
+classified operation, all allowlisted branch outputs, unknown/unhashable/spoofed codes, private
+success-result filtering, signal timer/disarming, and local GNU timeout force-kill semantics
+using a short-lived synthetic child. This tests local process behavior, not farm cancellation.
+All output fixtures are synthetic. No real inspection, native DB connection, backup, repair,
+account, plugin, inquiry/emergency or production changes occurred. Existing broader application
+suite and prior client-only fixture results remain historical, not rerun live evidence.
+
+New command SHA256 `e65ef41956510172e93fd13149a7360be6bbd58856ed0a24f7d1d0ae42110b98`;
+payload SHA256 `a43535e7c9929d9ed60b5764f0fe7343e29daef2a93d284e44da09c410ac45d6`;
+manifest SHA256 `4815e092f6e3e560a1921432b3916b5fc8a2785a09957020fd552034a9985b20`.
+All8 release inputs match the manifest; deterministic rebuild and Python/Bash syntax/privacy/
+document-link checks pass. Legacy backup runtime/capture commands are unchanged in this revision.
+Changed files: inspect_local.py, inspect-local.payload.py, inspect-local.command.sh,
+LOCAL-INSPECTION.sha256, test_inspection_diagnostics.py, canonical05, R-Backup card and this report.
+Implementation2fd02a2, scheduling/security/plugin/install source and actual server remain untouched.
+
+**Owner decision:** [fresh card](../pilot/r-backup-approval.md#single-revised-inspection-authorization-card)
+for exactly one diagnostic inspection using the new hash and the same sandbox-only scope.
+No automatic renewal/retry, two-renewal mechanism or guard relaxation. Capture/transfer/restore/
+MFA/Gate B remain held. Issue11 receives only a minimal sanitized local-delivery status comment.
+
 ## Server-local inspection revision — November 2, 2026, local only
 
 Owner reports upgraded root SSH access and requests server-local credentials/discovery without

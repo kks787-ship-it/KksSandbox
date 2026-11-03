@@ -1,9 +1,9 @@
 # R-Backup — one sandbox recovery capture
 
-## Current owner direction — server-local inspection, fresh approval required
+## Current owner direction — diagnostic server-local inspection, fresh approval required
 
 This section supersedes the earlier manual DB-credential/protected-path provisioning proposal.
-Owner reports Gateway serve1 now has root SSH access; **no server call verified that report here**.
+The first approved inspection returned BLOCKED/exit2 without a failed-guard identifier; its cause remains unknown. This revision adds diagnostic identifiers locally; **no further server call occurred**.
 No additional privilege is granted by this document. Do not provision the two old selectors.
 Their earlier command hash/conditional approval does not authorize this revised command.
 
@@ -11,8 +11,8 @@ Their earlier command hash/conditional approval does not authorize this revised 
 
 | Item | Fresh proposed scope |
 | --- | --- |
-| Exact command | [inspect-local.command.sh](../../scripts/recovery/inspect-local.command.sh), SHA256 `adbea0af833502bccaee05673f3420f8d9b4125fc7cacc4c03c60afc9eb0e81a` |
-| Source/payload | [inspect_local.py](../../scripts/recovery/inspect_local.py); standalone payload SHA256 `5bfaa57cbb90e4676d0b4ed23a8c81f3a28ccce32835c10d8b01b3e064a21b51`; [new eight-file manifest](../../scripts/recovery/LOCAL-INSPECTION.sha256) |
+| Exact command | [inspect-local.command.sh](../../scripts/recovery/inspect-local.command.sh), SHA256 `e65ef41956510172e93fd13149a7360be6bbd58856ed0a24f7d1d0ae42110b98` |
+| Source/payload | [inspect_local.py](../../scripts/recovery/inspect_local.py); standalone payload SHA256 `a43535e7c9929d9ed60b5764f0fe7343e29daef2a93d284e44da09c410ac45d6`; [new eight-file manifest](../../scripts/recovery/LOCAL-INSPECTION.sha256) |
 | Target | Existing serve1 / canonical `srv_01M687VB1R009Y0C3HRN7NMP3A`; `https://sandbox.cornerstonefarmomak.com`; `/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com`; DB `wp_mdf4x`, prefix `TXGEh_`, development |
 | Privilege review | Use existing SSH identity, potentially root as owner reports, with `privilege="none"`; no sudo/auto escalation, grants, account or hosting changes. Root can technically access other data; scope is enforced by reviewed code, not a new OS sandbox. Inability to read stops the job |
 | Credentials | Read only this root's regular/no-link wp-config in memory. Validate literal DB name/local host/development/prefix; extract literal DB_USER/DB_PASSWORD without PHP execution. Use existing DB identity through anonymous inherited client descriptor; no argv/env/log/named credential file or secret selector |
@@ -20,7 +20,7 @@ Their earlier command hash/conditional approval does not authorize this revised 
 | HTTP protection | Read/hash only AuthUserFile/auth_basic_user_file explicitly referenced by the above target configs and canonically contained under `/var/www/vhosts/system/cornerstonefarmomak.com/pd`. No directory crawl/account listing, content export or unrelated protected-area reads. If outside/missing/ambiguous, STOP |
 | Other reads | Existing bounded root-file/directory inventory, disk reserve, MariaDB client/dump versions, fixed sandbox-only SELECTs for target options/schema/index/engine/counter/size/stored-object metadata. No WP bootstrap, account-row query, baseline/dump/capture, DDL/DML or global Plesk query |
 | Bounds | One job, timeout120s; inner115s TERM+5s kill grace; non-secret approved UTC window <=120s. Source2GiB/100,000 files and directories; scoped configs64 files/16MiB; existing query/output/disk guards. No automatic retry |
-| Output | PASS/BLOCKED, exact public target, counts, versions, config-map digest and wp-config digest, space check, existing-root boolean. No credential values, usernames, actual config-path map, SQL errors or per-row data. Maps/credentials disappear with process lifetime; no secure-zeroization claim |
+| Output | Exactly state, code and stage, selected from fixed allowlists on both PASS and BLOCKED. No hashes, values, paths, versions, identity/environment metadata, raw exceptions or SQL diagnostics. Unknown failures remain BLOCKED_UNCLASSIFIED; maps/credentials stay process-local |
 | Automatic stop | Wrong target/environment/prefix, dynamic/conditional/duplicate/unsupported credential declarations, remote DB, missing mandatory config/pool/auth, production root, wildcard/out-of-scope include/auth path, unsafe file/symlink, missing tools/permissions, incompatibility, bounds/space/timeout failure. BLOCKED only; no fallback, discovery expansion, repair or escalation |
 
 Proposed tool: `gateway.execute_command`, server as above, shell `/bin/bash`, privilege `none`,
@@ -31,15 +31,15 @@ non-secret references/window/unique token, with the final owner authorization re
 exact UTC timestamps immediately before the single approved attempt; window length <=120seconds.
 The new entrypoint has no mode/target/SQL/executable input; extra credential/capture fields fail.
 
-Follow durable job to terminal succeeded/exit0 and valid sanitized PASS. A short wait does not
+Follow durable job to terminal succeeded/exit0 and exact three-field CHECKS_PASSED/complete receipt. BLOCKED codes indicate the failed operation category, not a proven underlying cause. No inference about the prior failed attempt is authorized. A short wait does not
 cancel the job. Redaction alone does not protect partial/transformed secrets; payload output is
 explicitly constrained. Normal read atimes/DB logs/Gateway wrapper records may occur. No secrets,
 server files, accounts or permissions are created/modified. All source access is read-only.
 
-**Fresh owner approval needed:** approve exactly this server-local credential read and scoped
+**Fresh owner approval needed:** approve exactly one diagnostic inspection with this new hash, server-local credential read and scoped
 Plesk discovery under the existing SSH/root identity for one bounded job, or hold/reject it.
 The old conditional approval and the reported credential upgrade do not authorize execution.
-No Gateway or server call has occurred in this revision. Capture/transfer/restore/Gate B held.
+No Gateway or server call has occurred in this diagnostic revision. No retry/renewal is included; approval of a previous hash cannot transfer. Capture/transfer/restore/Gate B held.
 The following older sections remain historical context; do not request their old selectors.
 
 **Decision requested: Approve / Reject / Revise / Hold. Current status: HELD.**
