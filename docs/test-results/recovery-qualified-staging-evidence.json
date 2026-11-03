@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-03",
+  "timezone": "America/Los_Angeles",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "staging_tool_commit": "b99ea6672f6946907eb749275679f2cffd42477d",
+  "policy": "Owner-ratified recovery-first routine authority, conditional on current backup/scope/rollback; security/account exceptions separate",
+  "preflight": {
+    "backup_fresh": true,
+    "matching_functional_restore_verified": true,
+    "php_lint_passed": true,
+    "writes": false
+  },
+  "installation": {
+    "state": "staged-inactive",
+    "exit_code": 0,
+    "files": 20,
+    "hashes_verified": true,
+    "activation_performed": false,
+    "database_writes": false,
+    "configuration_writes": false
+  },
+  "read_only_postflight": {
+    "files_verified": 20,
+    "scheduling_inactive": true,
+    "scheduling_tables": 0,
+    "inquiry_disabled": true,
+    "emergency_inactive": true,
+    "mfa_adapter_active": false,
+    "provider_active": false
+  },
+  "local_tests": {
+    "recovery_staging": 196,
+    "mariadb_calendar_permissions_concurrency_restore": "passed",
+    "mysql_calendar_permissions_concurrency_restore": "passed",
+    "calendar_browser": 59,
+    "permissions_browser": 39,
+    "mfa_browser": 50,
+    "security_browser_rerun": 78,
+    "initial_security_browser": "navigation timeout; isolated rerun passed",
+    "official_provider_zip_inventory": "reverified21files"
+  },
+  "no_changes": [
+    "Production",
+    "Accounts or real privileges",
+    "MFA/enforcement",
+    "Scheduling activation or migration",
+    "Public content",
+    "Inquiry/emergency settings",
+    "Real notifications/payments"
+  ],
+  "canonical_docs": "Updated locally; publication blocked by automatic egress review, pending explicit approval",
+  "operational_calendar_accepted": false
+}
