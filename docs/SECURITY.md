@@ -1,5 +1,18 @@
 # Security and operational boundaries
 
+## Owner-approved recovery-first protocol — conditional activation pending
+
+The [latest policy](DECISIONS.md#november-2-2026--owner-approved-recovery-first-autonomous-development-policy)
+allows autonomous sandbox-local writes only with the required preceding24hour verified backup,
+usable isolated functional recovery, pre-change backups for major/destructive/auth changes,
+rollback and documented scope. Owner ratification of the supplied protocol is now recorded;
+current new capture is verified but current-workflow isolated functional restore verification remains pending. Existing
+read-only supervision continues. Policy registration does not authorize a restore, install,
+migration or security/account action in the current capture-reporting task. Owner exceptions
+remain separate even after activation; stop for exposure/security/recovery uncertainty, and
+never auto-restore over newer owner changes. No production/shared infrastructure or outside costs.
+
+
 ## Owner-adopted supervised autonomy — November 2, 2026
 
 [Standing policy](DECISIONS.md#november-2-2026--owner-adopted-supervised-autonomy-policy)

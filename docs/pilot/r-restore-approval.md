@@ -10,7 +10,7 @@ it does not establish the real account controller or satisfy later private ident
 
 | Binding | Exact proposed scope / required owner input |
 | --- | --- |
-| Input | One completed R-Backup receipt: exact private bundle absolute path, capture interval and independently approved SHA256 of its fixed manifest. **Not yet available**; no prior GateA bundle substituted |
+| Input | Completed capture input and exact manifest/receipt bindings are available in the owner-private recovery record; identifiers are not published here. **Restore remains HELD**. Do not substitute historical recovery sets |
 | Original target | Sandbox URL/root/`wp_mdf4x`/`TXGEh_` as in R-Backup; production excluded |
 | Output | One new private0700 recovery directory `/var/www/vhosts/cornerstonefarmomak.com/private/csf-gate-b-recovery-<approved-run-token>`;0600 artifacts/logs, no overwrite/reuse of historical drills |
 | Isolation | Private mount/network/PID namespace; no external route; loopback HTTP only; dedicated MariaDB datadir/socket/process and no live DB credentials/socket access |

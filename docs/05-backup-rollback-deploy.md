@@ -1,5 +1,14 @@
 # 05 — Backup, Rollback & Deployment
 
+## Latest result — approved local capture complete, restore held
+
+One owner-approved capture of8f8fc51 completed LOCAL_CAPTURE_VERIFIED/exit0. [Exact set/manifest/receipt evidence](test-results/recovery-readiness.md#approved-local-capture-completed--sanitized-status)
+records sanitized status; exact recovery bindings are retained privately. The approved code's built-in integrity checks passed;
+functional restoration, off-server custody and GateB acceptance are not proved. Do not rerun
+that fixed-token command or alter its set. Next prepare an exact isolated R-Restore package for
+separate approval. No transfer, restore, account/security change, install/migration or deployment
+is authorized by capture success. The older preparation/approval language below is historical.
+
 ## Current R-Backup capture candidate — local-only, approval required
 
 [One-page owner approval card](pilot/r-backup-capture-approval.md) and [nine-file source/payload manifest](../scripts/recovery/LOCAL-CAPTURE.sha256)

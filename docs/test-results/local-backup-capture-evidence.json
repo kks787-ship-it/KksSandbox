@@ -1,0 +1,12 @@
+{
+  "owner_approval": "One local-only capture explicitly approved in chat",
+  "candidate_commit": "8f8fc5133f39a68b80f5f0d2df5b41c720147994",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "status": "succeeded",
+  "exit_code": 0,
+  "result": "LOCAL_CAPTURE_VERIFIED",
+  "functional_restore_verified": false,
+  "offserver_verified": false,
+  "private_bindings": "Exact bundle/manifest/receipt identifiers retained privately; not published",
+  "limits": "Built-in capture validation only; no independent functional restore or off-server test"
+}

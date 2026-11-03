@@ -1,5 +1,13 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**November2 — local recovery capture VERIFIED:** owner-approved8f8fc51 ran once, terminal
+LOCAL_CAPTURE_VERIFIED/exit0. [Receipt/limits](test-results/recovery-readiness.md#approved-local-capture-completed--sanitized-status)
+record sanitized status; exact recovery bindings are retained privately. This is actual local capture/integrity evidence, not
+functional restoration or off-server readiness. Next: prepare isolated R-Restore approval for
+this exact input. Transfer/restore/security/account/MFA/install/migration/GateB remain held;
+inquiry/emergency/production untouched by the capture. Implementation2fd02a2 preserved.
+
+
 **November2 — local-only R-Backup capture candidate prepared:** [one-page approval](pilot/r-backup-capture-approval.md)
 pins a fixed private destination/command and server-local credentials/config mapping. Local
 failure/privacy and MariaDB concurrent snapshot/import checks are recorded; no actual sandbox

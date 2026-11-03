@@ -1,5 +1,16 @@
 # Corner Stone Farm development
 
+Latest owner-approved Recovery-First Autonomous Development Policy: docs/DECISIONS.md.
+Register/continue the current recovery task; do not request policy adoption again. Supervised
+read-only diagnostics/local engineering stay authorized. Broader sandbox plugin/migration/config
+writes activate only with required recent verified backup and usable isolated functional
+restore protections; owner policy ratification is recorded, current recovery activation PENDING. Missing recovery protection
+stops writes. Owner exceptions remain absolute: production/shared infra, accounts/privileges/
+credentials/MFA, real-record destruction, notifications/payments/public transactions, operational
+emergency dispatch, outside costs/scope or irreversible changes without recovery need approval.
+Keep concise milestone/commit/test/backup records; never overwrite newer owner data by auto-restore.
+
+
 Current owner-adopted Supervised Autonomy Policy (November2): see docs/DECISIONS.md.
 Bounded read-only development-sandbox diagnostics/repeats and local engineering/commits are
 prospectively authorized; record reasons/scope/outcomes. Earlier per-attempt diagnostic holds

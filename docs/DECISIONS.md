@@ -1,5 +1,59 @@
 # Project decisions
 
+## November 2, 2026 — owner-approved Recovery-First Autonomous Development Policy
+
+The owner explicitly approved this protocol in chat, directed registration as FYI and continuation
+of the current recovery task. It supersedes the earlier diagnostic-only policy **for future
+sandbox modifications only after activation**; existing supervised read-only authority remains
+active during recovery preparation. Do not switch scope or seek redundant policy adoption.
+
+### Conditional standing sandbox authority
+
+After activation, Codex may independently develop, troubleshoot, install plugins, migrate/test,
+change sandbox-local configuration and improve the designated development sandbox when ALL
+conditions hold: a complete integrity-verified backup exists from the preceding24hours; a
+successful isolated functional restore has established a usable recovery procedure; new pre-change
+backup precedes major schema/destructive/authentication changes; no production/shared-infrastructure
+impact; an identifiable rollback/recovery path exists; changes/results are documented. Missing
+or failed recovery protection immediately stops sandbox write operations until re-established.
+
+### Repository/cloud authority
+
+Branches, local development/testing, commits, PRs and reproducible experiments are authorized.
+Keep work recoverable via source control/documented configuration/reproducible builds/verified
+backups. Never expose secrets, rewrite important history, disable branch protections, incur
+outside/cloud costs or deploy production without separate owner approval.
+
+### Owner-controlled exceptions — apply despite activation
+
+Production deployment/modification; shared Plesk/server/DNS/firewall/network changes; account
+creation/privilege escalation/credential rotation/MFA enforcement; destructive changes to real
+customer/business records; real notifications/payments/public transactions; operational emergency
+dispatch; irreversible operations without a tested recovery path; scope beyond the approved
+sandbox or outside costs. A pre-change backup is necessary but does not itself authorize these.
+
+### Troubleshooting, recovery and accountability
+
+Investigate ordinary failures, adjust local code, repeat safe tests and resolve routine development
+issues independently. Suspend affected operations for unexpected production impact/security
+findings/data exposure/uncertain recovery. Automatic restore must never overwrite newer owner
+changes without review. Record commit/change, tests/results, backup/recovery reference, outstanding
+problems and next milestone; report meaningful milestones rather than individual diagnostic asks.
+
+### Activation status and current task
+
+Owner approval/ratification of this supplied protocol is recorded now; no repeat policy
+adoption request is needed. Operational sandbox write authority still requires the specified
+verified-backup and usable isolated-functional-restore protections. Current capture candidate8f8fc51 has completed LOCAL_CAPTURE_VERIFIED/exit0;
+its exact receipt/manifest is recorded separately. A functional restore of this new set has NOT
+run; historical GateA evidence is not substituted for the pending current recovery milestone.
+Activation for the current recovery workflow remains **PENDING** its required restore-readiness
+verification; policy registration or capture success alone is not that verification.
+The current task remains capture reporting/recovery preparation; no restore, installation,
+migration, account/MFA, inquiry/public-transaction or emergency activation is authorized here.
+Implementation2fd02a2 is preserved. The owner retains business/security/production authority.
+
+
 ## November 2, 2026 — owner-adopted Supervised Autonomy Policy
 
 The owner explicitly adopted this policy in chat after confirming authority to record it in

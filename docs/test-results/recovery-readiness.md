@@ -7,6 +7,36 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Policy registration alongside capture reporting
+
+Owner approved the Recovery-First Autonomous Development Policy as FYI with an explicit direction
+not to switch tasks. It is [registered in the decision log](../DECISIONS.md#november-2-2026--owner-approved-recovery-first-autonomous-development-policy)
+and repository/security guidance. Existing supervised read-only authority continues; broader
+sandbox write activation remains gated by required isolated functional recovery and recent-backup
+protections; owner ratification of the supplied protocol is recorded, with no repeat policy ask. Owner-controlled exceptions are unchanged. No
+additional server operation, restore or deployment was performed for policy registration.
+The current work remains the completed local-capture record and its next recovery gate.
+
+## Approved local capture completed — sanitized status
+
+The owner explicitly approved one local-only capture of the committed candidate. The pinned
+command reached terminal succeeded/exit0 with LOCAL_CAPTURE_VERIFIED/complete. Its built-in
+archive/checksum/receipt and consistency guards passed; no retry or later operation was attempted.
+[Public completion evidence](local-backup-capture-evidence.json) contains status/source references
+only. Exact recovery identifiers and private execution bindings are retained in an owner-private
+working record and are deliberately omitted from GitHub. No protected contents were published.
+
+This verifies local capture/integrity, not functional recoverability. The new set has not been
+functionally restored or verified off-server. Earlier historical recovery evidence is not
+substituted for the current workflow's pending restore verification. No deployment, protected
+migration, account/security/MFA change, transfer or restore occurred. Only approved recovery
+artifacts were written; the live application and production were not modified by the operation.
+
+The restore worksheet records that its input is now privately available. Next prepare the
+isolated functional restore for its required approval; no restore is authorized by capture
+success. Do not rerun the consumed fixed-destination capture. Source pin2fd02a2 is preserved.
+The previous local tests remain preparation evidence, not a live recovery test rerun.
+
 ## Server-local capture candidate — November 2, 2026
 
 [Assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6594531564).
