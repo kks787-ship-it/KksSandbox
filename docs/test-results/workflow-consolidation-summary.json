@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-03",
+  "timezone": "America/Los_Angeles",
+  "current_candidate_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "new_work": "Separate unreleased local-only workflow prototype0.0.1-dev; not a scheduling release",
+  "worksheet": "Existing private worksheet revised; actual private identity/factor/custody fields remain outside GitHub/chat",
+  "account_direction": "Reuse the three owner-reported existing identities; no duplicates or native role promotions",
+  "future_issues": [
+    18,
+    19,
+    20
+  ],
+  "validation": {
+    "mariadb_native_checks": 65,
+    "mysql_native_checks": 65,
+    "actual_two_worker_races": [
+      "assignment CAS",
+      "exact replay",
+      "rejection versus later assignment",
+      "single-claim sink delivery"
+    ],
+    "php_coding_compatibility_lint_files": 5,
+    "existing_recovery_staging_tests": 202,
+    "development_guard_scenarios": 22,
+    "mocked_plesk_guard_scenarios": 6
+  },
+  "prototype_limits": [
+    "No production authorization/MFA registry adapter",
+    "No real scheduling transaction adapter; no replacement conflict engine",
+    "No installed migration, routes, UI or live transport",
+    "Six experimental definitions applied only in disposable fixtures",
+    "Real sender/recipient/consent, reconciliation and acceptance still gated"
+  ],
+  "live_operations": {
+    "gateway_calls": 0,
+    "account_or_privilege_changes": false,
+    "mfa_changes": false,
+    "email_or_push": false,
+    "scheduling_activation_or_migration": false,
+    "production_changes": false,
+    "inquiry_or_emergency_changes": false
+  },
+  "withheld_documents_retouched": false,
+  "status": "Owner consolidated design/security review ready; future production integration not accepted"
+}
