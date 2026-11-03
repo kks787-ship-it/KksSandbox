@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-03",
+  "timezone": "America/Los_Angeles",
+  "approved_code_commit": "e1ad1ca7c5e7b14620bbc116e500f214d6801ac6",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "authorization": "Owner renewed one isolated restore after read-only SSH connectivity passed; includes temporary clone-only administrator login",
+  "command_sha256_verified_before_execution": true,
+  "code_or_private_binding_changed": false,
+  "renewed_attempts_submitted": 1,
+  "gateway_terminal_status": "succeeded",
+  "exit_code": 0,
+  "elapsed_seconds": 23,
+  "result": "PASS",
+  "runtime_code": "ISOLATED_RESTORE_VERIFIED",
+  "acceptance": {
+    "exact_source_receipt_manifest_artifacts": true,
+    "private_isolation": true,
+    "twelve_native_tables_import_integrity_catalog_row_counts_baseline": true,
+    "restored_file_integrity": true,
+    "home_lessons_contact_rendering": true,
+    "clone_admin_login_dashboard_logout": true,
+    "original_cloned_password_activation_session_state_read_back_verified": true,
+    "source_artifacts_reverified": true,
+    "temporary_clone_config_and_credential_cleanup": true,
+    "isolated_processes_and_services_terminated": true
+  },
+  "actual_functional_restore_verified": true,
+  "offserver_recovery_verified": false,
+  "private_evidence_retained": true,
+  "private_identifiers_or_values_published": false,
+  "live_website_or_production_changes": false,
+  "live_accounts_credentials_or_mfa_changes": false,
+  "scheduling_deployment_or_next_gate_started": false,
+  "inquiry_or_emergency_changes": false,
+  "limits": [
+    "Application recovery using installed PHP/MariaDB; not full Plesk/Toolkit, reverse-proxy, HTTPS/BasicAuth or MFA acceptance.",
+    "No off-server recovery or real staff scheduling acceptance.",
+    "Future sandbox changes still require current verified backup, applicable pre-change backups, rollback and owner-controlled exception approvals."
+  ],
+  "stopped_after_reporting": true
+}
