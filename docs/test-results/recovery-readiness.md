@@ -7,6 +7,97 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Server-local capture candidate — November 2, 2026
+
+[Assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6594531564).
+Preparation only: **no Gateway/farm-server call or actual protected backup was made** during this
+work. The earlier890e58a inspection PASS remains observation-time evidence, not authorization or
+proof that this new capture release has run. Implementation2fd02a2 is preserved.
+
+### Closed implementation gaps
+
+- New capture_local.py uses the inspection's literal server-local credential parser and bounded
+  target-specific discovery. No manual credential/path JSON, selectors, WP execution or guessed
+  protected path. DB user/password remain anonymous-descriptor/process-local material.
+- Discovery can now supply a private canonical source/alias map and generated symlink text/
+  target/uid/gid/mtime metadata internally. Public inspection output stays allowlisted. Same-conf
+  aliases are canonicalized and checked against link races; unexpected includes/auth paths block.
+- Existing B1–B3 capture engine is reused, with two optional local-only hooks: save protected
+  source/topology metadata inside target.json, and revalidate discovery before accepting the
+  private receipt. Source map/content/reference/alias changes now invalidate the attempt, even
+  if old canonical files still exist. Defaults preserve legacy fixture behavior.
+- Native dump explicitly selects utf8mb4 in addition to single-transaction/quick/skip-lock/
+  no-tablespaces/hex flags. Only the exact DB is positional; no imports/all-database operation.
+- A separate reproducible standalone command uses a fixed one-candidate token/destination and
+  exact non-secret input marker. CLI cannot change target, paths, token, SQL, executables or
+  custody, nor supply credentials. A pre-existing/partial destination blocks before alteration.
+  Shared library changes regenerate legacy release hashes, but do not grant any old command
+  approval or change the pinned scheduling/security application.
+
+### Final local validation
+
+| Check | Result / limits |
+| --- | --- |
+| Recovery regression suite | **149 tests passed**, including17 new full synthetic capture/negative/packaging tests; no farm data or actual source paths in fixtures |
+| Existing protections | **14** sandbox-preflight units, **22** development guards and **6** mocked Plesk scenarios passed |
+| Native MariaDB concurrent snapshot | **PASS:** real local single-transaction dump remains coherent while a committed writer changes both InnoDB tables |
+| Native negative control | **PASS:** removing single-transaction exposes a mixed snapshot; the test detects it |
+| Native artifact import | **PASS:** importing full table DDL/data after dropping only fixture tables recovers10000+1 rows and utf8mb4 data in the disposable daemon |
+| Native baseline SQL | **PASS:** exact twelve-table catalog/READ ONLY plan executes with binary/NULL framing and23 fixture row identities |
+| Native critical drift | **PASS:** changing one critical option is retained as review-required with unknown attribution |
+| Integrity/privacy/build | Manifest/receipt tampering, incomplete sets, target/engine/schema drift, concurrent source/reference/alias changes, insufficient disk, interruption, leaked output, credentials, fixed destination/no overwrite, shell/Python syntax, doc links, deterministic builds and release hashes checked |
+
+**196 checks total:149 recovery +42 existing +5 native integration assertions.** The native
+script uses existing image sha256:d29a34d05b1de1afa84c88bdad35cbba6dc1d1135ad2a95a8ceb56a710819e82
+(MariaDB10.6.28), --pull=never, no network/host mounts/ports, read-only image and ephemeral tmpfs
+DB/socket. It uses synthetic rows and no password, and removes only its named local fixture.
+It is not an authorized farm R-Restore or WordPress/Plesk recovery acceptance.
+
+Initial local harness failures were corrected: wait for the final database process rather than
+entrypoint's temporary bootstrap server; preserve buffered dump output rather than mixing readline
+with communicate; and keep the dump's original database name during isolated import (routines/
+events output may include USE). Candidate stream capture already uses a file descriptor, not
+that faulty pipe-reading pattern. A fixture-only final-row delay makes the concurrent interleaving deterministic despite Docker buffering; no WHERE/SLEEP is added to the capture command. The final integration rerun passes all5 assertions and cleanup.
+No actual dump is rewritten or imported into an alternate live database.
+
+New tests show confidential target metadata retains canonical paths/link attributes while the
+public output excludes source paths, salts/passwords, values and raw diagnostics. On incomplete
+or review-required result, no LOCAL_CAPTURE_VERIFIED is emitted. Anonymous credentials/raw SQL
+close on interruption; restricted partial artifacts are retained, never accepted automatically.
+The core still records all DB drift with attribution unknown and no wildcard/cause suppression.
+Dump and diagnostics are independent MVCC instants; file/config comparisons do not make an
+atomic DB/filesystem snapshot. Live cron, writes and owner edits are not disabled.
+
+### Exact release and approval boundary
+
+Command SHA256 `1fc691c2d21ad82694198384e55704255366a8129b1590a6f27828d2e4040fa8`;
+payload SHA256 `df364c03ff706ec098e2190986a7853038d39122db570e32571651f7446c6d0e`;
+[nine-file manifest](../../scripts/recovery/LOCAL-CAPTURE.sha256) SHA256
+`b2188f9985b0c8b81a3aa0fa7c03f93148bd766f22bfa2e0c14abc3a716a6ed6`.
+Native test script SHA256 `80e7a7b91bd48b1e0350b4b60dcbd1d9e2d3baac0780ffbd5d20ec73ad1d6fbc`;
+synthetic result log SHA256 `e1d0379e72e623b9276426a8908b61e13bc58d6ee0b01609595d6076055a06e6`
+(local /workspace/work/local-capture-mariadb-snapshot.log, containing PASS/cleanup text only).
+
+[One-page authorization card](../pilot/r-backup-capture-approval.md) states one exact command,
+root/DB, existing SSH actor, exclusive destination/permissions, fixed16+2 artifact list, private
+contents, limits, custody, acceptance and stop behavior. No source staging is required; public
+code is carried in-memory. Codex generates non-secret approval/actor/UTC-window parameters only
+after separate authorization. Accepted output is complete/LOCAL_CAPTURE_VERIFIED with opaque
+bundle ID and manifest/receipt hashes; it does not declare a functional restore.
+
+Still unproved without actual capture: live dump privileges/flags and completion on the current
+farm volume, available resources across the whole job, actual concurrent drift, creation/checksums/
+permissions of a real set and recoverability of its contents. The prior read-only PASS and local
+native test do not substitute for those. A fresh scan inside the approved capture rechecks all
+bindings; source/config changes or schema phase mismatch stop it. Disk/free-space guards include
+protected archives and metadata overhead and maintain2GiB reserve during streamed writes.
+
+**Stop for owner authorization of precisely one local-only capture.** Standing diagnostic
+permission does not authorize copying the DB/config/salts/auth credentials to new recovery
+artifacts. Existing backup sets remain untouched. No off-server encryption/export/transfer,
+restore, account/security/MFA change, installation/migration, inquiry/emergency or production
+change occurred or is requested. GateB remains held. No protected backup has been executed.
+
 ## Supervised diagnostic session — November 2, 2026
 
 Owner explicitly adopted the standing policy, recorded before server work in commit

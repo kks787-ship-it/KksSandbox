@@ -371,7 +371,7 @@ class NativeDB:
             result[name]=text
         return result
     def dump(self,out):
-        self.run(self.dumper,['--single-transaction','--quick','--skip-lock-tables','--skip-add-locks','--no-tablespaces','--hex-blob','--routines','--events','--triggers','--skip-comments','--skip-dump-date',DATABASE],output=out)
+        self.run(self.dumper,['--single-transaction','--default-character-set=utf8mb4','--quick','--skip-lock-tables','--skip-add-locks','--no-tablespaces','--hex-blob','--routines','--events','--triggers','--skip-comments','--skip-dump-date',DATABASE],output=out)
 
 
 def load_generator():
@@ -473,7 +473,7 @@ def verify_receipt(bundle,expected_receipt_digest):
     return True
 
 
-def capture(value,db,budget,root=ROOT,parent=PARENT):
+def capture(value,db,budget,root=ROOT,parent=PARENT,protected_metadata=None,scope_check=None):
     """Tests may inject a disposable scope; CLI passes immutable production-excluding constants."""
     require(root.resolve(strict=True)==root and parent.resolve(strict=True)==parent)
     budget.check();bundle=parent/('csf-gate-b-backup-'+value['run_token'])
@@ -521,6 +521,7 @@ def capture(value,db,budget,root=ROOT,parent=PARENT):
             data,info=read_regular(Path(item['path']),16*1024**2,budget)
             observed={'sha256':sha(data),'size':len(data),'mode':stat.S_IMODE(info.st_mode),'uid':info.st_uid,'gid':info.st_gid,'mtime_ns':info.st_mtime_ns}
             require(observed==protected[item['name']])
+        if scope_check is not None:require(scope_check())
         final=db.guard(None);after_catalog=db.catalog();raw=db.query(generate(after_catalog));b=parse_rows(raw,after_catalog)
         write_json(bundle/'after.catalog.json',after_catalog);private_write(bundle/'after.rows.ndjson',raw)
         policy=json.loads(POLICY_TEXT);review=drift(a,b,policy)
@@ -531,7 +532,7 @@ def capture(value,db,budget,root=ROOT,parent=PARENT):
         for which,inv in (('before',before),('after',after)):
             private_write(bundle/(which+'-files.sha256'),''.join(v['sha256']+'  '+n+'\n' for n,v in inv.items()).encode())
         write_json(bundle/'file-attributes.json',{'before':before,'after':after,'directories':before_dirs,'protected':protected})
-        write_json(bundle/'target.json',{'root':str(root),'url':URL,'database':DATABASE,'prefix':PREFIX,'source_pin':IMPLEMENTATION,'native_versions':versions,'before_guard':initial,'after_guard':final,'binding_sha256':sha(canonical({k:v for k,v in value.items() if k!='db_secret'})),'payload_sha256':globals().get('PAYLOAD_DIGEST') or sha(Path(__file__).read_bytes()),'snapshot_note':'Diagnostics and dump are independent MVCC instants; no cross-filesystem atomicity or writer attribution.'})
+        write_json(bundle/'target.json',{'root':str(root),'url':URL,'database':DATABASE,'prefix':PREFIX,'source_pin':IMPLEMENTATION,'native_versions':versions,'protected_sources':{item['name']:item['path'] for item in value['protected']},'protected_metadata':protected_metadata,'before_guard':initial,'after_guard':final,'binding_sha256':sha(canonical({k:v for k,v in value.items() if k!='db_secret'})),'payload_sha256':globals().get('PAYLOAD_DIGEST') or sha(Path(__file__).read_bytes()),'snapshot_note':'Diagnostics and dump are independent MVCC instants; no cross-filesystem atomicity or writer attribution.'})
         private_write(bundle/'capture-end-utc.txt',(timestamp()+'\n').encode());budget.check()
         manifest=''.join(hash_regular(bundle/n,MAX_BYTES+MAX_DB,budget)[0]+'  '+n+'\n' for n in sorted(MANIFEST_NAMES)).encode();private_write(bundle/'SHA256SUMS',manifest)
         verify_manifest(bundle,sha(manifest));budget.check()

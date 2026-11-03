@@ -1,5 +1,14 @@
 # R-Backup — one sandbox recovery capture
 
+## Current capture decision — one-page packet
+
+Use [the local-only capture approval card](r-backup-capture-approval.md), not the legacy manual-
+input or inspection instructions below. Server-local credential/config discovery, private alias/
+symlink metadata, one fixed destination, bounded B1–B3 workflow and strict receipt verification
+are implemented/tested. One candidate invocation creates new sensitive recovery artifacts and
+**requires separate approval**. No protected capture was executed during preparation; off-server
+transfer, isolated restore and GateB remain held. Historical inspection PASS is not capture permission.
+
 ## Current status — adopted autonomy; inspection passed
 
 Standing read-only diagnostic authority was explicitly adopted and recorded in e2790d4. It

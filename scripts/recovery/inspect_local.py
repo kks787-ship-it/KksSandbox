@@ -89,17 +89,21 @@ def validate_roots(b,text,root):
     return web
 
 
-def discover(b,budget,root,conf=CONF,pool=POOL,auth=AUTH):
+def discover(b,budget,root,conf=CONF,pool=POOL,auth=AUTH,include_private=False):
     """Bounded target-only directory; referenced auth files, never an auth directory crawl."""
     with guarded(b,'PLESK_CONFIG_PATH_UNVERIFIED',budget):
         b.require(conf.resolve(strict=True)==conf)
-    queue=[]
+    queue=[];links=[]
     for name in sorted(NAMES):
         candidate=conf/name
         if candidate.exists() or candidate.is_symlink():
             with guarded(b,'PLESK_SCOPE_BLOCKED',budget):
                 target=candidate.resolve(strict=True)
                 b.require(target.parent==conf and target.is_file())
+                if candidate.is_symlink():
+                    info=candidate.lstat();link_text=os.readlink(candidate)
+                    b.require(candidate.resolve(strict=True)==target and b.stable_stat(candidate.lstat())==b.stable_stat(info))
+                    links.append({'path':str(candidate),'link_text':link_text,'target':str(target),'uid':info.st_uid,'gid':info.st_gid,'mtime_ns':info.st_mtime_ns})
             queue.append(target)
     if pool.exists() or pool.is_symlink():
         with guarded(b,'PLESK_POOL_UNVERIFIED',budget):
@@ -139,8 +143,12 @@ def discover(b,budget,root,conf=CONF,pool=POOL,auth=AUTH):
     with guarded(b,'PLESK_ROOT_MISMATCH',budget):b.require(web)
     with guarded(b,'HTTP_AUTH_SCOPE_BLOCKED',budget):b.require(auth_seen)
     with guarded(b,'PLESK_POOL_UNVERIFIED',budget):b.require(pool_seen)
-    return {'files':len(seen),'bytes':total,'map_sha256':b.sha(b.canonical(seen)),
+    result={'files':len(seen),'bytes':total,'map_sha256':b.sha(b.canonical(seen)),
             'http_auth_verified':True,'pool_file_verified':True}
+    if include_private:
+        result['private_files']=[{'path':path,'name':'cfg-'+str(i).zfill(4),'sha256':digest,'scope_verified':True} for i,(path,digest) in enumerate(sorted(seen.items()),1)]
+        result['private_symlinks']=sorted(links,key=lambda item:item['path'])
+    return result
 
 
 def run(b,params,root=None,parent=None,discovery=None,db_factory=None):

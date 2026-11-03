@@ -1,5 +1,12 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**November2 — local-only R-Backup capture candidate prepared:** [one-page approval](pilot/r-backup-capture-approval.md)
+pins a fixed private destination/command and server-local credentials/config mapping. Local
+failure/privacy and MariaDB concurrent snapshot/import checks are recorded; no actual sandbox
+backup was executed. Capture requires separate owner approval; transfer, restore, security/
+account changes, installation/migration and GateB remain held. Source2fd02a2 preserved.
+
+
 **November2 — supervised diagnostic inspection PASSED:** owner adopted standing bounded
 read-only autonomy (e2790d4); reasoned local fixes/repeats resolved launch-token and Plesk scope
 classification issues. Actual final job returned CHECKS_PASSED/exit0. [Evidence/limitations](test-results/recovery-readiness.md#supervised-diagnostic-session--november-2-2026).

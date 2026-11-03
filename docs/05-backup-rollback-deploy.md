@@ -1,5 +1,45 @@
 # 05 — Backup, Rollback & Deployment
 
+## Current R-Backup capture candidate — local-only, approval required
+
+[One-page owner approval card](pilot/r-backup-capture-approval.md) and [nine-file source/payload manifest](../scripts/recovery/LOCAL-CAPTURE.sha256)
+now define one exact server-local capture. This candidate replaces the legacy manual credential/
+protected-path inputs. Standing diagnostic authority and inspection PASS do not authorize its
+new sensitive artifacts. No farm-server operation occurred during preparation.
+
+Entrypoint: [capture_local.py](../scripts/recovery/capture_local.py), embedded by
+[build_local_capture.py](../scripts/recovery/build_local_capture.py) into one hash-verified command.
+It extracts existing local credentials without PHP execution; derives canonical config sources,
+private aliases and generated symlink topology with the successful inspection's bounded discovery;
+validates source phase; then runs the existing B1–B3 engine. Target/private mappings and original
+symlink attributes are saved only in target.json/file-attributes.json inside the recovery set.
+Canonical content/reference/alias changes are rechecked before a complete receipt can be issued.
+
+The candidate token/destination is fixed in source; stdin cannot override target/path/token/custody
+or supply credentials/SQL. Its exact five fields are actor_ref, approval_ref, start, end,
+authorization; marker must equal one-local-backup-capture. Window<=1800seconds; source/DB/
+protected/disk/count/time caps are fixed. No source staging, packages, external transfer or restore.
+
+Data artifacts are exactly database.sql.gz, wp-content.tar.gz, wordpress-root.tar.gz,
+wp-config.php.recovery, protected-configs.tar.gz, target.json, file-attributes.json,
+before.catalog.json, before.rows.ndjson, after.catalog.json, after.rows.ndjson,
+before-files.sha256, after-files.sha256, capture-start-utc.txt, capture-end-utc.txt,
+drift-review.json. SHA256SUMS and receipt.json bring the accepted set to18 named files.
+No named credential client, raw SQL spool, operator log or extra export is required.
+
+Each diagnostic snapshot uses one read-only MVCC connection; native dump uses its own consistent
+transaction with utf8mb4, quick/skip-lock/no-tablespaces/hex flags on this DB only. InnoDB phase
+and zero routines/events/triggers are guarded before export. Before/after row/schema evidence
+is retained without wildcard exclusions or cause attribution. No dump/live-equivalence or
+frozen-site claim; any drift is review-required, not automatic PASS. No cron/cache/site freeze.
+
+Caller must require terminal succeeded/exit0, LOCAL_CAPTURE_VERIFIED and matching confidential
+receipt/manifest hashes. complete/review-required/incomplete are distinct. A partial/forced-kill
+set stays restricted and unaccepted; existing backups are never deleted. O_TMPFILE/memfd material
+closes on process death. Recovery cannot be claimed from hashes alone. [Local validation](test-results/recovery-readiness.md#server-local-capture-candidate--november-2-2026)
+includes a real synthetic MariaDB concurrent-update snapshot/import test; actual dump privileges,
+source drift, volume and operational restore remain unverified until separately authorized work.
+
 ## Latest recovery prerequisite status — bounded inspection passed
 
 Owner-adopted [supervised autonomy](DECISIONS.md#november-2-2026--owner-adopted-supervised-autonomy-policy)
