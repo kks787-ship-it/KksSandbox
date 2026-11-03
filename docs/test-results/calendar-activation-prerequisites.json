@@ -1,0 +1,38 @@
+{
+  "scope": "calendar-first activation prerequisites; local synthetic validation only",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "application_sources_changed": false,
+  "local_validation": {
+    "recovery_and_identity_tests": 214,
+    "database_engine": "MariaDB 10.6 disposable fixture",
+    "database_assertions": 366,
+    "browser_checks": 98,
+    "development_guard_scenarios": 22,
+    "mocked_plesk_identity_scenarios": 6,
+    "syntax": "3 Python files AST parsed",
+    "calendar_cases": [
+      "concurrent bookings",
+      "group resource races",
+      "permission revocation",
+      "mobile tablet desktop and axe",
+      "populated migration preservation",
+      "logical backup restoration"
+    ]
+  },
+  "limitations": [
+    "Not a fresh MySQL run",
+    "No protected-sandbox authentication or calendar acceptance",
+    "Existing account mapping, controller and recovery custody not yet verified",
+    "MFA and real grants remain held"
+  ],
+  "remote_execution": false,
+  "account_or_security_changes": false,
+  "prototype_issues_18_20": "deferred",
+  "next_input": "Three existing WordPress usernames through private secure handoff; no passwords or second factors",
+  "sha256": {
+    "scripts/pilot/build_identity_review.py": "5d778f8fb6c73a58acef595be0aa2604f2aee299147a6d1ee30a46ce7a0af1a4",
+    "scripts/pilot/verify_calendar_identities.py": "a6bda77999adde01ae528a44b99f6d5a464a02b31f89dea76aac564af2a4f6e8",
+    "tests/recovery/test_calendar_identity_review.py": "5a3bca076bec1c6d81b84a6506f3199fe92525679e61c1ecf07f2fcb46d6ec60"
+  },
+  "local_log_sha256": "2911bc7a3bd14990ab0b59d27310d2791c84a767ef0caa5c09700ecf3fca0c1d"
+}
