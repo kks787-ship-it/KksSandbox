@@ -1,5 +1,24 @@
 # R-Backup — one sandbox recovery capture
 
+## Current status — adopted autonomy; inspection passed
+
+Standing read-only diagnostic authority was explicitly adopted and recorded in e2790d4. It
+prospectively supersedes historical per-attempt diagnostic approval holds below; it does NOT
+authorize capture/transfer/restore/GateB or consequential security/business/server changes.
+A bounded live inspection now completed CHECKS_PASSED/exit0; [evidence and limitations](../test-results/recovery-readiness.md#supervised-diagnostic-session--november-2-2026).
+No further diagnostic repetition is needed for that result. No backup or restore was performed.
+
+Current command hash `c02d0989efcd5c4b51460570cef840773bf825773c6f1120489f0a2b2ef4a8c1`.
+Non-secret launch parameters are generated/validated by [prepare_inspection.py](../../scripts/recovery/prepare_inspection.py),
+not hand-typed tokens. The HTTP-auth scope is now the observed sandbox-specific Plesk area;
+shared static root references are accepted only for anchored ACME/PKI certificate-validation
+locations, never as a main/Apache document root and never followed to read shared files.
+All other guards remain intact. Prior command hashes and per-attempt holds below are historical.
+
+**Next gate remains R-Backup:** separately approve one exact fresh local recovery capture, its
+server-local credential/config mapping, artifact scope, custody/retention and window. Neither
+inspection PASS nor standing diagnostic authority permits generating recovery artifacts now.
+
 ## Current owner direction — diagnostic server-local inspection, fresh approval required
 
 This section supersedes the earlier manual DB-credential/protected-path provisioning proposal.

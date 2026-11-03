@@ -1,0 +1,196 @@
+{
+  "authority_commit": "e2790d46db6b7212cb50ad0c372482f728b91b6d",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "records": [
+    {
+      "name": "input-check",
+      "reason": "Corrected diagnostic input under adopted policy",
+      "scope": "bounded read-only development-sandbox inspection",
+      "timeout_seconds": 120,
+      "command_sha256": "e65ef41956510172e93fd13149a7360be6bbd58856ed0a24f7d1d0ae42110b98",
+      "status": "failed",
+      "exit_code": 2,
+      "receipt": {
+        "state": "blocked",
+        "code": "INPUT_UNVERIFIED",
+        "stage": "input"
+      }
+    },
+    {
+      "name": "auth-check",
+      "reason": "Repeat after validating exact-length generated token",
+      "scope": "bounded read-only development-sandbox inspection",
+      "timeout_seconds": 120,
+      "command_sha256": "e65ef41956510172e93fd13149a7360be6bbd58856ed0a24f7d1d0ae42110b98",
+      "status": "failed",
+      "exit_code": 2,
+      "receipt": {
+        "state": "blocked",
+        "code": "HTTP_AUTH_SCOPE_BLOCKED",
+        "stage": "http_auth"
+      }
+    },
+    {
+      "name": "auth-reference-probe",
+      "reason": "Classify referenced auth area without reading auth files",
+      "scope": "target-specific config references; auth files not read",
+      "timeout_seconds": 30,
+      "command_sha256": "7da42d59a7fa8309c530f2560c1152e76145671c7aeb557be736faea9b0920e5",
+      "status": "succeeded",
+      "exit_code": 0,
+      "receipt": {
+        "auth_files_read": 0,
+        "auth_reference_categories": {
+          "SANDBOX_PD_REFERENCE": 4
+        },
+        "configs_read": 3,
+        "out_of_scope_includes": 0,
+        "state": "probe-complete"
+      }
+    },
+    {
+      "name": "root-check",
+      "reason": "Repeat after scoping auth to observed sandbox-specific area",
+      "scope": "bounded read-only development-sandbox inspection",
+      "timeout_seconds": 120,
+      "command_sha256": "c2acbe94596bb09eb3800d14be8345a50e51eea7e670e154b5b45ac6ca9b4ee5",
+      "status": "failed",
+      "exit_code": 2,
+      "receipt": {
+        "state": "blocked",
+        "code": "PLESK_ROOT_MISMATCH",
+        "stage": "plesk_root"
+      }
+    },
+    {
+      "name": "root-reference-probe",
+      "reason": "Classify document-root reference categories only",
+      "scope": "target-specific config references; auth files not read",
+      "timeout_seconds": 30,
+      "command_sha256": "5344b9d6e8bf966298bcc1ae5b1d7521edafe8a30a2f11e9835590419672b47d",
+      "status": "succeeded",
+      "exit_code": 0,
+      "receipt": {
+        "auth_files_read": 0,
+        "auth_reference_categories": {
+          "SANDBOX_PD_REFERENCE": 4
+        },
+        "configs_read": 3,
+        "out_of_scope_includes": 0,
+        "root_reference_categories": {
+          "HOST_STATIC_LOCATION_ROOT": 4,
+          "SANDBOX_DOCUMENT_ROOT": 3
+        },
+        "state": "probe-complete"
+      }
+    },
+    {
+      "name": "root-context-probe",
+      "reason": "Test simple auxiliary-location context classification",
+      "scope": "target-specific config references; auth files not read",
+      "timeout_seconds": 30,
+      "command_sha256": "4beb7386f0bfc592afa60fb7adb77216097bf58747ff5650cb1efc139612e81c",
+      "status": "succeeded",
+      "exit_code": 0,
+      "receipt": {
+        "auth_files_read": 0,
+        "auth_reference_categories": {
+          "SANDBOX_PD_REFERENCE": 4
+        },
+        "configs_read": 3,
+        "out_of_scope_includes": 0,
+        "root_reference_categories": {
+          "HOST_STATIC_LOCATION_ROOT": 4,
+          "SANDBOX_DOCUMENT_ROOT": 3
+        },
+        "state": "probe-complete",
+        "static_location_categories": {}
+      }
+    },
+    {
+      "name": "root-directive-probe",
+      "reason": "Separate Apache and nginx directive categories",
+      "scope": "target-specific config references; auth files not read",
+      "timeout_seconds": 30,
+      "command_sha256": "b620beaefecdf783a4a4dc166d7357525d36643f34d2083c69d840398b1d903b",
+      "status": "succeeded",
+      "exit_code": 0,
+      "receipt": {
+        "apache_contexts": {
+          "OTHER_OR_UNVERIFIED_SERVER_SANDBOX_DOCUMENT_ROOT": 1
+        },
+        "auth_files_read": 0,
+        "auth_reference_categories": {
+          "SANDBOX_PD_REFERENCE": 4
+        },
+        "configs_read": 3,
+        "out_of_scope_includes": 0,
+        "root_directive_kinds": {
+          "APACHE_SANDBOX_DOCUMENT_ROOT": 1,
+          "NGINX_HOST_STATIC_LOCATION_ROOT": 4,
+          "NGINX_SANDBOX_DOCUMENT_ROOT": 2
+        },
+        "root_reference_categories": {
+          "HOST_STATIC_LOCATION_ROOT": 4,
+          "SANDBOX_DOCUMENT_ROOT": 3
+        },
+        "state": "probe-complete",
+        "static_location_categories": {}
+      }
+    },
+    {
+      "name": "root-structural-probe",
+      "reason": "Resolve nested nginx certificate-validation context structurally",
+      "scope": "target-specific config references; auth files not read",
+      "timeout_seconds": 30,
+      "command_sha256": "fd9f3f4ba32fdec6bbe25aeb1826dfc950c9c2f3f1382cd4f5396b576e220589",
+      "status": "succeeded",
+      "exit_code": 0,
+      "receipt": {
+        "apache_contexts": {
+          "OTHER_OR_UNVERIFIED_SERVER_SANDBOX_DOCUMENT_ROOT": 1
+        },
+        "auth_files_read": 0,
+        "auth_reference_categories": {
+          "SANDBOX_PD_REFERENCE": 4
+        },
+        "configs_read": 3,
+        "out_of_scope_includes": 0,
+        "parsed_static_contexts": {
+          "ACME_CHALLENGE": 2,
+          "PKI_VALIDATION": 2
+        },
+        "root_directive_kinds": {
+          "APACHE_SANDBOX_DOCUMENT_ROOT": 1,
+          "NGINX_HOST_STATIC_LOCATION_ROOT": 4,
+          "NGINX_SANDBOX_DOCUMENT_ROOT": 2
+        },
+        "root_reference_categories": {
+          "HOST_STATIC_LOCATION_ROOT": 4,
+          "SANDBOX_DOCUMENT_ROOT": 3
+        },
+        "state": "probe-complete",
+        "static_location_categories": {}
+      }
+    },
+    {
+      "name": "final-inspection",
+      "reason": "Repeat with tested sandbox auth and certificate-service root classification",
+      "scope": "bounded read-only development-sandbox inspection",
+      "timeout_seconds": 120,
+      "command_sha256": "c02d0989efcd5c4b51460570cef840773bf825773c6f1120489f0a2b2ef4a8c1",
+      "status": "succeeded",
+      "exit_code": 0,
+      "receipt": {
+        "state": "prerequisites-pass",
+        "code": "CHECKS_PASSED",
+        "stage": "complete"
+      }
+    }
+  ],
+  "limitations": [
+    "Inspection only; no backup/restore/deployment acceptance",
+    "Probe output contains categories/counts, no config values or private path maps",
+    "Each repeat followed a local parameter or scope-classification correction; no blind retries"
+  ]
+}

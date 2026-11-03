@@ -7,6 +7,68 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Supervised diagnostic session — November 2, 2026
+
+Owner explicitly adopted the standing policy, recorded before server work in commit
+`e2790d46db6b7212cb50ad0c372482f728b91b6d` and Issue11. Routine bounded read-only repeats/local
+engineering are prospectively authorized; recovery/deployment/security/business change gates
+remain separate. [Sanitized machine evidence](supervised-diagnostic-evidence.json) records each
+reason, read scope, command digest, bound and terminal outcome. No Gateway metadata containing
+host/SSH/account identifiers or protected config contents is copied into this report.
+
+**Verified final result: prerequisites-pass / CHECKS_PASSED / complete, terminal succeeded,
+exit0.** This is a real bounded development-sandbox inspection result, not a mocked PASS.
+It establishes only the implemented target/credential/config/client/schema/inventory/space
+checks at that observation time. No backup exists from this session, no restore is proved,
+no WordPress/Plesk UI/MFA/staff workflow acceptance is implied, and no actual version/hash/map
+beyond the sanitized allowlisted receipts is claimed. Raw credentials stayed server-local.
+
+Ordinary failures and local corrections, in order:
+
+1. INPUT_UNVERIFIED: the submitted non-secret token was34 hex characters instead of32. This was
+   an avoidable launch-parameter mistake. A local generator now uses token_hex(16), validates
+   references and constructs an exact120second UTC window before submission. Regression tests
+   reject overlong generator output. No server guard was loosened.
+2. HTTP_AUTH_SCOPE_BLOCKED: a reference-only30second probe read3 target configs and found4 auth
+   references belonging to the sandbox's own Plesk password directory, not the parent subscription.
+   Auth files read by these probes:0. Local runtime scope was corrected to the exact sandbox area,
+   narrowing away the parent area; no credential/configuration/security setting was changed.
+3. PLESK_ROOT_MISMATCH: bounded structural probes distinguished3 sandbox document-root references
+   from4 shared static references. Nested nginx parsing confirmed2 ACME and2 PKI validation
+   locations. The validator now permits only that exact shared static root within anchored
+   certificate-validation location prefixes, while main/Apache roots must remain sandbox-only.
+   It never reads the shared static directory. Unrelated/production roots and parsing ambiguity
+   still block. Counter comparison ensures directives cannot silently disappear from validation.
+4. Final repeat, after local tests, completed CHECKS_PASSED. All jobs used privilege none, no sudo,
+   canonical development target and30/120second bounds. No blind loop, automatic scope expansion,
+   service/account change, installation, DB write, backup, transfer, restore or deployment occurred.
+
+Intermediate probes progressed from category-only roots, to simple context, directive kind and
+nested context; each increased diagnostic precision over the same3 target-specific config files.
+The evidence records these reasons individually. Prior generic failure is not retrospectively
+assigned a sole cause; the newly observed input/scope failures are directly supported by receipts.
+
+**Local verification:132 recovery tests +14 preflight units +22 development guards +6 mocked
+Plesk scenarios =174 passed.** Added regressions cover generated non-secret parameters, auth
+scope, no-auth-read probes, nested certificate roots and rejection of main shared/production or
+unrelated-location roots. Existing diagnostic/privacy/timeout/hash/build/syntax checks pass.
+Application/PHP/browser suites and off-server/restore/MFA tests were not rerun. These local
+checks supplement, rather than replace, the separately recorded live read-only result.
+
+Current inspection command SHA256:
+`c02d0989efcd5c4b51460570cef840773bf825773c6f1120489f0a2b2ef4a8c1`;
+payload `b5819e27b2452271c0833fd0a9897d73bc16359a32b2e02b210a1fc50e4e8d2a`;
+manifest `b0127abca2125abc92e73d62e59ad3be94a60c25bf0d147651b66ff1079db67d`.
+All8 release files match the manifest; runtime fixes do not alter scheduling implementation2fd02a2.
+
+**Next recommended development action:** prepare a fresh target-bound local R-Backup capture
+with server-local credential/config mapping and exact backup scope for separate owner approval.
+Do not execute the legacy manual-input capture as a substitute. Its complete artifact scope,
+private custody/retention, current disk/config binding, failure handling and subsequent isolated
+restore remain independently reviewable decisions. Capture, off-server transfer, restore,
+account/MFA/security changes, installation/migration and GateB remain held. Inquiry/emergency/
+production untouched. No additional diagnostic repeats are needed after this successful result.
+
 ## Safe diagnostic revision — November 2, 2026, local only
 
 [Assignment](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6593883604).

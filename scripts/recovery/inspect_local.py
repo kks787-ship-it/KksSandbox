@@ -1,4 +1,5 @@
 """Server-local inspection only. No Gateway calls, writes, capture dispatch or PHP execution."""
+from collections import Counter
 import contextlib
 import datetime as dt
 import json
@@ -12,7 +13,7 @@ import time
 DOMAIN='sandbox.cornerstonefarmomak.com'
 CONF=Path('/var/www/vhosts/system')/DOMAIN/'conf'
 POOL=Path('/opt/plesk/php/8.3/etc/php-fpm.d')/(DOMAIN+'.conf')
-AUTH=Path('/var/www/vhosts/system/cornerstonefarmomak.com/pd')
+AUTH=Path('/var/www/vhosts/system')/DOMAIN/'pd'
 NAMES={'httpd.conf','nginx.conf','vhost.conf','vhost_ssl.conf','vhost_nginx.conf','last_httpd.conf','last_nginx.conf','php-fpm.conf'}
 
 
@@ -53,6 +54,41 @@ def safe_receipt(code):
             'code':code,'stage':CODES[code]}
 
 
+def validate_roots(b,text,root):
+    web=False
+    for value in re.findall(r'^\s*DocumentRoot\s+["\']?([^"\';\s]+)',text,re.M|re.I):
+        b.require(Path(value)==root);web=True
+    tokens=re.findall(r'"(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\'|\#[^\n]*|[{};]|[^\s{};"\'\#]+',text)
+    stack=[];pending=[];parsed=[]
+    for token in tokens:
+        if token.startswith('#'):continue
+        if token=='{':stack.append(pending);pending=[]
+        elif token=='}':
+            if stack:stack.pop()
+            pending=[]
+        elif token==';':
+            if pending and pending[0]=='root':
+                b.require(len(pending)==2);value=pending[1].strip('"\'');service=False
+                locations=[h for h in stack if h and h[0]=='location']
+                if locations:
+                    header=locations[-1][1:]
+                    if header and header[0] in ('~','~*','^~','='):header=header[1:]
+                    if len(header)==1:
+                        pattern=header[0].strip('"\'')
+                        for name in ('acme-challenge','pki-validation'):
+                            if pattern.startswith('/.well-known/'+name+'/') or pattern.startswith('^/\\.well-known/'+name+'/'):
+                                service='|' not in pattern and '$' not in pattern[:-1]
+                parsed.append(value)
+                if Path(value)==root:web=True
+                else:b.require(value=='/var/www/vhosts/default/htdocs' and service)
+            pending=[]
+        else:pending.append(token)
+    # A parser ambiguity must not silently omit a root declaration.
+    declared=re.findall(r'^\s*root\s+["\']?([^"\';\s]+)',text,re.M)
+    b.require(Counter(parsed)==Counter(declared))
+    return web
+
+
 def discover(b,budget,root,conf=CONF,pool=POOL,auth=AUTH):
     """Bounded target-only directory; referenced auth files, never an auth directory crawl."""
     with guarded(b,'PLESK_CONFIG_PATH_UNVERIFIED',budget):
@@ -86,10 +122,7 @@ def discover(b,budget,root,conf=CONF,pool=POOL,auth=AUTH):
         if path.parent==auth or path.is_relative_to(auth):
             auth_seen=True;continue
         # Target-specific files may never redirect the inspected site's root to production.
-        roots=re.findall(r'^\s*(?:DocumentRoot|root)\s+["\']?([^"\';\s]+)',text,re.M|re.I)
-        for value in roots:
-            with guarded(b,'PLESK_ROOT_MISMATCH',budget):b.require(value==str(root))
-            web=True
+        with guarded(b,'PLESK_ROOT_MISMATCH',budget):web=validate_roots(b,text,root) or web
         for value in re.findall(r'^\s*(?:AuthUserFile|auth_basic_user_file)\s+["\']?([^"\';\s]+)',text,re.M|re.I):
             with guarded(b,'HTTP_AUTH_SCOPE_BLOCKED',budget):
                 target=Path(value);resolved=target.resolve(strict=True)

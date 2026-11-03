@@ -1,5 +1,13 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**November2 — supervised diagnostic inspection PASSED:** owner adopted standing bounded
+read-only autonomy (e2790d4); reasoned local fixes/repeats resolved launch-token and Plesk scope
+classification issues. Actual final job returned CHECKS_PASSED/exit0. [Evidence/limitations](test-results/recovery-readiness.md#supervised-diagnostic-session--november-2-2026).
+This is inspection acceptance only, not backup/restore, security, staff-calendar or operational
+acceptance. Next: prepare one fresh server-local R-Backup for separate approval. Capture,
+transfer, restore, security/account changes, install/migration and GateB remain held.
+
+
 **November 2 — R-Backup local executable delivered:** [read-only approval card](pilot/r-backup-approval.md#owner-authorization-card--read-only-prerequisites-only)
 is the next owner decision. Complete hash-pinned B1–B3 payload, malicious-header/byte checks,
 anonymous credentials/spool, deterministic manifests/receipts, drift reporting and bounded

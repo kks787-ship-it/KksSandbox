@@ -1,5 +1,16 @@
 # 05 — Backup, Rollback & Deployment
 
+## Latest recovery prerequisite status — bounded inspection passed
+
+Owner-adopted [supervised autonomy](DECISIONS.md#november-2-2026--owner-adopted-supervised-autonomy-policy)
+is recorded in e2790d4. Subsequent reasoned bounded read-only diagnostics/local corrections are
+[documented with sanitized terminal evidence](test-results/recovery-readiness.md#supervised-diagnostic-session--november-2-2026).
+Final inspection CHECKS_PASSED/exit0 establishes those observation-time checks only. No fresh
+backup/restore, software install, schema, account/MFA/security or deployment operation occurred.
+Prepare an exact server-local R-Backup capture proposal for separate approval; do not use the
+legacy manual-input capture or infer permission from diagnostic PASS. All recovery/deployment
+holds remain. Older per-attempt diagnostic authorization text below is historical after adoption.
+
 ## Current diagnostic revision — local only, one new approval needed
 
 The first approved server-local command stopped BLOCKED/exit2; the specific failed guard and

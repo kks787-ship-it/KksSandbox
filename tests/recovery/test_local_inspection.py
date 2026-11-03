@@ -34,6 +34,21 @@ class ServerLocal(unittest.TestCase):
         self.assertEqual('prerequisites-pass',result['state']);text=json.dumps(result)
         for secret in ('synthetic-password','synthetic-private-auth',str(self.authfile),str(self.conf)):self.assertNotIn(secret,text)
         self.assertEqual([],list(self.parent.iterdir()));self.db.dump.assert_not_called();self.assertEqual(0,self.db.reads)
+    def test_auth_scope_is_the_sandbox_not_parent_subscription(self):
+        self.assertEqual(Path('/var/www/vhosts/system')/local.DOMAIN/'pd',local.AUTH)
+        self.assertNotEqual(Path('/var/www/vhosts/system/cornerstonefarmomak.com/pd'),local.AUTH)
+    def test_certificate_validation_auxiliary_roots_only(self):
+        root=Path('/synthetic/sandbox')
+        for location in ('/.well-known/acme-challenge/','/.well-known/pki-validation/'):
+            text='server {\nroot /synthetic/sandbox;\nlocation ^~ '+location+' {\nroot /var/www/vhosts/default/htdocs;\n}\n}'
+            self.assertTrue(local.validate_roots(b,text,root))
+            with self.assertRaises(b.Stop):local.validate_roots(b,text.replace('/var/www/vhosts/default/htdocs','/production/httpdocs'),root)
+            with self.assertRaises(b.Stop):local.validate_roots(b,text.replace(location,'/unrelated/'),root)
+    def test_nested_quoted_certificate_validation_location(self):
+        text='server {\nroot /synthetic/sandbox;\nlocation ~ "^/\\.well-known/acme-challenge/(.*)" {\nif ($x) { return 1; }\nroot /var/www/vhosts/default/htdocs;\n}\n}'
+        self.assertTrue(local.validate_roots(b,text,Path('/synthetic/sandbox')))
+    def test_shared_static_root_is_never_a_main_document_root(self):
+        with self.assertRaises(b.Stop):local.validate_roots(b,'root /var/www/vhosts/default/htdocs;\n',Path('/synthetic/sandbox'))
     def test_literal_credential_escapes_and_no_php_eval(self):
         self.setup_local();raw=(self.root/'wp-config.php').read_bytes().replace(b"'synthetic-password'",b"'synthetic\\'pass\\\\word'")
         secret=b.validate_config(raw,credentials=True);self.assertEqual("synthetic'pass\\word",secret['password'])
