@@ -1,0 +1,29 @@
+{
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "preparation_base": "4e023d152fae32638bc5344ea6f1cc698eca3982",
+  "public_payload_sha256": "85a99b6722464cd6af06e7f9c1b217d4929aba03c5bf73a183b157b937073007",
+  "actual_source_preflight": {
+    "state": "preflight-pass",
+    "exit_code": 0,
+    "source_binding_verified": true,
+    "sql_structure_verified": true,
+    "space_guard_passed": true,
+    "tools_present": true,
+    "backup_fresh_at_probe": true,
+    "restore_executed": false
+  },
+  "local_synthetic_restore": {
+    "state": "verified",
+    "code": "ISOLATED_RESTORE_VERIFIED",
+    "integrity_verified": true,
+    "isolation_verified": true,
+    "pages_verified": true,
+    "login_verified": true,
+    "cleanup_verified": true,
+    "restore_verified": true
+  },
+  "local_forced_timeout": "nonzero; no clone DB/PHP remains; source still verifies",
+  "actual_farm_restore_verified": false,
+  "offserver_verified": false,
+  "private_bindings": "Exact source, destination and sensitive command digest retained owner-private; not published"
+}

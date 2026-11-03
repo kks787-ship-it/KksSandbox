@@ -4,6 +4,48 @@
 R-Backup success does not approve restoration. This packet never approves live rollback,
 MFA/provider installation, real account/factor changes or a Plesk-managed clone subscription.
 
+## Current owner authorization card — one private functional restore
+
+**Preparation authorized; execution HELD.** This supersedes the historical command fragments.
+The exact completed capture, receipt/manifest fingerprints and one new destination are bound
+in the owner-private recovery record; they are not published in GitHub. Do not select “latest”.
+
+| Decision | Proposed scope |
+| --- | --- |
+| R-Restore | One restore of that exact verified local capture on the designated sandbox host; no live vhost or production writes |
+| Executable | [restore_local.py](../../scripts/recovery/restore_local.py), built by [build_local_restore.py](../../scripts/recovery/build_local_restore.py); exact public payload and command-template fingerprints in [LOCAL-RESTORE.sha256](../../scripts/recovery/LOCAL-RESTORE.sha256). Template has no private binding and cannot execute |
+| Private command | Owner-private command envelope binds the exact receipt, manifest and exclusive recovery directory. SHA-verify it immediately before Gateway submission with `sensitive_command=true`; never paste its bytes/bindings into GitHub or ordinary output |
+| Privilege | Existing authorized SSH identity, `privilege=none`, no sudo/account/security changes. Trusted coordinator creates ephemeral mount/network/PID namespaces; PHP/MariaDB always chrooted to the new recovery directory, existing distinct nonroot system identities, zero capabilities, no-new-privileges |
+| Permitted reads | Only that backup plus fixed installed software/library trees and own-worker process metadata; no live SQL connection, live WordPress execution, account enumeration or protected-config discovery |
+| New writes | One private0700 recovery directory,0600 raw artifacts/reports/logs; clone-only files/database/config. Read-only software/input mounts disappear with the namespace. No shared mounts, services, ports or Plesk/vhost changes |
+| Containment | New private datadir/socket; explicit socket/defaults on every client command, no TCP/event scheduler/local-infile; loopback HTTP inside private network only, no external routes. Mail/process-spawn disabled in PHP; clone-only outbound HTTP/mail guards and cron/update suppression |
+| Clone authentication | **Explicitly approve a temporary random password for exactly one existing restored administrator**, solely in the clone; test native login/dashboard/logout, restore original cloned hash/activation/session rows, remove temporary credential/config files. Never use a live password/factor, infer human ownership or create an account. Ambiguous/unsupported security state stops |
+| Bounds | Gateway1800s; inner1770s+30s kill grace within one active UTC window<=30min. Retain>=2GiB free space; preflight headroom>=4GiB+5×source file bytes; owned working files8GiB checked once/second, native process file limit4GiB, SQL spool<2GiB. Every stream/process is bounded |
+| Acceptance | All source receipt/artifact hashes; safe archives/restored bytes;12-table full SQL import/check/row counts/catalog and artifact-derived complete baseline before clone rewrites; Home/Lessons/Contact; native cloned login/dashboard/logout; source re-verification and exact-child termination |
+| Cleanup/retention | pidfd-fenced PID-namespace worker, only own recorded daemons, TERM then bounded KILL/reap. Restricted incomplete marker remains on interruption; no incomplete/partial pass. Retain private evidence/datadir for review, remove temporary plaintext clone credentials/config; no transfer or automatic live rollback |
+
+**Public payload SHA-256:** `85a99b6722464cd6af06e7f9c1b217d4929aba03c5bf73a183b157b937073007`. The exact sensitive envelope SHA is retained
+in the owner-private release record, independently checked before submission; it is not the
+public template hash. Changing code/binding requires a rebuilt, reviewed envelope.
+
+**Approve / Reject / Hold:** “Approve one R-Restore as scoped above, including the temporary
+clone-only administrator password/session test.” Codex supplies non-secret operator/approval
+references and the exact execution UTC window after approval. Skipping authentication is possible
+only as an explicitly partial exercise and cannot satisfy functional recovery readiness.
+
+**Automatic stop:** changed binding/hash/target, existing destination, unknown active plugin/MFA/
+MU/drop-in/multisite security state, unsafe SQL/archive, absent tools/capabilities, insufficient
+space, namespace/privilege/network failure, import/integrity/rendering/authentication failure,
+source change, timeout or uncertain cleanup. No weakened security guard or automatic repeat of
+this write operation. Report the fixed diagnostic code and retained private evidence.
+
+**Limits:** this is application recovery on installed PHP/MariaDB, not full Plesk/Toolkit,
+HTTPS/BasicAuth/reverse-proxy/MFA, off-server, staff usability or operational acceptance.
+Afterward stop and report; do not silently proceed to GateB. Production, accounts/security/MFA,
+public transactions, inquiry and emergency management remain outside this approval.
+
+## Detailed acceptance contract
+
 The executor uses separately approved infrastructure authority, not a prerequisite Farm Master
 or new WordPress MFA account. A temporary cloned login proves recovery functionality only;
 it does not establish the real account controller or satisfy later private identity/MFA gates.

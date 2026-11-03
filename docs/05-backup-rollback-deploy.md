@@ -1,5 +1,15 @@
 # 05 — Backup, Rollback & Deployment
 
+## Current next decision — isolated functional restore
+
+The [single R-Restore authorization card](pilot/r-restore-approval.md#current-owner-authorization-card--one-private-functional-restore)
+is the current execution proposal. Public code is reproducibly SHA-pinned; actual source and
+exclusive destination stay privately bound. Missing private bindings make the public template
+fail closed. This preparation does not authorize the restore, a live rollback or GateB.
+[Validation and diagnostic evidence](test-results/recovery-readiness.md#isolated-restore-executable-preparation--november-3-2026-utc)
+distinguishes local synthetic tests, actual read-only preflight and pending farm recovery.
+
+
 ## Latest result — approved local capture complete, restore held
 
 One owner-approved capture of8f8fc51 completed LOCAL_CAPTURE_VERIFIED/exit0. [Exact set/manifest/receipt evidence](test-results/recovery-readiness.md#approved-local-capture-completed--sanitized-status)

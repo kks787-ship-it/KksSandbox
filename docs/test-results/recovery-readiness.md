@@ -7,6 +7,108 @@ Starting/corrected identity head17fd654 is preserved; implementation remains
 Two-Factor0.17.0, schema3/15 tables and unchanged45-file candidate. No implementation defect
 requiring a new application pin was identified by this preparation.
 
+## Isolated restore executable preparation — November 3, 2026 UTC
+
+Issue11 follow-up from4e023d1, [owner work order](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6597993445).
+**Preparation only; actual farm restoration remains HELD.** No restore/import/service startup,
+clone credential change, deployment or protected sandbox write occurred during preparation.
+The application implementation pin2fd02a2 and current backup remain unchanged.
+
+### Delivered executable and approval boundary
+
+[One owner card](../pilot/r-restore-approval.md#current-owner-authorization-card--one-private-functional-restore)
+now specifies the complete bounded operation. [Restore source](../../scripts/recovery/restore_local.py),
+deterministic public build/template and eight-input release manifest are reviewable. The public
+template has no private bindings and exits INPUT_BLOCKED. The owner-private0600 envelope binds
+only the exact successful capture's receipt/manifest and a unique exclusive destination; no
+manual SQL credentials, guessed config paths, “latest backup” selection or public secret input.
+Its exact SHA is retained privately and must match before sensitive Gateway submission.
+
+Trusted coordination alone mounts software/input read-only inside new mount/network/PID
+namespaces. Database/PHP execute in a new chroot, existing distinct nonroot system identities,
+zero capabilities and no-new-privileges. No host /etc, /run, /root or vhosts are mounted. A
+bootstrap briefly holds a parent-proc descriptor only to identify itself, closes it, and blocks
+on stdin until the parent verifies PPid/namespaces and opens the exact worker pidfd. No kernel
+children-list dependency, global process kill, shared service change or host network route.
+Private socket on every client; anonymous defaults descriptor; isolated datadir; no TCP,
+local-infile, event scheduler, outbound HTTP/mail or automatic cron. Recovery config is newly
+generated; original wp-config/protected artifacts are checked but never executed/applied.
+
+Streaming SQL rejects foreign DB/tables, routines/events/triggers/definers/file/client commands,
+unsafe executable comments and truncated literals; quoted data remains opaque. Full12-table
+import, integrity/catalog/row counts and complete artifact-derived hash baseline precede clone
+URL/auth changes. Independent source diagnostic snapshots are compared without false equality
+or invented writer attribution. Every source artifact is re-verified afterward.
+
+Clone authentication requires explicit owner consent: one unique restored administrator, random
+temporary password generated privately, native login/dashboard/logout, then read-back verification
+of restored original cloned hash/activation/session rows. No real identity attribution, new
+account, live password/factor or account/security permission follows. Unsupported active security
+plugins/MU/drop-ins/flags block; no bypass is bundled. Working logs/data remain private; temporary
+plaintext clone config/login input are removed. An incomplete marker is distinct from terminal
+results so exclusive-write evidence cannot be overwritten or mistaken for PASS.
+
+### Actual read-only diagnostics — observation-time evidence
+
+The existing supervised diagnostic authority was used for bounded checks only. Installed tools,
+PHP8.3.36 and existing nonroot system identities were detected; a short ephemeral namespace
+probe confirmed separate mount/network/PID namespaces with loopback only, then exited. No
+storage mount, import, recovery listener, account write or service was created by that probe.
+
+Private receipt/manifest/artifact/target binding verified against the **new** capture. The first
+preflight stopped SOURCE_SECURITY_BLOCKED. Sanitized classification found the expected core
+plugin only, no MFA plugin/MU/drop-in, and WP_ALLOW_MULTISITE. The original substring guard had
+confused that setup permission with active MULTISITE; it now matches exact executable security
+identifiers and ignores comments. Active/uncertain security configuration remains blocked.
+Subsequent source preflight returned **preflight-pass/exit0**: exact bindings, SQL structure,
+installed dependencies/root capabilities, disk headroom and backup freshness, restore_executed=false.
+Private targets/values/command text are not published. Repetition addressed identified guards;
+no failed attempt was accepted as a restore or as server failure evidence.
+
+### Local final validation
+
+| Check | Result / scope |
+| --- | --- |
+| Recovery unit/integration/negative/privacy/syntax/docs suite | **183 passed**, including34 restore tests; synthetic inputs only |
+| Existing sandbox-preflight units | **20 passed** |
+| Deployment/backup guards | **22 scenarios passed** |
+| Plesk preflight guards | **6 mocked scenarios passed**; not actual Toolkit validation |
+| MariaDB defaults/anonymous descriptor | Both client and dump ignore hostile inherited config; native local10.6.28 |
+| Full offline WordPress/MariaDB drill | **ISOLATED_RESTORE_VERIFIED**:12 native tables, catalog/check/row counts, source artifact hashes, isolated nonroot execution, Home/Lessons/Contact, admin login/dashboard/logout, original cloned auth state restored, cleanup |
+| Source preservation | Every synthetic source file and all source DB row hashes unchanged; exact backup receipt remains valid |
+| Forced two-second deadline | Nonzero/no recovery pass; no clone DB/PHP remains, source still verifies, temporary clone credential absent |
+| Release/private handling | Deterministic SHA manifest, public unbound template fails closed; private0600 records, unchanged bindings, no-follow output, hostile aliases and missing/invalid inputs tested |
+
+Reproduce: `python3 -B -m unittest discover -s tests/recovery -v`, existing tests/scripts guards,
+and `bash tests/recovery/restore-local.sh` in the isolated cloud executor, never on the farm.
+The runner verifies existing image IDs, uses no downloads/host mounts/network/ports, copies
+only public code/standard software into its temporary context, and deletes its own container/image/
+context. Local container grants SYS_ADMIN/NET_ADMIN solely for its private namespaces; it is
+not privileged and does not alter host security configuration. Existing unused build cache was
+removed after vfs layer amplification exhausted local disk; all original images/data retained.
+
+Fixture versions: WordPress6.8.3, PHP8.1.33, MariaDB10.6.28, Python3.13.5. Existing image IDs are
+pinned in the runner, including Python binary SHA. This proves the executable on that synthetic
+stack, **not** actual captured WordPress/Kadence/PHP8.3/Plesk compatibility or farm recovery.
+The proposed approved restore is where the captured site will be exercised. No claim about
+Toolkit, reverse proxy, HTTPS/BasicAuth, live MFA, off-server recovery or staff usability.
+
+Local failures corrected before PASS: compact one-layer fixture instead of vfs space explosion;
+fixture library dependencies/directory traversal permissions; namespace worker handshake instead
+of unavailable /proc children listing; distinct incomplete/terminal evidence; standard guarded
+ABSPATH declaration rather than ignoring PHP warning output. Expensive owned-byte inventory is
+throttled to once/second while time/free-space guards remain on every stream/process poll.
+
+### Remaining owner decision
+
+Authorize **one** [isolated R-Restore](../pilot/r-restore-approval.md#current-owner-authorization-card--one-private-functional-restore),
+including the explicit temporary clone-only administrator password/session test. Exact private
+binding/command are prepared, no live credentials need to be supplied. Codex then binds one UTC
+window<=30min, rechecks hashes/guards, follows the job to terminal, and reports/stops. Actual
+functional restore, off-server custody and broader sandbox-write activation remain unverified;
+GateB/account/MFA/production/inquiry/emergency changes are not part of this approval.
+
+
 ## Policy registration alongside capture reporting
 
 Owner approved the Recovery-First Autonomous Development Policy as FYI with an explicit direction

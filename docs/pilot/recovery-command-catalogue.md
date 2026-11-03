@@ -6,6 +6,19 @@ decisions. Bind the exact approved documentation commit/command-text digests and
 record before execution. A placeholder is **not** a runnable default or permission to improvise.
 No farm connection, staging, command or backup/restore occurred while writing this appendix.
 
+## Current isolated restore executable — supersedes restore fragments below
+
+Use [restore_local.py](../../scripts/recovery/restore_local.py) and its deterministic builder,
+[release manifest](../../scripts/recovery/LOCAL-RESTORE.sha256) and [owner card](r-restore-approval.md#current-owner-authorization-card--one-private-functional-restore).
+The committed shell template is intentionally non-executable without owner-private artifact
+bindings. Build the sensitive envelope privately; verify its SHA against the private release
+record before submission. No secret-selector/manual SQL credential input is needed.
+Gateway: existing designated server, bash, umask077, privilege none, sensitive command handling,
+timeout1800s. Only non-secret actor_ref, approval_ref, UTC start/end, authorization marker
+`one-isolated-functional-restore` and explicit `login_test=clone-admin` go on stdin. No target,
+SQL, path, executable, credential or account override is accepted. Follow job to terminal state.
+
+
 ## Current B1–B3 executable — supersedes the historical fragments below
 
 Use [backup.py](../../scripts/recovery/backup.py), deterministically built into the standalone

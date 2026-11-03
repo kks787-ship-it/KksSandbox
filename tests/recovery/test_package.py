@@ -12,7 +12,7 @@ class Package(unittest.TestCase):
     def test_all_payload_python_parses_without_import_side_effects(self):
         for path in (ROOT/'scripts/recovery').glob('*.py'):ast.parse(path.read_text(),filename=str(path))
     def test_all_shell_entrypoints_parse(self):
-        for name in ('scripts/recovery/run.sh','scripts/recovery/inspect.command.sh','scripts/recovery/capture.command.sh','tests/recovery/mariadb-defaults.sh'):
+        for name in ('scripts/recovery/run.sh','scripts/recovery/inspect.command.sh','scripts/recovery/capture.command.sh','scripts/recovery/restore-local.command.sh','tests/recovery/restore-local.sh','tests/recovery/mariadb-defaults.sh'):
             subprocess.run(['/bin/bash','-n',str(ROOT/name)],check=True)
     def test_release_file_hashes_and_fixed_allowlist(self):
         expected={'scripts/recovery/backup.py','scripts/recovery/build.py','scripts/recovery/run.sh','scripts/recovery/payload.py','scripts/recovery/inspect.command.sh','scripts/recovery/capture.command.sh','docs/pilot/baseline-contract.json','docs/pilot/baseline-select-plan.py.txt'}
@@ -22,7 +22,7 @@ class Package(unittest.TestCase):
             self.assertEqual(digest,hashlib.sha256((ROOT/name).read_bytes()).hexdigest())
         self.assertEqual(expected,observed)
     def test_relative_document_links(self):
-        for name in ('docs/pilot/r-backup-approval.md','docs/pilot/r-backup-capture-approval.md','docs/pilot/recovery-command-catalogue.md','docs/05-backup-rollback-deploy.md','docs/test-results/recovery-readiness.md'):
+        for name in ('docs/pilot/r-backup-approval.md','docs/pilot/r-backup-capture-approval.md','docs/pilot/r-restore-approval.md','docs/pilot/recovery-command-catalogue.md','docs/05-backup-rollback-deploy.md','docs/test-results/recovery-readiness.md'):
             path=ROOT/name;text=re.sub(r'```.*?```','',path.read_text(),flags=re.S)
             for target in re.findall(r'\[[^\]]+\]\(([^\s)]+)\)',text):
                 target=target.split('#')[0]

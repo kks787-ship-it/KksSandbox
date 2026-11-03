@@ -1,5 +1,13 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**November3 UTC — isolated restore preparation complete:** [executable/validation](test-results/recovery-readiness.md#isolated-restore-executable-preparation--november-3-2026-utc)
+and [one owner approval card](pilot/r-restore-approval.md#current-owner-authorization-card--one-private-functional-restore)
+are ready. New capture binding/read-only preflight verified; local synthetic functional restore
+and forced-timeout cleanup pass. **Actual farm restore has not run.** Recovery activation,
+GateB, accounts/MFA/security, production, inquiry and emergency remain held as applicable.
+Implementation2fd02a2 and existing backup preserved; exact recovery bindings stay private.
+
+
 **November2 — local recovery capture VERIFIED:** owner-approved8f8fc51 ran once, terminal
 LOCAL_CAPTURE_VERIFIED/exit0. [Receipt/limits](test-results/recovery-readiness.md#approved-local-capture-completed--sanitized-status)
 record sanitized status; exact recovery bindings are retained privately. This is actual local capture/integrity evidence, not
