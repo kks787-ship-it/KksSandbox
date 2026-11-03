@@ -1,5 +1,14 @@
 # Corner Stone Farm development
 
+Current owner-adopted Supervised Autonomy Policy (November2): see docs/DECISIONS.md.
+Bounded read-only development-sandbox diagnostics/repeats and local engineering/commits are
+prospectively authorized; record reasons/scope/outcomes. Earlier per-attempt diagnostic holds
+are historical and do not block ordinary troubleshooting after adoption. No production,
+destructive action, account/password/privilege/MFA/security change, installation or migration
+is granted. Stop for unexpected security findings/consequential changes. Recovery/deployment/
+business/security approvals remain separate; preserve source2fd02a2.
+
+
 Latest Nov2 identity correction: read the Accounts & Access section in docs/01-architecture.md,
 owner register and current Gate B worksheet. HTTP Basic Auth and Plesk control-panel access do
 not identify the Plesk-created WordPress Administrator or prove farm ownership/MFA. Its human

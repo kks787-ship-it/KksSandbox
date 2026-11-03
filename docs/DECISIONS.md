@@ -1,5 +1,31 @@
 # Project decisions
 
+## November 2, 2026 — owner-adopted Supervised Autonomy Policy
+
+The owner explicitly adopted this policy in chat after confirming authority to record it in
+this repository/Issue11 and proceed. Effective prospectively from adoption; historical
+one-attempt approvals are not retroactively expanded. This standing authority supersedes
+per-attempt approval holds for ordinary bounded read-only diagnostics on the designated
+**development sandbox only**.
+
+Codex may independently inspect relevant sandbox logs/configuration, investigate ordinary
+technical failures, repeat safe bounded read-only diagnostics when necessary, develop/test
+locally and commit/push the development branch. Record each repeat's reason, scope and outcome;
+a clean timeout or ordinary failure alone does not require another owner approval. No unlimited
+retry loop, broader host/production scan or changed business/security action follows from this.
+
+Restrictions remain: no production modification or destructive operation; no account/password/
+privilege/MFA-enforcement/server-security changes without approval; no publication of secrets,
+personal data or protected configuration contents; no software installation or protected DB
+migration until recovery prerequisite and applicable scope approvals are satisfied. Stop for
+unexpected security findings or potentially consequential changes. Request approval for business
+operations, security, data integrity and deployment decisions, not routine troubleshooting.
+
+Existing target guards, private credential handling, bounded jobs and sanitized output remain
+required. Capture, off-server transfer, isolated restore and GateB deployment are NOT authorized
+by this policy. Preserve implementation2fd02a2 and inquiry/emergency/production boundaries.
+
+
 ## November 2 — separate protected-site, technical and farm identities
 
 The [owner's latest account clarification](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6584204812)

@@ -1,5 +1,17 @@
 # Security and operational boundaries
 
+## Owner-adopted supervised autonomy — November 2, 2026
+
+[Standing policy](DECISIONS.md#november-2-2026--owner-adopted-supervised-autonomy-policy)
+authorizes bounded read-only development-sandbox diagnostics and routine safe repeats/local
+fixes without another per-attempt approval. Record reason/scope/outcome; never treat a failed
+job as PASS. No retroactive expansion of historical approvals. Stop for unexpected security
+findings or potentially consequential changes; production, destructive/security/account/MFA,
+installation/migration and recovery/deployment approval boundaries remain intact. Nothing in
+this policy grants capture/transfer/restore or GateB installation. Sensitive log/config material
+must be reduced to sanitized observations before returning or publishing it.
+
+
 ## November 2 identity correction
 
 HTTP Basic Auth is a web-server access gate, not a WordPress identity, farm role or MFA proof.
