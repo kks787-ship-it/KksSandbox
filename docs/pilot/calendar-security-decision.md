@@ -1,5 +1,9 @@
 # Calendar security — one private verification and scoped decision
 
+Current scope-F comparison and minimum ordered A/B/C decision:
+[provider security options](provider-security-options.md). It distinguishes vendor-alone email
+fallback from the enabled pinned adapter, which already removes the email provider globally.
+
 This procedure completes calendar prerequisites; it does not add users, redesign permissions,
 enable email alerts or deploy the relationship prototype. Use the existing account labels:
 Technical Master, Operations, Head Trainer. Never infer human control from a successful username
@@ -60,7 +64,7 @@ collects owner statements for review; it performs no server operation and grants
 | C — maintenance and recovery | Name a human custodian for advisory review, tested updates and lost-device recovery; assign secure/offline code custody per person. No automatic provider update or emergency MFA bypass. | Private custodian references required |
 | D — mandatory administrator MFA | Separate checkpoint after actual recovery evidence and essential Toolkit/API compatibility; enable `CSF_MFA_ENFORCE_ADMIN` only if approved. It globally disables application-password authentication/creation and authenticated XML-RPC. | Hold until evidence; then Approve / Revise / Hold |
 | E — farm authority | Separate effective-access review and MFA-bound one-use ownership ceremony: Technical Master operates, Operations becomes initial farm owner, Head Trainer receives the reviewed group/overrides. Preserve native roles. | Hold until verified controllers and MFA; then Approve / Revise / Hold |
-| F — provider automatic security consequences | Review Two-Factor's built-in failed-factor password-reset behavior and user/admin security emails, plus its email fallback if all stored methods become unavailable. Approving factor enrollment alone does not approve these external or credential effects. | Hold; resolve before provider activation |
+| F — provider automatic security consequences | Review built-in failed-factor password reset and user/admin security emails. The enabled pinned adapter already blocks the vendor's email fallback globally; preserve that restriction. Approving enrollment alone does not approve reset or mail effects. | Hold; resolve before provider activation |
 
 Approval of A does not approve B, D or E. Naming a custodian is not a privilege grant. No native
 security email, real lesson alert, password reset, test message or external notification is
@@ -69,9 +73,11 @@ recipient, transport and purpose for a scoped decision. No shared-host/Plesk sec
 
 Provider source review identifies a concrete dependency for A: `process_provider()` can call
 `reset_compromised_password()` and `send_password_reset_emails()` after the provider's failed-login
-policy triggers (default threshold: 30 failed attempts, subject to vendor filters). The vendor also has an email fallback when previously stored methods are no
-longer registered. The adapter rejects email as Digital Ranch MFA evidence, but that does not
-prevent the provider from sending mail. Therefore A activation is blocked until F is explicitly
+policy triggers (default threshold: 30 failed attempts, subject to vendor filters). The vendor alone
+also has an email fallback when previously stored methods are no longer registered. Correction:
+the enabled pinned adapter removes email from the provider registry globally, so that fallback
+fails closed in the combined stack. It does not suppress password-reset security mail.
+Therefore A activation is blocked until F is explicitly
 resolved: either approve the exact native security consequences and transport/recipients, or
 review and locally test a narrowly scoped alternative before activation. Do not silently disable
 vendor protection, change vendor bytes, claim that backups can unsend mail, or treat lesson-email

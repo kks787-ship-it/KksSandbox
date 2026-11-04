@@ -20,6 +20,12 @@ for attempt in $(seq 1 40); do
  sleep 1
 done
 "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" csf-scheduling-php81 bash /repo/tests/scheduling/mfa-install.sh
+if [[ "${CSF_TEST_PROVIDER_POLICY_ONLY:-0}" == 1 ]]; then
+ for trigger in 0 1; do
+  "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" -e CSF_TEST_PROVIDER_TRIGGER="$trigger" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/provider-policy.php
+ done
+ exit 0
+fi
 "${D[@]}" run -d --name "$STAMP-web" --network "$STAMP-net" -e PHP_CLI_SERVER_WORKERS=4 --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" csf-scheduling-php81 php -S 0.0.0.0:8899 -t /test/site >/dev/null
 for attempt in $(seq 1 30); do
  if "${D[@]}" exec "$STAMP-web" php -r '$s=@fsockopen("127.0.0.1",8899);if(!$s){exit(1);}fclose($s);' >/dev/null 2>&1; then break; fi

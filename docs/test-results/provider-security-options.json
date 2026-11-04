@@ -1,0 +1,53 @@
+{
+  "scope": "Scope F vendor/adapter comparison; isolated synthetic fixtures only",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "application_and_vendor_bytes_changed": false,
+  "findings": {
+    "vendor_alone": "Email fallback offered when all stored provider types are no longer registered",
+    "existing_enabled_adapter": "Global TOTP/backup registry restriction makes that fallback fail closed already",
+    "retained_vendor_behavior": "Actual thirtieth invalid factor resets synthetic password and attempts distinct user/admin security emails",
+    "mail_transport": "Intercepted before transport; only fixture .invalid recipients accepted; no delivery claim"
+  },
+  "validation": {
+    "database_images": [
+      "mariadb:10.6",
+      "mysql:8.0"
+    ],
+    "policy_and_threshold_assertions_per_engine": 22,
+    "policy_and_threshold_assertions_total": 44,
+    "final_engine_exit_codes": {
+      "mariadb": 0,
+      "mysql": 0
+    },
+    "existing_fixture_setup_assertions_per_engine": 8,
+    "recovery_identity_unit_tests": 214,
+    "development_guard_scenarios": 22,
+    "mocked_plesk_scenarios": 6,
+    "php_syntax": "PASS",
+    "bash_syntax": "PASS",
+    "non_fixture_path_rejection": "PASS",
+    "documentation_links_and_privacy_patterns": "PASS",
+    "custom_release_hashes": 24,
+    "provider_release_hashes": 21
+  },
+  "harness_development_notes": [
+    "Initial assertion incorrectly expected vendor email fallback with active adapter; source inspection identified existing global registry filter and comparison now explicitly isolates vendor baseline",
+    "Intermediate CLI harness lacked login rendering helpers and shared counter scope; test-only presentation no-ops and fatal-error checks now permit the real terminating reset path to be validated; intermediate exit255 was not counted as a pass"
+  ],
+  "limitations": [
+    "No real account control, factor enrollment, recovery custody, Toolkit/SSO or mail-delivery verification",
+    "False-positive operational lockout impact is source-derived; no deliberate real account lockout",
+    "Full calendar and browser regressions from prior commit remain historical, not rerun for this fixture-only addition",
+    "No deployable alternative policy or new adapter revision introduced"
+  ],
+  "remote_server_execution": false,
+  "owner_choices": "F/C pending; A/B conditional; D/E later checkpoints",
+  "sha256": {
+    "tests/scheduling/provider-policy.php": "0bcc7a8ed7a6a6febcdf6c4f19ba7d976f38d99379a97c2dc560f05bb8471d82",
+    "tests/scheduling/mfa-run.sh": "9361c004200909ac966d2e6c1a5a3a203316f56b06efe2124d506571f043c94f"
+  },
+  "local_log_sha256": {
+    "mariadb": "8a96cd0e3280e958737006960fcbe317097e016fec2264d1f35847d9b8fd6973",
+    "mysql": "8a96cd0e3280e958737006960fcbe317097e016fec2264d1f35847d9b8fd6973"
+  }
+}
