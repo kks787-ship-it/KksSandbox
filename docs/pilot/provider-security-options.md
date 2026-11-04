@@ -110,15 +110,18 @@ recipients from public contact details or select an SSH/Plesk identity as sender
 | Sender | Existing effective native WordPress security-mail sender after private review of active mail hooks and actual web/PHP transport; no From override or new credentials |
 | Recipients | One consenting affected-account controller's verified existing mailbox, plus verified existing site-admin mailbox if distinct and separately consented. Deduplicate privately; maximum TWO messages, each with one To recipient. No CC, BCC or recipient/forwarding changes. |
 | Subject | `Digital Ranch sandbox security-mail transport test` |
-| Body | Exact plain-text body below; one non-secret reference bound to approval |
-| Execution | One approved window, one bounded attempt, 120 seconds end to end; one submission per approved distinct mailbox; no background queue, schedule, automatic retry or alternate transport |
+| Body | Exact plain-text body below; a unique non-secret per-message reference bound to the single approved test |
+| Submission limit | One approved application attempt, maximum TWO unique initial submissions, one per consented distinct mailbox; 120-second submission-process limit; no automatic application resubmission or alternate route |
+| Native delivery | Existing mail-service queue, retry and expiration behavior is permitted only within the verified/consented native policy; service-owned delivery attempts may outlive the submission command and may produce duplicates or delivery-status notices. No service or queue setting changes. |
+| Queue ownership | Existing mail-service operator retains queue ownership; named pilot custodian observes only this test. No queue flush, hold, purge, forced retry, shared-log export or infrastructure change. |
+| Observation | Check after submission, about15 minutes and1 hour, then reconcile by submission time plus the verified sender queue/bounce horizon plus1 hour. Exact horizon/timestamps and responsible operator are private approval bindings, not an invented default. No unattended poller is created. |
 | Interface | Reviewed native WordPress `wp_mail` route used by security notifications; no password-reset function, lost-password endpoint, factor challenge or failed-attempt threshold |
 | Exclusions | No links, login/reset tokens, factors, recovery codes, attachments, customer records, lesson alerts, marketing, inquiry or emergency changes |
 | Evidence | Private per-recipient submission state and receiver confirmation; no addresses, headers, identifiers, private infrastructure or mailbox screenshots in GitHub |
 
 ```text
 Digital Ranch sandbox security-mail transport check.
-Reference: <approved non-secret test reference>
+Reference: <approved unique message reference>
 Please confirm receipt to the agreed operator through your usual private channel.
 ```
 
@@ -129,21 +132,57 @@ not bootstrap WordPress merely to discover those effects without a reviewed scop
 recovery protection. CLI PHP or host-MTA-only evidence is not proof of the web/PHP mail route.
 
 After private bindings are verified, finalize/hash the target-bound payload and obtain ONE
-consent for that exact attempt. This prepared request grants no sending authority. No test
-endpoint installation or transport replacement is proposed. Any existing queue/retry behavior
-that violates the stated bound must be resolved before approval, not silently exempted.
+consent for that test and its native queue behavior. This prepared request grants no sending
+authority. The120-second limit bounds application submission only, **not subsequent delivery**.
+Do not replace transport or alter shared infrastructure. Privately verify retry/expiration
+settings, envelope sender/return path, delivery-status-notice recipients and any downstream relay
+policy; do not pretend that a local queue horizon bounds a remote provider's queue.
 
-Record submission separately from receipt: `not_started`, `submission_failed`,
-`submission_accepted`, `receipt_confirmed`, or `outcome_unknown`. A true `wp_mail` result or MTA
-acceptance is submission only. The controller/custodian confirms inbox or spam-folder receipt
-with the test reference. Record forwarding, rejection or unexpected recipients privately.
-Success for one mailbox proves nothing about another and does not itself authorize MFA.
+Before the first call, commit a durable per-test/per-recipient submission claim. The locally
+tested [submission gate](../../scripts/pilot/security_mail_ledger.py) permits at most two initial
+claims and blocks replay even after a crash, failed/unknown result or concurrent workers. It has
+NO sender/queue/filesystem operation. It is not installed and is not a complete dispatcher.
+Before real use, bind exact approved sender/recipients/transport to opaque references, deduplicate
+actual mailboxes, validate private durable-storage/runtime availability and preserve claim/results
+across job restarts. Never start a new test reference merely to evade an unresolved claim.
 
-Stop for target/source/sender/recipient/transport mismatch, missing consent/recovery, unexpected
-mail/debug/credential effects, timeout or ambiguity. If one submission succeeds and another
-fails, report PARTIAL; do not resend either. A lost response requires durable-job and private
-mail/receiver evidence review before proposing any further attempt. Backups cannot retract
-email. Native reset paths remain synthetic-fixture tests, never deliberate real-account lockout.
+Use unique approved message references and, where supported by the reviewed native route,
+Message-IDs for correlation. These do **not** guarantee inbox deduplication or exactly-once SMTP
+delivery. Record repeated native attempts separately from new application submissions. A lost
+acknowledgment can produce a duplicate delivery; compare the same reference privately and escalate
+rather than creating a replacement message.
+
+Record evidence as separate events; a later event must not erase earlier uncertainty:
+
+| Event | What it proves |
+| --- | --- |
+| `submission_accepted` | The application's mail API accepted the call, not inbox receipt |
+| `queued` | The verified native queue contains this message, with private correlation evidence |
+| `attempted` | A recorded delivery attempt for this message, not a new application submission |
+| `provider_accepted` | A downstream provider accepted transfer; no claim that the receiver saw it |
+| `receiver_confirmed` | The consenting receiver confirmed the correct reference in inbox/spam through the agreed private channel |
+| `unknown` | Evidence is missing, ambiguous or outside the observation boundary; no inferred delivery or expiration |
+
+The named operator must be able to reconcile only this test's IDs without exposing other mail.
+If queue evidence cannot be isolated, the horizon cannot be verified, or no custodian can perform
+the agreed final check, hold dispatch and report that concern. Read-only active-session checks
+and the custodian's agreed final check are distinct from a background automation or promised
+future Codex execution. No new scheduler is installed by this proposal.
+
+Close early only after both intended receivers confirm and duplicate/anomaly review is clear.
+Otherwise reconcile by the agreed final deadline: PASS only for all required confirmed receipts;
+PARTIAL for some; FAIL for definitive rejection/bounce; UNKNOWN for pending/ambiguous outcomes.
+A queue expiry setting is not proof that this particular message expired; require evidence.
+Delivery after the observation window remains possible, especially after onward provider
+acceptance; the owner must acknowledge that limitation before consenting. Do not purge or force
+retry to manufacture a terminal result. Native bounces/status notices are reviewed native-service
+effects, not authorization for additional application messages or a password reset.
+
+Stop further application submissions for target/source/sender/recipient/route mismatch, missing
+consent/recovery, unexpected additional messages or credential effects, timeout or ambiguity.
+Inspect existing private job/queue/receiver evidence before proposing another test. An application
+stop does not recall a queued message. Backups cannot retract email. No real failed-factor or
+password-reset path is exercised; those vendor paths remain synthetic-fixture tests only.
 
 **D remains later:** actual operator recovery and essential Toolkit/SSO/API compatibility must
 pass before separate mandatory-admin enforcement. Its application-password/XML-RPC restrictions

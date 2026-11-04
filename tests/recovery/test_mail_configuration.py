@@ -22,6 +22,13 @@ class DB:
 
 
 class MailReview(unittest.TestCase):
+    def test_queue_intervals_are_bounded_metadata_not_delivery_proof(self):
+        from types import SimpleNamespace
+        r = m.queue_limits(lambda args, **k: SimpleNamespace(returncode=0, stdout=b'5d\n5d\n300s\n4000s\n300s\n'))
+        self.assertEqual(432000, r['maximal_queue_lifetime_seconds'])
+        self.assertEqual(300, r['queue_run_delay_seconds'])
+        for raw in (b'unknown', b'999999999d\n5d\n1s\n1s\n1s', b'5d\n5d\n1s\n1s\n1s\nextra'):
+            with self.assertRaises(ValueError): m.queue_limits(lambda *a, **k: SimpleNamespace(returncode=0, stdout=raw))
     def test_handler_defaults_extract_only_mail_value_from_text_or_html(self):
         for info in ('secret=do-not-return\nsendmail_path => /usr/sbin/sendmail -t -i => /usr/sbin/sendmail -t -i\n', '<tr><td class="e">sendmail_path</td><td class="v">/usr/sbin/sendmail -t -i</td><td class="v">same</td></tr>'):
             self.assertEqual('/usr/sbin/sendmail -t -i', m.handler_mail_default(info))
@@ -106,11 +113,12 @@ class MailReview(unittest.TestCase):
         sys.path.insert(0, str(fixture.b.BASE / 'scripts/pilot'))
         import build_mail_review
         with self.assertRaises(ValueError): build_mail_review.command('capture')
-        cmd = build_mail_review.command('transport_main')
-        self.assertEqual(cmd, build_mail_review.command('transport_main'))
-        r = subprocess.run(['/bin/bash', '-c', cmd.decode()], input=b'not-allowed', capture_output=True, timeout=5)
-        self.assertEqual(2, r.returncode)
-        self.assertFalse(json.loads(r.stdout)['writes'])
+        for entry in ('transport_main', 'queue_main'):
+            cmd = build_mail_review.command(entry)
+            self.assertEqual(cmd, build_mail_review.command(entry))
+            r = subprocess.run(['/bin/bash', '-c', cmd.decode()], input=b'not-allowed', capture_output=True, timeout=5)
+            self.assertEqual(2, r.returncode)
+            self.assertFalse(json.loads(r.stdout)['writes'])
 
 
 if __name__ == '__main__': unittest.main()

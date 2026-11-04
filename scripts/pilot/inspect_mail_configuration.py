@@ -152,3 +152,44 @@ def transport_main(b):
         code = 2
     print(json.dumps(result, sort_keys=True))
     return code
+
+
+QUEUE_FIELDS = ('maximal_queue_lifetime', 'bounce_queue_lifetime', 'minimal_backoff_time', 'maximal_backoff_time', 'queue_run_delay')
+
+
+def queue_limits(run=subprocess.run):
+    response = run(['/usr/sbin/postconf', '-h', *QUEUE_FIELDS], capture_output=True, timeout=10,
+                   env={'PATH': '/usr/sbin:/usr/bin:/bin', 'LC_ALL': 'C'})
+    if response.returncode != 0 or len(response.stdout) > 1024:
+        raise ValueError('Queue metadata unavailable')
+    rows = response.stdout.decode('ascii').strip().splitlines()
+    if len(rows) != len(QUEUE_FIELDS):
+        raise ValueError('Unexpected queue metadata')
+    values = {}
+    for key, value in zip(QUEUE_FIELDS, rows):
+        match = re.fullmatch(r'([0-9]+)([smhdw]?)', value.strip())
+        if not match:
+            raise ValueError('Unsupported queue interval')
+        seconds = int(match[1]) * {'': 1, 's': 1, 'm': 60, 'h': 3600, 'd': 86400, 'w': 604800}[match[2]]
+        if seconds > 366 * 86400:
+            raise ValueError('Unbounded observation horizon')
+        values[key + '_seconds'] = seconds
+    return values
+
+
+def queue_main(b):
+    try:
+        if sys.stdin.buffer.read(1):
+            raise ValueError('No input accepted')
+        budget = b.Budget(time.time() + 55, 55)
+        b.require(b.ROOT.resolve(strict=True) == b.ROOT)
+        config = b.read_regular(b.ROOT / 'wp-config.php', 16 * 1024**2, budget)[0]
+        b.NativeDB(b.validate_config(config, credentials=True), budget).guard(None)
+        result = {'state': 'native-queue-intervals-only', 'intervals': queue_limits(), 'writes': False,
+                  'execution_authorized': False, 'delivery_tested': False, 'external_relay_horizon_verified': False}
+        code = 0
+    except Exception:
+        result = {'state': 'blocked', 'code': 'QUEUE_INTERVAL_REVIEW_UNAVAILABLE', 'writes': False, 'execution_authorized': False}
+        code = 2
+    print(json.dumps(result, sort_keys=True))
+    return code

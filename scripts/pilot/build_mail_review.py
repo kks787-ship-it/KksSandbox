@@ -12,7 +12,7 @@ import build
 
 
 def command(entrypoint='main'):
-    if entrypoint not in ('main', 'transport_main'):
+    if entrypoint not in ('main', 'transport_main', 'queue_main'):
         raise ValueError('Unknown diagnostic')
     library = build.artifacts()['scripts/recovery/payload.py'].decode().replace("if __name__=='__main__':sys.exit(main())", '')
     source = (ROOT / 'scripts/pilot/inspect_mail_configuration.py').read_text()

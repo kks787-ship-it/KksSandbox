@@ -1,0 +1,63 @@
+{
+  "scope": "Finite native-queue mail-test preparation and parallel pinned calendar readiness",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "application_sources_changed": false,
+  "mail_procedure": {
+    "initial_application_submissions_max": 2,
+    "submission_command_limit_seconds": 120,
+    "native_delivery_retries": "Permitted only by exact eventual dispatch consent; no application resubmission",
+    "observation": "Private verified sender queue/bounce horizon plus one-hour reconciliation margin, with named custodian and explicit late/downstream-delivery limitations",
+    "delivery_events": [
+      "submission_accepted",
+      "queued",
+      "attempted",
+      "provider_accepted",
+      "receiver_confirmed",
+      "unknown"
+    ],
+    "idempotency": "Local dedicated-connection SQLite claim prototype; durable claim before send; crash/unknown/failed outcomes prohibit blind replay; no mail or filesystem operations in module",
+    "runtime_status": "Not installed; not a complete dispatcher; real private storage and binding verification required before use"
+  },
+  "local_tests": {
+    "recovery_diagnostic_and_ledger_tests": 234,
+    "concurrent_same_recipient": "Exactly one claim across8 workers",
+    "concurrent_distinct_recipients": "At most two initial claims across8 workers",
+    "message_reference_collision": "Rollback preserves capacity for valid second claim",
+    "unknown_or_failed_submission": "Still consumes initial claim; no resend",
+    "python_syntax_files": 5,
+    "documentation_links_privacy_patterns": "PASS",
+    "development_guard_scenarios": 22,
+    "mocked_plesk_scenarios": 6
+  },
+  "parallel_calendar": {
+    "PHP": "8.3.36",
+    "database": "MySQL8.0.46 disposable fixture",
+    "database_assertions": 366,
+    "runner_exit": 0,
+    "race_migration_and_logical_restore": "PASS",
+    "disposable_containers_cleaned": "Verified",
+    "browser_checks": "Not rerun; preceding PHP8.3/MariaDB98 checks remain historical"
+  },
+  "environment_incident": {
+    "local_disk_exhaustion": "Recovered by removing only unused local Docker build cache; no project source, images in use, volumes or farm data removed",
+    "mysql_result": "Runner completed with exit0 and final data-restoration checks after space recovery; failed-to-launch separate unit command was rerun successfully"
+  },
+  "protected_evidence": "Native queue intervals retained only in existing private worksheet; no private operational metadata reproduced",
+  "restrictions": "No messages, password resets, MFA installation/enrollment, grants, scheduling activation, shared configuration or production changes",
+  "remaining_inputs": [
+    "Private controller/recovery custody and recipient consent",
+    "Actual sender/route and downstream/bounce review",
+    "Exact final observation window/custodian and scoped real-dispatch authorization"
+  ],
+  "local_log_sha256": {
+    "mysql": "589cbdafe740e75db13cf5517104643e6734e5babe153089d48186171b117a4a",
+    "unit": "4eee189d77a9c111d2830121ebf60347f29ff91ff8c697d1e651ee141bcc6dfc"
+  },
+  "sha256": {
+    "scripts/pilot/inspect_mail_configuration.py": "6c7febd077db1e32cb9d56e20f612e7261ff59a29cdc205f9671056f56c858a2",
+    "scripts/pilot/build_mail_review.py": "5911f7ec711f8d9cbfdb43d545c92ff0ec6de0682d0019d3cc6b68e550aa6892",
+    "scripts/pilot/security_mail_ledger.py": "b2f4510eb39d0d346095e69aa7c4a5abc867d8b033086d56451dac6c04b2fd6d",
+    "tests/recovery/test_mail_configuration.py": "fc07c7fe73af2b086b35104bd6f68e6e48ce7545e0e0a3253f651442739c9e4a",
+    "tests/recovery/test_security_mail_ledger.py": "5a783c3d90c78a20a19ab28eb9972ea6a048df158e65163ff1123364fdfd0ca3"
+  }
+}
