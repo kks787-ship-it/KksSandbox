@@ -1,0 +1,37 @@
+{
+  "application_sources_changed": false,
+  "design": {
+    "installation_scope": "21 pinned vendor files and4 pinned adapter files",
+    "mandatory_enforcement": "never enabled by installer",
+    "pre_auth_backup": "required and verified before writes",
+    "private_recovery_binding": "not committed",
+    "real_enrollment": "controller-led only; secrets never collected",
+    "rollback": "review pre-change recovery state; never overwrite newer owner changes automatically",
+    "vendor_source": "authoritative public release; destination verifies ZIP digest and exact inventory"
+  },
+  "evidence_sha256": {
+    "local_native_fixture_log": "3919db2b7b10ad5f831a4a8676629f4efb1ae8c0ca008bbf2c30ec04226b0b09",
+    "unit_log": "80e7af071458aa01187d001deb4899fe5b346aef4fe26a97a45f16af8b56031b"
+  },
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "limitations": [
+    "Local fixtures do not establish real account authentication or recovery success.",
+    "Actual enrollment, TOTP challenge, backup-code consumption and revoked-session verification require controller participation.",
+    "A non-successful installation requires reconciliation; do not blindly rerun or remove an independent owner change."
+  ],
+  "local_validation": {
+    "deployment_guard_scenarios_passed": 22,
+    "existing_fixture_setup_assertions_passed": 8,
+    "mocked_plesk_identity_scenarios_passed": 6,
+    "native_activation_fixture_cases_passed": 2,
+    "unit_tests_passed": 266
+  },
+  "source_sha256": {
+    "scripts/pilot/build_mfa_install.py": "a6c44cf97f7322fadff10acb438a11d7c18a017270e00db9ae89adba38ec6116",
+    "scripts/pilot/install_mfa.py": "6c25a3d01ffae8cb79ca09da7ac879164189562aeab801a475ed24ff0c9362c2",
+    "scripts/pilot/mfa_activation.php.txt": "5457f6027109c6485c183055a05253ab77b7aff4a4047d00bbaee58d98eea862",
+    "tests/recovery/test_mfa_install.py": "989c4ac95719fd1853faddd4b3a9ea7029f2ad796fcb8a83a1e9e3acffe6ae77",
+    "tests/scheduling/mfa-install-native.php": "6739c4a647d42cf1a2c5a816db95a0236f5af571fb4af6012b9fd814aff74161",
+    "tests/scheduling/mfa-run.sh": "7b6fef1a879417e860578211cb1a7e2cbedc2c641e6172775ca1bd821ddf13ad"
+  }
+}

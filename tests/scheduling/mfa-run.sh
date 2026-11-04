@@ -20,6 +20,12 @@ for attempt in $(seq 1 40); do
  sleep 1
 done
 "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" csf-scheduling-php81 bash /repo/tests/scheduling/mfa-install.sh
+if [[ "${CSF_TEST_NATIVE_INSTALL_ONLY:-0}" == 1 ]]; then
+ for operation in activate verify; do
+  "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" -e CSF_TEST_MFA_INSTALL_OPERATION="$operation" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/mfa-install-native.php
+ done
+ exit 0
+fi
 if [[ "${CSF_TEST_NATIVE_MAIL_ONLY:-0}" == 1 ]]; then
  for native_case in preview dispatch wrong_binding no_approval unexpected_sender_hook unexpected_recipient_hook wrong_sapi preview_case dispatch_case; do
   "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" -e CSF_TEST_NATIVE_CASE="$native_case" csf-scheduling-php81 php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/native-mail-runtime.php

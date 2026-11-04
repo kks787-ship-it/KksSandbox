@@ -1,0 +1,33 @@
+<?php
+// Private one-use activation/verification request; never a public endpoint.
+$p = json_decode(base64_decode('__PARAMETERS__'), true, 16, JSON_THROW_ON_ERROR);
+ob_start();
+function dr_mfa_require($ok) { if (!$ok) { throw new RuntimeException('Guard blocked'); } }
+try {
+    dr_mfa_require(PHP_SAPI === 'fpm-fcgi' && posix_geteuid() === $p['uid']);
+    define('DISABLE_WP_CRON', true);
+    require_once $p['root'] . '/wp-load.php';
+    dr_mfa_require(ABSPATH === $p['root'] . '/' && get_option('home') === $p['url'] && get_option('siteurl') === $p['url']);
+    dr_mfa_require(!is_multisite() && !is_user_logged_in());
+    dr_mfa_require(defined('CSF_MFA_ENABLED') && CSF_MFA_ENABLED === true);
+    dr_mfa_require(!defined('CSF_MFA_ENFORCE_ADMIN') || CSF_MFA_ENFORCE_ADMIN === false);
+    require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    if ($p['operation'] === 'activate') {
+        dr_mfa_require(hash_equals($p['before_plugins_sha256'], hash('sha256', maybe_serialize(get_option('active_plugins')))));
+        foreach (array('two-factor/two-factor.php', 'csf-mfa/csf-mfa.php') as $plugin) {
+            $result = activate_plugin($plugin);
+            dr_mfa_require(!is_wp_error($result) && is_plugin_active($plugin));
+        }
+        $out = array('state' => 'activated', 'enforcement' => false);
+    } elseif ($p['operation'] === 'verify') {
+        dr_mfa_require(CSF_MFA_Session::ready());
+        $methods = array_keys(Two_Factor_Core::get_providers());
+        sort($methods);
+        dr_mfa_require($methods === array('Two_Factor_Backup_Codes', 'Two_Factor_Totp'));
+        dr_mfa_require(!is_plugin_active('csf-scheduling/csf-scheduling.php') && !is_plugin_active('csf-emergency/csf-emergency.php'));
+        $out = array('state' => 'verified', 'enforcement' => false, 'provider_inventory_verified' => true, 'F2_methods_verified' => true);
+    } else { throw new RuntimeException('Operation blocked'); }
+} catch (Throwable $error) { $out = array('state' => 'blocked'); }
+while (ob_get_level()) { ob_end_clean(); }
+header('Content-Type: application/json');
+echo json_encode($out);
