@@ -1,0 +1,36 @@
+{
+  "scope": "F2 approval recorded; bounded read-only mail-configuration inspector and conditional A/B/C authorization preparation",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "application_sources_changed": false,
+  "owner_design_decision": "F2 approved; no repeated design-choice request",
+  "execution_scope": "No installation, enrollment, credentials, mail sending, grants, enforcement or scheduling activation authorized",
+  "local_validation": {
+    "recovery_and_diagnostic_tests": 219,
+    "new_mail_indicator_tests": 5,
+    "python_syntax_files": 3,
+    "generated_shell_syntax": "PASS",
+    "deterministic_bounded_builder": "PASS; 55 seconds plus five-second termination grace",
+    "unexpected_input": "Rejected before target access",
+    "recipient_and_transport_proof": "Never inferred from configuration indicators",
+    "documentation_links_privacy_patterns": "PASS"
+  },
+  "limitations": [
+    "Recognized SMTP plugin/options list is non-exhaustive",
+    "Inspector deliberately does not read account addresses, sender credentials, account identity/control or mail contents",
+    "Configuration indicators cannot establish actual web-SAPI transport, intended recipients, sender authentication or mail delivery",
+    "Existing local calendar/provider browser results remain historical to this task; no new browser or database migration run"
+  ],
+  "protected_findings": "Kept only in existing private owner worksheet; not included in public report",
+  "remaining_prerequisites": [
+    "Private witnessed controller/recovery/custody evidence",
+    "Verified intended recipients, sender and actual transport",
+    "Separately scoped finite outbound test consent",
+    "Scoped A/B installation/enrollment decision after C assignments"
+  ],
+  "sha256": {
+    "scripts/pilot/inspect_mail_configuration.py": "62d918baa74c28df66f075c26886e1b33da001d79f9a40e25452c99565344c11",
+    "scripts/pilot/build_mail_review.py": "725caec493dd68a31421438c002bf67df4f729cf16ac5374f1ba42f5621f2d57",
+    "tests/recovery/test_mail_configuration.py": "63b22b6a4c827d8dcbe94fc81ca9b73b8a4f5d17df644e93a2623804bb5c9454"
+  },
+  "local_test_log_sha256": "81e9569f7a65649b28801af0e776bd9eedbcd4e54e4852a6598c70b5bc828ba7"
+}

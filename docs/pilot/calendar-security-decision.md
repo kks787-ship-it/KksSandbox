@@ -3,6 +3,8 @@
 Current scope-F comparison and minimum ordered A/B/C decision:
 [provider security options](provider-security-options.md). It distinguishes vendor-alone email
 fallback from the enabled pinned adapter, which already removes the email provider globally.
+F2 design is now owner-approved; do not reopen that choice. Real controller/custody, recipient/
+transport verification and A/B installation/enrollment authorization remain outstanding.
 
 This procedure completes calendar prerequisites; it does not add users, redesign permissions,
 enable email alerts or deploy the relationship prototype. Use the existing account labels:
@@ -64,7 +66,7 @@ collects owner statements for review; it performs no server operation and grants
 | C — maintenance and recovery | Name a human custodian for advisory review, tested updates and lost-device recovery; assign secure/offline code custody per person. No automatic provider update or emergency MFA bypass. | Private custodian references required |
 | D — mandatory administrator MFA | Separate checkpoint after actual recovery evidence and essential Toolkit/API compatibility; enable `CSF_MFA_ENFORCE_ADMIN` only if approved. It globally disables application-password authentication/creation and authenticated XML-RPC. | Hold until evidence; then Approve / Revise / Hold |
 | E — farm authority | Separate effective-access review and MFA-bound one-use ownership ceremony: Technical Master operates, Operations becomes initial farm owner, Head Trainer receives the reviewed group/overrides. Preserve native roles. | Hold until verified controllers and MFA; then Approve / Revise / Hold |
-| F — provider automatic security consequences | Review built-in failed-factor password reset and user/admin security emails. The enabled pinned adapter already blocks the vendor's email fallback globally; preserve that restriction. Approving enrollment alone does not approve reset or mail effects. | Hold; resolve before provider activation |
+| F — provider automatic security consequences | Preserve approved F2 design: native reset/security mail and global TOTP/backup-only registry. Recipient, sender, transport and scoped outbound-test verification still precede activation. | Design approved; execution prerequisites pending |
 
 Approval of A does not approve B, D or E. Naming a custodian is not a privilege grant. No native
 security email, real lesson alert, password reset, test message or external notification is

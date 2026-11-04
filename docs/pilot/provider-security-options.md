@@ -1,5 +1,14 @@
 # Scope F — minimum provider decision for the calendar
 
+## Owner decision recorded
+
+**F2 design is approved. Do not ask for that design choice again.** Preserve TOTP, single-use
+backup codes, the existing global provider restriction and native reset/security-mail protections.
+This is not authorization to install or activate MFA, enroll real factors, reset credentials,
+send messages, grant permissions or activate scheduling. Private controller/recovery verification
+and security-mail recipient/sender/transport verification must precede the scoped A/B/C decision.
+D enforcement and E farm grants remain later checkpoints.
+
 Source and isolated-fixture findings only. No real credentials, password reset, mail delivery,
 provider installation or authentication setting was changed. Scheduling/adapter pin `2fd02a2`
 is preserved; this comparison introduces no new production plugin or policy implementation.
@@ -59,7 +68,7 @@ Do not repeat account matching or copy identities/addresses/custody references t
 
 | Decision | Scope to select |
 | --- | --- |
-| F | Select F2/current pin or hold. Explicitly accept its global TOTP/backup restriction, fail-closed provider loss and retained automatic reset/security-mail consequences. Sender, verified recipient references and finite delivery-test scope must be settled privately before activation. F1 is a source comparison, not permission to weaken the pinned adapter. |
+| F | F2 design already approved. Preserve the current pin and native protections. Sender, verified recipient references and finite delivery-test scope still need private verification/consent before activation. F1 remains a source comparison, not a new choice or permission to weaken the pinned adapter. |
 | C | Confirm private controller/custodian assignments and witnessed-login evidence; designate maintenance/update and incident-recovery responsibility. Unknown human independence stays unresolved. No privilege grant follows from a custody reference. |
 | A | Conditional on F/C: install the pinned 21-file Two-Factor0.17.0 distribution plus 4-file adapter0.2.0; activate those two and enable `CSF_MFA_ENABLED`. Keep mandatory-admin enforcement off. Verify the exact existing scheduling20 files without activating scheduling. |
 | B | Conditional on F/C/A and each controller's consent: individual TOTP/backup enrollment; fresh native challenge/login/logout and one-use-code recovery rehearsal. Controllers retain secrets; no code collection, shared seed, duplicate account or changed recovery destination. |
@@ -69,6 +78,25 @@ backup; retain a reviewed rollback to the protected pre-change state. Stop for u
 lockout, mail/credential effects outside approved scope, changed identities, missing recovery
 or source mismatch. Do not auto-restore over newer owner changes or disable MFA to pass a test.
 No A/B execution is authorized by this prepared card or an in-principle recommendation.
+
+### Minimum execution request after private verification
+
+Complete these fields in the existing private worksheet, not in a public issue. Do not create
+another account register or collect factor secrets. Pending fields keep the request conditional.
+
+| Required item | Completion evidence / exact scope |
+| --- | --- |
+| Controller and C custody | Witnessed native login references for each existing identity; verified recovery custodian/destination control; operator/owner human-independence determination; individual device/code custody and maintenance/recovery responsibility |
+| Security-mail readiness | Privately reviewed existing affected-user/site-admin recipients and sender; actual web/PHP mail route identified, not inferred from CLI PHP, plugin presence or an option's existence |
+| Finite outbound test | Separately approve the exact verified sender/recipients, transport and bounded message count/purpose. No deliberately induced real-account reset, password-reset link or factor code in a transport test; no unapproved retries or forwarding. No real delivery is implied by local interception. |
+| A installation | Approved pinned provider21/adapter4 files and activation/configuration scope above; no mandatory enforcement, role change, scheduler activation or schema apply |
+| B enrollment | Each controller consents; personally enrolls TOTP/backup codes and completes fresh challenge, logout and single-use-code rehearsal without changing credentials/recovery destinations |
+| Window and rollback | Fresh target-bound pre-authentication backup, verified recovery readiness, exact approved window and rollback reference; no restoration over later owner changes |
+
+Approve A and B individually and record C assignments; outbound-test permission is independently
+scoped. If readiness is incomplete, finish only the safe read-only/local work and report the
+missing evidence. A saved reference or syntactically plausible email is not ownership, custody,
+sender authentication, transport compatibility or delivery proof.
 
 **D remains later:** actual operator recovery and essential Toolkit/SSO/API compatibility must
 pass before separate mandatory-admin enforcement. Its application-password/XML-RPC restrictions
