@@ -98,6 +98,53 @@ scoped. If readiness is incomplete, finish only the safe read-only/local work an
 missing evidence. A saved reference or syntactically plausible email is not ownership, custody,
 sender authentication, transport compatibility or delivery proof.
 
+### One controlled native security-mail transport test — prepared, not authorized
+
+This is the single proposed test. Do not repeat completed configuration inspection or account
+matching. Private bindings are not verified, so it is **not execution-ready**. Do not guess
+recipients from public contact details or select an SSH/Plesk identity as sender.
+
+| Binding / limit | Exact proposed scope |
+| --- | --- |
+| Target | Designated protected sandbox, verified by the existing exact-target guard; no production or shared mail-service changes |
+| Sender | Existing effective native WordPress security-mail sender after private review of active mail hooks and actual web/PHP transport; no From override or new credentials |
+| Recipients | One consenting affected-account controller's verified existing mailbox, plus verified existing site-admin mailbox if distinct and separately consented. Deduplicate privately; maximum TWO messages, each with one To recipient. No CC, BCC or recipient/forwarding changes. |
+| Subject | `Digital Ranch sandbox security-mail transport test` |
+| Body | Exact plain-text body below; one non-secret reference bound to approval |
+| Execution | One approved window, one bounded attempt, 120 seconds end to end; one submission per approved distinct mailbox; no background queue, schedule, automatic retry or alternate transport |
+| Interface | Reviewed native WordPress `wp_mail` route used by security notifications; no password-reset function, lost-password endpoint, factor challenge or failed-attempt threshold |
+| Exclusions | No links, login/reset tokens, factors, recovery codes, attachments, customer records, lesson alerts, marketing, inquiry or emergency changes |
+| Evidence | Private per-recipient submission state and receiver confirmation; no addresses, headers, identifiers, private infrastructure or mailbox screenshots in GitHub |
+
+```text
+Digital Ranch sandbox security-mail transport check.
+Reference: <approved non-secret test reference>
+Please confirm receipt to the agreed operator through your usual private channel.
+```
+
+The reference grants no access. Record exact sender, consented recipients, transport, reference
+and window in the EXISTING private worksheet. Review actual active hooks for extra recipients,
+debug output, queuing and other outbound effects before authorizing an executable payload. Do
+not bootstrap WordPress merely to discover those effects without a reviewed scope and current
+recovery protection. CLI PHP or host-MTA-only evidence is not proof of the web/PHP mail route.
+
+After private bindings are verified, finalize/hash the target-bound payload and obtain ONE
+consent for that exact attempt. This prepared request grants no sending authority. No test
+endpoint installation or transport replacement is proposed. Any existing queue/retry behavior
+that violates the stated bound must be resolved before approval, not silently exempted.
+
+Record submission separately from receipt: `not_started`, `submission_failed`,
+`submission_accepted`, `receipt_confirmed`, or `outcome_unknown`. A true `wp_mail` result or MTA
+acceptance is submission only. The controller/custodian confirms inbox or spam-folder receipt
+with the test reference. Record forwarding, rejection or unexpected recipients privately.
+Success for one mailbox proves nothing about another and does not itself authorize MFA.
+
+Stop for target/source/sender/recipient/transport mismatch, missing consent/recovery, unexpected
+mail/debug/credential effects, timeout or ambiguity. If one submission succeeds and another
+fails, report PARTIAL; do not resend either. A lost response requires durable-job and private
+mail/receiver evidence review before proposing any further attempt. Backups cannot retract
+email. Native reset paths remain synthetic-fixture tests, never deliberate real-account lockout.
+
 **D remains later:** actual operator recovery and essential Toolkit/SSO/API compatibility must
 pass before separate mandatory-admin enforcement. Its application-password/XML-RPC restrictions
 are not approved by A/B. **E remains later:** independently verified MFA-bound ownership ceremony
