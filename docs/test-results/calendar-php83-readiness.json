@@ -1,0 +1,48 @@
+{
+  "scope": "Local calendar PHP8.3 readiness and bounded read-only transport diagnostic improvements",
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "application_sources_changed": false,
+  "local_calendar_validation": {
+    "PHP": "8.3.36",
+    "WordPress": "6.8.3",
+    "database_image": "mariadb:10.6",
+    "database_assertions": 366,
+    "calendar_browser_checks": 59,
+    "permissions_browser_checks": 39,
+    "runner_exit": 0,
+    "concurrency": "PASS empty/populated bookings and group horse/instructor/rider races",
+    "authorization": "PASS revocation, last-master, forged writes and stale permissions",
+    "schema_and_recovery": "PASS populated v2-to-v3, legacy fail-closed, logical restoration, migration race",
+    "responsive_accessibility": "PASS phone/tablet/desktop checks in existing browser suite",
+    "disposable_container_cleanup": "Verified"
+  },
+  "local_diagnostic_validation": {
+    "unit_tests": 226,
+    "python_and_shell_syntax": "PASS",
+    "unsupported_php_test_version": "Rejected before Docker actions",
+    "default_php_test_version": "8.1 unchanged; separate local image selected explicitly for8.3",
+    "development_guard_scenarios": 22,
+    "mocked_plesk_scenarios": 6,
+    "transport_metadata": "Tested missing/ambiguous override, wrong pool, dynamic command rejection, private runtime-value extraction, override precedence, queue detection and unresolved package handling",
+    "sending_capability": "None; sendmail is never executed and WordPress is never bootstrapped"
+  },
+  "protected_evidence": "Transport observations retained only in existing private worksheet; not reproduced here",
+  "limits": [
+    "Local stock WordPress is not protected Kadence acceptance",
+    "No fresh MySQL run on PHP8.3",
+    "Controller/custody verification and real sender/recipient/route/receipt remain separate prerequisites",
+    "No mail, MFA installation/enrollment, real grants, scheduler activation, migration or server configuration change",
+    "No expansion or relaxation of approved mail-test design"
+  ],
+  "local_log_sha256": {
+    "calendar": "61626fc0b2498b8c5af60febcfc1b85aafd1ae0577842dda08a8cda4bcc9ae6f",
+    "diagnostic_unit_tests": "ee5f596e84bcd4ba40f55f5d71d5c6831a6d79b9753f165f16c5f6d48c401337"
+  },
+  "sha256": {
+    "scripts/pilot/build_mail_review.py": "4411a193398f461714a7d7061946a782982e57e28735ffdc361cc10d40a991a1",
+    "scripts/pilot/inspect_mail_configuration.py": "b20ab85dcad69ed375cf7301d1cd8ea01fedb987799726094950e06049ce94e8",
+    "tests/recovery/test_mail_configuration.py": "d091e0db32e611a90a71b2b8d2c309fd2649ef1c20fe6d8163b48cf0bbc3ac48",
+    "tests/scheduling/Dockerfile": "d40a0957c72e91cf73f89a45f59826988e217d1e5a3708f8388e47fb6f435b7c",
+    "tests/scheduling/run.sh": "1dc0b31d9da6f5daaefa3dcc5b83112019ef370578bf14ea608ea5643dc1bc5a"
+  }
+}

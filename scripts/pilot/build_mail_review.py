@@ -11,10 +11,13 @@ sys.path.insert(0, str(ROOT / 'scripts/recovery'))
 import build
 
 
-def command():
+def command(entrypoint='main'):
+    if entrypoint not in ('main', 'transport_main'):
+        raise ValueError('Unknown diagnostic')
     library = build.artifacts()['scripts/recovery/payload.py'].decode().replace("if __name__=='__main__':sys.exit(main())", '')
     source = (ROOT / 'scripts/pilot/inspect_mail_configuration.py').read_text()
-    payload = (library + "\nimport types\n_B=types.SimpleNamespace(**globals())\n_M={'__name__':'mail_indicators'}\nexec(compile(" + repr(source) + ",'<mail-indicators>','exec'),_M)\nsys.exit(_M['main'](_B))\n").encode()
+    paths = (ROOT / 'scripts/recovery/inspect_local.py').read_text() if entrypoint == 'transport_main' else ''
+    payload = (library + "\nimport types\n_B=types.SimpleNamespace(**globals())\n_P={'__name__':'verified_config_paths'}\nexec(compile(" + repr(paths) + ",'<verified-config-paths>','exec'),_P)\n_B.POOL=_P.get('POOL');_B.DOMAIN=_P.get('DOMAIN')\n_M={'__name__':'mail_indicators'}\nexec(compile(" + repr(source) + ",'<mail-indicators>','exec'),_M)\nsys.exit(_M['" + entrypoint + "'](_B))\n").encode()
     digest = hashlib.sha256(payload).hexdigest()
     encoded = base64.b64encode(zlib.compress(payload, 9)).decode()
     code = "import base64,zlib,hashlib;p=zlib.decompress(base64.b64decode('" + encoded + "'));assert hashlib.sha256(p).hexdigest()=='" + digest + "';exec(compile(p,'<pinned-mail-review>','exec'),{'__name__':'review','__file__':'<pinned-mail-review>'})"
