@@ -1,0 +1,84 @@
+{
+  "application_sources_changed": false,
+  "candidate": {
+    "actual_targets": "privately_bound_owner_selection_deduplicated",
+    "command_sha256": "047e60f504fb099e5f230643c3ee3abf8282af2d2638e6798aecac82d607ca97",
+    "delivery_receipt": "independent_recipient_confirmation_required",
+    "durable_claims": "before_native_call_no_automatic_resubmission",
+    "maximum_initial_submissions": 2,
+    "outcome_after_interrupted_submission": "unknown_requires_reconciliation",
+    "recovery_binding": "fresh_integrity_verified_runtime_input",
+    "required_explicit_consent": true,
+    "snapshot_and_native_queue_drift": "abort_before_submission",
+    "submission_process_limit_seconds": 120
+  },
+  "diagnostic_history": [
+    "Earlier non-sending probes stopped on unresolved pool-listener scope and inaccessible temporary staging. Explicit pool-prefix resolution and staging in the existing approved private parent corrected these; no existing permissions or service configuration changed.",
+    "Initial local integration harness encountered WP-CLI instrumentation and double-bootstrap conflicts. Corrections are restricted to the synthetic harness; protected runtime guards remain strict."
+  ],
+  "implementation_pin": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "limitations": [
+    "Synthetic transport tests do not establish real delivery.",
+    "Runtime preview qualifies anonymous native mail execution; it does not verify a human login or MFA session.",
+    "A submission deadline cannot recall mail already handed to the native queue or terminate an in-flight native send reliably.",
+    "Existing native retries and delivery-status messages can continue beyond the submission job; final reconciliation uses privately verified sender/bounce horizons plus one hour.",
+    "No new calendar acceptance, MFA enrollment, security enforcement, grants or activation was performed."
+  ],
+  "local_evidence_sha256": {
+    "synthetic_wordpress_log": "9ceb63b8e3ac7486b8260c19ebbc17c1dcb347d06869fdf447e723a4ad19bb0c",
+    "unit_log": "9143b1429ab0fbb93ccd5800f516d8e359fc2ec907b48a764177152737bf523b"
+  },
+  "protected_qualification": {
+    "actual_delivery_verified": false,
+    "existing_functional_recovery_procedure": "previously_verified",
+    "fresh_target_bound_capture_integrity": "pass",
+    "mail_dispatched": false,
+    "native_non_sending_runtime_preview": "pass",
+    "new_isolated_restore_performed": false,
+    "temporary_probe_cleanup": "pass"
+  },
+  "source_sha256": {
+    "scripts/pilot/build_mail_review.py": "0144f85b441d3f049dcd1fdd11dc6be4a97aa3b115b286f99a11579540d80383",
+    "scripts/pilot/build_native_mail_runtime.py": "b8e0e80bb12e15fa033f02055688197e14c44ce3b9a237ce013798649c003de9",
+    "scripts/pilot/build_owner_handoff_review.py": "6fc8e5f59ddc17c0a3c95bd52a3d7945daf88f75e891c534c57b4c0d8a959e13",
+    "scripts/pilot/inspect_mail_configuration.py": "1cc22e43bdde692d6bf9e134cbac5a567d04965d5b94f53cf29af4b1b25c42df",
+    "scripts/pilot/native_mail_runtime.php.txt": "3e00077b0821ec83128d710b736fa9fbe59f99df47183a23c99eeb075747b658",
+    "scripts/pilot/native_mail_runtime.py": "3078f44567f4cab163b8acb5945f09076e0538c4a6279c77f5c7922fb2eca632",
+    "scripts/pilot/review_owner_handoff.py": "269cad52e4e501ec44ea496f94856c3f1d6e39e9377a5f13c90840a2d047ddac",
+    "tests/recovery/test_mail_configuration.py": "aa5296278782179ce6ccf3aad91befea2a759c9d56be30903a43d4a61f23082f",
+    "tests/recovery/test_native_mail_runtime.py": "3124d05e6e80b44dc96793e9259a0436bbbb3d5bdb36c1804eee98ffe94939f3",
+    "tests/recovery/test_owner_handoff.py": "dfcd275543bd9f7cbeceaffee76482e11c26d286438d50ae6908727e867a911e",
+    "tests/scheduling/mfa-run.sh": "a650b70cc43659b8b9bb4197d7c883044cf6fbe7916080766f48f5b3caa77512",
+    "tests/scheduling/native-mail-runtime.php": "55bf79983f4dc889c0975c81ab04c72afc1579fdee99377bb2584ee983ca6caf"
+  },
+  "status": "dispatch-prepared-not-authorized",
+  "validation": {
+    "changed_php_syntax": "pass",
+    "development_guard_scenarios_passed": 22,
+    "diff_whitespace": "pass",
+    "disposable_fixture_cleanup": "pass",
+    "local_wordpress_fake_transport_cases": {
+      "cases": [
+        "preview",
+        "dispatch",
+        "wrong_binding",
+        "no_approval",
+        "unexpected_sender_hook",
+        "unexpected_recipient_hook",
+        "wrong_sapi",
+        "preview_case",
+        "dispatch_case"
+      ],
+      "external_mail_used": false,
+      "failed": 0,
+      "passed": 9
+    },
+    "mocked_plesk_identity_scenarios_passed": 6,
+    "python_ast": "pass",
+    "recovery_diagnostic_unit_tests": {
+      "failed": 0,
+      "passed": 260
+    },
+    "shell_syntax": "pass"
+  }
+}

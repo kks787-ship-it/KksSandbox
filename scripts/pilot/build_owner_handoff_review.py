@@ -9,7 +9,9 @@ import zlib
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def command(directory):
+def command(directory, review_function='review'):
+    if review_function not in ('review', 'mail_readiness'):
+        raise ValueError('Unknown review function')
     if re.fullmatch(r'/tmp/dr-controller-review-[a-f0-9]{32}', directory) is None:
         raise ValueError('Exact temporary review directory required')
     source = (ROOT / 'scripts/pilot/review_owner_handoff.py').read_text()
@@ -31,7 +33,7 @@ try:
         assert identity.st_size<=65536
         raw=os.read(fd,65537)
     finally:os.close(fd)
-    result=namespace['review'](raw)
+    result=namespace[REVIEW_FUNCTION](raw)
 except Exception:
     pass
 finally:
@@ -50,7 +52,7 @@ finally:
     if not removed:result={'state':'blocked','code':'TEMPORARY_CLEANUP_REQUIRES_REVIEW','execution_authorized':False,'temporary_copy_removed':False}
 print(json.dumps(result,sort_keys=True))
 '''
-    payload = ('namespace={"__name__":"reference_review"}\nexec(compile(' + repr(source) + ',"<reference-review>","exec"),namespace)\nDIRECTORY=' + repr(directory) + '\n' + body).encode()
+    payload = ('namespace={"__name__":"reference_review"}\nexec(compile(' + repr(source) + ',"<reference-review>","exec"),namespace)\nDIRECTORY=' + repr(directory) + '\nREVIEW_FUNCTION=' + repr(review_function) + '\n' + body).encode()
     digest = hashlib.sha256(payload).hexdigest()
     encoded = base64.b64encode(zlib.compress(payload, 9)).decode()
     code = "import base64,zlib,hashlib;p=zlib.decompress(base64.b64decode('" + encoded + "'));assert hashlib.sha256(p).hexdigest()=='" + digest + "';exec(compile(p,'<bounded-owner-review>','exec'))"

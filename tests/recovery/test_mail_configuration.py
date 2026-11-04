@@ -22,6 +22,30 @@ class DB:
 
 
 class MailReview(unittest.TestCase):
+    def test_selected_native_recipient_lookup_deduplicates_without_exposing_addresses(self):
+        class Native:
+            def query(self, sql):
+                self.sql = sql
+                return json.dumps({'native_admin_email': 'same@example.invalid', 'technical_candidates': [{'email': 'same@example.invalid', 'capabilities': 'fixture'}]}).encode()
+        db = Native()
+        r = m.recipient_binding_flags(db, 'fixture_', lambda raw: {'administrator': True})
+        self.assertEqual(1, r['distinct_recipient_count'])
+        self.assertFalse(r['recipient_control_verified_by_this_lookup'])
+        self.assertNotIn('same@example.invalid', json.dumps(r))
+        self.assertNotIn('user_login', db.sql)
+        self.assertNotIn('user_pass', db.sql)
+
+    def test_ambiguous_technical_mailbox_does_not_guess(self):
+        class Native:
+            def query(self, sql): return json.dumps({'native_admin_email': 'x@example.invalid', 'technical_candidates': []}).encode()
+        with self.assertRaises(ValueError): m.recipient_binding_flags(Native(), 'fixture_', lambda raw: {'administrator': True})
+    def test_provider_activation_does_not_claim_mfa_or_identity_proof(self):
+        for plugins in ('a:0:{}', 'a:2:{i:0;s:25:"two-factor/two-factor.php";i:1;s:19:"csf-mfa/csf-mfa.php";}'):
+            r = m.authentication_indicators(plugins)
+            self.assertEqual('two-factor/' in plugins, r['provider_active'])
+            self.assertFalse(r['live_mfa_session_verified'])
+            self.assertFalse(r['account_control_independently_verified'])
+            self.assertFalse(r['execution_authorized'])
     def test_queue_intervals_are_bounded_metadata_not_delivery_proof(self):
         from types import SimpleNamespace
         r = m.queue_limits(lambda args, **k: SimpleNamespace(returncode=0, stdout=b'5d\n5d\n300s\n4000s\n300s\n'))
@@ -113,7 +137,7 @@ class MailReview(unittest.TestCase):
         sys.path.insert(0, str(fixture.b.BASE / 'scripts/pilot'))
         import build_mail_review
         with self.assertRaises(ValueError): build_mail_review.command('capture')
-        for entry in ('transport_main', 'queue_main'):
+        for entry in ('transport_main', 'queue_main', 'auth_main', 'recipient_main'):
             cmd = build_mail_review.command(entry)
             self.assertEqual(cmd, build_mail_review.command(entry))
             r = subprocess.run(['/bin/bash', '-c', cmd.decode()], input=b'not-allowed', capture_output=True, timeout=5)

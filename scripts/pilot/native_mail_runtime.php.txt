@@ -1,0 +1,104 @@
+<?php
+// Private temporary native-runtime probe/test; never install as a public endpoint.
+$p = json_decode(base64_decode('__PARAMETERS__'), true, 16, JSON_THROW_ON_ERROR);
+$blocked_mail = 0;
+$phase = 'bootstrap';
+$expected_call = null;
+$native_guard_passed = false;
+$results = array();
+$stage = 'runtime_identity';
+$unexpected_hook = null;
+ob_start();
+$blocker = static function ($pre, $atts) use (&$blocked_mail, &$phase, &$expected_call) {
+    if ($phase !== 'dispatch' || !$expected_call || $atts['to'] !== array($expected_call['to']) || $atts['subject'] !== $expected_call['subject'] || $atts['message'] !== $expected_call['body'] || $atts['headers'] !== array('X-Digital-Ranch-Test: ' . $expected_call['ref']) || !empty($atts['attachments'])) {
+        ++$blocked_mail;
+        return false;
+    }
+    return null;
+};
+if (function_exists('add_filter')) { add_filter('pre_wp_mail', $blocker, PHP_INT_MIN, 2); }
+else { $GLOBALS['wp_filter']['pre_wp_mail'][PHP_INT_MIN][] = array('function' => $blocker, 'accepted_args' => 2); }
+function dr_require($ok) { if (!$ok) { throw new RuntimeException('Native guard blocked'); } }
+try {
+    dr_require(PHP_SAPI === 'fpm-fcgi');
+    dr_require(function_exists('posix_geteuid') && posix_geteuid() === $p['uid']);
+    dr_require(in_array($p['mode'], array('preview', 'dispatch'), true));
+    if (!defined('DISABLE_WP_CRON')) { define('DISABLE_WP_CRON', true); }
+    require_once $p['root'] . '/wp-load.php';
+    dr_require(ABSPATH === $p['root'] . '/' && get_option('home') === $p['url'] && get_option('siteurl') === $p['url']);
+    dr_require(!is_multisite() && !is_user_logged_in() && $blocked_mail === 0);
+    $stage = 'mail_hook_registry';
+    // Reject unreviewed alternate transport/recipient hooks, rather than overriding them.
+    foreach (array('wp_mail', 'pre_wp_mail', 'wp_mail_from', 'wp_mail_from_name', 'phpmailer_init', 'wp_mail_succeeded', 'wp_mail_failed', 'wp_mail_content_type', 'wp_mail_charset') as $hook) {
+        $object = $GLOBALS['wp_filter'][$hook] ?? null;
+        foreach ($object ? $object->callbacks : array() as $callbacks) {
+            foreach ($callbacks as $callback) {
+                $fn = $callback['function'];
+                $allowed = ($hook === 'pre_wp_mail' && $fn === $blocker) || ($hook === 'wp_mail' && $fn === 'wp_staticize_emoji_for_email');
+                if (!$allowed) { $unexpected_hook = $hook; }
+                dr_require($allowed);
+            }
+        }
+    }
+    $stage = 'native_bindings';
+    global $wpdb;
+    $users = get_users(array('role' => 'administrator', 'number' => 2));
+    dr_require(count($users) === 1);
+    $recipients = array();
+    $recipient_keys = array();
+    foreach (array($users[0]->user_email, get_option('admin_email')) as $address) {
+        $parts = explode('@', $address);
+        dr_require(count($parts) === 2);
+        $key = $parts[0] . '@' . strtolower($parts[1]);
+        if (!isset($recipient_keys[$key])) { $recipient_keys[$key] = true; $recipients[] = $address; }
+    }
+    dr_require(count($recipients) >= 1 && count($recipients) <= 2);
+    foreach ($recipients as $recipient) { dr_require((bool) is_email($recipient) && !preg_match('/[\r\n<>;,]/', $recipient)); }
+    $host = wp_parse_url(network_home_url(), PHP_URL_HOST);
+    if (strpos($host, 'www.') === 0) { $host = substr($host, 4); }
+    $from = 'wordpress@' . $host;
+    dr_require((bool) is_email($from));
+    $binding = hash('sha256', wp_json_encode(array($p['url'], $from, $recipients, get_option('active_plugins'), PHP_VERSION, posix_geteuid(), hash_file('sha256', ABSPATH . WPINC . '/pluggable.php'), ini_get('sendmail_path'), ini_get('mail.force_extra_parameters'), ini_get('mail.add_x_header'))));
+    if ($p['mode'] === 'preview') {
+        $out = array('state' => 'native-mail-runtime-qualified', 'binding_fingerprint' => $binding,
+            'distinct_recipient_count' => count($recipients), 'native_sender_qualified' => true,
+            'unexpected_mail_hooks' => false, 'blocked_bootstrap_mail' => $blocked_mail,
+            'mail_sent' => false, 'execution_authorized' => false);
+    } else {
+        $stage = 'dispatch_authorization';
+        dr_require($p['dispatch_authorized'] === true && preg_match('/^[A-Za-z0-9_.:-]{1,128}$/', $p['approval_reference']));
+        dr_require(hash_equals($p['expected_binding'], $binding) && time() <= $p['deadline']);
+        dr_require(count($p['message_references']) === count($recipients));
+        $guard = static function ($mailer) use (&$expected_call, &$native_guard_passed, $from, $host) {
+            dr_require(get_class($mailer) === 'WP_PHPMailer' && $mailer->Mailer === 'mail' && $mailer->SMTPDebug === 0);
+            dr_require($mailer->From === $from && $mailer->Sender === '');
+            dr_require($mailer->getToAddresses() === array(array($expected_call['to'], '')));
+            dr_require(!$mailer->getCcAddresses() && !$mailer->getBccAddresses() && !$mailer->getReplyToAddresses() && !$mailer->getAttachments());
+            dr_require($mailer->Subject === $expected_call['subject'] && $mailer->Body === $expected_call['body']);
+            $mailer->MessageID = '<dr-' . $expected_call['ref'] . '@' . $host . '>';
+            $native_guard_passed = true;
+        };
+        add_action('phpmailer_init', $guard, PHP_INT_MAX);
+        foreach ($recipients as $index => $recipient) {
+            dr_require(time() <= $p['deadline']);
+            $ref = $p['message_references'][$index];
+            dr_require((bool) preg_match('/^[a-f0-9]{32}$/', $ref));
+            $expected_call = array('to' => $recipient, 'ref' => $ref,
+                'subject' => 'Digital Ranch sandbox security-mail transport test',
+                'body' => "Digital Ranch sandbox security-mail transport check.\nReference: " . $ref . "\nPlease confirm receipt to the agreed operator through your usual private channel.\n");
+            $native_guard_passed = false;
+            $phase = 'dispatch';
+            $ok = wp_mail(array($recipient), $expected_call['subject'], $expected_call['body'], array('X-Digital-Ranch-Test: ' . $ref));
+            $phase = 'blocked';
+            dr_require($native_guard_passed && $blocked_mail === 0);
+            $results[] = array('message_reference' => $ref, 'state' => $ok ? 'submission_accepted' : 'outcome_unknown');
+            if (!$ok) { break; }
+        }
+        $out = array('state' => 'native-mail-submission-results', 'results' => $results, 'receipt_confirmed' => false);
+    }
+} catch (Throwable $error) {
+    $out = array('state' => 'blocked', 'code' => 'NATIVE_MAIL_RUNTIME_GUARD', 'stage' => $stage, 'unexpected_hook' => $unexpected_hook, 'results' => $results, 'receipt_confirmed' => false);
+}
+while (ob_get_level()) { ob_end_clean(); }
+header('Content-Type: application/json');
+echo json_encode($out);

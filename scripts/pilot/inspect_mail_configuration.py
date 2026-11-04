@@ -193,3 +193,68 @@ def queue_main(b):
         code = 2
     print(json.dumps(result, sort_keys=True))
     return code
+
+
+def authentication_indicators(active_plugins):
+    if not isinstance(active_plugins, str):
+        raise ValueError('Invalid plugin metadata')
+    return {'state': 'authentication-availability-only',
+            'provider_active': '"two-factor/two-factor.php"' in active_plugins,
+            'adapter_active': '"csf-mfa/csf-mfa.php"' in active_plugins,
+            'live_mfa_session_verified': False, 'account_control_independently_verified': False,
+            'execution_authorized': False, 'writes': False}
+
+
+def auth_main(b):
+    try:
+        if sys.stdin.buffer.read(1): raise ValueError('No input accepted')
+        budget = b.Budget(time.time() + 55, 55)
+        b.require(b.ROOT.resolve(strict=True) == b.ROOT)
+        config = b.read_regular(b.ROOT / 'wp-config.php', 16 * 1024**2, budget)[0]
+        target = b.NativeDB(b.validate_config(config, credentials=True), budget).guard(None)
+        result = authentication_indicators(target['plugins'])
+        code = 0
+    except Exception:
+        result = {'state': 'blocked', 'code': 'AUTH_AVAILABILITY_REVIEW_UNAVAILABLE', 'writes': False, 'execution_authorized': False}
+        code = 2
+    print(json.dumps(result, sort_keys=True))
+    return code
+
+
+def recipient_binding_flags(db, prefix, capabilities):
+    if re.fullmatch('[A-Za-z0-9_]+', prefix) is None: raise ValueError('Target prefix')
+    # Resolve the owner-selected existing technical Administrator mailbox, not a human identity.
+    sql = "SELECT JSON_OBJECT('native_admin_email',(SELECT option_value FROM `"+prefix+"options` WHERE option_name='admin_email'),'technical_candidates',(SELECT JSON_ARRAYAGG(JSON_OBJECT('email',u.user_email,'capabilities',m.meta_value)) FROM `"+prefix+"users` u JOIN `"+prefix+"usermeta` m ON m.user_id=u.ID WHERE m.meta_key='"+prefix+"capabilities' AND m.meta_value LIKE '%s:13:\"administrator\";b:1;%'));"
+    row = json.loads(db.query(sql))
+    candidates = row['technical_candidates']
+    if isinstance(candidates, str): candidates = json.loads(candidates)
+    if not isinstance(candidates, list) or len(candidates) != 1: raise ValueError('Technical mailbox ambiguous')
+    candidate = candidates[0]
+    if capabilities(candidate['capabilities']).get('administrator') is not True: raise ValueError('Unexpected technical role')
+    addresses = [candidate['email'], row['native_admin_email']]
+    for value in addresses:
+        if not isinstance(value, str) or re.fullmatch(r'[^\s@<>;,]+@[^\s@<>;,]+\.[^\s@<>;,]+', value) is None:
+            raise ValueError('Mailbox syntax unavailable')
+    return {'selected_technical_mailbox_resolved': True, 'native_admin_mailbox_resolved': True,
+            'distinct_recipient_count': len({v.rsplit('@',1)[0]+'@'+v.rsplit('@',1)[1].lower() for v in addresses}),
+            'recipient_sources': 'current_technical_administrator_and_native_admin_option',
+            'recipient_control_verified_by_this_lookup': False, 'execution_authorized': False,
+            'delivery_verified': False, 'writes': False}
+
+
+def recipient_main(b):
+    try:
+        if sys.stdin.buffer.read(1): raise ValueError('No input accepted')
+        budget = b.Budget(time.time() + 55, 55)
+        b.require(b.ROOT.resolve(strict=True) == b.ROOT)
+        config = b.read_regular(b.ROOT / 'wp-config.php', 16 * 1024**2, budget)[0]
+        db = b.NativeDB(b.validate_config(config, credentials=True), budget)
+        target = db.guard(None)
+        result = recipient_binding_flags(db, b.PREFIX, b.CAPABILITIES)
+        result.update(state='recipient-and-auth-availability-only', authentication=authentication_indicators(target['plugins']))
+        code = 0
+    except Exception:
+        result = {'state': 'blocked', 'code': 'RECIPIENT_BINDING_REVIEW_UNAVAILABLE', 'writes': False, 'execution_authorized': False}
+        code = 2
+    print(json.dumps(result, sort_keys=True))
+    return code

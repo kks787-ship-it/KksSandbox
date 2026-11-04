@@ -14,6 +14,25 @@ spec.loader.exec_module(m)
 
 
 class OwnerHandoffTests(unittest.TestCase):
+    def test_mail_review_reference_is_not_an_exact_binding_or_dispatch_consent(self):
+        r = m.mail_readiness(b'Mail review reference: synthetic-completed-record\n')
+        self.assertTrue(r['mail_review_reference_supplied'])
+        self.assertEqual(3, len(r['missing_fields']))
+        self.assertFalse(r['execution_authorized'])
+
+    def test_explicit_mail_binding_still_requires_actual_configuration_verification(self):
+        raw = json.dumps({'mail_test': {'sender': 'sender@example.invalid', 'recipients': ['receiver@example.invalid'], 'recipient_consent': True}}).encode()
+        r = m.mail_readiness(raw)
+        self.assertEqual([], r['missing_fields'])
+        self.assertFalse(r['sender_and_recipient_configuration_verified'])
+        self.assertNotIn('sender@example.invalid', json.dumps(r))
+        self.assertFalse(r['execution_authorized'])
+
+    def test_mail_injection_duplicates_and_negative_consent_cannot_pass(self):
+        for sender, recipients in [('sender@example.invalid\nBcc:x@example.invalid', ['receiver@example.invalid']), ('sender@example.invalid', ['receiver@example.invalid', 'receiver@example.invalid']), ('sender@example.invalid', ['a@example.invalid', 'b@example.invalid', 'c@example.invalid'])]:
+            r = m.mail_readiness(json.dumps({'mail_test': {'sender': sender, 'recipients': recipients, 'recipient_consent': False}}).encode())
+            self.assertTrue(r['missing_fields'])
+            self.assertFalse(r['explicit_recipient_consent_supplied'])
     def sample(self, value):
         return ('\n'.join(name + ': controller reference '+value+'; recovery custodian reference '+value+';\n witnessed native login date/verifier reference '+value+'; factor/device custodian '+value+';\n recovery-code custody reference '+value+'.\n' for name in ('Technical Master', 'Operations', 'Head Trainer'))+'\nTechnical operator and initial farm owner: different humans\nMaintenance/recovery custodian reference: '+value+'\n').encode()
 

@@ -43,7 +43,7 @@ def review(raw):
         raise ValueError('Invalid input')
     fenced = re.fullmatch(r'```(?:json|text)?[ \t]*\n(.*?)\n```', text, re.S | re.I)
     if fenced: text = fenced[1].strip()
-    if '\n' not in text and '\\n' in text: text = text.replace('\\n', '\n')
+    if not text.startswith('{') and '\n' not in text and '\\n' in text: text = text.replace('\\n', '\n')
     # Normalize only the published role labels, never infer roles from personal names.
     text = re.sub(r'(?im)^[ \t#>*-]*(?:\*\*)?(Technical Master|Operations|Head Trainer)(?:\*\*)?[ \t]*(?::|$)', lambda match: match[1] + ':', text)
     structure = {'known_role_labels_present': bool(re.search(r'Technical Master|Operations|Head Trainer', text, re.I)),
@@ -93,3 +93,43 @@ def review(raw):
         result['mail_review_reference_supplied'] = supplied(text_field(text, r'(?:Mail review|Sender/transport review) reference'))
     result['state'] = 'references-reviewed-not-authenticated'
     return result
+
+
+def mail_readiness(raw):
+    """Check whether the handoff binds exact mail-test values, without returning them."""
+    references = review(raw)
+    text = raw.decode('utf-8').strip('\ufeff \r\n\t')
+    fenced = re.fullmatch(r'```(?:json|text)?[ \t]*\n(.*?)\n```', text, re.S | re.I)
+    if fenced: text = fenced[1].strip()
+    address = r'[A-Za-z0-9.!#$%&\'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\.[A-Za-z]{2,63}'
+    sender = ''
+    recipients = []
+    consent = False
+    roles = ''
+    if text.startswith('{'):
+        root = json.loads(text)
+        record = root.get('security_mail_test', root.get('mail_test', {}))
+        if isinstance(record, dict):
+            sender = record.get('sender', '')
+            recipients = record.get('recipients', [])
+            consent = record.get('recipient_consent') is True
+            roles = record.get('recipient_roles', '')
+    else:
+        sender = text_field(text, r'(?:Mail sender|Sender identity|Sender address|From address|Sender)')
+        lines = re.findall(r'^\s*(?:Test recipients?|Mail recipients?|Affected[- ]account mailbox|Site[- ]admin mailbox)\s*:\s*([^\n]+)', text, re.I | re.M)
+        recipients = [a for line in lines for a in re.findall(address, line)]
+        consent = text_field(text, r'(?:Test )?Recipient consent').strip().lower() in ('yes', 'approved', 'confirmed')
+        roles = text_field(text, r'(?:Test )?Recipient roles')
+    sender_ok = isinstance(sender, str) and re.fullmatch(address, sender.strip()) is not None
+    recipients_ok = isinstance(recipients, list) and 1 <= len(recipients) <= 2 and all(isinstance(a, str) and re.fullmatch(address, a) for a in recipients)
+    duplicate = recipients_ok and len({a.lower() for a in recipients}) != len(recipients)
+    missing = []
+    if not sender_ok: missing.append('exact_sender_binding')
+    if not recipients_ok or duplicate: missing.append('one_or_two_distinct_recipient_bindings')
+    if not consent: missing.append('explicit_recipient_consent')
+    return {'state': 'mail-binding-review-only', 'mail_review_reference_supplied': references['mail_review_reference_supplied'],
+            'exact_sender_supplied': sender_ok, 'exact_recipient_count': len(recipients) if recipients_ok else 0,
+            'duplicate_recipient_bindings': bool(duplicate), 'explicit_recipient_consent_supplied': consent,
+            'recipient_role_selection_supplied': supplied(roles), 'missing_fields': missing,
+            'sender_and_recipient_configuration_verified': False, 'delivery_verified': False,
+            'execution_authorized': False}
