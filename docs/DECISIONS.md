@@ -566,3 +566,20 @@ autobilling, public bookings, sandbox release, production changes, inquiry-form 
 or emergency activation. Admin MFA/Master issue #14 and protected scheduling Gate B #11
 retain their independent gates. Phase 1 UX/architecture and synthetic local tests may be
 planned without altering the VPS.
+
+
+## Initial calendar email transport — owner decision
+
+[Owner direction in Issue11](https://github.com/kks787-ship-it/KksSandbox/issues/11#issuecomment-6626088325):
+use the existing WordPress `wp_mail()` / PHP mail infrastructure for the initial Digital Ranch
+release. PHP mail hands messages to the configured server transport; it is not itself SMTP.
+Preserve approved F2 native password-reset/security-email protections and the existing native
+queue/retry behavior. No new mail server, SMTP credentials, mail plugin, infrastructure change,
+IMAP integration or application-managed mailbox is part of the calendar milestone.
+
+Verify actual receipt at privately verified, consenting test mailboxes before relying on email
+for recovery. The existing finite-test limits and separate dispatch consent still apply; queued
+or provider-accepted messages are not confirmed receipt. This direction does not authorize MFA
+installation/enrollment/enforcement, real permission grants or calendar activation. Preserve
+implementation pin `2fd02a2` and the recovery-first policy. Optional mail integrations remain later
+backlog work; the protected staff calendar is the active milestone.
