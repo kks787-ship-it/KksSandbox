@@ -1,0 +1,45 @@
+{
+  "adapter_provider_files_unchanged": 25,
+  "axe_core": "4.10.3",
+  "browser": "Chromium154.0.8037.57",
+  "changed_scheduler_paths": [
+    "wp-content/plugins/csf-scheduling/csf-scheduling.php",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-ui.php",
+    "wp-content/plugins/csf-scheduling/assets/staff.css",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-settings.php"
+  ],
+  "deployment_guards": 22,
+  "evidence_sha256": {
+    "deployment_guards": "460e8584f7cae831f2627f11400f4b049bc3b2dcecac39663b8c68a6fbb66d98",
+    "mariadb_php83": "b803f7a158546adb720e53b95821496766dd00b526325c82bec32b6e3489a442",
+    "mock_plesk": "cc8c58f5dd1428a983c6d5214a1bf4a53b653cd50e1a48ef51b7274e7803ae52",
+    "mysql_php81": "748942bee3e1ba1e04a701971ffc3342a1a8fa6cc3c159f4246be4df730dc8d4",
+    "php_lint_standards": "21321f6b21465a0fd6bb0b841fe7492f2def292e175c9e1e9db6e752d2d6ea46"
+  },
+  "limitations": [
+    "Actual protected authenticated appointment writes and owner acceptance still need the native Technical Master browser session.",
+    "No live MFA/cookie export, fixture verifier, CLI bypass or new account/credential connection was introduced.",
+    "Pilot example values are fictional and loading them never saves a policy or creates records.",
+    "Live owner must explicitly review/apply settings and create only fictional pilot records."
+  ],
+  "mock_plesk_guards": 6,
+  "scheduler_file_count": 21,
+  "schema": 3,
+  "scope": "synthetic local validation; protected initial-readiness observation only",
+  "source_version": "0.4.2",
+  "stacks": [
+    "WordPress7.1.4 / PHP8.3.36 / MariaDB10.6.28",
+    "WordPress7.1.4 / PHP8.1.34 / MySQL8.0.46"
+  ],
+  "tables": 15,
+  "tests_per_stack": {
+    "browser": 69,
+    "fixture_MFA_prerequisites": 8,
+    "parser": 15
+  },
+  "widths": [
+    390,
+    768,
+    1280
+  ]
+}

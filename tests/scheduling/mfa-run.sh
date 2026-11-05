@@ -22,6 +22,9 @@ for attempt in $(seq 1 40); do
  sleep 1
 done
 "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" "$PHP_IMAGE" bash /repo/tests/scheduling/mfa-install.sh
+if [[ "${CSF_TEST_FACILITY_SETTINGS:-0}" == 1 ]]; then
+ "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" "$PHP_IMAGE" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/settings-parse.php
+fi
 if [[ "${CSF_TEST_NATIVE_INSTALL_ONLY:-0}" == 1 ]]; then
  for operation in activate verify; do
   "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" -e CSF_TEST_MFA_INSTALL_OPERATION="$operation" "$PHP_IMAGE" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/mfa-install-native.php

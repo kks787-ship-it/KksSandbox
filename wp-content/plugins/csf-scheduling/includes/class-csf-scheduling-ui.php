@@ -651,7 +651,8 @@ class CSF_Scheduling_UI {
 			'resource' => $filter,
 		);
 		$rows             = CSF_Scheduling_Calendar::view( $date, $view, $filter );
-		echo '<div class="wrap csf-calendar"><h1>Digital Ranch Staff Calendar</h1><p>All times: <strong>' . esc_html( $p['timezone'] ?? 'Timezone not configured' ) . '</strong>. Confirmation reserves time; rider permission is checked separately.</p><nav aria-label="Calendar sections"><a href="#csf-calendar-list">Appointments</a> · <a href="#csf-create">New appointment</a> · <a href="#csf-farm-setup">Farm setup and horse availability</a></nav><noscript><p>Appointment editing requires JavaScript. Viewing remains available.</p></noscript>';
+		echo '<div class="wrap csf-calendar"><h1>Digital Ranch Staff Calendar</h1><p>All times: <strong>' . esc_html( $p['timezone'] ?? 'Timezone not configured' ) . '</strong>. Confirmation reserves time; rider permission is checked separately.</p><nav aria-label="Calendar sections"><a href="#csf-calendar-list">Appointments</a> · <a href="#csf-create">New appointment</a> · <a href="#csf-farm-setup">Farm setup and horse availability</a>' . ( CSF_Scheduling_Access::can( 'policy_manage' ) ? ' · <a href="#csf-facility-settings">Facility settings</a>' : '' ) . '</nav><noscript><p>Appointment editing requires JavaScript. Viewing remains available.</p></noscript>';
+		CSF_Scheduling_Settings::render();
 		if ( $result ) {
 			if ( is_wp_error( $result ) ) {
 				echo '<div class="notice notice-error" role="alert"><p>' . esc_html( self::message( $result ) ) . '</p></div>'; } else {
