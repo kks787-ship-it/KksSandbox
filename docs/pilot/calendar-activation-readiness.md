@@ -1,5 +1,16 @@
 # Calendar activation readiness after the MFA checkpoint
 
+**November5 execution update:** the owner approved the rollout and initial all20-right Farm
+Owner bootstrap. Scheduling0.4.1 from `145e1ff` is now installed/active, with all15 schema-v3
+tables ready. Fresh pre-change12-table and post-migration27-table backups both passed isolated
+functional recovery, including MFA login/logout and cleanup. The ownership invitation is prepared
+for the Technical Master's fresh native MFA/browser review; no grant is assumed before those
+steps commit. Employee enrollment/grants and mandatory enforcement remain unchanged. See the
+[actual rollout record](../test-results/scheduling-protected-rollout.md). Earlier holds and the
+installed2fd02a2 descriptions below are historical, superseded only by this explicitly approved
+scheduler rollout; MFA/provider source was not changed.
+
+
 Implementation pin remains `2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1`;
 MFA installation tooling is recorded in `82da474`. This package authorizes no writes.
 The owner reports the Technical Master completed authenticator login and recovery/reuse

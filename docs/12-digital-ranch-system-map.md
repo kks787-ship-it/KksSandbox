@@ -1,5 +1,14 @@
 # 12 — Digital Ranch: full system map and capability ledger
 
+**November5 current calendar milestone:** Scheduling0.4.1 is installed/active on the protected
+sandbox; schema3/15 scheduling tables are ready. Both fresh pre-change12-table and post-change
+27-table backups passed actual isolated functional recovery with MFA. The initial all20-right
+Farm Owner grant is owner-approved but awaits its fresh native MFA/browser ceremony. No employee
+grants, paused enrollments, mandatory enforcement or operational acceptance are inferred. See the
+[protected rollout record](test-results/scheduling-protected-rollout.md); older status entries
+below remain historical evidence of their original dates.
+
+
 **November3 UTC — isolated restore preparation complete:** [executable/validation](test-results/recovery-readiness.md#isolated-restore-executable-preparation--november-3-2026-utc)
 and [one owner approval card](pilot/r-restore-approval.md#current-owner-authorization-card--one-private-functional-restore)
 are ready. New capture binding/read-only preflight verified; local synthetic functional restore

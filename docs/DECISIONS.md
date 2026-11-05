@@ -609,3 +609,16 @@ short-lived private invitation, exact separate approval digest, default denial a
 audit. It must preserve ordinary ownership/transfer, last-master protection, paused employee
 enrollment and enforcement-off direction. Installed source pin `2fd02a2`, protected activation,
 migration and real farm grants remain held pending separate review/authorization.
+
+
+## November5 — protected scheduler rollout and initial ownership authorized
+
+After reviewing recovery commit3f42968, the owner explicitly approved the proposed protected
+sandbox rollout and separately identified initial Farm Owner bootstrap (all20 farm privileges).
+Scope includes fresh pre/post backups and isolated MFA-aware recovery, the two reviewed
+Scheduling0.4.1 files from145e1ff, activation, guarded schema3/15-table migration, and a bounded
+one-use browser ownership invitation for the already-matched Technical Master. The approval does
+not bypass the fresh native MFA challenge/nonce/review ceremony. No new accounts, paused employee
+enrollment/grants, mandatory enforcement, real mail, public booking, emergency activation,
+production or shared-infrastructure changes are included. Recorded execution and remaining human
+steps are in [the rollout report](test-results/scheduling-protected-rollout.md).

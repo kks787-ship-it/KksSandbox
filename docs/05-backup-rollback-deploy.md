@@ -1120,3 +1120,15 @@ See the [qualification report](test-results/scheduling-recovery.md) and
 [exact proposed rollout/rollback sequence](pilot/calendar-activation-readiness.md#exact-installation-and-rollback-sequence-after-separate-execution-authorization).
 The candidate retains installed source pin2fd02a2; no protected operation, MFA change or Farm
 Owner grant follows from these local results. Capture/restore commands need fresh bound hashes.
+
+
+## November5 — approved protected rollout executed
+
+Scheduling0.4.1 from145e1ff is installed and active; schema3 has all15 scheduling tables (27 total).
+The fresh pre-change and post-migration backups passed actual isolated functional recovery,
+including native MFA login/logout and cleanup. Only two scheduler source files changed; the25
+MFA/provider files match their prior reviewed hashes. The initial owner grant still requires the
+controller's fresh native browser ceremony; no grant or staff acceptance is inferred. See
+[execution evidence and remaining steps](test-results/scheduling-protected-rollout.md). Private
+bindings/evidence remain restricted. Never restore an older snapshot over newer authentication,
+ownership, calendar or website changes automatically.
