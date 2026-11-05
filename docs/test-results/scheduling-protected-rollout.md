@@ -70,3 +70,22 @@ Retain the separate pre-change and post-migration recovery sets. Stop writes on 
 state. Review newer content, MFA, ownership and calendar changes before any rollback; never apply
 an old12-table or pre-grant snapshot automatically over them. Reverting source files alone does
 not undo a committed owner grant or schema/data changes. No live restoration was performed.
+
+## Owner-requested invitation renewal — November 5, 04:30 UTC
+
+The first invitation expired without a grant. Its bounded job exited0 and reported removal of
+its invitation and exact temporary configuration block. A new native read-only check corroborated
+no Farm Owner, no invitation configuration, healthy schema3, all45 candidate files unchanged,
+anonymous access denied and mandatory enforcement off. No installation, migration, account,
+employee or MFA setting was repeated/changed.
+
+At the owner's explicit renewal request, a fresh27-table pre-change backup passed integrity
+verification and actual isolated functional recovery: database/files, pages, native MFA
+login/logout and cleanup all passed, exit0. The replacement invitation uses the unchanged
+reviewed bootstrap policy and a new current-state binding; it expires at **04:40 UTC November5
+(20:40 Pacific November4)**. Read-only inspection confirmed it configured and unexpired.
+No ownership grant is inferred from preparation: the Technical Master must complete fresh MFA
+and the three native review/confirmation steps. Its bounded watcher removes only its own
+approval block/invitation after completion or expiry. There is no automatic renewal or MFA
+bypass. New private bindings/evidence remain restricted; no factor, code or session was exposed.
+The next corroboration remains the committed owner result, cleanup and a post-grant backup.
