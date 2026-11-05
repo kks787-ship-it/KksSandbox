@@ -17,7 +17,7 @@ AUTHORIZATION='one-local-backup-capture'
 
 
 def run(b,inspector,params,root=None,parent=None,discovery=None,db_factory=None):
-    b.require(set(params)=={'actor_ref','approval_ref','start','end','authorization'})
+    b.require(set(params)-{'expected_phase','run_token'}=={'actor_ref','approval_ref','start','end','authorization'})
     b.require(params['authorization']==AUTHORIZATION)
     for key in ('actor_ref','approval_ref'):
         b.require(isinstance(params[key],str) and re.fullmatch('[A-Za-z0-9_.:-]{1,128}',params[key]))
@@ -26,7 +26,9 @@ def run(b,inspector,params,root=None,parent=None,discovery=None,db_factory=None)
     budget=b.Budget(end,1770);root=root or b.ROOT;parent=parent or b.PARENT
     b.require(root.resolve(strict=True)==root and parent.resolve(strict=True)==parent)
     # Never touch a pre-existing attempt, even if it has no receipt.
-    bundle=parent/('csf-gate-b-backup-'+CANDIDATE_TOKEN)
+    token=params.get('run_token',CANDIDATE_TOKEN)
+    b.require(isinstance(token,str) and re.fullmatch('[a-f0-9]{32}',token))
+    bundle=parent/('csf-gate-b-backup-'+token)
     b.require(not bundle.exists() and not bundle.is_symlink())
     raw,_=b.read_regular(root/'wp-config.php',16*1024**2,budget)
     secret=b.validate_config(raw,credentials=True)
@@ -37,10 +39,10 @@ def run(b,inspector,params,root=None,parent=None,discovery=None,db_factory=None)
         b.require(set(mapping)=={'files','bytes','map_sha256','http_auth_verified','pool_file_verified','private_files','private_symlinks'})
         b.require(mapping['http_auth_verified'] is True and mapping['pool_file_verified'] is True)
         protected=[item for item in mapping['private_files'] if not Path(item['path']).is_relative_to(root)]
-        # Verify compatibility, zero stored objects and exact12-table InnoDB source phase first.
+        # Verify compatibility, zero stored objects and exact native/scheduling InnoDB source contract first.
         db.versions();guard=db.guard(None);b.load_generator()(db.catalog())
         value={**{k:params[k] for k in ('actor_ref','approval_ref','start','end')},'mode':'capture',
-               'source_pin':b.IMPLEMENTATION,'run_token':CANDIDATE_TOKEN,'custody':'local-only',
+               'source_pin':b.IMPLEMENTATION,'expected_phase':params.get('expected_phase','pre_scheduling'),'run_token':token,'custody':'local-only',
                'config_reviewed':True,'wp_config_sha256':b.sha(raw),'plugins_sha256':b.sha(guard['plugins'].encode()),
                'protected':protected,'db_secret':secret}
         b.bindings(value,'capture')
@@ -57,7 +59,8 @@ def run(b,inspector,params,root=None,parent=None,discovery=None,db_factory=None)
         b.verify_receipt(bundle,receipt_digest);budget.check()
         return {'state':'complete','code':'LOCAL_CAPTURE_VERIFIED','bundle_id':bundle.name,
                 'manifest_sha256':receipt['manifest_sha256'],'receipt_sha256':receipt_digest,
-                'offserver_verified':False,'restore_verified':False}
+                'offserver_verified':False,'restore_verified':False,'schema_phase':receipt['schema_phase'],
+                'schema_context_complete':receipt['schema_phase'] in ('pre_scheduling','scheduling_v3')}
     finally:secret.clear()
 
 

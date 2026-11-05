@@ -1,5 +1,15 @@
 # R-Backup — one local-only capture approval
 
+**November5 local candidate update:** the table contract now supports exact native12 plus
+schema-v3 scheduling15 (27 total), with explicit expected phases and review-required partial
+states. The old execution bindings/approval below are historical; they do not authorize the
+new payload or a live operation. Use the current SHA manifests and the
+[qualified rollout sequence](calendar-activation-readiness.md#exact-installation-and-rollback-sequence-after-separate-execution-authorization).
+[Local evidence and limits](../test-results/scheduling-recovery.md) distinguish recovery fidelity
+from operational acceptance. A new clone login uses its restored TOTP only inside isolation,
+restores all original metadata and never regenerates factors or codes.
+
+
 **Decision: APPROVE / REJECT / HOLD. Currently HELD; no sandbox capture executed.**
 
 | Item | Exact proposed operation |

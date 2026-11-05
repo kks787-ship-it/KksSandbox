@@ -182,7 +182,7 @@ def run(b,params,root=None,parent=None,discovery=None,db_factory=None):
             required=2*1024**3+5*(sum(x['size'] for x in files.values())+guard['bytes']+observed['bytes'])+64*1024**2
             b.require(b.free_bytes(parent)>=required);budget.check()
         return {'state':'prerequisites-pass','capture_authorized':False,'source':{'url':b.URL,'database':b.DATABASE,'prefix':b.PREFIX},
-                'file_count':len(files),'source_bytes':sum(x['size'] for x in files.values()),'tables':12,'engine':'InnoDB',
+                'file_count':len(files),'source_bytes':sum(x['size'] for x in files.values()),'tables':len({c['table'] for c in catalog['columns']}),'schema_phase':b.schema_contract()['phase'](catalog),'engine':'InnoDB',
                 'native_versions':versions,'configuration':observed,'wp_config_sha256':b.sha(raw),'disk_reserve_pass':True,
                 'ssh_identity_is_root':os.geteuid()==0}
     finally:secret.clear()

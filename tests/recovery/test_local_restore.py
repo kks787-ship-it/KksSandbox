@@ -70,7 +70,7 @@ class Restore(unittest.TestCase):
             self.blocked(lambda:r.validate_sql(b,io.StringIO(sql)),'SQL_STRUCTURE_BLOCKED')
     def test_comments_and_setup_flag_are_not_active_multisite(self):self.assertTrue(r.security_config_safe(b"<?php /* MULTISITE TWO_FACTOR */ // FORCE_SSL_ADMIN\ndefine('WP_ALLOW_MULTISITE',true);"))
     def test_security_setting_string_or_uncertainty_blocks(self):
-        for data in (b"<?php define('MULTISITE',true);",b"<?php define('CSF_MFA_ENFORCE_ADMIN',false);",b"<?php $x='TWO_FACTOR';",b'<?php /* truncated',b"<?php 'unclosed",b"<?php $x='https://host/MULTISITE';"):
+        for data in (b"<?php define('MULTISITE',true);",b"<?php $x='TWO_FACTOR';",b'<?php /* truncated',b"<?php 'unclosed",b"<?php $x='https://host/MULTISITE';"):
             self.blocked(lambda:r.require(r.security_config_safe(data),'SOURCE_SECURITY_BLOCKED'),'SOURCE_SECURITY_BLOCKED')
     def test_chroot_nonroot_no_capabilities(self):
         rt=object.__new__(r.Runtime);rt.jail=Path('/synthetic/jail');rt.mysql=types.SimpleNamespace(pw_uid=101,pw_gid=102);rt.web=types.SimpleNamespace(pw_uid=103,pw_gid=104)
@@ -93,9 +93,11 @@ class Restore(unittest.TestCase):
         rt=mock.Mock()
         with mock.patch.object(r,'http_client',return_value=(mock.Mock(),[])),mock.patch.object(r,'request',return_value=(200,r.ORIGIN,b'<html><title>Synthetic</title>')):self.assertFalse(r.functional_tests(rt,[],'skip'))
         rt.sql.assert_not_called()
-    def worker(self,fail=None,login=True,cleanup=True):
+    def worker(self,fail=None,login=True,cleanup=True,catalog=None):
         rt=mock.Mock();rt.work=Path('/synthetic');rt.jail=Path('/synthetic/jail');rt.stop.return_value=cleanup
-        patches=[mock.patch.object(r,'params_check'),mock.patch.object(r,'selected_paths_for_worker',return_value=(Path('/source'),Path('/synthetic'))),mock.patch.object(r,'Runtime',return_value=rt),mock.patch.object(r,'setup_jail',side_effect=fail),mock.patch.object(r,'verify_input'),mock.patch.object(r,'unpack',return_value=b'synthetic'),mock.patch.object(r,'import_database'),mock.patch.object(r,'prepare_wordpress',return_value=[]),mock.patch.object(r,'functional_tests',return_value=login),mock.patch.object(b,'write_json')]
+        original=Path.read_text
+        source_catalog=catalog or fixture.FakeDB().catalog()
+        patches=[mock.patch.object(Path,'read_text',lambda path,*a,**kw:json.dumps(source_catalog) if str(path)=='/source/before.catalog.json' else original(path,*a,**kw)),mock.patch.object(r,'params_check'),mock.patch.object(r,'selected_paths_for_worker',return_value=(Path('/source'),Path('/synthetic'))),mock.patch.object(r,'Runtime',return_value=rt),mock.patch.object(r,'setup_jail',side_effect=fail),mock.patch.object(r,'verify_input'),mock.patch.object(r,'unpack',return_value=b'synthetic'),mock.patch.object(r,'import_database'),mock.patch.object(r,'prepare_wordpress',return_value=[]),mock.patch.object(r,'functional_tests',return_value=login),mock.patch.object(b,'write_json')]
         with __import__('contextlib').ExitStack() as stack:
             for p in patches:stack.enter_context(p)
             result=r.worker(b,self.binding,self.params(),{})

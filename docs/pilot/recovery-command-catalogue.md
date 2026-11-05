@@ -1,5 +1,12 @@
 # Proposed recovery operation commands — NOT EXECUTED
 
+**November5 candidate:** historical shell fragments below are not an execution release.
+Use the current source-built SHA manifests and the [exact rollout sequence](calendar-activation-readiness.md#exact-installation-and-rollback-sequence-after-separate-execution-authorization).
+The [locally qualified contract](../test-results/scheduling-recovery.md) supports native12 plus
+exact scheduling15, explicit expected phases and review-required incomplete schemas. No old
+command hash or approval automatically authorizes a rebuilt capture/restore envelope.
+
+
 Technical appendix to [canonical runbook05](../05-backup-rollback-deploy.md), not independent
 authority. [R-Backup](r-backup-approval.md) and [R-Restore](r-restore-approval.md) are separate
 decisions. Bind the exact approved documentation commit/command-text digests and private input

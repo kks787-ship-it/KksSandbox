@@ -15,6 +15,14 @@ inspector=fixture.local
 path=b.BASE/'scripts/recovery/capture_local.py';spec=importlib.util.spec_from_file_location('server_local_capture',path);capture=importlib.util.module_from_spec(spec);spec.loader.exec_module(capture)
 
 class LocalCapture(unittest.TestCase):
+    def test_explicit_fresh_run_nonce_never_overwrites_or_silently_reuses(self):
+        self.setup_capture();self.params['run_token']='d'*32
+        result=self.run_capture()
+        self.assertEqual('csf-gate-b-backup-'+'d'*32,result['bundle_id'])
+        self.assertTrue(result['schema_context_complete'])
+        with self.assertRaises(b.Stop):self.run_capture()
+        self.params['run_token']='../outside'
+        with self.assertRaises(b.Stop):self.run_capture()
     setUp=fixture.ServerLocal.setUp
     setup_local=fixture.ServerLocal.setup_local
 
@@ -29,7 +37,7 @@ class LocalCapture(unittest.TestCase):
     def test_complete_private_source_map_salts_and_verified_receipt(self):
         self.setup_capture();config=self.root/'wp-config.php';config.write_bytes(config.read_bytes()+b"define('AUTH_KEY','synthetic-salt');")
         result=self.run_capture();self.assertEqual('LOCAL_CAPTURE_VERIFIED',result['code'])
-        self.assertEqual({'state','code','bundle_id','manifest_sha256','receipt_sha256','offserver_verified','restore_verified'},set(result))
+        self.assertEqual({'state','code','bundle_id','manifest_sha256','receipt_sha256','offserver_verified','restore_verified','schema_phase','schema_context_complete'},set(result))
         self.assertTrue(b.verify_receipt(self.bundle(),result['receipt_sha256']))
         target=json.loads((self.bundle()/'target.json').read_text())
         self.assertIn(str(self.authfile),target['protected_sources'].values())

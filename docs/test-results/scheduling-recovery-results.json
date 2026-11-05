@@ -1,0 +1,115 @@
+{
+  "application_source_changed": false,
+  "base_commit": "145e1ffce2b618339527e20d582cabba14996aa7",
+  "deployment_guard_scenarios": 22,
+  "deterministic_rebuild": true,
+  "environments": {
+    "adapter": "0.2.0",
+    "external_network": "none",
+    "mariadb": "10.6.28",
+    "php": [
+      "8.1",
+      "8.3.36"
+    ],
+    "provider": "Two-Factor 0.17.0",
+    "scheduling": "0.4.1",
+    "wordpress": "7.1.4"
+  },
+  "evidence": {
+    "deployment_guards": {
+      "sha256": "460e8584f7cae831f2627f11400f4b049bc3b2dcecac39663b8c68a6fbb66d98"
+    },
+    "mariadb_defaults": {
+      "sha256": "c1391f503efcffb4c5da9bf1cc20b49164bd5b35ec608d2f0af51de6e009043b"
+    },
+    "mock_plesk": {
+      "sha256": "cc8c58f5dd1428a983c6d5214a1bf4a53b653cd50e1a48ef51b7274e7803ae52"
+    },
+    "php81_mariadb_four_states": {
+      "passed_assertion_lines": 17,
+      "sha256": "c71bd4df1c39e0b4d279e3058e3cf5fbc0f650ef712cba5ce169f1a3d2c89e4e"
+    },
+    "php83_mariadb_four_states": {
+      "passed_assertion_lines": 17,
+      "sha256": "7b916fa2eb5c5762590fce7f0986ae9f538d933389ae491e0c75f592c7a131db"
+    },
+    "recovery_units": {
+      "sha256": "a7f24e568cd064fe3a32917b223e6ad4f732a05ceaa9e41ffc886db105938b9d"
+    }
+  },
+  "installed_implementation_pin_preserved": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "integration": {
+    "clone_auth_metadata_restored": true,
+    "completed_destination_reuse_rejected": 8,
+    "corruption_and_import_failure_cases": 8,
+    "forced_timeout_cleanup_cases": 8,
+    "phase_exercises": 8,
+    "runs": 2,
+    "source_newer_auth_and_owner_data_preserved": true,
+    "stale_snapshot_reports": 2,
+    "states": [
+      {
+        "outcome": "verified",
+        "phase": "pre_scheduling",
+        "tables": 12
+      },
+      {
+        "outcome": "verified",
+        "phase": "scheduling_v3",
+        "tables": 27
+      },
+      {
+        "outcome": "review-required; data preserved",
+        "phase": "partial_migration",
+        "tables": 20
+      },
+      {
+        "outcome": "review-required; data preserved",
+        "phase": "damaged_scheduling_v3",
+        "tables": 26
+      }
+    ]
+  },
+  "limitations": [
+    "No MySQL-source or cross-engine restore qualification; non-MariaDB preflight stops before clone writes.",
+    "No protected Plesk/Kadence stack or real-account clone MFA test in this task.",
+    "Local recovery fidelity does not authorize deployment or all20 Farm Owner privileges.",
+    "Legacy catalogs retain their original evidence scope."
+  ],
+  "mock_plesk_scenarios": 6,
+  "release_manifests_verified": 5,
+  "scope": "local synthetic qualification only; no protected-server call or deployment",
+  "source_sha256": {
+    "docs/pilot/baseline-select-plan.py.txt": "7ca5cb62a72c87b65de934fbf9116992d6882775296bb94085bb0487f15bed8c",
+    "scripts/pilot/STAGING.sha256": "84b2697a02f359aca29fd6263411ec3f2f6ab4718e6854ef998da8be425da0d0",
+    "scripts/recovery/LOCAL-CAPTURE.sha256": "1d11a3c235049f2425791e4f827cc947d631c559f7f5179697b45f8045cde328",
+    "scripts/recovery/LOCAL-INSPECTION.sha256": "b76c8fa3324bcb042168047f181c82ad76eae8fcc217ebbfd5c7c229dcf5b1c6",
+    "scripts/recovery/LOCAL-RESTORE.sha256": "e8ce7a3f22da40469a9e7b0d283c2e1e6ef73eb87cd796800e07d9da71dddb2c",
+    "scripts/recovery/PAYLOAD.sha256": "6ab2ccc95bca3d077ab6bf2d0a5445ce30f00d510c3534baaaee3ff64e06c7e6",
+    "scripts/recovery/backup.py": "e85281edc07786c0b4ee9a50c29051503bb7711d13accd04c78dd1f14ebb7a51",
+    "scripts/recovery/build.py": "49121c6ab69fe50a38832eda0b5cc282430375c2d95a98593eef0a5aba28a926",
+    "scripts/recovery/build_local_capture.py": "f4de575595c2a28a9283546c62fc3c3fa7fc1b436535bd51b8a5d090058edc3c",
+    "scripts/recovery/build_local_inspection.py": "e4e242bdf1286c5f40d1ee2caeb3349f3a184580eda436ae569d6243575068ee",
+    "scripts/recovery/build_local_restore.py": "bcae3eb4333fe0a4c9a7623c4de10445a898fab0183ee816376291cfa2b69ce0",
+    "scripts/recovery/capture-local.payload.py": "7448a7061846a5b90743935ce49fd858e7df0844e8a06ec98a73ec35722bed85",
+    "scripts/recovery/capture_local.py": "b45e96b90952e1d98e969e6067b5e26b778c4ccb97a9c88521a7bdd1c56b8cc1",
+    "scripts/recovery/inspect-local.payload.py": "3d372cd55872e966506aaf02cb6b589b4154419ad00d6fb6824aaca8a5607972",
+    "scripts/recovery/inspect_local.py": "a38f2db14d032a14aa77c94a413caebc0ab219758b9ce5086d7ce6c1c55e84c0",
+    "scripts/recovery/payload.py": "63d7871408b94b0c704ada2f4d0336c573a2085c9e50cbd71579517301cfceda",
+    "scripts/recovery/prepare_inspection.py": "86198e77e98c86ffe7b1dd6aef623576ac9010395dffa8037ede7427b010d38a",
+    "scripts/recovery/probe_auth_scope.py": "420a13e373f1ed94b920467db724a6f93ca2cb67287bb2b8807f74c98a70637c",
+    "scripts/recovery/probe_restore_tools.py": "1fe89b3ad4296455e1d4a2e892cffb9af2fb69ef5fe3198b4a3ee45f546a3deb",
+    "scripts/recovery/restore-local.payload.py": "e570a4482af77d54aa114035ee27eaebdad02cf6283caa899b4c2a80179d0940",
+    "scripts/recovery/restore_local.py": "3618307daea2a7a50aca242e65b8befecc8fffe04ed8d4fe21a8b55a52931948",
+    "tests/recovery/restore-local.sh": "0c61d1225f1d1abad12de8270a8a6c451d2d89fe553b7bcd15b1befe315d3a3d",
+    "tests/recovery/restore-scheduling-seed.php": "1504f638f915d13b7a9162e7773ed8a5da8cecd9d2259dc45923f0c75d925320",
+    "tests/recovery/restore_fixture.py": "253c8cf00fc7efc00e624004a458313c519aea86cb9d30d8239ff15339c08188",
+    "tests/recovery/test_scheduling_recovery.py": "504a82fcb825ecfea1733e720185eea3ed1a04ad5bbd5d37b6c9ba6754e31cd7"
+  },
+  "syntax": {
+    "python_files": 37,
+    "shell_files": 8,
+    "synthetic_php_seed": "passed"
+  },
+  "unit_tests": 280
+}

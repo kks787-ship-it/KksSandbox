@@ -9,6 +9,7 @@ import fcntl
 import gzip
 import hashlib
 import html
+import html.parser
 import http.client
 import http.cookiejar
 import io
@@ -41,7 +42,7 @@ MAX_TOTAL=8*1024**3
 CODES={'LOGIN_IDENTITY_BLOCKED','LOGIN_HELPER_BLOCKED','LOGIN_SESSION_BLOCKED','LOGOUT_TEST_BLOCKED','SQL_STRUCTURE_BLOCKED','INPUT_BLOCKED','SOURCE_BINDING_BLOCKED','DEPENDENCY_BLOCKED','ISOLATION_BLOCKED',
        'ARCHIVE_BLOCKED','DATABASE_IMPORT_BLOCKED','DATABASE_INTEGRITY_BLOCKED','SOURCE_SECURITY_BLOCKED',
        'CLONE_CONFIG_BLOCKED','PAGE_TEST_BLOCKED','LOGIN_TEST_BLOCKED','CLEANUP_BLOCKED',
-       'TIME_LIMIT_REACHED','RESTORE_UNCLASSIFIED','ISOLATED_RESTORE_VERIFIED','LOGIN_NOT_TESTED'}
+       'TIME_LIMIT_REACHED','RESTORE_UNCLASSIFIED','ISOLATED_RESTORE_VERIFIED','LOGIN_NOT_TESTED','SCHEMA_STATE_REQUIRES_REVIEW'}
 
 class Failure(Exception):
     def __init__(self,code):self.code=code if code in CODES else 'RESTORE_UNCLASSIFIED'
@@ -85,7 +86,7 @@ def selected_paths(b,binding,parent=None):
 
 
 def verify_input(b,source,binding):
-    b.verify_receipt(source,binding['receipt_sha256'])
+    b.verify_receipt(source,binding['receipt_sha256'],binding['bundle_id'])
     require(b.sha((source/'SHA256SUMS').read_bytes())==binding['manifest_sha256'],'SOURCE_BINDING_BLOCKED')
     require({p.name for p in source.iterdir()}==set(b.MANIFEST_NAMES)|{'SHA256SUMS','receipt.json'},'SOURCE_BINDING_BLOCKED')
     target=json.loads((source/'target.json').read_text())
@@ -99,11 +100,12 @@ def sql_statements(stream):
     Retain only structural prefix tokens; count INSERT tuple depth without storing raw data.
     Fail closed on truncated literals, oversized identifiers or unsupported delimiter syntax.
     """
-    state='normal';word='';tokens=[];first=[];depth=0;rows=0;values=False;quote='';escape=False;comment='';previous=''
+    state='normal';word='';tokens=[];first=[];set_literal='';depth=0;rows=0;values=False;quote='';escape=False;comment='';previous=''
     # A bounded one-character lookahead avoids reading a whole SQL dump into memory.
     pending=stream.read(1)
     def token(value):
         nonlocal values
+        if tokens and tokens[0].upper()=='SET':require(len(tokens)<64,'SQL_STRUCTURE_BLOCKED')
         if len(tokens)<64:tokens.append(value)
         if value.upper()=='VALUES':values=True
         require(value.upper() not in {'OUTFILE','DUMPFILE','LOAD_FILE','INSTALL','SONAME','DEFINER','GRANT','REVOKE','PROCEDURE','TRIGGER','EVENT'},'SQL_STRUCTURE_BLOCKED')
@@ -117,6 +119,10 @@ def sql_statements(stream):
             if previous=='*' and c=='/':state='normal';previous=''
             else:previous=c
             continue
+        if state=='quote' and tokens and tokens[0].upper()=='SET':
+            if c==quote:
+                require(pending!=quote,'SQL_STRUCTURE_BLOCKED');token('literal:'+set_literal);state='normal';continue
+            require(c!='\\' and len(set_literal)<256,'SQL_STRUCTURE_BLOCKED');set_literal+=c;continue
         if state=='quote':
             if escape:escape=False;continue
             if c=='\\':escape=True;continue
@@ -150,7 +156,7 @@ def sql_statements(stream):
             state='comment';previous='';continue
         if c=='-' and pending=='-':pending=stream.read(1);state='line';continue
         if c=='#':state='line';continue
-        if c in "'\"":quote=c;state='quote';continue
+        if c in "'\"":quote=c;state='quote';set_literal='';continue
         if c=='`':state='identifier';continue
         if c=='(' and values:
             if depth==0:rows+=1
@@ -164,24 +170,40 @@ def sql_statements(stream):
     require(state in ('normal','line') and not tokens and depth==0,'SQL_STRUCTURE_BLOCKED')
 
 
-def validate_sql(b,stream):
-    counts={name:0 for name in b.NATIVE};created=set()
+def validate_sql(b,stream,expected_tables=None):
+    contract=b.schema_contract();allowed={b.PREFIX+n for n in b.NATIVE|contract['SCHEDULING']}
+    if expected_tables is not None:
+        allowed=contract['table_set'](expected_tables)
+    counts={};created=set()
     for tokens,rows in sql_statements(stream):
         words=[t.upper() for t in tokens];kind=words[0]
-        if kind=='SET':continue
+        if kind=='SET':
+            variables={'TIME_ZONE','CHARACTER_SET_CLIENT','CHARACTER_SET_RESULTS','COLLATION_CONNECTION','UNIQUE_CHECKS','FOREIGN_KEY_CHECKS','SQL_MODE','SQL_NOTES','SAVED_CS_CLIENT'}
+            for word in words[1:]:
+                if word.startswith('LITERAL:'):
+                    require(word in ('LITERAL:','LITERAL:+00:00','LITERAL:NO_AUTO_VALUE_ON_ZERO','LITERAL:UTF8MB4','LITERAL:UTF8','LITERAL:BINARY'),'SQL_STRUCTURE_BLOCKED')
+                else:
+                    name=word.removeprefix('@@').removeprefix('@').removeprefix('SESSION.').removeprefix('OLD_')
+                    require(name in variables or word in ('SESSION','LOCAL','NAMES','UTF8MB4','UTF8','BINARY','0','1'),'SQL_STRUCTURE_BLOCKED')
+            continue
         if kind=='USE':require(tokens[1:]==[b.DATABASE],'SQL_STRUCTURE_BLOCKED');continue
         if kind=='INSERT':
-            require(len(tokens)>2 and words[1]=='INTO','SQL_STRUCTURE_BLOCKED');table=tokens[2]
+            require(len(tokens)>3 and words[1]=='INTO' and words[3]=='VALUES','SQL_STRUCTURE_BLOCKED');table=tokens[2]
         elif kind in ('CREATE','DROP','ALTER'):
+            if kind=='ALTER':require(len(words)==5 and words[3] in ('ENABLE','DISABLE') and words[4]=='KEYS','SQL_STRUCTURE_BLOCKED')
             require(len(tokens)>2 and words[1]=='TABLE','SQL_STRUCTURE_BLOCKED')
             pos=2
             while pos<len(words) and words[pos] in ('IF','NOT','EXISTS'):pos+=1
             require(pos<len(tokens),'SQL_STRUCTURE_BLOCKED');table=tokens[pos]
-            if kind=='CREATE':created.add(table)
+            if kind=='CREATE':
+                require(table not in created,'SQL_STRUCTURE_BLOCKED');created.add(table);counts.setdefault(table[len(b.PREFIX):],0)
         else:raise Failure('SQL_STRUCTURE_BLOCKED')
-        require(table.startswith(b.PREFIX) and table[len(b.PREFIX):] in b.NATIVE,'SQL_STRUCTURE_BLOCKED')
-        if kind=='INSERT':counts[table[len(b.PREFIX):]]+=rows
-    require(created=={b.PREFIX+n for n in b.NATIVE},'SQL_STRUCTURE_BLOCKED')
+        require(table in allowed,'SQL_STRUCTURE_BLOCKED')
+        if kind=='INSERT':
+            require(table in created,'SQL_STRUCTURE_BLOCKED');counts[table[len(b.PREFIX):]]+=rows
+    try:contract['table_set'](created)
+    except ValueError:raise Failure('SQL_STRUCTURE_BLOCKED') from None
+    require(expected_tables is None or created==set(expected_tables),'SQL_STRUCTURE_BLOCKED')
     return counts
 
 
@@ -393,7 +415,7 @@ def import_database(rt):
                     size+=len(chunk);require(size<2*1024**3,'DATABASE_IMPORT_BLOCKED');spool.write(chunk)
             spool.seek(0)
             text=io.TextIOWrapper(spool,encoding='utf-8',errors='strict')
-            try:expected=validate_sql(b,text)
+            try:expected=validate_sql(b,text,{c['table'] for c in json.loads((source/'before.catalog.json').read_text())['columns']})
             finally:text.detach()
             spool.seek(0)
             rt.execute(['/usr/bin/mariadb-install-db','--no-defaults','--basedir=/usr','--datadir='+DATADIR,'--auth-root-authentication-method=normal','--skip-test-db'])
@@ -412,11 +434,14 @@ def import_database(rt):
             rt.sql("ALTER USER 'root'@'localhost' IDENTIFIED BY '"+password+"';CREATE DATABASE "+b.DATABASE+" CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;",database=False)
             rt.root_password=password
             rt.sql(input_file=spool)
-        result=rt.sql('CHECK TABLE '+','.join('`'+b.PREFIX+n+'`' for n in sorted(b.NATIVE))+';')
-        require(result.count(b'\tstatus\tOK')==12,'DATABASE_INTEGRITY_BLOCKED')
+        result=rt.sql('CHECK TABLE '+','.join('`'+b.PREFIX+n+'`' for n in sorted(expected))+';')
+        require(result.count(b'\tstatus\tOK')==len(expected),'DATABASE_INTEGRITY_BLOCKED')
         adapter=b.NativeDB({'user':'unused','password':'unused','host':'localhost'},rt.budget)
         adapter.query=rt.sql
-        catalog=adapter.catalog();plan=b.load_generator()(catalog);rows=rt.sql(plan)
+        catalog=adapter.catalog()
+        original_catalog=json.loads((source/'before.catalog.json').read_text())
+        catalog={k:v for k,v in catalog.items() if k in original_catalog}
+        plan=b.load_generator()(catalog);rows=rt.sql(plan)
         baseline=b.parse_rows(rows,catalog)
         rt.write('artifact.catalog.json',b.canonical(catalog)+b'\n');rt.write('artifact.rows.ndjson',rows)
         for name,count in expected.items():
@@ -427,6 +452,13 @@ def import_database(rt):
         policy=json.loads(b.POLICY_TEXT) if hasattr(b,'POLICY_TEXT') else json.loads((b.BASE/'docs/pilot/baseline-contract.json').read_text())
         comparison=b.drift(previous,baseline,policy)
         rt.write('artifact-source-comparison.json',b.canonical(comparison)+b'\n')
+        require(not comparison['review_required'],'DATABASE_INTEGRITY_BLOCKED')
+        if b.schema_contract()['phase'](original_catalog)=='scheduling_v3':
+            pairs=[('allocations','appointment_id','appointments'),('allocations','resource_id','resources'),('participants','appointment_id','appointments'),('participants','rider_id','riders'),('slots','appointment_id','appointments')]
+            for child,key,parent in pairs:
+                sql='SELECT COUNT(*) FROM `'+b.PREFIX+'csf_sched_'+child+'` c LEFT JOIN `'+b.PREFIX+'csf_sched_'+parent+'` p ON c.`'+key+'`=p.id WHERE p.id IS NULL;'
+                require(rt.sql(sql).strip()==b'0','DATABASE_INTEGRITY_BLOCKED')
+            rt.write('scheduling-relationships.json',b.canonical({'checked':len(pairs),'orphans':0})+b'\n')
         return adapter,baseline
 
 
@@ -446,6 +478,19 @@ require '/site/index.php';
 LOGIN_PHP=b'''<?php
 require '/site/wp-load.php';
 $s=json_decode(file_get_contents('/work/login-input.json'),true,512,JSON_THROW_ON_ERROR);
+if (($s['action']??'password')==='schema') {
+ require_once ABSPATH.'wp-content/plugins/csf-scheduling/csf-scheduling.php';
+ echo json_encode(['ready'=>CSF_Scheduling_Schema::inspect()['ready']]);exit;
+}
+if (($s['action']??'password')==='totp') {
+ $u=get_userdata((int)$s['id']);
+ if(!class_exists('Two_Factor_Core')||!Two_Factor_Core::is_user_using_two_factor($u)){echo json_encode(['required'=>false]);exit;}
+ $provider=Two_Factor_Core::get_primary_provider_for_user($u);
+ if(!($provider instanceof Two_Factor_Totp))exit(3);
+ $last=(int)get_user_meta($u->ID,'_two_factor_totp_last_successful_login',true);
+ $wait=max(0,$last+30-time());if($wait>31)exit(4);if($wait)sleep($wait);
+ echo json_encode(['required'=>true,'code'=>Two_Factor_Totp::calc_totp($provider->get_user_totp_key($u->ID))]);exit;
+}
 global $wpdb;
 $n=$wpdb->update($wpdb->users, ['user_pass'=>wp_hash_password($s['password'])], ['ID'=>(int)$s['id']]);
 if ($n===false) exit(2);
@@ -457,7 +502,7 @@ def prepare_wordpress(rt,raw_config):
     b=rt.b
     with stage('SOURCE_SECURITY_BLOCKED'):
         plugins=rt.sql("SELECT option_value FROM TXGEh_options WHERE option_name='active_plugins';").strip()
-        require(plugins in (b'a:0:{}',b'a:1:{i:0;s:21:"csf-core/csf-core.php";}'),'SOURCE_SECURITY_BLOCKED')
+        plugin_names(plugins)
         site=rt.jail/'site';mu=site/'wp-content/mu-plugins'
         require(not mu.exists() or not list(mu.rglob('*.php')),'SOURCE_SECURITY_BLOCKED')
         for name in ('db.php','object-cache.php','advanced-cache.php','sunrise.php'):
@@ -468,6 +513,7 @@ def prepare_wordpress(rt,raw_config):
         rt.sql("CREATE USER 'csf_restore_app'@'localhost' IDENTIFIED BY '"+rt.app_password+"';GRANT ALL PRIVILEGES ON "+b.DATABASE+".* TO 'csf_restore_app'@'localhost';",database=False)
         config="<?php\ndefine('DB_NAME','"+b.DATABASE+"');define('DB_USER','csf_restore_app');define('DB_PASSWORD','"+rt.app_password+"');define('DB_HOST','localhost:"+SOCKET+"');define('DB_CHARSET','utf8mb4');define('DB_COLLATE','');\n"
         for name in ('AUTH_KEY','SECURE_AUTH_KEY','LOGGED_IN_KEY','NONCE_KEY','AUTH_SALT','SECURE_AUTH_SALT','LOGGED_IN_SALT','NONCE_SALT'):config+="define('"+name+"','"+secrets.token_hex(32)+"');\n"
+        for key,value in security_flags(raw_config).items():config+="define('"+key+"',"+('true' if value else 'false')+");\n"
         config+="$table_prefix='"+b.PREFIX+"';define('WP_ENVIRONMENT_TYPE','local');define('DISABLE_WP_CRON',true);define('DISALLOW_FILE_MODS',true);define('DISALLOW_FILE_EDIT',true);define('WP_HTTP_BLOCK_EXTERNAL',true);define('AUTOMATIC_UPDATER_DISABLED',true);define('WP_DEBUG_DISPLAY',false);define('WP_HOME','"+ORIGIN+"');define('WP_SITEURL','"+ORIGIN+"');if(!defined('ABSPATH'))define('ABSPATH',__DIR__.'/');require_once ABSPATH.'wp-settings.php';\n"
         (site/'wp-config.php').unlink();rt.write('jail/site/wp-config.php',config.encode())
         rt.sql("UPDATE TXGEh_options SET option_value='"+ORIGIN+"' WHERE option_name IN ('home','siteurl');")
@@ -499,6 +545,17 @@ def request(opener,path,data=None):
         return result.status,result.geturl(),body
 
 
+class FactorForm(html.parser.HTMLParser):
+    def __init__(self):super().__init__();self.forms=[];self.current=None
+    def handle_starttag(self,tag,attrs):
+        attrs=dict(attrs)
+        if tag=='form':self.current={'action':attrs.get('action',''),'fields':{}}
+        if tag=='input' and self.current is not None and attrs.get('name'):
+            self.current['fields'][attrs['name']]=attrs.get('value','')
+    def handle_endtag(self,tag):
+        if tag=='form' and self.current is not None:self.forms.append(self.current);self.current=None
+
+
 def functional_tests(rt,php_flags,login_choice):
     with stage('PAGE_TEST_BLOCKED'):
         rt.execute(php_flags+['-S','127.0.0.1:8899','-t','/site','/work/router.php'],web=True,daemon=True)
@@ -521,6 +578,7 @@ def functional_tests(rt,php_flags,login_choice):
         uid=int(saved['id']);require(uid>0,'LOGIN_TEST_BLOCKED')
         sessions=rt.sql("SELECT JSON_OBJECT('id',umeta_id,'value',meta_value) FROM TXGEh_usermeta WHERE user_id="+str(uid)+" AND meta_key='session_tokens';")
         saved['sessions']=[json.loads(line) for line in sessions.splitlines()]
+        saved['metadata']=[json.loads(line) for line in rt.sql("SELECT JSON_OBJECT('id',umeta_id,'key',meta_key,'value',meta_value) FROM TXGEh_usermeta WHERE user_id="+str(uid)+' ORDER BY umeta_id;').splitlines()]
         password=secrets.token_hex(24)
         rt.write('jail/work/login-input.json',rt.b.canonical({'id':uid,'password':password}),rt.web)
         try:
@@ -531,6 +589,19 @@ def functional_tests(rt,php_flags,login_choice):
             opener,jar=http_client();request(opener,'/wp-login.php')
             fields=urllib.parse.urlencode({'log':saved['login'],'pwd':password,'wp-submit':'Log In','redirect_to':ORIGIN+'/wp-admin/','testcookie':'1'}).encode()
             status,url,body=request(opener,'/wp-login.php',fields)
+            # Derive only an ephemeral TOTP inside the isolated clone. No seeds/codes
+            # enter public output; source factors/recovery codes are never regenerated.
+            p=rt.jail/'work/login-input.json';p.unlink()
+            rt.write('jail/work/login-input.json',rt.b.canonical({'id':uid,'action':'totp'}),rt.web)
+            factor=json.loads(rt.execute(php_flags+['/work/login.php'],web=True))
+            if factor.get('required') is True:
+                parser=FactorForm();parser.feed(body.decode('utf-8'))
+                forms=[form for form in parser.forms if 'authcode' in form['fields']]
+                require(len(forms)==1 and re.fullmatch('[0-9]{6}',factor.get('code','')),'LOGIN_SESSION_BLOCKED')
+                form=forms[0];require(form['fields'].get('wp-auth-id')==str(uid),'LOGIN_SESSION_BLOCKED')
+                form['fields']['authcode']=factor['code']
+                status,url,body=request(opener,html.unescape(form['action']),urllib.parse.urlencode(form['fields']).encode())
+                factor.clear()
             status,url,body=request(opener,'/wp-admin/')
             require(status==200 and b'id="wpbody-content"' in body and any(c.name.startswith('wordpress_logged_in_') for c in jar),'LOGIN_SESSION_BLOCKED')
             matches=re.findall(rb'href=[\"\']([^\"\']*wp-login\.php\?action=logout[^\"\']*)',body)
@@ -538,15 +609,17 @@ def functional_tests(rt,php_flags,login_choice):
             request(opener,logout);status,url,body=request(opener,'/wp-admin/')
             require('/wp-login.php' in url and not any(c.name.startswith('wordpress_logged_in_') for c in jar),'LOGOUT_TEST_BLOCKED')
         finally:
-            def value(v):return "CONVERT(0x"+v.encode('utf-8').hex()+" USING utf8mb4)" if v else "''"
+            def value(v):return 'NULL' if v is None else "CONVERT(0x"+v.encode('utf-8').hex()+" USING utf8mb4)" if v else "''"
             rt.sql('UPDATE TXGEh_users SET user_pass='+value(saved['hash'])+',user_activation_key='+value(saved['activation'])+' WHERE ID='+str(uid)+';')
-            rt.sql("DELETE FROM TXGEh_usermeta WHERE user_id="+str(uid)+" AND meta_key='session_tokens';")
-            for row in saved['sessions']:
-                rt.sql("INSERT INTO TXGEh_usermeta(umeta_id,user_id,meta_key,meta_value) VALUES("+str(int(row['id']))+','+str(uid)+",'session_tokens',"+value(row['value'])+');')
+            rt.sql("DELETE FROM TXGEh_usermeta WHERE user_id="+str(uid)+';')
+            for row in saved['metadata']:
+                rt.sql("INSERT INTO TXGEh_usermeta(umeta_id,user_id,meta_key,meta_value) VALUES("+str(int(row['id']))+','+str(uid)+","+value(row['key'])+','+value(row['value'])+');')
             restored=rt.sql("SELECT JSON_OBJECT('hash',user_pass,'activation',user_activation_key) FROM TXGEh_users WHERE ID="+str(uid)+';')
             require(json.loads(restored)=={'hash':saved['hash'],'activation':saved['activation']},'LOGIN_TEST_BLOCKED')
             restored_sessions=rt.sql("SELECT JSON_OBJECT('id',umeta_id,'value',meta_value) FROM TXGEh_usermeta WHERE user_id="+str(uid)+" AND meta_key='session_tokens';")
             require(sorted([json.loads(line) for line in restored_sessions.splitlines()],key=lambda x:x['id'])==sorted(saved['sessions'],key=lambda x:x['id']),'LOGIN_TEST_BLOCKED')
+            restored_meta=[json.loads(line) for line in rt.sql("SELECT JSON_OBJECT('id',umeta_id,'key',meta_key,'value',meta_value) FROM TXGEh_usermeta WHERE user_id="+str(uid)+' ORDER BY umeta_id;').splitlines()]
+            require(restored_meta==saved['metadata'],'LOGIN_TEST_BLOCKED')
             p=rt.jail/'work/login-input.json'
             if p.is_file():p.unlink()
     return True
@@ -560,10 +633,21 @@ def worker(b,binding,params,parent_ns):
         with stage('SOURCE_BINDING_BLOCKED'):verify_input(b,rt.jail/'input',binding)
         raw_config=unpack(rt);import_database(rt);receipt['integrity_verified']=True
         flags=prepare_wordpress(rt,raw_config)
+        phase=b.schema_contract()['phase'](json.loads((source/'before.catalog.json').read_text()))
+        app_schema_ready=None
+        if phase=='scheduling_v3':
+            rt.write('jail/work/login-input.json',b.canonical({'action':'schema'}),rt.web)
+            app_schema_ready=json.loads(rt.execute(flags+['/work/login.php'],web=True)).get('ready') is True
+            (rt.jail/'work/login-input.json').unlink()
         login=functional_tests(rt,flags,params['login_test']);receipt['pages_verified']=True;receipt['login_verified']=login
         with stage('SOURCE_BINDING_BLOCKED'):verify_input(b,rt.jail/'input',binding)
         receipt['code']='ISOLATED_RESTORE_VERIFIED' if login else 'LOGIN_NOT_TESTED'
         receipt['state']='verified' if login else 'partial';receipt['restore_verified']=login
+        catalog=json.loads((source/'before.catalog.json').read_text())
+        phase=b.schema_contract()['phase'](catalog)
+        b.write_json(work/'schema-state.json',{'phase':phase,'tables_preserved':len({c['table'] for c in catalog['columns']}),'application_schema_ready':app_schema_ready})
+        if phase not in ('pre_scheduling','scheduling_v3') or (phase=='scheduling_v3' and app_schema_ready is not True):
+            receipt.update(state='partial',code='SCHEMA_STATE_REQUIRES_REVIEW',restore_verified=False)
     except Failure as error:receipt['code']=error.code
     except (Exception,KeyboardInterrupt):receipt['code']='RESTORE_UNCLASSIFIED'
     finally:
@@ -582,20 +666,35 @@ def selected_paths_for_worker(b,binding):
     return source,work
 
 
-def security_config_safe(data):
-    """Ignore PHP comments only; never evaluate source configuration or ignore active markers.
+def plugin_names(raw):
+    """Decode only a bounded flat indexed list, never PHP unserialize arbitrary data."""
+    if isinstance(raw,bytes):raw=raw.decode('utf-8')
+    match=re.fullmatch(r'a:([0-4]):\{(.*)\}',raw,re.S)
+    require(match is not None,'SOURCE_SECURITY_BLOCKED')
+    names=[];offset=0
+    while offset<len(match[2]):
+        row=re.match(r'i:([0-3]);s:([0-9]+):"([a-z0-9/-]+\.php)";',match[2][offset:])
+        require(row is not None and int(row[1])==len(names) and int(row[2])==len(row[3]),'SOURCE_SECURITY_BLOCKED')
+        names.append(row[3]);offset+=row.end()
+    allowed={'csf-core/csf-core.php','csf-scheduling/csf-scheduling.php','csf-mfa/csf-mfa.php','two-factor/two-factor.php'}
+    require(len(names)==int(match[1]) and len(set(names))==len(names) and set(names)<=allowed,'SOURCE_SECURITY_BLOCKED')
+    require('csf-mfa/csf-mfa.php' not in names or 'two-factor/two-factor.php' in names,'SOURCE_SECURITY_BLOCKED')
+    return names
 
-    Strings remain opaque and intact: a marker in any executable/string context blocks.
-    Unterminated comments/strings also fail closed. This deliberately does not decide
-    whether a security flag is false or an included file is trustworthy.
-    """
-    text=data.decode('utf-8');out=[];i=0
+
+def security_flags(data):
+    """Accept only top-level literal approved booleans; source PHP is never evaluated."""
+    text=data.decode('utf-8');out=[];flags={};i=0;depth=0
     while i<len(text):
         if text.startswith('/*',i):
-            end=text.find('*/',i+2)
-            require(end>=0,'SOURCE_SECURITY_BLOCKED');i=end+2;continue
+            end=text.find('*/',i+2);require(end>=0,'SOURCE_SECURITY_BLOCKED');i=end+2;continue
         if text.startswith('//',i) or text[i]=='#':
             end=text.find('\n',i);i=len(text) if end<0 else end;continue
+        previous=''.join(out).rsplit(';',1)[-1].replace('<?php','').strip() if text.startswith('define',i) else 'not_definition'
+        match=re.match(r"define\s*\(\s*(['\"])(CSF_MFA_ENABLED|CSF_MFA_ENFORCE_ADMIN)\1\s*,\s*(true|false)\s*\)\s*;",text[i:]) if depth==0 and not previous else None
+        if match:
+            name=match[2];require(name not in flags,'SOURCE_SECURITY_BLOCKED')
+            flags[name]=match[3]=='true';out.append('APPROVED_LITERAL;');i+=match.end();continue
         if text[i] in "\"'":
             quote=text[i];start=i;i+=1
             while i<len(text):
@@ -604,9 +703,17 @@ def security_config_safe(data):
                 i+=1
             else:raise Failure('SOURCE_SECURITY_BLOCKED')
             out.append(text[start:i]);continue
+        if text[i] in '{(':depth+=1
+        elif text[i] in '})':depth-=1
         out.append(text[i]);i+=1
     clean=''.join(out)
-    return not re.search(r'(?<![A-Za-z0-9_])(?:CSF_MFA_[A-Za-z0-9_]*|TWO_FACTOR[A-Za-z0-9_]*|FORCE_SSL_ADMIN|MULTISITE)(?![A-Za-z0-9_])',clean)
+    require(not re.search(r'(?<![A-Za-z0-9_])(?:CSF_MFA_[A-Za-z0-9_]*|TWO_FACTOR[A-Za-z0-9_]*|FORCE_SSL_ADMIN|MULTISITE)(?![A-Za-z0-9_])',clean),'SOURCE_SECURITY_BLOCKED')
+    return flags
+
+
+def security_config_safe(data):
+    try:security_flags(data);return True
+    except Failure:return False
 
 
 def source_profile(b,binding):
@@ -614,9 +721,11 @@ def source_profile(b,binding):
     attrs=json.loads((source/'file-attributes.json').read_text());names=set(attrs['before'])
     raw=(source/'wp-config.php.recovery').read_bytes()
     plugins=target['before_guard']['plugins']
-    plugin_names=re.findall(r's:\d+:"([A-Za-z0-9_./-]+)";',plugins)
-    return {'state':'source-profile','plugins_supported':plugins in ('a:0:{}','a:1:{i:0;s:21:"csf-core/csf-core.php";}'),
-            'active_plugin_count':len(plugin_names),'mfa_plugin_detected':any(any(key in n.lower() for key in ('two-factor','wordfence','csf-mfa')) for n in plugin_names),
+    active_names=re.findall(r's:\d+:"([A-Za-z0-9_./-]+)";',plugins)
+    try:plugin_names(plugins);supported=True
+    except Failure:supported=False
+    return {'state':'source-profile','plugins_supported':supported,
+            'active_plugin_count':len(active_names),'mfa_plugin_detected':any(any(key in n.lower() for key in ('two-factor','wordfence','csf-mfa')) for n in active_names),
             'mustuse_php_present':any(n.startswith('wp-content/mu-plugins/') and n.endswith('.php') for n in names),
             'dropin_present':bool(names.intersection({'wp-content/db.php','wp-content/object-cache.php','wp-content/advanced-cache.php','wp-content/sunrise.php'})),
             'config_marker_present':any(marker in raw for marker in (b'CSF_MFA_',b'TWO_FACTOR',b'FORCE_SSL_ADMIN',b'MULTISITE')), 'executable_config_marker_present':not security_config_safe(raw), 'marker_classes':{key:bool(re.search(r'(?<![A-Za-z0-9_])'+re.escape(key)+r'(?![A-Za-z0-9_])',raw.decode())) for key in ('CSF_MFA_ENFORCE_ADMIN','TWO_FACTOR','FORCE_SSL_ADMIN','MULTISITE','WP_ALLOW_MULTISITE')}}
@@ -635,7 +744,10 @@ def preflight(b,binding):
         require(pwd.getpwnam('mysql').pw_uid!=0 and pwd.getpwnam('nobody').pw_uid!=0,'DEPENDENCY_BLOCKED')
         attrs=json.loads((source/'file-attributes.json').read_text());receipt=json.loads((source/'receipt.json').read_text())
         target=json.loads((source/'target.json').read_text())
-        require(target['before_guard']['plugins'] in ('a:0:{}','a:1:{i:0;s:21:"csf-core/csf-core.php";}'),'SOURCE_SECURITY_BLOCKED')
+        plugin_names(target['before_guard']['plugins'])
+        # The contained DB runtime is MariaDB. Do not silently promise cross-engine
+        # physical-schema equivalence for an unqualified MySQL-source restore.
+        require('MariaDB' in target['before_guard'].get('server_version',''),'DEPENDENCY_BLOCKED')
         names=set(attrs['before'])
         require(not any(name.startswith('wp-content/mu-plugins/') and name.endswith('.php') for name in names),'SOURCE_SECURITY_BLOCKED')
         require(not names.intersection({'wp-content/db.php','wp-content/object-cache.php','wp-content/advanced-cache.php','wp-content/sunrise.php'}),'SOURCE_SECURITY_BLOCKED')
@@ -645,7 +757,7 @@ def preflight(b,binding):
         expected=2*1024**3+5*sum(row['size'] for row in attrs['before'].values())+2*1024**3
         require(b.free_bytes(b.PARENT)>=expected,'DEPENDENCY_BLOCKED')
         b.validate_gzip(source/'database.sql.gz',b.Budget(time.time()+120,120))
-        with gzip.open(source/'database.sql.gz','rt',encoding='utf-8') as sql:validate_sql(b,sql)
+        with gzip.open(source/'database.sql.gz','rt',encoding='utf-8') as sql:validate_sql(b,sql,{c['table'] for c in json.loads((source/'before.catalog.json').read_text())['columns']})
         fresh=time.time()-b.utc(receipt['started'])<=86400
     return {'state':'preflight-pass','source_binding_verified':True,'tools_present':True,'sql_structure_verified':True,
             'space_guard_passed':True,'backup_fresh_at_probe':fresh,'restore_executed':False}

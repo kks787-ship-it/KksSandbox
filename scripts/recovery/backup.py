@@ -262,8 +262,12 @@ def write_json(path,value): private_write(path,canonical(value)+b'\n')
 
 
 def schema_digest(catalog):
-    return sha(canonical({'columns':sorted(catalog['columns'],key=lambda r:(r['table'],r['ordinal'])),
-                          'indexes':sorted(catalog['indexes'],key=lambda r:(r['table'],r['name'],r['sequence']))}))
+    descriptor={'columns':sorted(catalog['columns'],key=lambda r:(r['table'],r['ordinal'])),
+                'indexes':sorted(catalog['indexes'],key=lambda r:(r['table'],r['name'],r['sequence']))}
+    for key in ('constraints','references','checks'):
+        if key in catalog:descriptor[key]=sorted(catalog[key],key=canonical)
+    if 'scheduling' in catalog:descriptor['scheduling']=catalog['scheduling']
+    return sha(canonical(descriptor))
 
 
 def parse_rows(data,catalog):
@@ -271,9 +275,9 @@ def parse_rows(data,catalog):
     values=[json.loads(line) for line in data.splitlines()];require(0<len(values)<=250001)
     header=values.pop(0)
     require(header.get('database')==DATABASE and header.get('prefix')==PREFIX and header.get('version')==1)
-    seen=set()
+    seen=set();allowed=schema_contract()['table_set'](c['table'] for c in catalog['columns'])
     for r in values:
-        require(set(r)=={'table','key_hash','value_hash','label'} and r['table'] in NATIVE)
+        require(set(r)=={'table','key_hash','value_hash','label'} and PREFIX+r['table'] in allowed)
         require(all(isinstance(r[k],str) and re.fullmatch('[0-9a-f]{64}',r[k]) for k in ('key_hash','value_hash')))
         require(r['label'] is None if r['table']!='options' else isinstance(r['label'],str))
         key=(r['table'],r['key_hash']);require(key not in seen);seen.add(key)
@@ -354,7 +358,17 @@ class NativeDB:
         columns=self.query("SELECT JSON_OBJECT('table',c.TABLE_NAME,'column',c.COLUMN_NAME,'ordinal',c.ORDINAL_POSITION,'type',c.COLUMN_TYPE,'nullable',c.IS_NULLABLE,'default',c.COLUMN_DEFAULT,'extra',c.EXTRA,'charset',c.CHARACTER_SET_NAME,'collation',c.COLLATION_NAME,'generated',c.GENERATION_EXPRESSION,'engine',t.ENGINE,'table_collation',t.TABLE_COLLATION,'pk_order',s.SEQ_IN_INDEX) FROM information_schema.COLUMNS c JOIN information_schema.TABLES t ON t.TABLE_SCHEMA=c.TABLE_SCHEMA AND t.TABLE_NAME=c.TABLE_NAME LEFT JOIN information_schema.STATISTICS s ON s.TABLE_SCHEMA=c.TABLE_SCHEMA AND s.TABLE_NAME=c.TABLE_NAME AND s.COLUMN_NAME=c.COLUMN_NAME AND s.INDEX_NAME='PRIMARY' WHERE c.TABLE_SCHEMA=DATABASE() ORDER BY c.TABLE_NAME,c.ORDINAL_POSITION;")
         indexes=self.query("SELECT JSON_OBJECT('table',TABLE_NAME,'name',INDEX_NAME,'sequence',SEQ_IN_INDEX,'column',COLUMN_NAME,'non_unique',NON_UNIQUE,'prefix_length',SUB_PART,'collation',COLLATION,'kind',INDEX_TYPE) FROM information_schema.STATISTICS WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME,INDEX_NAME,SEQ_IN_INDEX;")
         counters=self.query("SELECT JSON_OBJECT('table',TABLE_NAME,'next_id',AUTO_INCREMENT) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() ORDER BY TABLE_NAME;")
-        return {'columns':[json.loads(x) for x in columns.splitlines()],'indexes':[json.loads(x) for x in indexes.splitlines()],'counters':[json.loads(x) for x in counters.splitlines()]}
+        result={'columns':[json.loads(x) for x in columns.splitlines()],'indexes':[json.loads(x) for x in indexes.splitlines()],'counters':[json.loads(x) for x in counters.splitlines()]}
+        result['constraints']=[json.loads(x) for x in self.query("SELECT JSON_OBJECT('table',TABLE_NAME,'name',CONSTRAINT_NAME,'type',CONSTRAINT_TYPE) FROM information_schema.TABLE_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE();").splitlines()]
+        result['references']=[json.loads(x) for x in self.query("SELECT JSON_OBJECT('table',TABLE_NAME,'name',CONSTRAINT_NAME,'update',UPDATE_RULE,'delete',DELETE_RULE,'referenced_table',REFERENCED_TABLE_NAME,'schema',UNIQUE_CONSTRAINT_SCHEMA) FROM information_schema.REFERENTIAL_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE();").splitlines()]
+        result['checks']=[json.loads(x) for x in self.query("SELECT JSON_OBJECT('name',CONSTRAINT_NAME,'clause',CHECK_CLAUSE) FROM information_schema.CHECK_CONSTRAINTS WHERE CONSTRAINT_SCHEMA=DATABASE();").splitlines()]
+        allowed=schema_contract()['table_set'](c['table'] for c in result['columns'])
+        require(all(r['table'] in allowed and r['referenced_table'] in allowed and r['schema']==DATABASE for r in result['references']))
+        settings={c['column'] for c in result['columns'] if c['table']==PREFIX+'csf_sched_settings'}
+        if 'schema_version' in settings:
+            versions=self.query('SELECT schema_version FROM `'+PREFIX+'csf_sched_settings` LIMIT 3;').splitlines()
+            result['scheduling']={'settings_rows':len(versions),'version':int(versions[0]) if len(versions)==1 and re.fullmatch(rb'[0-9]+',versions[0]) else None}
+        return result
     def guard(self,expected_plugins):
         rows=self.query("SELECT JSON_OBJECT('database',DATABASE(),'home',(SELECT option_value FROM TXGEh_options WHERE option_name='home'),'siteurl',(SELECT option_value FROM TXGEh_options WHERE option_name='siteurl'),'plugins',(SELECT option_value FROM TXGEh_options WHERE option_name='active_plugins'),'server_version',VERSION(),'bytes',(SELECT COALESCE(SUM(DATA_LENGTH+INDEX_LENGTH),0) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE()),'objects',(SELECT COUNT(*) FROM information_schema.ROUTINES WHERE ROUTINE_SCHEMA=DATABASE())+(SELECT COUNT(*) FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA=DATABASE())+(SELECT COUNT(*) FROM information_schema.EVENTS WHERE EVENT_SCHEMA=DATABASE()));")
         v=json.loads(rows);require(v['database']==DATABASE and v['home']==URL and v['siteurl']==URL)
@@ -371,16 +385,21 @@ class NativeDB:
         self.run(self.dumper,['--single-transaction','--default-character-set=utf8mb4','--quick','--skip-lock-tables','--skip-add-locks','--no-tablespaces','--hex-blob','--routines','--events','--triggers','--skip-comments','--skip-dump-date',DATABASE],output=out)
 
 
-def load_generator():
+def schema_contract():
     path=BASE/'docs/pilot/baseline-select-plan.py.txt';raw=path.read_bytes()
-    require(sha(raw)=='509c5acd35e2e165fd1c46a260bc3ec3d117a79b96e92b726cd83dfdd7b13b46')
+    require(sha(raw)=='7ca5cb62a72c87b65de934fbf9116992d6882775296bb94085bb0487f15bed8c')
     ns={'__name__':'backup_generator'};exec(compile(raw,str(path),'exec'),ns)
-    return ns['generate']
+    return ns
+
+
+def load_generator():
+    return schema_contract()['generate']
 
 
 def bindings(value,mode):
-    require(set(value)=={'mode','source_pin','run_token','actor_ref','approval_ref','start','end','custody','config_reviewed','wp_config_sha256','plugins_sha256','protected','db_secret'})
+    require(set(value)-{'expected_phase'}=={'mode','source_pin','run_token','actor_ref','approval_ref','start','end','custody','config_reviewed','wp_config_sha256','plugins_sha256','protected','db_secret'})
     require(value['mode']==mode and value['source_pin']==IMPLEMENTATION)
+    require(value.get('expected_phase','pre_scheduling') in ('pre_scheduling','scheduling_v3','partial_migration','damaged_scheduling_v3'))
     require(re.fullmatch('[a-f0-9]{32}',value['run_token']) and all(isinstance(value[k],str) and re.fullmatch('[A-Za-z0-9_.:-]{1,128}',value[k]) for k in ('actor_ref','approval_ref')))
     start,end=utc(value['start']),utc(value['end']);require(start<=time.time()<end and 0<end-start<=1800)
     require(value['custody']=='local-only' and value['config_reviewed'] is True)
@@ -456,17 +475,25 @@ def verify_manifest(bundle,expected_digest):
 
 
 
-def verify_receipt(bundle,expected_receipt_digest):
+def verify_receipt(bundle,expected_receipt_digest,expected_bundle_id=None):
     budget=Budget(time.time()+120,120)
     raw,_=read_regular(bundle/'receipt.json',16384,budget)
     require(sha(raw)==expected_receipt_digest)
     receipt=json.loads(raw)
-    require(set(receipt)=={'version','state','run_token','source','source_pin','started','custody','offserver_verified','restore_verified','drift_counts','schema_changed','manifest_sha256','files','bytes','ended'})
+    require(set(receipt)-{'schema_phase','expected_phase'}=={'version','state','run_token','source','source_pin','started','custody','offserver_verified','restore_verified','drift_counts','schema_changed','manifest_sha256','files','bytes','ended'})
     require(receipt['state']=='complete' and receipt['source_pin']==IMPLEMENTATION)
+    require(re.fullmatch('[a-f0-9]{32}',receipt['run_token']) and (expected_bundle_id or bundle.name)=='csf-gate-b-backup-'+receipt['run_token'])
     require(receipt['source']=={'url':URL,'database':DATABASE,'prefix':PREFIX})
     require(receipt['custody']=='local-only' and receipt['offserver_verified'] is False and receipt['restore_verified'] is False)
     require(receipt['schema_changed'] is False and all(v==0 for v in receipt['drift_counts'].values()))
     verify_manifest(bundle,receipt['manifest_sha256'])
+    if 'schema_phase' in receipt:
+        catalog=json.loads(read_regular(bundle/'before.catalog.json',16*1024**2,budget)[0])
+        require(receipt['schema_phase']==schema_contract()['phase'](catalog))
+        require(receipt.get('expected_phase','pre_scheduling')==receipt['schema_phase'])
+    else:
+        catalog=json.loads(read_regular(bundle/'before.catalog.json',16*1024**2,budget)[0])
+        require(schema_contract()['phase'](catalog)=='pre_scheduling')
     return True
 
 
@@ -476,7 +503,7 @@ def capture(value,db,budget,root=ROOT,parent=PARENT,protected_metadata=None,scop
     budget.check();bundle=parent/('csf-gate-b-backup-'+value['run_token'])
     require(not bundle.exists() and not bundle.is_symlink())
     bundle.mkdir(mode=0o700);os.chmod(bundle,0o700)
-    receipt={'version':1,'state':'incomplete','run_token':value['run_token'],'source':{'url':URL,'database':DATABASE,'prefix':PREFIX},'source_pin':IMPLEMENTATION,'started':timestamp(),'custody':'local-only','offserver_verified':False,'restore_verified':False}
+    receipt={'version':1,'state':'incomplete','run_token':value['run_token'],'source':{'url':URL,'database':DATABASE,'prefix':PREFIX},'source_pin':IMPLEMENTATION,'started':timestamp(),'custody':'local-only','offserver_verified':False,'restore_verified':False,'expected_phase':value.get('expected_phase','pre_scheduling')}
     try:
         before_dirs=directory_inventory(root,budget)
         before=inventory(root,budget);require('wp-config.php' in before and before['wp-config.php']['sha256']==value['wp_config_sha256'])
@@ -488,7 +515,7 @@ def capture(value,db,budget,root=ROOT,parent=PARENT,protected_metadata=None,scop
             protected[item['name']]={'sha256':sha(data),'size':len(data),'mode':stat.S_IMODE(info.st_mode),'uid':info.st_uid,'gid':info.st_gid,'mtime_ns':info.st_mtime_ns};protected_bytes+=len(data)
         versions=db.versions()
         initial=db.guard(value['plugins_sha256']);generate=load_generator()
-        catalog=db.catalog();plan=generate(catalog);raw=db.query(plan);a=parse_rows(raw,catalog)
+        catalog=db.catalog();require(schema_contract()['phase'](catalog)==receipt['expected_phase']);plan=generate(catalog);raw=db.query(plan);a=parse_rows(raw,catalog)
         source_bytes=sum(x['size'] for x in before.values());reserve=2*1024**3+5*(source_bytes+initial['bytes']+protected_bytes)+64*1024**2
         require(free_bytes(parent)>=reserve);budget.disk_parent=parent
         private_write(bundle/'capture-start-utc.txt',(receipt['started']+'\n').encode())
@@ -526,6 +553,7 @@ def capture(value,db,budget,root=ROOT,parent=PARENT,protected_metadata=None,scop
             review['review_required']=True;review['counts']['critical']+=1;review['guard_changed']=True
         write_json(bundle/'drift-review.json',review)
         receipt['drift_counts']=review['counts'];receipt['schema_changed']=review['schema_changed']
+        receipt['schema_phase']=schema_contract()['phase'](catalog)
         for which,inv in (('before',before),('after',after)):
             private_write(bundle/(which+'-files.sha256'),''.join(v['sha256']+'  '+n+'\n' for n,v in inv.items()).encode())
         write_json(bundle/'file-attributes.json',{'before':before,'after':after,'directories':before_dirs,'protected':protected})
@@ -565,7 +593,7 @@ def inspect_only(value,db,budget,root=ROOT,parent=PARENT):
     v=db.guard(value['plugins_sha256']);catalog=db.catalog();load_generator()(catalog)
     reserve=2*1024**3+5*(sum(x['size'] for x in before.values())+v['bytes']+16*1024**2)+64*1024**2
     require(free_bytes(parent)>=reserve)
-    return {'state':'prerequisites-pass','file_count':len(before),'source_bytes':sum(x['size'] for x in before.values()),'tables':12,'engine':'InnoDB','disk_reserve_pass':True,'capture_authorized':False,'native_versions':versions,'observed_wp_config_sha256':before['wp-config.php']['sha256'],'observed_plugins_sha256':sha(v['plugins'].encode()),'observed_protected_sha256':observations}
+    return {'state':'prerequisites-pass','file_count':len(before),'source_bytes':sum(x['size'] for x in before.values()),'tables':len({c['table'] for c in catalog['columns']}),'engine':'InnoDB','disk_reserve_pass':True,'capture_authorized':False,'native_versions':versions,'observed_wp_config_sha256':before['wp-config.php']['sha256'],'observed_plugins_sha256':sha(v['plugins'].encode()),'observed_protected_sha256':observations}
 
 
 def main():

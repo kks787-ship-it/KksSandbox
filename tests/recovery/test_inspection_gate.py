@@ -89,7 +89,7 @@ class InspectionGate(unittest.TestCase):
             if 'information_schema.STATISTICS WHERE' in statement:return b''
             return b''
         with mock.patch.object(native,'query',side_effect=query):native.guard(self.v['plugins_sha256']);native.catalog()
-        self.assertEqual(4,len(sql))
+        self.assertEqual(7,len(sql))
         for statement in sql:
             self.assertTrue(statement.startswith('SELECT '))
             for forbidden in ('FROM TXGEh_users','FROM TXGEh_usermeta','INSERT ','UPDATE ','DELETE ','GRANT ','CREATE ','INTO OUTFILE','LOAD_FILE','SLEEP('):self.assertNotIn(forbidden,statement)

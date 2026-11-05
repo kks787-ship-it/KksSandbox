@@ -1,6 +1,6 @@
-"""PROPOSAL ONLY: pure metadata-to-SELECT generator; no DB/network/capture/restore calls.
+"""Reviewed pure metadata-to-SELECT generator; no DB/network/capture/restore calls.
 
-Reviewed for the pre-install sandbox's twelve native tables. A different phase needs review.
+Exact native12 plus reviewed schema-v3 scheduling15; partial DDL is preserved, never skipped.
 Feed approved private catalog JSON; send emitted SQL to one read-only client connection later.
 """
 import json
@@ -10,6 +10,24 @@ import sys
 PREFIX = 'TXGEh_'
 NATIVE = {'commentmeta', 'comments', 'links', 'options', 'postmeta', 'posts',
           'term_relationships', 'term_taxonomy', 'termmeta', 'terms', 'usermeta', 'users'}
+
+SCHEDULING = frozenset(['csf_sched_settings', 'csf_sched_resources', 'csf_sched_appointments', 'csf_sched_allocations', 'csf_sched_commands', 'csf_sched_audit', 'csf_sched_riders', 'csf_sched_horses', 'csf_sched_availability', 'csf_sched_restrictions', 'csf_sched_details', 'csf_sched_history', 'csf_sched_slots', 'csf_sched_participants', 'csf_sched_authorization'])
+
+def table_set(names, prefix=PREFIX):
+    native={prefix+n for n in NATIVE}; allowed=native|{prefix+n for n in SCHEDULING}
+    names=set(names)
+    if not native.issubset(names) or not names.issubset(allowed):
+        raise ValueError("Unreviewed source table set")
+    return names
+
+def phase(catalog):
+    names=table_set(c["table"] for c in catalog["columns"])
+    present=names-{PREFIX+n for n in NATIVE}
+    marker=catalog.get("scheduling",{})
+    version=marker.get("version"); count=marker.get("settings_rows",0)
+    if not present:return "pre_scheduling"
+    if version==3 and count==1:return "scheduling_v3" if len(present)==15 else "damaged_scheduling_v3"
+    return "partial_migration"
 
 
 def identifier(value):
@@ -33,8 +51,7 @@ def generate(catalog):
         if not name.startswith(PREFIX) or column['engine'] != 'InnoDB':
             raise ValueError('Wrong source/storage')
         tables.setdefault(name, []).append(column)
-    if set(tables) != {PREFIX + name for name in NATIVE}:
-        raise ValueError('Different source phase/table set; review before capture')
+    table_set(tables)
     lines = ["SET SESSION time_zone='+00:00';",
              'SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;',
              'SET SESSION TRANSACTION READ ONLY;',

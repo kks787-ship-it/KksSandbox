@@ -82,34 +82,58 @@ Never grant `manage_options` or change native Subscriber roles as a workaround.
 
 ## Exact installation and rollback sequence after separate execution authorization
 
-**Concrete pre-migration recovery prerequisite:** the current baseline generator accepts exactly
-the 12 native WordPress tables (`docs/pilot/baseline-select-plan.py.txt`), and the isolated restore
-parser likewise rejects non-native tables (`scripts/recovery/restore_local.py`). Before applying
-schema3 on the protected sandbox, extend and locally qualify the exact backup/restore contract
-for those 12 plus the 15 scheduling tables. Do not weaken it to accept arbitrary tables, describe
-the earlier 12-table recovery drill as scheduling-data recovery, or migrate first and leave future
-backups unable to capture the calendar. This is follow-on recovery engineering, not a bootstrap
-exception or permission to change the server.
+**Local recovery qualification completed:** the exact allowlist now covers the 12 native
+WordPress tables plus the 15 schema-v3 scheduling tables. Known partial sets are preserved and
+reported for review, never accepted as healthy operational recovery. See the
+[27-table qualification report](../test-results/scheduling-recovery.md). This is local evidence,
+not a new protected-sandbox backup, restore or deployment authorization.
 
-1. Reverify pinned scheduling20 and MFA25 files, target/configuration and schema preview.
-   Preserve inquiry disabled, emergency inactive, existing pages/menus/photos and MFA policy.
-2. Verify the isolated recovery procedure; capture and integrity-verify a **fresh** pre-change
-   backup including current MFA enrollment metadata. Earlier pre-enrollment recovery snapshots
-   are not a reason to overwrite newer factors. Missing protection stops writes.
-3. Activate only the reviewed scheduling plugin. Activation has no migration/cron side effects.
-4. Preview schema3, all15 statements and current state. Explicitly apply only with the exact
-   sandbox URL, verified operator and temporary `CSF_SCHEDULING_MIGRATION_ALLOWED` switch.
-   Clear the migration switch afterward. DDL is not atomic: inspect partial state on failure;
-   do not drop/recreate tables or force through an error.
-5. Execute only a separately approved, implemented bootstrap. Recheck real MFA, one-use expiry,
-   release, revision, account and private ownership approval. No employee grants are implied.
-6. Configure separately reviewed synthetic policies and seed only fictional records after
-   approval; keep real notifications and public booking off. Use the fixture specification
-   below and the canonical staff walkthrough. Test on the actual protected/Kadence stack.
-7. On failure, stop writes and inventory later owner changes. Roll back only the scoped new
-   files/config/options or reviewed partial schema against the fresh baseline. Full restoration
-   requires review if it would overwrite later content or MFA changes. Preserve restricted audit
-   evidence; never disable security to make the test pass.
+Execute the following only under the applicable reviewed sandbox/security scope. Bind the exact
+current source, target and private command hashes immediately before execution; do not reuse a
+historical approval envelope or silently replace the installed implementation pin.
+
+1. Reverify target, installed scheduling20/MFA25 hashes, current schema and recovery space.
+   Preserve inquiry disabled, emergency inactive, pages, menus, photos and approved F2 policy.
+2. Capture a fresh pre-change backup with an explicit new private `run_token` and
+   `expected_phase: "pre_scheduling"`. Require complete receipt, all artifact hashes, zero
+   unattributed drift and age under24hours. The new recovery payload must match its release
+   manifests. Existing destinations are never overwritten. Earlier pre-enrollment backups
+   cannot protect current MFA metadata.
+3. Qualify that exact backup in isolation before migration. The reviewed restore scope must
+   include the clone-only temporary password and native MFA challenge using an ephemeral TOTP
+   calculated inside the clone from its restored factor. No factor, code or session is exported;
+   seeds/recovery codes are never regenerated. Restore all original cloned user metadata and
+   credentials after login/logout; preserve current source data. Retain the30minute bound and
+   containment. This package does not execute or authorize that real-account clone test.
+4. After the scoped rollout approval, replace only the two changed Scheduling0.4.1 files from
+   candidate `145e1ffce2b618339527e20d582cabba14996aa7`, verified against its
+   [20-file inventory](../test-results/scheduling-pilot-bootstrap-inventory.json).
+   Leave the25 MFA/provider files unchanged. Review promotion from installed source `2fd02a2`
+   explicitly; moving documentation HEAD is not source promotion.
+5. Activate only scheduling; activation performs no schema migration or cron scheduling.
+   Existing MFA adapter hooks on plugin activation may invalidate prior Digital Ranch proofs
+   by advancing the security epoch. Require a fresh native MFA login afterward; never reset
+   factors or weaken authorization to preserve an old session.
+6. Preview schema3 and all15 table statements. Explicitly apply with the exact sandbox URL,
+   verified native operator and temporary `CSF_SCHEDULING_MIGRATION_ALLOWED`; remove the switch
+   afterward. DDL is not atomic. On failure stop writes, inspect and preserve the actual partial
+   state. Never drop/recreate tables or force a retry. A forensic capture must explicitly expect
+   `partial_migration` or `damaged_scheduling_v3`; its integrity PASS is not schema readiness.
+7. Before further pilot writes, capture with `expected_phase: "scheduling_v3"` and a new nonce;
+   isolated-restore all27 tables, rows/indexes/constraints/relationships, current MFA metadata,
+   pages and login/logout. Missing scheduling tables, invalid application schema, unexplained
+   drift or failed cleanup stop progress. Retain both pre-change and post-migration evidence.
+8. **Separate security checkpoint:** the one-use pilot bootstrap grants the Technical Master
+   all20 farm privileges, not calendar view alone. Obtain explicit approval of that exact grant,
+   account, expiry/revision and private ownership review before execution. Mandatory enforcement
+   and employee grants are not implied; paused Operations/Head Trainer enrollments stay paused.
+9. With the applicable fictional-pilot policy and grants approved, create synthetic records and
+   run the protected acceptance below. No actual mail, public booking, emergency or real records.
+10. Rollback: stop writes; inventory newer content/authentication/calendar changes first. Restore
+    only reviewed file/config changes or a separately reviewed database rollback. Never apply an
+    old12-table snapshot over newer calendar or MFA state automatically. Preserve restricted
+    evidence; a fresh27-table recovery set is required before pilot data grows. No production,
+    shared-server changes or automatic live restoration.
 
 ## Prepared protected acceptance
 

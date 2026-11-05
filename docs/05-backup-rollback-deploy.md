@@ -1109,3 +1109,14 @@ Issue #13 immutable implementation pin: **2c08321d98566bc50ccb6d62712abf798cc16d
 **03884538be197ea1c97c5d65aef65122cd783f69**, adapter tree
 **d50ee60a71bccd55217374af1f40c3d8c173d43d**. Read the43-file proposed inventory and
 separate artifact/identity/security holds. No protected installation approval follows.
+
+
+## November5 — locally qualified scheduling recovery candidate
+
+The recovery allowlist now preserves the native12 and exact15 scheduling-v3 tables, including
+known partial/damaged table sets without accepting those states as healthy recovery. Historical
+12-table drills above remain evidence of their original scope. They are not27-table farm tests.
+See the [qualification report](test-results/scheduling-recovery.md) and
+[exact proposed rollout/rollback sequence](pilot/calendar-activation-readiness.md#exact-installation-and-rollback-sequence-after-separate-execution-authorization).
+The candidate retains installed source pin2fd02a2; no protected operation, MFA change or Farm
+Owner grant follows from these local results. Capture/restore commands need fresh bound hashes.
