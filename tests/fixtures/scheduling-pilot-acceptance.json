@@ -1,0 +1,47 @@
+{
+  "purpose": "Synthetic acceptance specification only; not an executable database seeder",
+  "execution": "Held until protected calendar activation, permissions and test policies are authorized",
+  "real_operating_policy": false,
+  "timezone": "America/Los_Angeles",
+  "week_start": "2027-01-25",
+  "proposed_test_policies": {
+    "hours": "Monday-Saturday 08:00-18:00; Sunday closed",
+    "private_capacity": 1,
+    "group_capacity": 4,
+    "private_minutes": 30,
+    "group_minutes": 60,
+    "school_horse_daily_ridden_minutes": 120,
+    "school_horse_max_continuous_minutes": 30,
+    "school_horse_minimum_recovery_minutes": 15,
+    "off_site_travel_buffer_minutes": 60,
+    "academy": "Monday 09:00-10:00; synthetic group service",
+    "off_site": "Wednesday; Pilot North 09:00-12:00 and Pilot South 14:00-17:00",
+    "protected_schooling": "Tuesday 12:00-13:00; Pilot Maple unavailable for lessons"
+  },
+  "records": {
+    "instructors": ["Pilot Instructor"],
+    "arenas": ["Pilot Home Arena", "Pilot North Arena", "Pilot South Arena"],
+    "school_horses": ["Pilot Maple", "Pilot Cedar"],
+    "client_horses": ["Pilot Client Horse"],
+    "riders": ["Pilot Rider A", "Pilot Rider B", "Pilot Rider C", "Pilot Rider D"],
+    "initial_clearance": "All rider evidence unchecked; explicitly configure service/rider suitability before safe bookings"
+  },
+  "scenarios": [
+    {"id":"private", "action":"Create requested, held and confirmed private lessons", "expect":"Correct local time and resource reservation; confirmation does not clear missing rider evidence"},
+    {"id":"academy", "action":"Monday group: A/Maple and B/Cedar 09:00-09:20; C/Maple and D/Cedar 09:35-09:55", "expect":"Four riders, two horses, fifteen-minute recovery and forty ridden minutes per horse"},
+    {"id":"haul_in", "action":"Book Pilot Client Horse using a configured client-horse service", "expect":"No invented school-horse availability resource"},
+    {"id":"off_site", "action":"Book Wednesday at Pilot North, then Pilot South; also try a move with insufficient travel buffer", "expect":"Configured locations/resources and travel buffer enforced; no automatic route or geographic-distance calculation"},
+    {"id":"sunday", "action":"Try to confirm on Sunday", "expect":"Closed-day policy rejects booking"},
+    {"id":"protected_schooling", "action":"Try to reserve Maple during Tuesday protected schooling", "expect":"Restriction blocks unsafe reservation"},
+    {"id":"conflicts", "action":"Overlap instructor, arena, horse and rider individually", "expect":"Understandable preview warning; save rechecks and rejects conflicting reservation"},
+    {"id":"simultaneous", "action":"Two authorized sessions attempt the same conflicting reservation", "expect":"At most one commits; preserve the rejected draft. Requires two authorized sessions, not enrollment of a paused account"},
+    {"id":"welfare", "action":"Add an overlapping protective hold; attempt an unauthorized release", "expect":"Existing confirmation retained with welfare warning; new unsafe reservation blocked; release needs its own privilege and audit reason"},
+    {"id":"workload", "action":"Exceed continuous/daily horse limits or remove a recovery gap", "expect":"Unsafe allocation rejected"},
+    {"id":"cancel", "action":"Cancel with initiating party, reason and effective/notice time", "expect":"Retain cancellation/audit history, release resources, send no alerts or payments"},
+    {"id":"uncertain", "action":"Recover an uncertain save using the exact original command", "expect":"One committed result, no duplicate appointment"},
+    {"id":"dst", "action":"Enter nonexistent spring-forward time and repeated fall-back time", "expect":"Reject gap; require explicit first/second occurrence for fold"},
+    {"id":"access", "action":"Check logged-out access and paused/ungranted accounts", "expect":"No calendar records or write rights; no fallback around MFA"},
+    {"id":"mobile", "action":"Perform day/week, rotation, move and cancellation at 390/768/1280px and on owner devices", "expect":"Readable labels, keyboard focus, usable touch controls and no JSON editing"}
+  ],
+  "acceptance": "Owner records actual task results; automated preparation does not constitute Beth/Kris acceptance"
+}
