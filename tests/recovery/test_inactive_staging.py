@@ -63,11 +63,24 @@ class Staging(unittest.TestCase):
     def test_reproducible_bounded_transport_and_closed_template(self):
         import sys,subprocess,base64,zlib
         sys.path.insert(0,str(b.BASE/'scripts/pilot'));import build_inactive_staging as builder
-        payload=builder.artifacts();self.assertEqual(payload,builder.artifacts())
+        # This builder intentionally stays pinned to the installed release. Exercise its
+        # historical bytes in memory; a new local candidate must not silently move that pin.
+        pinned={b.BASE/path:subprocess.check_output(['git','-C',str(b.BASE),'show',builder.PIN+':'+path])
+                for line in (b.BASE/'docs/test-results/scheduling-security-files.sha256').read_text().splitlines()
+                for path in [line.split()[1]] if path.startswith(s.BASE)}
+        original=Path.read_bytes
+        with mock.patch.object(Path,'read_bytes',lambda path:pinned[path] if path in pinned else original(path)):
+            payload=builder.artifacts();self.assertEqual(payload,builder.artifacts())
         command=builder.command(payload,{},'preflight');tail=base64.b64encode(zlib.compress(payload,9))[48000:]
         self.assertLessEqual(len(command),65536);self.assertLessEqual(len(tail),65536)
         result=subprocess.run(['/bin/bash','-c',command.decode()],input=tail,capture_output=True,timeout=10)
         self.assertEqual(2,result.returncode);self.assertIn(b'STAGING_GUARD_FAILED',result.stdout)
+    def test_pinned_builder_rejects_unreviewed_working_source(self):
+        import sys
+        sys.path.insert(0,str(b.BASE/'scripts/pilot'));import build_inactive_staging as builder
+        original=Path.read_bytes
+        with mock.patch.object(Path,'read_bytes',lambda path:b'tampered source' if path==b.BASE/'wp-content/plugins/csf-scheduling/csf-scheduling.php' else original(path)):
+            with self.assertRaises(AssertionError):builder.artifacts()
     def test_source_manifest_hashes(self):
         for line in (b.BASE/'scripts/pilot/STAGING.sha256').read_text().splitlines():
             digest,path=line.split('  ');self.assertEqual(digest,hashlib.sha256((b.BASE/path).read_bytes()).hexdigest())

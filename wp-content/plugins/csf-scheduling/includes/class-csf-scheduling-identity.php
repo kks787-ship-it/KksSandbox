@@ -110,7 +110,9 @@ final class CSF_Scheduling_Identity {
 			return null; }
 		$m    = json_decode( (string) file_get_contents( $path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Exact private local approval file.
 		$keys = array( 'site', 'environment', 'facility', 'release', 'schema', 'revision', 'policy_hash', 'registry_hash', 'operator', 'owner', 'previous_master', 'action', 'issued', 'expires', 'verification_record_hash', 'commands' );
-		if ( ! is_array( $m ) || array_keys( $m ) !== $keys || home_url() !== $m['site'] || site_url() !== $m['site'] || wp_get_environment_type() !== $m['environment'] || CSF_Scheduling_Schema::VERSION !== $m['schema'] || ! is_int( $m['revision'] ) || $m['revision'] < 0 || ! is_int( $m['issued'] ) || ! is_int( $m['expires'] ) || $m['issued'] > time() || $m['expires'] <= time() || $m['expires'] - $m['issued'] > 600 || ! is_int( $m['operator'] ) || ! is_int( $m['owner'] ) || $m['operator'] === $m['owner'] || ! get_userdata( $m['operator'] ) || ! get_userdata( $m['owner'] ) || ! in_array( $m['action'], array( 'bootstrap', 'transfer' ), true ) ) {
+		if ( ! is_array( $m ) || array_keys( $m ) !== $keys || home_url() !== $m['site'] || site_url() !== $m['site'] || wp_get_environment_type() !== $m['environment'] || CSF_Scheduling_Schema::VERSION !== $m['schema'] || ! is_int( $m['revision'] ) || $m['revision'] < 0 || ! is_int( $m['issued'] ) || ! is_int( $m['expires'] ) || $m['issued'] > time() || $m['expires'] <= time() || $m['expires'] - $m['issued'] > 600 || ! is_int( $m['operator'] ) || ! is_int( $m['owner'] ) || ! get_userdata( $m['operator'] ) || ! get_userdata( $m['owner'] ) || ! in_array( $m['action'], array( 'bootstrap', 'pilot_bootstrap', 'transfer' ), true ) ) {
+			return null; }
+		if ( 'pilot_bootstrap' === $m['action'] ? ! self::pilot_approved( $m ) : $m['operator'] === $m['owner'] ) {
 			return null; }
 		foreach ( array( 'policy_hash', 'registry_hash', 'verification_record_hash' ) as $key ) {
 			if ( ! is_string( $m[ $key ] ) || ! preg_match( '/^[a-f0-9]{64}$/D', $m[ $key ] ) ) {
@@ -126,6 +128,19 @@ final class CSF_Scheduling_Identity {
 				return null; }
 		}
 		return self::native_cap( $m['owner'], 'read' ) ? $m : null;
+	}
+	/** Owner-approved, exact-invitation exception for one development pilot controller.
+	 *
+	 * @param array $m Reviewed private invitation.
+	 * @return bool
+	 */
+	private static function pilot_approved( $m ) {
+		return in_array( wp_get_environment_type(), array( 'local', 'development' ), true ) &&
+			class_exists( 'CSF_MFA_Admin' ) && ! CSF_MFA_Admin::enabled() &&
+			$m['operator'] === $m['owner'] && null === $m['previous_master'] &&
+			defined( 'CSF_SCHEDULING_PILOT_APPROVAL' ) && is_string( CSF_SCHEDULING_PILOT_APPROVAL ) &&
+			(bool) preg_match( '/^[a-f0-9]{64}$/D', CSF_SCHEDULING_PILOT_APPROVAL ) &&
+			hash_equals( CSF_SCHEDULING_PILOT_APPROVAL, self::digest( $m ) );
 	}
 	/** Exact canonical action identity.
 	 *
@@ -154,14 +169,16 @@ final class CSF_Scheduling_Identity {
 	 * @return bool
 	 */
 	public static function authorize( $kind, $body ) {
-		if ( ! in_array( $kind, self::COMMANDS, true ) || ( defined( 'WP_CLI' ) && WP_CLI ) || ! class_exists( 'CSF_MFA_Session' ) || ! class_exists( 'CSF_MFA_Admin' ) || ! CSF_MFA_Admin::enabled() || ! CSF_Scheduling_Permissions::mfa( get_current_user_id() ) ) {
+		if ( ! in_array( $kind, self::COMMANDS, true ) || ( defined( 'WP_CLI' ) && WP_CLI ) || ! class_exists( 'CSF_MFA_Session' ) || ! class_exists( 'CSF_MFA_Admin' ) || ! CSF_Scheduling_Permissions::mfa( get_current_user_id() ) ) {
 			return false; }
 		if ( ! CSF_MFA_Session::attested( CSF_MFA_Session::attestation(), 300 ) ) {
 			return false; }
 		$m = self::invitation();
-		if ( ! $m || self::digest( $m ) !== self::digest( $body ) || ! isset( $m['commands'][ $kind ] ) ) {
+		if ( ! $m || ( 'pilot_bootstrap' !== $m['action'] && ! CSF_MFA_Admin::enabled() ) || self::digest( $m ) !== self::digest( $body ) || ! isset( $m['commands'][ $kind ] ) ) {
 			return false; }
 		$id = get_current_user_id();
+		if ( 'pilot_bootstrap' === $m['action'] && ! self::operator( $id ) ) {
+			return false; }
 		if ( in_array( $kind, array( 'identity_requested', 'identity_consumed' ), true ) ) {
 			return $m['operator'] === $id && self::operator( $id ); }
 		return ( 'identity_owner_approved' === $kind ? $m['owner'] : $m['previous_master'] ) === $id;
@@ -236,7 +253,7 @@ final class CSF_Scheduling_Identity {
 		CSF_Scheduling_Calendar::require( self::authorize( $kind, $m ), 'forbidden' );
 		$s = CSF_Scheduling_Permissions::state();
 		CSF_Scheduling_Calendar::require( $s && $m['facility'] === $settings['uuid'] && hash_equals( $m['policy_hash'], hash( 'sha256', $settings['policy_json'] ) ) && hash_equals( $m['registry_hash'], self::digest( $s ) ) && $s['master'] === $m['previous_master'], 'stale_revision' );
-		CSF_Scheduling_Calendar::require( ( 'bootstrap' === $m['action'] && null === $s['master'] ) || ( 'transfer' === $m['action'] && is_int( $s['master'] ) && $s['master'] !== $m['owner'] ), 'invalid_transition' );
+		CSF_Scheduling_Calendar::require( ( in_array( $m['action'], array( 'bootstrap', 'pilot_bootstrap' ), true ) && null === $s['master'] ) || ( 'transfer' === $m['action'] && is_int( $s['master'] ) && $s['master'] !== $m['owner'] ), 'invalid_transition' );
 		$steps = array_keys( $m['commands'] );
 		$index = array_search( $kind, $steps, true );
 		CSF_Scheduling_Calendar::require( (int) $settings['revision'] === $m['revision'] + $index, 'stale_revision' ); // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- SQL numeric string.
@@ -255,11 +272,12 @@ final class CSF_Scheduling_Identity {
 			'approved_at'     => time(),
 		);
 		$out['approval_signature'] = self::signature( $out, $m, $kind );
+		$out['ceremony_mode']      = 'pilot_bootstrap' === $m['action'] ? 'single_controller_development_pilot' : 'independent_approvals';
 		if ( 'identity_consumed' === $kind ) {
 			self::$consuming = $m;
 			try {
 				$change = CSF_Scheduling_Permissions::apply(
-					'bootstrap' === $m['action'] ? 'master_bootstrapped' : 'master_transferred',
+					'transfer' !== $m['action'] ? 'master_bootstrapped' : 'master_transferred',
 					array(
 						'user_id'        => $m['owner'],
 						'owner_verified' => true,
@@ -370,18 +388,21 @@ final class CSF_Scheduling_Identity {
 		$m = self::invitation();
 		if ( $m && ! in_array( get_current_user_id(), array( $m['owner'], $m['operator'], $m['previous_master'] ), true ) ) {
 			$m = null; }
-		echo '<div class="wrap"><h1>Farm ownership approval</h1><p>This one-use ceremony requires independently verified identities and their own fresh MFA sessions. It does not create accounts or grant WordPress administration. Each approval requires MFA completed within five minutes.</p><p><a href="' . esc_url( add_query_arg( 'action', 'revalidate_2fa', wp_login_url( admin_url( 'admin.php?page=csf-identity' ) ) ) ) . '">Complete a fresh second-factor challenge</a></p>';
+		echo '<div class="wrap"><h1>Farm ownership approval</h1><p>This one-use ceremony requires the reviewed identity scope and fresh MFA. The explicitly approved development pilot may use one controller; ordinary ownership still requires independent approvals. It does not create accounts or grant WordPress administration. Each approval requires MFA completed within five minutes.</p><p><a href="' . esc_url( add_query_arg( 'action', 'revalidate_2fa', wp_login_url( admin_url( 'admin.php?page=csf-identity' ) ) ) ) . '">Complete a fresh second-factor challenge</a></p>';
 		if ( null !== self::$result ) {
 			echo '<p role="status">' . esc_html( is_wp_error( self::$result ) ? self::$result->get_error_message() : 'Step committed and audited. Resolve uncertain responses using the original command ID.' ) . '</p>'; }
 		if ( $m ) {
 			echo '<p>Action: ' . esc_html( $m['action'] ) . '; operator #' . esc_html( $m['operator'] ) . '; proposed Farm Owner / Master #' . esc_html( $m['owner'] ) . '; previous master #' . esc_html( $m['previous_master'] ?? 'none' ) . '; site ' . esc_html( $m['site'] ) . '; base revision ' . esc_html( $m['revision'] ) . '. Expires ' . esc_html( gmdate( 'Y-m-d H:i:s', $m['expires'] ) ) . ' UTC.</p>';
+			if ( 'pilot_bootstrap' === $m['action'] ) {
+				echo '<p><strong>Single-controller development pilot: initial ownership only. Other staff receive no access from this action. Mandatory administrator enforcement remains a separate decision.</strong></p>';
+			}
 			echo '<details><summary>Exact source, target and approval scope</summary><pre style="white-space:pre-wrap;overflow-wrap:anywhere">' . esc_html( wp_json_encode( $m, JSON_PRETTY_PRINT ) ) . '</pre></details>';
 			foreach ( $m['commands'] as $kind => $command ) {
 				if ( ! self::authorize( $kind, $m ) ) {
 					continue; }
 				echo '<form method="post">';
 				wp_nonce_field( 'csf_identity' );
-				echo '<input type="hidden" name="step" value="' . esc_attr( $kind ) . '"><label><input type="checkbox" name="reviewed" required> I reviewed these exact independently verified identities, source and one-use action.</label> <button class="button" type="submit">' . esc_html(
+				echo '<input type="hidden" name="step" value="' . esc_attr( $kind ) . '"><label><input type="checkbox" name="reviewed" required> I reviewed the exact identities, source, approval mode and one-use action.</label> <button class="button" type="submit">' . esc_html(
 					array(
 						'identity_requested'       => 'Start operator review',
 						'identity_owner_approved'  => 'Approve as proposed owner',

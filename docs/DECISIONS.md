@@ -600,3 +600,12 @@ change, MFA activation, permission grant, outbound mail or scheduling activation
 presence is not independent authentication or delivery proof. Honor any separate execution-
 platform authorization requirement rather than bypassing it. Existing application source pin
 and all other security/deployment boundaries remain unchanged.
+## Local-only single-controller pilot bootstrap approval
+
+The owner approved implementing and testing a narrow development-pilot ownership exception
+after the one-enrolled-account readiness review. This permits local source changes and synthetic
+testing only. The new 0.4.1 candidate must require genuine fresh MFA, a site/release/account-bound,
+short-lived private invitation, exact separate approval digest, default denial and transactional
+audit. It must preserve ordinary ownership/transfer, last-master protection, paused employee
+enrollment and enforcement-off direction. Installed source pin `2fd02a2`, protected activation,
+migration and real farm grants remain held pending separate review/authorization.

@@ -10,7 +10,7 @@ cp /repo/tests/scheduling/mfa-fixture.php /test/site/wp-content/mu-plugins/
 cat > /test/site/wp-config.php <<'PHP'
 <?php
 define('DB_NAME','csf_fixture');define('DB_USER','root');define('DB_PASSWORD','fixture-only');define('DB_HOST','fixture-db');define('DB_CHARSET','utf8mb4');define('DB_COLLATE','');
-define('WP_ENVIRONMENT_TYPE','local');define('CSF_MFA_ENABLED',!getenv('CSF_TEST_MFA_DISABLED'));define('CSF_SCHEDULING_MIGRATION_ALLOWED',true);define('CSF_SCHEDULING_IDENTITY_PATH','/test/identity-invitation.json');define('CSF_MFA_ENFORCE_ADMIN',file_exists('/test/admin-enforced'));define('DISABLE_WP_CRON',true);define('WP_DEBUG',true);define('WP_DEBUG_DISPLAY',false);
+define('WP_ENVIRONMENT_TYPE',file_exists('/test/pilot-production')?'production':'local');define('CSF_SCHEDULING_PILOT_APPROVAL',file_exists('/test/pilot-approval')?trim(file_get_contents('/test/pilot-approval')):'');define('CSF_MFA_ENABLED',!getenv('CSF_TEST_MFA_DISABLED'));define('CSF_SCHEDULING_MIGRATION_ALLOWED',true);define('CSF_SCHEDULING_IDENTITY_PATH','/test/identity-invitation.json');define('CSF_MFA_ENFORCE_ADMIN',file_exists('/test/admin-enforced'));define('DISABLE_WP_CRON',true);define('WP_DEBUG',true);define('WP_DEBUG_DISPLAY',false);
 $table_prefix='fixture_';if(!defined('ABSPATH')){define('ABSPATH',__DIR__.'/');}require_once ABSPATH.'wp-settings.php';
 PHP
 WP=(php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root)

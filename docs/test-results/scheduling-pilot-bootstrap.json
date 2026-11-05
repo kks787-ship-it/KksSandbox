@@ -1,0 +1,81 @@
+{
+  "adapter_provider_and_scheduling_engine_unchanged": true,
+  "application_files_changed": 2,
+  "evidence_sha256": {
+    "deployment_guards": "460e8584f7cae831f2627f11400f4b049bc3b2dcecac39663b8c68a6fbb66d98",
+    "mock_plesk_guards": "cc8c58f5dd1428a983c6d5214a1bf4a53b653cd50e1a48ef51b7274e7803ae52",
+    "ordinary_security": "83aa3f5eb7b0b743272e80fe396ef5bdd6af39b04de7f09c7dab24868422c30c",
+    "php_lint_standards": "eea7717ec7063963a53200d9de120ca6caca5a79e0e4b5c47b01ab05a12ae9b5",
+    "pilot_mariadb_php81": "059a9c1a2e100367a263a00bc7a0271e3cd7e03b0d7729a142e4d6d69b900f6d",
+    "pilot_mariadb_php83": "40cb06163e567ab6afa3643d867cbdec983cd845f0a1b22dfef7bdd7ecc3b514",
+    "pilot_mysql_php81": "d7617ac1cff1998eff8ce981dee3d3fada0f58828b9416b83ab10632015ae34e",
+    "recovery_units": "719d72fa784305f77368be64cc12ca5182846e4f6596a49963b5858f22f88174"
+  },
+  "harness_history": [
+    "A preliminary pilot run preceded the final enforcement-off guard and is excluded from qualification counts.",
+    "One ordinary-security runner was edited while executing; its browser checks passed but shell completion failed. The unchanged application candidate passed a subsequent clean full run."
+  ],
+  "installed_source_pin_unchanged": "2fd02a2a1d3518289f7c4aa19bc9ddfb1dec91b1",
+  "limitations": [
+    "Local synthetic success is not protected-stack or owner operational acceptance.",
+    "The existing source pin remains installed; no activation, migration, real bootstrap, employee enrollment or grants occurred.",
+    "Pilot initial ownership grants all20 existing farm privileges to the exact approved account; it is not a view-only grant.",
+    "The current12-native-table backup/restore allowlist must be extended and qualified for15 additional scheduling tables before protected migration.",
+    "A future protected execution needs separate exact source/bootstrap authorization and fresh recovery protection."
+  ],
+  "protected_sandbox_operations_this_build": false,
+  "scheduling_candidate": "0.4.1",
+  "scheduling_tables": 15,
+  "schema": 3,
+  "security_coverage": [
+    "real TOTP challenges with enforcement off",
+    "password-only and CLI denial",
+    "exact approval digest, private invitation mode, site/release/environment/expiry guards",
+    "production and enforced-installation refusal",
+    "five-minute MFA freshness",
+    "native nonce and explicit review",
+    "seven transaction failure boundaries including COMMIT",
+    "approval and session revocation between steps",
+    "concurrent consume and exact retry without duplicate ownership",
+    "lost response reconciled through original command status",
+    "existing master cannot be replaced by a pilot",
+    "paused accounts receive no membership",
+    "native roles and last-master protections retained",
+    "ordinary two-account ownership and transfer regression"
+  ],
+  "status": "local-validation-passed-not-deployed",
+  "validation": {
+    "candidate_release_hash_vs_php_implementation": "match",
+    "custom_php_coding_standards_files_passed": 88,
+    "deployment_guard_scenarios_passed": 22,
+    "javascript_and_shell_syntax": "pass",
+    "mocked_plesk_identity_scenarios_passed": 6,
+    "native_review_widths": [
+      390,
+      768,
+      1280
+    ],
+    "ordinary_review_accessibility": "existing axe checks passed",
+    "ordinary_security_regression_checks_passed": 79,
+    "php_lint_files_passed": 93,
+    "pilot_runs": [
+      {
+        "checks_passed": 62,
+        "database": "MariaDB10.6.28",
+        "php": "8.1.34"
+      },
+      {
+        "checks_passed": 62,
+        "database": "MySQL8.0.46",
+        "php": "8.1.34"
+      },
+      {
+        "checks_passed": 62,
+        "database": "MariaDB10.6.28",
+        "php": "8.3.36"
+      }
+    ],
+    "unit_diagnostic_checks_passed": 267,
+    "wordpress": "7.1.4"
+  }
+}

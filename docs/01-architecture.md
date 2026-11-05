@@ -1126,3 +1126,13 @@ No real client data, signed contracts, merchant transfers, webhooks, account cre
 or protected/production deployment is authorized by this design. The previously
 approved Gate A recovery and pending admin MFA/Gate B reviews are **separate release
 prerequisites**, not inherited permissions for new modules.
+## Local candidate: single-controller development pilot bootstrap (0.4.1)
+
+The installed `2fd02a2` ownership ceremony remains unchanged until a separate rollout. The locally
+approved 0.4.1 candidate adds only `pilot_bootstrap`, bound to the complete private invitation
+digest in `CSF_SCHEDULING_PILOT_APPROVAL`. It requires one existing operator/owner account,
+genuine fresh MFA, local/development environment, no prior master and enforcement off. The
+ordinary ceremony and transfers retain their previous requirements. Shared locks, signatures,
+audit, last-master protection and exact-command recovery are retained; no schema or adapter
+change is required. See [the bounded readiness package](pilot/calendar-activation-readiness.md)
+and its separate candidate inventory. This grants no actual account authority or deployment.
