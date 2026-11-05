@@ -1,5 +1,5 @@
 {
-  "scope": "local candidate for recovery-qualified sandbox UI update; no account/MFA/schema changes",
+  "scope": "protected sandbox installation verified; no account/MFA/schema change",
   "version": "0.4.2",
   "schema": 3,
   "tables": 15,
@@ -224,5 +224,6 @@
       "path": "wp-content/plugins/two-factor/user-edit.css",
       "sha256": "e712c7e4920f6c13bd31c47fbe47417eecad3aaf396980e652b64d073e1e7ccb"
     }
-  ]
+  ],
+  "installed_source_commit": "cb94d0a6c1f246254734c87853687bd7ab6d0e39"
 }

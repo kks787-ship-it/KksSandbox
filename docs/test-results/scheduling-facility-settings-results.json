@@ -23,9 +23,23 @@
     "Live owner must explicitly review/apply settings and create only fictional pilot records."
   ],
   "mock_plesk_guards": 6,
+  "protected": {
+    "actual_authenticated_appointment_writes": "pending owner native-browser pilot",
+    "anonymous_settings_hidden": true,
+    "changed_scheduler_files": 4,
+    "employee_grants": 0,
+    "native_version_schema_release_owner_mirror_checks": "passed",
+    "owner_acceptance": "not claimed",
+    "policy_changed_by_verification": false,
+    "preflight": "passed; existing fresh owner recovery baseline reused",
+    "scheduler_hashes_verified": 21,
+    "source_commit": "cb94d0a6c1f246254734c87853687bd7ab6d0e39",
+    "unchanged_adapter_provider_hashes_verified": 25,
+    "version": "0.4.2"
+  },
   "scheduler_file_count": 21,
   "schema": 3,
-  "scope": "synthetic local validation; protected initial-readiness observation only",
+  "scope": "local synthetic validation plus protected four-file installation/read-only native verification",
   "source_version": "0.4.2",
   "stacks": [
     "WordPress7.1.4 / PHP8.3.36 / MariaDB10.6.28",

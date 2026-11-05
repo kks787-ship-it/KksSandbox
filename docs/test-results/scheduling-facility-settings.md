@@ -69,3 +69,32 @@ any confusing controls. Sunday closure and Monday/Wednesday dates here are test 
 claims of real farm policy or automatic recurrence/route scheduling. Welfare/rest, simultaneous
 bookings, clock changes and other staff scenarios remain in the existing walkthrough; this
 report does not claim those protected workflows or owner acceptance are already complete.
+
+
+## Protected four-file installation — completed
+
+The recovery-qualified preflight passed using the existing recent post-grant backup and its
+successful functional restore. No completed recovery drill or ownership ceremony was repeated.
+Four scheduler paths from `cb94d0a6c1f246254734c87853687bd7ab6d0e39` were installed with exact
+old/new hash checks, private rollback copies, native PHP syntax checks and atomic publication.
+The new class was published before the header/UI that uses it. All21 scheduler and25 unchanged
+MFA/provider file hashes match the reviewed46-file inventory.
+
+A native read-only PHP-FPM request verified version0.4.2, the exact release digest, schema readiness,
+all20 owner rights and their permission mirror, zero employee grants, no invitation configuration,
+unchanged enforcement, hidden anonymous settings and a valid fictional example. That request did
+not save the sample or modify the policy. Inquiry stayed disabled and emergency inactive. No
+migration, plugin activation, site content, accounts, MFA, production or shared infrastructure
+was changed. Private request files were removed by the existing bounded cleanup.
+
+The actual facility policy remains incomplete until the owner reviews and applies the fictional
+example through the native form. This is a normal authenticated business action, not a request
+to repeat MFA enrollment or bootstrap. No live credentials/cookies were collected to automate it.
+The owner was given the direct settings link and asked for concise feedback. Actual protected
+appointment writes, conflicts/cancellations, full staff scenarios and Beth/Kris acceptance remain
+to be observed after that action; the local69-per-stack browser checks are not those acceptances.
+
+Rollback is file-only: restore the three previous public source files and remove only the added
+settings class after checking hashes; preserve all later owner/policy/appointment/audit changes.
+Do not restore an old database over newer work. All detailed bindings and rollback copies stay
+private. No automatic rollback was performed.
