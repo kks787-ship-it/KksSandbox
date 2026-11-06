@@ -48,8 +48,6 @@ Final review caught a cross-resource closure guard error before deployment. The 
 
 Mock/local fixtures are not protected-site acceptance. Raw log digests and exact source hashes are retained in adjacent evidence/inventory JSON files.
 
-## Protected sandbox readiness
+## Release status
 
-The existing 0.4.6 source inventory, native FPM runtime, fresh-backup integrity/freshness gate and qualified recovery procedure passed verification. Anonymous planner/settings access stayed denied; 20 Farm Owner privileges and zero employee grants were unchanged. The exact verification-mode payload was initially rejected as a possible deployment; local AST/control-flow tests proved its fixed verification mode before the same command was accepted. No rejected operation was routed around the review.
-
-0.4.7 deployment and protected runtime verification are recorded separately after completion. No real weekly hours, closures or lesson records are automatically seeded. Owner browser acceptance remains outstanding.
+Scheduling 0.4.7 sandbox update completed. Detailed operational verification is retained privately. Owner hands-on acceptance remains outstanding. No third-party calendar library was adopted.
