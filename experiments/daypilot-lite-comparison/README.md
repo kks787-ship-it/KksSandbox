@@ -52,10 +52,12 @@ The scope selector changes **synthetic fixtures**, not authentication. The bundl
 - Native renderer: actual Scheduling 0.4.6 source pin `c2783b5e3f6eba046b97e5dc517a198517532377`; planner/time/JS unchanged from 0.4.5. System-font/iframe shell and CLI stubs are experimental. See [native notice](NATIVE-NOTICE.md) and [source hashes](evidence/native-source.json).
 - Experimental wrapper/distribution: GPL-3.0-or-later, retaining native GPL-2.0-or-later notices. This does not change the scheduling plugin license. No DayPilot files are added to the farm plugins.
 
-## Screenshot evidence and publication status
+## Screenshot evidence — owner-approved publication
 
-The run generated six PNGs: phone/tablet/desktop split comparisons, arena columns and full-width native/DayPilot week views. They are in the **private offline ZIP** and local `.artifacts/screenshots/`. Automatic approval review rejected publishing the opaque image blobs to public GitHub because authorization and non-sensitivity for those exact artifacts were not established. They are withheld; no alternate upload or encoded-image workaround is used.
+The owner explicitly approved public publication of these six synthetic screenshots after reviewing the experiment handoff. They contain invented records only; no farm calendar or server changes accompany publication.
 
-The runnable source, [text findings](DECISION.md), [browser receipt](evidence/browser-results.json) and screenshot hashes remain public. Reproduce the images locally with the browser command above. After reviewing a new local run, `node collect-evidence.mjs` refreshes the private screenshot copies, receipt and checksum allowlist for `python3 bundle.py`. Collection does not commit or upload anything. The dated decision/raw-log hashes remain historical evidence rather than being silently relabeled as a new platform run.
+[Phone split comparison](evidence/screenshots/comparison-390.png) · [Tablet split comparison](evidence/screenshots/comparison-768.png) · [Desktop split comparison](evidence/screenshots/comparison-1280.png) · [Arena columns](evidence/screenshots/resources-1280.png) · [Native full-width week](evidence/screenshots/native-week-1280.png) · [DayPilot full-width week](evidence/screenshots/daypilot-week-1280.png).
+
+The public source, [text findings](DECISION.md), [browser receipt](evidence/browser-results.json) and exact screenshot hashes accompany the images. The earlier automated publication hold was honored until the owner's explicit approval. Reproduce the images locally with the browser command above. After reviewing a new local run, `node collect-evidence.mjs` refreshes screenshot copies, receipt and checksum allowlist for `python3 bundle.py`. Collection never commits or uploads anything; newly generated artifacts still require content review before publication.
 
 Recurring arena/instructor hours and visual closures remain the next active calendar increment. This experiment does not replace that work or authorize DayPilot adoption.

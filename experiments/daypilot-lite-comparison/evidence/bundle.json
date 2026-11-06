@@ -1,7 +1,7 @@
 {
   "artifact": "DayPilot_Lite_Comparison_2026-11-06.zip",
-  "bytes": 1736850,
-  "sha256": "5cc730cbaf9a7eea2563959a1e6c1bfd1b7b96fa82b5c96bd0fdcf74ec7332ea",
+  "bytes": 1736877,
+  "sha256": "75069b0949aa954d4596299ba5ba88feb5a3c4357aeac6f8c6c6ff8571b00569",
   "files": 46,
   "scope": "fictional offline experiment only; no farm deployment",
   "rebuild": "python3 bundle.py after generating fixtures and evidence"

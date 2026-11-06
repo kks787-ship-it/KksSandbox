@@ -10,7 +10,7 @@ The official npm **6.2.0** package was installed through its locked SHA-512 inte
 
 The baseline is the **actual native PHP planner renderer, time helper, CSS and JavaScript**, not an illustrative substitute. Source: Scheduling 0.4.6 pin `c2783b5e3f6eba046b97e5dc517a198517532377`; planner/time/JS/planner CSS are byte-identical to 0.4.5. Native access/document functions are CLI-only synthetic stubs. The shell uses a system font and explicitly positions iframe dialogs; no WordPress, Kadence, database, authentication or real booking service is loaded. The fixture clock is fixed to the displayed November week.
 
-Five fixture test groups and **99 browser interaction/safety assertions** passed using pinned Playwright 1.62.1, axe 4.10.3 and system Chromium at **390 / 768 / 1280px**. The source/fixture text receipts are committed beside this report. Six PNGs are retained in the private offline ZIP; public image publication was rejected by automatic approval review and remains held. All temporary test servers/containers were stopped.
+Five fixture test groups and **99 browser interaction/safety assertions** passed using pinned Playwright 1.62.1, axe 4.10.3 and system Chromium at **390 / 768 / 1280px**. The source/fixture text receipts are committed beside this report. The six synthetic PNGs are now published with explicit owner approval. The earlier automated publication hold was honored until that approval. All temporary test servers/containers were stopped.
 
 ## Findings and limits
 
@@ -54,6 +54,6 @@ Full-width display controls and screenshots compare each calendar at the same vi
 
 ## Deliverable and recommendation
 
-Use the [README](README.md) to run the prototype or its prebuilt offline ZIP. The private ZIP includes full-width native/DayPilot weeks, phone/tablet/desktop comparisons and arena columns. [Browser measurements](evidence/browser-results.json) and per-file screenshot hashes identify the exact evidence. The public repository does not contain the opaque PNGs: automatic approval review blocked their upload, and no encoded-image or indirect-publication workaround was used.
+Use the [README](README.md) to run the prototype or its prebuilt offline ZIP. Inspect the owner-approved [native full-width week](evidence/screenshots/native-week-1280.png), [DayPilot full-width week](evidence/screenshots/daypilot-week-1280.png), [phone comparison](evidence/screenshots/comparison-390.png) and [arena columns](evidence/screenshots/resources-1280.png). [Browser measurements](evidence/browser-results.json) and per-file screenshot hashes identify the exact evidence. Public image publication was initially held by automatic review; the owner subsequently explicitly approved these six synthetic screenshots. No farm deployment or DayPilot adoption is implied.
 
 **Retain the native planner.** Keep this runnable trial for future resource-overview review. Adoption would need a measurable owner usability advantage and resolution of the recorded raw accessibility and DST presentation gaps, while preserving the current server-authoritative engine and recoverable data. No owner approval or server change is needed to keep the current calendar. The ongoing recurring arena/instructor hours and visual-closure work remains the next active feature; this experiment is not a replacement engine or new architecture sprint.
