@@ -1,0 +1,690 @@
+{
+  "checks": [
+    "actual DayPilot rendered 390",
+    "family grouping and conceptual outer buffers 390",
+    "page fits 390",
+    "real PHP day renders two sibling lessons 390",
+    "DayPilot event details 390",
+    "native event details 390",
+    "native event keyboard activation 390",
+    "native dialog returns focus 390",
+    "explicit keyboard detail fallback 390",
+    "fallback dialog returns keyboard focus 390",
+    "DayPilot quarter-hour cells 390",
+    "real cell click/tap previews only 390",
+    "native exact-offset slot 390",
+    "untrusted event label stays text 390",
+    "empty fictional day remains usable 390",
+    "parallel lessons have separate visible columns 390",
+    "DayPilot week 390",
+    "DayPilot resources 390",
+    "arena resource columns 390",
+    "native arena filter preserves closure 390",
+    "closure expands without editing 390",
+    "all vendor write gestures disabled 390",
+    "spring gap rejected by PHP tick projection 390",
+    "fold needs explicit occurrence 390",
+    "fold preserves selected PST offset 390",
+    "limited synthetic projection 390",
+    "denied projection has no rendered lessons 390",
+    "native full-width responsive week 390",
+    "DayPilot full-width week 390",
+    "projection remains unchanged after every interaction 390",
+    "no page errors 390: ",
+    "no external requests or write requests 390",
+    "actual DayPilot rendered 768",
+    "family grouping and conceptual outer buffers 768",
+    "page fits 768",
+    "real PHP day renders two sibling lessons 768",
+    "DayPilot event details 768",
+    "native event details 768",
+    "native event keyboard activation 768",
+    "native dialog returns focus 768",
+    "explicit keyboard detail fallback 768",
+    "fallback dialog returns keyboard focus 768",
+    "DayPilot quarter-hour cells 768",
+    "real cell click/tap previews only 768",
+    "native exact-offset slot 768",
+    "untrusted event label stays text 768",
+    "empty fictional day remains usable 768",
+    "parallel lessons have separate visible columns 768",
+    "DayPilot week 768",
+    "DayPilot resources 768",
+    "arena resource columns 768",
+    "native arena filter preserves closure 768",
+    "closure expands without editing 768",
+    "all vendor write gestures disabled 768",
+    "spring gap rejected by PHP tick projection 768",
+    "fold needs explicit occurrence 768",
+    "fold preserves selected PST offset 768",
+    "limited synthetic projection 768",
+    "denied projection has no rendered lessons 768",
+    "native full-width responsive week 768",
+    "DayPilot full-width week 768",
+    "projection remains unchanged after every interaction 768",
+    "no page errors 768: ",
+    "no external requests or write requests 768",
+    "actual DayPilot rendered 1280",
+    "family grouping and conceptual outer buffers 1280",
+    "page fits 1280",
+    "real PHP day renders two sibling lessons 1280",
+    "DayPilot event details 1280",
+    "native event details 1280",
+    "native event keyboard activation 1280",
+    "native dialog returns focus 1280",
+    "explicit keyboard detail fallback 1280",
+    "fallback dialog returns keyboard focus 1280",
+    "DayPilot quarter-hour cells 1280",
+    "real cell click/tap previews only 1280",
+    "native exact-offset slot 1280",
+    "untrusted event label stays text 1280",
+    "empty fictional day remains usable 1280",
+    "parallel lessons have separate visible columns 1280",
+    "drag gesture cannot move appointment",
+    "DayPilot week 1280",
+    "DayPilot resources 1280",
+    "arena resource columns 1280",
+    "native arena filter preserves closure 1280",
+    "closure expands without editing 1280",
+    "all vendor write gestures disabled 1280",
+    "spring gap rejected by PHP tick projection 1280",
+    "fold needs explicit occurrence 1280",
+    "fold preserves selected PST offset 1280",
+    "limited synthetic projection 1280",
+    "denied projection has no rendered lessons 1280",
+    "native full-width responsive week 1280",
+    "DayPilot full-width week 1280",
+    "projection remains unchanged after every interaction 1280",
+    "no page errors 1280: ",
+    "no external requests or write requests 1280",
+    "static allowlist denies protected-config path",
+    "server rejects every POST"
+  ],
+  "findings": [
+    {
+      "width": 390,
+      "daypilotRawEventKeyboard": {
+        "tabIndex": -1,
+        "role": null,
+        "focusable": false
+      }
+    },
+    {
+      "width": 390,
+      "springVendorCells": 192,
+      "springVendorPerColumn": 96,
+      "springPHPQuarterHours": 92
+    },
+    {
+      "width": 390,
+      "fallVendorCells": 192,
+      "fallVendorPerColumn": 96,
+      "fallPHPQuarterHours": 100
+    },
+    {
+      "width": 390,
+      "daypilotAxe": [
+        {
+          "id": "scrollable-region-focusable",
+          "impact": "serious",
+          "nodes": 1,
+          "targets": [
+            [
+              "#lite > div:nth-child(2)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "nativeAxe": []
+    },
+    {
+      "width": 768,
+      "daypilotRawEventKeyboard": {
+        "tabIndex": -1,
+        "role": null,
+        "focusable": false
+      }
+    },
+    {
+      "width": 768,
+      "springVendorCells": 192,
+      "springVendorPerColumn": 96,
+      "springPHPQuarterHours": 92
+    },
+    {
+      "width": 768,
+      "fallVendorCells": 192,
+      "fallVendorPerColumn": 96,
+      "fallPHPQuarterHours": 100
+    },
+    {
+      "width": 768,
+      "daypilotAxe": [
+        {
+          "id": "scrollable-region-focusable",
+          "impact": "serious",
+          "nodes": 1,
+          "targets": [
+            [
+              "#lite > div:nth-child(2)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "nativeAxe": []
+    },
+    {
+      "width": 1280,
+      "daypilotRawEventKeyboard": {
+        "tabIndex": -1,
+        "role": null,
+        "focusable": false
+      }
+    },
+    {
+      "width": 1280,
+      "springVendorCells": 192,
+      "springVendorPerColumn": 96,
+      "springPHPQuarterHours": 92
+    },
+    {
+      "width": 1280,
+      "fallVendorCells": 192,
+      "fallVendorPerColumn": 96,
+      "fallPHPQuarterHours": 100
+    },
+    {
+      "width": 1280,
+      "daypilotAxe": [
+        {
+          "id": "scrollable-region-focusable",
+          "impact": "serious",
+          "nodes": 1,
+          "targets": [
+            [
+              "#lite > div:nth-child(2)"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "nativeAxe": []
+    }
+  ],
+  "metrics": [
+    {
+      "width": 390,
+      "firstRenderReadyMs": 238.111626
+    },
+    {
+      "width": 390,
+      "task": "DayPilot event → details",
+      "clicks": 1,
+      "ms": 46.651387
+    },
+    {
+      "width": 390,
+      "task": "Native event → details",
+      "clicks": 1,
+      "ms": 53.91985999999997
+    },
+    {
+      "width": 390,
+      "nativeSlotHeight": 44,
+      "daypilotSlotHeight": 22
+    },
+    {
+      "width": 390,
+      "task": "DayPilot cell → candidate preview",
+      "clicks": 1,
+      "ms": 55.518822
+    },
+    {
+      "width": 390,
+      "task": "Native cell → candidate preview",
+      "clicks": 1,
+      "ms": 41.87655199999995
+    },
+    {
+      "width": 390,
+      "totalScenarioMs": 3527.953528,
+      "renderSamples": [
+        {
+          "pane": "daypilot-js-init",
+          "ms": 15.899999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 55.80000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 6.599999964237213
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 39.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 6.399999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 43
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 5.700000047683716
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 34.80000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 22.30000001192093
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 53.700000047683716
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 8.800000011920929
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 35.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 8.300000011920929
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 35.80000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.700000047683716
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 33.69999998807907
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.300000011920929
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 35.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 4.699999988079071
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 45.69999998807907
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 5
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 38.09999996423721
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 18.80000001192093
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 53.30000001192093
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "firstRenderReadyMs": 207.3621930000004
+    },
+    {
+      "width": 768,
+      "task": "DayPilot event → details",
+      "clicks": 1,
+      "ms": 40.4410969999999
+    },
+    {
+      "width": 768,
+      "task": "Native event → details",
+      "clicks": 1,
+      "ms": 46.06060600000001
+    },
+    {
+      "width": 768,
+      "nativeSlotHeight": 44,
+      "daypilotSlotHeight": 22
+    },
+    {
+      "width": 768,
+      "task": "DayPilot cell → candidate preview",
+      "clicks": 1,
+      "ms": 38.69992199999979
+    },
+    {
+      "width": 768,
+      "task": "Native cell → candidate preview",
+      "clicks": 1,
+      "ms": 38.67649600000004
+    },
+    {
+      "width": 768,
+      "totalScenarioMs": 3563.13456,
+      "renderSamples": [
+        {
+          "pane": "daypilot-js-init",
+          "ms": 13.399999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 54.30000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 4.699999988079071
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 34.30000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 38.80000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.399999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 41.69999998807907
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 21.399999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 73.19999998807907
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.899999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 48
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.800000011920929
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 31.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.200000047683716
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 37.40000003576279
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 10.099999964237213
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 46.30000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 4.599999964237213
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 33.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 11
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.400000035762787
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 40.80000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 16.600000023841858
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 58.80000001192093
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "firstRenderReadyMs": 203.89265100000011
+    },
+    {
+      "width": 1280,
+      "task": "DayPilot event → details",
+      "clicks": 1,
+      "ms": 41.16078000000016
+    },
+    {
+      "width": 1280,
+      "task": "Native event → details",
+      "clicks": 1,
+      "ms": 43.61346799999956
+    },
+    {
+      "width": 1280,
+      "nativeSlotHeight": 44,
+      "daypilotSlotHeight": 22
+    },
+    {
+      "width": 1280,
+      "task": "DayPilot cell → candidate preview",
+      "clicks": 1,
+      "ms": 41.78616300000067
+    },
+    {
+      "width": 1280,
+      "task": "Native cell → candidate preview",
+      "clicks": 1,
+      "ms": 40.87179500000093
+    },
+    {
+      "width": 1280,
+      "totalScenarioMs": 3726.6894170000005,
+      "renderSamples": [
+        {
+          "pane": "daypilot-js-init",
+          "ms": 25.5
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 70.30000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 4.600000023841858
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 28.900000035762787
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 6.800000011920929
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 30.100000023841858
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 5.100000023841858
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 31.200000047683716
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 19.899999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 82
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 10.699999988079071
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 42.39999997615814
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 10.399999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 40.40000003576279
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.599999964237213
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 35.19999998807907
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 6.299999952316284
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 33.200000047683716
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 6.5
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 32.5
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 3.899999976158142
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 23.30000001192093
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 7.5
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 27.69999998807907
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 4.599999964237213
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 34.69999998807907
+        },
+        {
+          "pane": "daypilot-js-init",
+          "ms": 17.69999998807907
+        },
+        {
+          "pane": "native-dom-navigation",
+          "ms": 85.80000001192093
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    "screenshots/comparison-390.png",
+    "screenshots/comparison-768.png",
+    "screenshots/resources-1280.png",
+    "screenshots/native-week-1280.png",
+    "screenshots/daypilot-week-1280.png",
+    "screenshots/comparison-1280.png"
+  ],
+  "contexts": [
+    {
+      "width": 390,
+      "errors": [],
+      "external": [],
+      "writes": []
+    },
+    {
+      "width": 768,
+      "errors": [],
+      "external": [],
+      "writes": []
+    },
+    {
+      "width": 1280,
+      "errors": [],
+      "external": [],
+      "writes": []
+    }
+  ],
+  "status": "completed"
+}

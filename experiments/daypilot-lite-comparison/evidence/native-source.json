@@ -1,0 +1,11 @@
+{
+  "source": "kks787-ship-it/KksSandbox",
+  "implementation": "c2783b5e3f6eba046b97e5dc517a198517532377",
+  "files": {
+    "assets/planner.js": "d921c2ad51850d485a53f94a500783f3a73c769fe980417e382a5690742f3899",
+    "assets/planner.css": "5e72209248493889a5bfe4ac56fb8caae69b12eb67e99671b31846471030f656",
+    "assets/staff.css": "0733a088fbc12246833ab658cff5d466e0ff7d5d46385458444f4345190f1c25",
+    "includes/class-csf-scheduling-planner.php": "2ab472445a6ff279e3e634d25247cd99691aed8b41a14503ed19ee29998555d8",
+    "includes/class-csf-scheduling-time.php": "cef24403a438357626d968c21d72699aebdeb56784856efdb32ef94866b81279"
+  }
+}

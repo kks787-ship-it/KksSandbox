@@ -1,0 +1,27 @@
+{
+  "scope": "local synthetic-only; no farm or Gateway operation",
+  "fixture_test_groups": 5,
+  "browser_assertions": 99,
+  "widths": [
+    390,
+    768,
+    1280
+  ],
+  "chromium": "154.0.8037.57 (Debian 13)",
+  "advisory_findings": 0,
+  "accessibility_acceptance": "DayPilot NOT passed: one serious vendor scroll focus finding per width; raw event keyboard gap",
+  "native_scoped_axe_violations": 0,
+  "sandbox_changed": false,
+  "plugin_sources_changed": false,
+  "log_sha256": {
+    "browser": "c12d63a7a0195593f2510131d30b231befa165045241ea083ae603c910472671",
+    "fixtures": "6f4b172eadd3738bf007423d62156146f3a3764e5a0bc13ba5b7981093a5e240",
+    "lockfile-install": "798ce246e573f2814935b20d3ef4be262c2625501cfd6ad536d058b44c211b57"
+  },
+  "node": "24.19.0",
+  "php_harness": "8.3.36 in existing local image",
+  "playwright": "1.62.1",
+  "axe": "4.10.3",
+  "offline_bundle_smoke": "passed: extracted bundle rendered without npm install, PHP or DB",
+  "generated_model_sha256": "f1cc311cbf65028f6503992a186ec43d158ec9d6f207e437886e36c0418f416f"
+}

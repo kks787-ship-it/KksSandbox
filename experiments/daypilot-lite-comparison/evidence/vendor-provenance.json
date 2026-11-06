@@ -1,0 +1,41 @@
+{
+  "package": "@daypilot/daypilot-lite-javascript",
+  "npm_version": "6.2.0",
+  "bundle_header_version": "2026.4.895-lite",
+  "published": "2026-10-22T09:29:47.039Z",
+  "license": "Apache-2.0",
+  "runtime_dependencies": {},
+  "resolved": "https://registry.npmjs.org/@daypilot/daypilot-lite-javascript/-/daypilot-lite-javascript-6.2.0.tgz",
+  "integrity": "sha512-7Ttf2bPDcHXVxuaJGckHbC6TVvMC916x+yitMcFHBaPVPsShxinkARf6XjoQ06ezeIgVGxFfwwU6dinIOXgDgQ==",
+  "files": {
+    "daypilot-javascript.min.js": {
+      "sha256": "2eb3540f8a42d871182fc06317bec00f417294589d8dafd07b0138c82438431f",
+      "bytes": 428381
+    },
+    "daypilot-javascript.min.d.ts": {
+      "sha256": "0a9bc2dd9ffe7eed00ffb34e8a2d490ee43511e20d97ee4752373c0fc03e650f",
+      "bytes": 64656
+    },
+    "LICENSE.txt": {
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "bytes": 11358
+    },
+    "NOTICE.txt": {
+      "sha256": "1e897ce3d515b6c1663a58f087d14b6fecad5dd1d553f572f6ce238522163994",
+      "bytes": 61
+    },
+    "package.json": {
+      "sha256": "61f1f8082cdfc6ae50df3434162cef7bb034e0797a25904d9763e700118fb885",
+      "bytes": 948
+    },
+    "README.md": {
+      "sha256": "9196649648ff861182580c4073e60894a55a670a1cc0ecfdce8c233cee3f637d",
+      "bytes": 11214
+    }
+  },
+  "bundle_gzip9_bytes": 104570,
+  "public_notice_copy": {
+    "line_endings": "LF normalized; text unchanged; runtime distribution retains upstream bytes",
+    "sha256": "b38cc5b9b8e4091774bd043945c8d0e8be851d85fae33946e6f00afc1a02c236"
+  }
+}

@@ -1,52 +1,61 @@
-# DayPilot Lite side-by-side evaluation — Digital Ranch
+# DayPilot Lite comparison — runnable, synthetic-only
 
-**Status:** POC candidate / synthetic-only. Not a production dependency or approval to change the farm's calendar. Created November 6, 2026.
+**Decision: retain the native Digital Ranch planner.** DayPilot is a credible resource-column renderer, but this trial does not justify replacing the farm calendar. Read [measured findings](DECISION.md), [browser evidence](evidence/browser-results.json) and the screenshots below. No farm server connection, account, database, migration, notification or deployment is involved.
 
-## Why
+## Run from the repository
 
-The owner approved comparing **DayPilot Lite 6.2.0** with the existing **Scheduling 0.4.5** visual planner to decide whether a mature UI component offers a noticeably better 15-minute grid, resource lanes, click interactions, and mobile usability without replacing the authoritative PHP booking system.
+Requirements: Node 22+, PHP 8.1+ CLI **or** the existing local `csf-scheduling-php83` test image, and Chromium for browser tests. The scripts do not provision a server or rebuild the scheduling engine.
 
-I created a standalone offline-data ZIP prototype in the owner conversation (`Corner_Stone_Farm_DayPilot_Lite_POC.zip`) containing:
-- `index.html`: paired illustrative Digital Ranch grid and DayPilot Lite day/week/resource calendar; **not** the real sandbox UI
-- `fixtures.mjs`: invented instructor, arena, horse, family lessons and downtime, no farm data
-- `prototype.mjs`: Lite calendar adapter, view switching, event details and no-write time-range selection
-- `fixture.test.mjs`: pure fixture sanity assertions
-- `README.md`: instructions and limitations
+```sh
+cd experiments/daypilot-lite-comparison
+npm ci --ignore-scripts
+npm run build:fixtures
+npm test
+npm start
+```
 
-To reconstruct inside a Codex cloud workspace, ask for the POC ZIP from the owner's current conversation or rebuild from this specification and pin `@daypilot/daypilot-lite-javascript@6.2.0` (Apache-2.0). **Do not treat this README alone as a browser-tested POC.** Generated artifact links are conversation-local and should not be copied into public GitHub.
+Open **http://127.0.0.1:8777**. The server binds loopback, allowlists fixture assets and rejects all writes. Stop it with Ctrl-C. With local PHP instead of Docker, use `CSF_EXPERIMENT_PHP=php npm run build:fixtures`. Default Docker execution has no network and mounts the repository read-only. Fixture generation never loads WordPress or a database.
 
-## Pinned dependency and official patterns
+To run the browser suite:
 
-- Package: https://www.npmjs.com/package/@daypilot/daypilot-lite-javascript ; version 6.2.0, Apache-2.0.
-- Documentation: https://javascript.daypilot.org/open-source/
-- Working Lite resource example: https://javascript.daypilot.org/demo/lite/calendar/resources.html
-- API: `new DayPilot.Calendar("calendar", { startDate, viewType: "Week"|"Day"|"Resources", columns, cellDuration: 15, onEventClick, onTimeRangeSelected })`.
-- For isolated browser trial: use NPM-pinned vendor files with license/NOTICE retained, no live CDN requests from the protected farm website.
+```sh
+CSF_EXPERIMENT_CHROMIUM=/usr/bin/chromium npm run test:browser
+```
 
-## Synthetic comparison dataset
+Use the actual local Chromium path if different. No browser download or system installation is automatic. Screenshot/measurement outputs go to `.artifacts/`. The pinned Playwright and axe packages are development tools only.
 
-- Two sibling lessons Monday 10:00–10:30 and 10:30–11:00, same parent/family visit, two horses, one instructor/arena. Show **family outer 15-minute buffers conceptually only**, not as already-booked intervals.
-- One separate Tuesday 60-minute lesson marked **BUFFER OVERRIDE** (red + label, illustrative).
-- Wednesday 120+120+60 consecutive family lessons (five instructional hours; horses rotate).
-- One Thursday requested/unreserved 30-minute lesson.
-- Tuesday Main Arena closed 09:00–11:00 and Friday Covered Arena closed 12:00–15:00.
-- Two fictional instructors, two fictional arenas, explicit resource grouping modes. Every entity invented; never copy staff, actual horses, clients, emails or credentials.
+## Run the prebuilt offline ZIP
 
-## Must test and measure
+The delivered ZIP contains the generated **invented** model, native assets and the exact DayPilot runtime, so viewing needs only Node:
 
-1. Owner-comprehensible **Day/Week/Resources** navigation, 15-minute grid, click exact date/time, click event details, visual statuses and simultaneous instructor/resource lanes.
-2. Mobile 390px, tablet 768px, desktop 1280px; keyboard/screen reader, focus after dialog, event overlap and touch targets.
-3. The November PST week plus spring/fall DST test cases: no nonexistent local times, correct repeated occurrence. All actual dates/offsets remain server authoritative.
-4. Closed/unavailable blocks, instructor/arena availability and horse/welfare alerts **must never become editable booking authorities** just because DayPilot allows drag/drop.
-5. Build a permission-filtered, **read-only** adapter to current PHP calendar projection in an isolated fixture. No additional booking engine or actual farm DB access.
-6. Compare a current UI screenshot or safe local copy against DayPilot; record whether time-to-create, click count, readability, resource closure editing and code maintenance materially improve.
-7. Audit version/security, bundle size, dependency/license notices and GPL-compatibility before proposing any production inclusion.
+```sh
+node server.mjs
+```
 
-## Success gate / recommended decision process
+Open the loopback address above. Opening `index.html` directly with `file://` is unsupported because browser modules/fetch require an HTTP origin. The ZIP contains no development environment, credentials or farm export. Its hash is recorded in `evidence/bundle.json`; `python3 bundle.py` recreates the bundle after fixtures, tests and evidence have been generated.
 
-- Favor **retaining native v0.4.5** if the new renderer is merely prettier or introduces complex dependencies/DST or a second booking write path.
-- Consider a **frontend-only adapter** if the owner sees a real usability improvement and tests prove we can preserve all existing guarded preview/commit, service types, horse-rest restrictions, resource availability and audit behavior.
-- **Do not deploy or replace the actual farm scheduler** based on this experiment without a separate tested owner review.
-- The active next production feature remains recurring arena/instructor hours and visual closures under Issue #11. This POC must not block that work.
+## Try these comparisons
 
-References: [active calendar Issue #11](https://github.com/kks787-ship-it/KksSandbox/issues/11), [source comparison report](../../docs/research/acuity-source-and-open-scheduler-comparison-2026.md), [client booking issue #25](https://github.com/kks787-ship-it/KksSandbox/issues/25).
+- Day / Week / Resources; two fictional instructors or two fictional arenas. The native arena comparison uses its actual single-resource filter; DayPilot can show both arenas simultaneously.
+- **Display → Native full width / DayPilot full width** for a fair viewport comparison. Split panes can trigger native compact mode even on a desktop because each pane is narrower than the browser.
+- Click a lesson; click/tap a blank quarter-hour. These produce **read-only fixture previews**, not engine availability or bookings. All drag/move/resize/delete writes are disabled.
+- Tuesday's arena closure; Wednesday's 120+120+60 family sequence and parallel instructor; requested/unreserved, held and canceled examples. Family outer buffers and the red override are clearly labeled illustrations, not implemented farm reservations or welfare clearance.
+- November 1, 2026 and March 14, 2027: compare the native actual-instant ruler with DayPilot's wall-time grid. The explicit local-time probe rejects the spring gap and asks which fall occurrence was intended.
+- Keyboard detail fallback, focus return and phone layout. Raw DayPilot accessibility findings remain in the decision report; fallbacks do not erase them.
+
+The scope selector changes **synthetic fixtures**, not authentication. The bundle contains all invented scopes and is not a production authorization adapter. `project()` demonstrates allowlisting/scoping of an already-authorized read model; real WordPress/MFA authorization must remain server-side before any future integration. Never point this fixture at actual farm records.
+
+## Provenance and licenses
+
+- Exact dependency: `@daypilot/daypilot-lite-javascript@6.2.0`, npm integrity locked. Its bundle identifies itself as **2026.4.895-lite**; these are different package/build version identifiers.
+- Apache-2.0 [LICENSE](DAYPILOT-LICENSE.txt) / [NOTICE](DAYPILOT-NOTICE.txt) preserved. No runtime dependencies declared by the vendor.
+- Native renderer: actual Scheduling 0.4.6 source pin `c2783b5e3f6eba046b97e5dc517a198517532377`; planner/time/JS unchanged from 0.4.5. System-font/iframe shell and CLI stubs are experimental. See [native notice](NATIVE-NOTICE.md) and [source hashes](evidence/native-source.json).
+- Experimental wrapper/distribution: GPL-3.0-or-later, retaining native GPL-2.0-or-later notices. This does not change the scheduling plugin license. No DayPilot files are added to the farm plugins.
+
+## Screenshot evidence and publication status
+
+The run generated six PNGs: phone/tablet/desktop split comparisons, arena columns and full-width native/DayPilot week views. They are in the **private offline ZIP** and local `.artifacts/screenshots/`. Automatic approval review rejected publishing the opaque image blobs to public GitHub because authorization and non-sensitivity for those exact artifacts were not established. They are withheld; no alternate upload or encoded-image workaround is used.
+
+The runnable source, [text findings](DECISION.md), [browser receipt](evidence/browser-results.json) and screenshot hashes remain public. Reproduce the images locally with the browser command above. After reviewing a new local run, `node collect-evidence.mjs` refreshes the private screenshot copies, receipt and checksum allowlist for `python3 bundle.py`. Collection does not commit or upload anything. The dated decision/raw-log hashes remain historical evidence rather than being silently relabeled as a new platform run.
+
+Recurring arena/instructor hours and visual closures remain the next active calendar increment. This experiment does not replace that work or authorize DayPilot adoption.

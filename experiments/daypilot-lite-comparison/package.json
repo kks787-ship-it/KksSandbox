@@ -1,0 +1,20 @@
+{
+  "name": "digital-ranch-daypilot-comparison",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test fixture.test.mjs",
+    "build:fixtures": "node build-fixtures.mjs",
+    "test:browser": "node browser.test.mjs"
+  },
+  "dependencies": {
+    "@daypilot/daypilot-lite-javascript": "6.2.0"
+  },
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "playwright": "1.62.1",
+    "axe-core": "4.10.3"
+  }
+}
