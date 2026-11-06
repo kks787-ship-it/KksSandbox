@@ -124,3 +124,9 @@ fictional owner/trainer identities. On a future approved pilot, Kris/Beth perfor
 
 Ordinary employees need no WordPress Administrator rights. No invitations, emails, MFA enrollment,
 account creation, public booking, emergency or operational acceptance is implied by these tasks.
+
+## Calendar Upgrade — first routine-booking increment (0.4.3)
+
+Routine single-rider booking now uses a date and 15-minute start choices, with finish and horse turn calculated from the configured service. Use **Show later starts** for later parts of the day. **Advanced rotation** retains the explicit group/short-turn workflow. A longer service never waives horse welfare limits, and confirmation does not clear a rider's participation requirements.
+
+Follow the [routine-booking validation and protected acceptance record](test-results/scheduling-routine-booking.md) for the exact candidate and outstanding protected-site acceptance. Do not expect family visit grouping, merged 15+15 buffers, horse deletion/archive changes, booking alerts or the dashboard in this first increment. No real booking email is enabled.
