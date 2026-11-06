@@ -15,6 +15,32 @@
 - Booking state, hold expiry and confirmation must be clear: show expiry only for a real hold, not a confirmed booking. The preview explains *which field/policy is wrong*, not generic 'timezone' when a service-duration or resource requirement failed. Farm timezone validation success is not itself an error.
 - Use server-authoritative timezone/DST interpretation, revision-safe commands, MFA/access checks and transaction/audit requirements already built. Preserve drafts after stale/uncertain results; don't create duplicate bookings on retry.
 
+## 1A. Owner-requested lesson/service catalog — real farm program choices (November 6, 2026)
+
+**Active pilot usability requirement:** A booking's **Lesson type** dropdown must let staff select the actual *kind of lesson or account arrangement*, not merely the generic fictional `Pilot Private` placeholder. Facility Settings already has a configurable service list with duration, capacity, horse-source and required-resource rules, but the user-facing catalog must be easy to add, rename, order, disable and select without editing code or erasing booking history.
+
+**Owner-supplied distinct example labels** (these are proposed selectable catalog entries, NOT verified prices, billing outcomes, automatic entitlements or fully configured durations):
+
+- **Working Student — Unpaid Lesson**
+- **Working Student — Paid Lesson**
+- **Student Lesson — 30 Minutes** (30-minute duration)
+- **Student Lesson — 60 Minutes** (60-minute duration)
+- **Training Client Lesson** (duration configurable; do not assume an included fee or fixed length)
+- Additional owner-configurable lesson/program services, e.g. Private 30/60, shared/double 120, haul-in, off-site coaching, Horse Academy, clinic or camp, only when the owner actually enables them.
+
+**Important semantics:** "Working Student — Paid" and "Working Student — Unpaid" are separate lesson classifications; **do not infer whether 'paid' means the student pays, receives compensation, or applies a work-credit exchange**. Preserve exactly the owner's distinguishable labels until their eventual accounting meaning is reviewed. They can have independently configurable durations, capacities, assigned resource requirements and pricing/entitlement policy in a later billing integration.
+
+**Staff workflow**
+1. In the visual planner, select the 15-minute slot and see its preselected start. Choose **Lesson type** from a clear, user-readable catalog (optionally grouped by Student / Working Student / Training Client / Other), then have end time calculated from that type's configured duration. No duplicate date/end-time entry.
+2. In Facility Settings, provide **Manage lesson types** with Add/Edit/Enable/Disable, clear friendly display name, optional category, duration in 15-minute increments, number of riders/capacity, permitted horse source and required instructor/arena/location resources. Show the full summary before applying and preserve normal role/MFA/revision/audit safeguards.
+3. Use a **stable immutable internal service ID** for booking history, but a **separately editable display label**; changing a service's public label does not create a new service ID or retroactively change completed appointments. Never infer a new service's identity from punctuation/digits in its display name. Preserve old `Pilot Private` records; let the owner disable a placeholder once a replacement is configured.
+4. Show enabled lesson types in the booking selector, in a sensible group/order; hide disabled ones from *new* appointments while rendering old appointments accurately. For any change to duration/resources of a service with future confirmed bookings, show an impact preview and require review rather than silently recalculating existing lessons.
+5. Keep financial fields **future-compatible but inactive** now: optional price/deposit/package/working-student-credit/treatment references must point toward Issue #24's future invoice/ledger model, not charge money, generate invoices, or equate Unpaid with a zero-dollar transaction without separately approved policy. Do not couple actual scheduling permissions to presumed payment status.
+6. Reuse existing server-authoritative checks for slot duration, capacity, resources, horse suitability/rest, and family grouping; setting up a new service must not bypass those constraints.
+7. Make a focused set of test fixtures that use the requested service labels, including two working-student variants, student 30/60, a configurable training-client type, renaming without changed IDs, disabled historical services, and duration-derived click-to-book behavior across supported stacks. No automatic change to real farm service/policy entries until owner review.
+
+**Delivery:** Integrate as a focused active Scheduling increment (after or alongside recurring resource-hours work), not as a new payments project or future general administration portal. Keep the v0.4.5 grid-to-editor improvement and recovery-qualified sandbox deployment intact.
+
 ## 2. Family visits / consecutive appointments
 
 - Add a first-class **Book another lesson for this family visit** action to the routine booking form; allow duplicate previous lesson then adjust service, rider, horse and other details. One family visit contains **individually itemized lesson appointments** with their own service type, rider(s), instructor(s), horse(s), location, attendance, cancellation and future billing entitlements.
