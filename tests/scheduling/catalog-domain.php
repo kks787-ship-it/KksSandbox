@@ -6,6 +6,8 @@ $checks=0;$check=static function($value,$message)use(&$checks){if(!$value)throw 
 $policy=static fn()=>json_decode(CSF_Scheduling_Schema::settings()['policy_json'],true);
 $configure=static fn($p,$revision=null,$command=null)=>CSF_Scheduling_Store::configure($p,$revision??(int)CSF_Scheduling_Schema::settings()['revision'],$command??wp_generate_uuid4());
 $p=$policy();$check(!is_wp_error(CSF_Scheduling_Policy::validate($p)),'Legacy six-field services valid');
+ob_start();CSF_Scheduling_Settings::render();$html=ob_get_clean();foreach(array_keys($p['services'])as$i=>$id){$name=preg_quote('settings[services]['.$i.'][sort_order]','/');$found=preg_match('/name="'.$name.'" type="number" value="([0-9]+)"/',$html,$match);$check($found&&$match[1]===(string)($i*10),'Legacy order retained in native form '.$id);}
+
 foreach(CSF_Scheduling_Catalog::examples()as$e){$id=$e['classification']==='student_lesson'?'catalog_student_'.$e['duration_minutes']:'lesson_'.str_replace('-','',wp_generate_uuid4());$p['services'][$id]=array('enabled'=>false,'capacity'=>null,'duration_minutes'=>$e['duration_minutes'],'horse_source'=>null,'requires_travel'=>false,'required_resources'=>null,'label'=>$e['label'],'category'=>$e['category'],'classification'=>$e['classification'],'sort_order'=>0);}
 $check(count(CSF_Scheduling_Catalog::examples())===7,'Seven owner examples');
 $check(!is_wp_error(CSF_Scheduling_Policy::validate($p)),'Disabled unknown requirements accepted');

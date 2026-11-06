@@ -5,7 +5,7 @@
   "tables": 15,
   "scheduler_files": 28,
   "MFA_provider_files_unchanged": 25,
-  "release_hash": "6d21af88dae8e9946b6597a712e0bdf26632c7f7a30e0bfc1da01f5a520145b3",
+  "release_hash": "d4c619da4eccc3034735be6ffd2f256af55b3d3bea6e68bd6a8c958a113d034e",
   "release_hash_format": "CSF_Scheduling_Identity::release_hash: version, MFA adapter version and sorted scheduling/MFA relative-path SHA-256 map, WordPress JSON",
   "base_commit": "0945e5026e45af922a47332ea3bf50f00ed21e73",
   "prior_scheduler_candidate": "67c7406dfa1fd322b8943c1f38fc6f1147541da0",
@@ -158,8 +158,8 @@
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-settings.php",
-      "sha256": "766f57f88e470187b2ca2cbafdd156b2e2febe2a7219ef031415c3589050e942",
-      "git_blob": "08178b07a058fd75a149614a910f4fb63419be0e"
+      "sha256": "43b03168fab4e4e590918eb3267e8ccb5bbc86557a4f2e30b0d54098e7de5bb5",
+      "git_blob": "ba03db162f7a2bf9b473eb856afdde8a8cd7f891"
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-store.php",

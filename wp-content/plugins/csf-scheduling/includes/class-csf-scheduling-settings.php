@@ -305,8 +305,10 @@ class CSF_Scheduling_Settings {
 		$out['Preferred off-site day']       = null === $p['preferred_offsite_day'] ? 'Not configured' : $days[ $p['preferred_offsite_day'] ];
 		$out['Travel buffer minutes']        = null === $p['travel_buffer_minutes'] ? 'Not configured' : (string) $p['travel_buffer_minutes'];
 		$out['Horse Academy']                = empty( $p['academy']['enabled'] ) ? ( null === $p['academy'] ? 'Not configured' : 'Disabled' ) : $days[ $p['academy']['weekday'] ] . ', ' . $p['academy']['start'] . '–' . $p['academy']['end'] . ', ' . $p['academy']['season_start'] . ' to ' . $p['academy']['season_end'] . ', capacity ' . $p['academy']['capacity'];
+		$service_order                       = 0;
 		foreach ( $p['services'] as $key => $s ) {
-			$out[ 'Lesson type: ' . CSF_Scheduling_Catalog::label( $key, $s ) . ' [' . $key . ']' ] = ( $s['enabled'] ? 'Enabled' : 'Disabled' ) . '; capacity ' . ( $s['capacity'] ?? 'unset' ) . '; ' . ( $s['duration_minutes'] ?? 'unset' ) . ' minutes; ' . $s['horse_source'] . ' horses; resources ' . ( null === $s['required_resources'] ? 'not configured' : ( $s['required_resources'] ? implode( ', ', $s['required_resources'] ) : 'none (explicit)' ) ) . '; travel ' . ( $s['requires_travel'] ? 'yes' : 'no' ) . '; category ' . ( $s['category'] ?? '' ) . '; order ' . ( $s['sort_order'] ?? 0 ) . '; classification ' . ( $s['classification'] ?? 'unspecified' );
+			$out[ 'Lesson type: ' . CSF_Scheduling_Catalog::label( $key, $s ) . ' [' . $key . ']' ] = ( $s['enabled'] ? 'Enabled' : 'Disabled' ) . '; capacity ' . ( $s['capacity'] ?? 'unset' ) . '; ' . ( $s['duration_minutes'] ?? 'unset' ) . ' minutes; ' . $s['horse_source'] . ' horses; resources ' . ( null === $s['required_resources'] ? 'not configured' : ( $s['required_resources'] ? implode( ', ', $s['required_resources'] ) : 'none (explicit)' ) ) . '; travel ' . ( $s['requires_travel'] ? 'yes' : 'no' ) . '; category ' . ( $s['category'] ?? '' ) . '; order ' . ( $s['sort_order'] ?? $service_order ) . '; classification ' . ( $s['classification'] ?? 'unspecified' );
+			$service_order += 10;
 		}
 		return $out;
 	}
@@ -432,7 +434,7 @@ class CSF_Scheduling_Settings {
 		}
 		self::field( $name . '[name]', 'Lesson type name', $key ? CSF_Scheduling_Catalog::label( $key, $s ) : '', 'text', 'maxlength="160"' );
 		self::field( $name . '[category]', 'Category (optional)', $s['category'] ?? '', 'text', 'maxlength="80"' );
-		self::field( $name . '[sort_order]', 'Display order', $s['sort_order'] ?? 0, 'number', 'min="0" max="9999"' );
+		self::field( $name . '[sort_order]', 'Display order', $s['sort_order'] ?? ( is_int( $index ) ? $index * 10 : 0 ), 'number', 'min="0" max="9999"' );
 		self::select( $name . '[classification]', 'Classification (no financial calculation)', $s['classification'] ?? 'unspecified', CSF_Scheduling_Catalog::classifications() );
 		self::field( $name . '[enabled]', 'Enable lesson type', '1', 'checkbox', checked( $s['enabled'], true, false ) );
 		self::field( $name . '[capacity]', 'Rider capacity', $s['capacity'], 'number', 'min="1" max="100"' );
