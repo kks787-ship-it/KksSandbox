@@ -5,7 +5,7 @@ module.exports=async({browser,cli,check,login,base})=>{
  const url=base+'/wp-admin/admin.php?page=csf-scheduling';
  const state=()=>JSON.parse(cli('global$wpdb;$s=CSF_Scheduling_Schema::settings();$t=CSF_Scheduling_Schema::table("audit");echo wp_json_encode(["policy"=>json_decode($s["policy_json"],true),"revision"=>(int)$s["revision"],"audit"=>(int)$wpdb->get_var("SELECT COUNT(*) FROM `$t`")]);'));
  async function click(form,name){await Promise.all([p.waitForNavigation(),form.getByRole('button',{name,exact:true}).click()]);}
- async function openEditor(){const d=p.locator('.csf-policy-editor');if(!await d.evaluate(e=>e.open))await d.locator('summary').click();}
+ async function openEditor(){const d=p.locator('.csf-policy-editor');if(!await d.evaluate(e=>e.open))await d.locator(':scope > summary').click();}
  const savedFields=async()=>p.locator('.csf-policy-review').evaluate(f=>Object.fromEntries(new FormData(f)));
  async function review(){await openEditor();await click(p.locator('.csf-policy-form'),'Review facility settings');return savedFields();}
  async function apply(fields){return op.c.request.post(url,{form:{...fields,reviewed:'1'}});}

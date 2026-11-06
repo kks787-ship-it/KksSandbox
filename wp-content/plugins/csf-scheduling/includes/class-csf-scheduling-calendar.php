@@ -500,9 +500,10 @@ class CSF_Scheduling_Calendar {
 			wp_generate_uuid4(),
 			$b['uuid'],
 			array(
-				'kind'   => $kind,
-				'before' => $before,
-				'after'  => $detail,
+				'service_snapshot' => CSF_Scheduling_Catalog::for_save( $detail, $before, $p ),
+				'kind'             => $kind,
+				'before'           => $before,
+				'after'            => $detail,
 			),
 			0
 		);
@@ -732,6 +733,9 @@ class CSF_Scheduling_Calendar {
 						$resolved[ $resource_uuid ] = self::find( 'resources', $resource_uuid );
 						self::require( $resolved[ $resource_uuid ] && (int) $resolved[ $resource_uuid ]['active'], 'not_found' ); }
 					$service = $p['services'][ $row['service_type'] ] ?? null;
+					if ( 'canceled' === $row['state'] || $row['end_utc'] <= CSF_Scheduling_Audit::now() ) {
+						$service = CSF_Scheduling_Catalog::booked( $row['uuid'], $row['service_type'], $p )['service'] ?? $service;
+					}
 					self::require( $service && $service['enabled'] && ! CSF_Scheduling_Policy::missing( $p ), 'policy_incomplete' );
 					self::validate_allocations( $d, $service, $p, $a->setTimezone( new DateTimeZone( $row['timezone'] ) ), $z->setTimezone( new DateTimeZone( $row['timezone'] ) ), $resolved, (int) $row['id'] );
 				} catch ( Throwable $error ) {

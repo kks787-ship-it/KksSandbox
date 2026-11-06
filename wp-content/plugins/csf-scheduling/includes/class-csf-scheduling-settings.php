@@ -93,16 +93,22 @@ class CSF_Scheduling_Settings {
 		foreach ( array( 'training_horse_cap', 'preferred_offsite_day', 'travel_buffer_minutes' ) as $key ) {
 			$p[ $key ] = self::integer( $form[ $key ] ?? '' );
 		}
+		$names = array();
 		foreach ( $form['services'] as $row ) {
-			if ( ! is_array( $row ) || ! isset( $row['name'] ) || ! is_string( $row['name'] ) || strlen( $row['name'] ) > 60 ) {
+			if ( ! is_array( $row ) || ! isset( $row['name'] ) || ! CSF_Scheduling_Catalog::text( $row['name'], 160, true ) ) {
 				throw new RuntimeException( 'Invalid service.' );
 			}
 			if ( '' === trim( $row['name'] ) ) {
 				continue;
 			}
-			$key = $row['key'] ?? strtolower( str_replace( ' ', '_', trim( $row['name'] ) ) );
+			$normalized = strtolower( trim( $row['name'] ) );
+			if ( isset( $names[ $normalized ] ) ) {
+				throw new RuntimeException( 'Use distinct lesson type names.' );
+			}
+			$names[ $normalized ] = true;
+			$key                  = $row['key'] ?? 'lesson_' . str_replace( '-', '', wp_generate_uuid4() );
 			if ( ! is_string( $key ) || isset( $p['services'][ $key ] ) || ! preg_match( '/^[a-z][a-z0-9_]{0,39}$/D', $key ) ) {
-				throw new RuntimeException( 'Use a unique service name with letters and spaces.' );
+				throw new RuntimeException( 'Invalid or duplicated lesson type identity.' );
 			}
 			if ( ! isset( $row['horse_source'] ) || ! is_string( $row['horse_source'] ) || ( isset( $row['resources'] ) && ( ! is_array( $row['resources'] ) || ! array_is_list( $row['resources'] ) || count( array_filter( $row['resources'], 'is_string' ) ) !== count( $row['resources'] ) ) ) ) {
 				throw new RuntimeException( 'Invalid service choices.' );
@@ -111,10 +117,17 @@ class CSF_Scheduling_Settings {
 				'enabled'            => self::checked( $row, 'enabled' ),
 				'capacity'           => self::integer( $row['capacity'] ?? '' ),
 				'duration_minutes'   => self::integer( $row['duration_minutes'] ?? '' ),
-				'horse_source'       => $row['horse_source'] ?? '',
+				'horse_source'       => '' === $row['horse_source'] ? null : $row['horse_source'],
 				'requires_travel'    => self::checked( $row, 'requires_travel' ),
-				'required_resources' => $row['resources'] ?? array(),
+				'required_resources' => isset( $row['catalog'] ) && ! self::checked( $row, 'resources_reviewed' ) ? null : ( $row['resources'] ?? array() ),
+				'label'              => $row['name'],
+				'category'           => $row['category'] ?? '',
+				'sort_order'         => self::integer( $row['sort_order'] ?? '0' ),
+				'classification'     => $row['classification'] ?? 'unspecified',
 			);
+			if ( ! CSF_Scheduling_Catalog::valid( $p['services'][ $key ] ) ) {
+				throw new RuntimeException( 'Invalid lesson type metadata.' );
+			}
 		}
 		$p['academy'] = array( 'enabled' => self::checked( $form['academy'], 'enabled' ) );
 		if ( $p['academy']['enabled'] ) {
@@ -233,7 +246,9 @@ class CSF_Scheduling_Settings {
 			if ( is_wp_error( $result ) ) {
 				$reason      = $result->get_error_data()['reason'] ?? $result->get_error_code();
 				self::$draft = $r['policy'];
-				if ( 'stale_revision' === $reason ) {
+				if ( 'service_in_use' === $reason ) {
+					self::$notice = 'Lesson type change blocked by booking history or future appointments. Reconcile the bookings or create a new type, then review again.';
+				} elseif ( 'stale_revision' === $reason ) {
 					self::$notice = 'Settings changed in another tab. Your draft is retained. Review it against the latest settings before saving.';
 				} else {
 					self::$notice = 'Settings not confirmed. Keep this exact review and retry it after checking your session or storage. Do not start another change if the result is uncertain.';
@@ -291,7 +306,7 @@ class CSF_Scheduling_Settings {
 		$out['Travel buffer minutes']        = null === $p['travel_buffer_minutes'] ? 'Not configured' : (string) $p['travel_buffer_minutes'];
 		$out['Horse Academy']                = empty( $p['academy']['enabled'] ) ? ( null === $p['academy'] ? 'Not configured' : 'Disabled' ) : $days[ $p['academy']['weekday'] ] . ', ' . $p['academy']['start'] . '–' . $p['academy']['end'] . ', ' . $p['academy']['season_start'] . ' to ' . $p['academy']['season_end'] . ', capacity ' . $p['academy']['capacity'];
 		foreach ( $p['services'] as $key => $s ) {
-			$out[ 'Service: ' . str_replace( '_', ' ', $key ) ] = ( $s['enabled'] ? 'Enabled' : 'Disabled' ) . '; capacity ' . ( $s['capacity'] ?? 'unset' ) . '; ' . ( $s['duration_minutes'] ?? 'unset' ) . ' minutes; ' . $s['horse_source'] . ' horses; resources ' . ( null === $s['required_resources'] ? 'not configured' : ( $s['required_resources'] ? implode( ', ', $s['required_resources'] ) : 'none (explicit)' ) ) . '; travel ' . ( $s['requires_travel'] ? 'yes' : 'no' );
+			$out[ 'Lesson type: ' . CSF_Scheduling_Catalog::label( $key, $s ) . ' [' . $key . ']' ] = ( $s['enabled'] ? 'Enabled' : 'Disabled' ) . '; capacity ' . ( $s['capacity'] ?? 'unset' ) . '; ' . ( $s['duration_minutes'] ?? 'unset' ) . ' minutes; ' . $s['horse_source'] . ' horses; resources ' . ( null === $s['required_resources'] ? 'not configured' : ( $s['required_resources'] ? implode( ', ', $s['required_resources'] ) : 'none (explicit)' ) ) . '; travel ' . ( $s['requires_travel'] ? 'yes' : 'no' ) . '; category ' . ( $s['category'] ?? '' ) . '; order ' . ( $s['sort_order'] ?? 0 ) . '; classification ' . ( $s['classification'] ?? 'unspecified' );
 		}
 		return $out;
 	}
@@ -324,9 +339,17 @@ class CSF_Scheduling_Settings {
 			if ( $missing ) {
 				echo '<p role="alert">Scheduling will remain blocked until all required settings are complete.</p>';
 			}
-			echo '<form method="post" class="csf-policy-review">';
-			wp_nonce_field( 'csf_facility_settings' );
-			echo '<input type="hidden" name="csf_facility_settings" value="apply"><input type="hidden" name="review" value="' . esc_attr( wp_json_encode( $r ) ) . '"><input type="hidden" name="signature" value="' . esc_attr( self::signature( $r ) ) . '"><label><input type="checkbox" name="reviewed" value="1" required> I reviewed these exact facility settings.</label><button type="submit" class="button button-primary">Apply reviewed settings</button><p>For an uncertain result, retry this exact form rather than starting another change.</p></form>';
+			$impact = CSF_Scheduling_Catalog::impact( $current, $r['policy'] );
+			echo '<h3>Lesson type booking impact</h3><ul>';
+			foreach ( $impact['changes'] as $change ) {
+				echo '<li>' . esc_html( $change['label'] . ': ' . $change['history'] . ' existing bookings; ' . $change['future'] . ' future noncanceled bookings. ' . ( $change['blocked'] ? 'BLOCKED: reconcile those bookings or create a new lesson type before changing scheduling rules or disabling this type.' : 'Existing booked labels remain unchanged.' ) ) . '</li>';
+			}
+			echo '</ul>';
+			if ( ! $impact['blocked'] ) {
+				echo '<form method="post" class="csf-policy-review">';
+				wp_nonce_field( 'csf_facility_settings' );
+				echo '<input type="hidden" name="csf_facility_settings" value="apply"><input type="hidden" name="review" value="' . esc_attr( wp_json_encode( $r ) ) . '"><input type="hidden" name="signature" value="' . esc_attr( self::signature( $r ) ) . '"><label><input type="checkbox" name="reviewed" value="1" required> I reviewed these exact facility settings.</label><button type="submit" class="button button-primary">Apply reviewed settings</button><p>For an uncertain result, retry this exact form rather than starting another change.</p></form>';
+			}
 		}
 		echo '<details class="csf-policy-editor"' . ( null !== self::$draft || CSF_Scheduling_Policy::missing( $current ) ? ' open' : '' ) . '><summary>Edit facility settings</summary><form method="post" class="csf-policy-example">';
 		wp_nonce_field( 'csf_facility_settings' );
@@ -369,44 +392,71 @@ class CSF_Scheduling_Settings {
 		) as $key => $spec ) {
 			self::field( 'settings[academy][' . $key . ']', $spec[0], $p['academy'][ $key ] ?? '', $spec[1] );
 		}
-		echo '</fieldset><fieldset><legend>Lesson and service types</legend><p>Disable an existing service to preserve its identity. A new service name uses letters and spaces.</p>';
-		$services     = $p['services'];
-		$services[''] = array(
-			'enabled'            => false,
-			'capacity'           => null,
-			'duration_minutes'   => null,
-			'horse_source'       => 'school',
-			'requires_travel'    => false,
-			'required_resources' => array(),
-		);
-		$i            = 0;
-		foreach ( $services as $key => $s ) {
-			$name = 'settings[services][' . ( $i++ ) . ']';
-			echo '<fieldset><legend>' . esc_html( '' === $key ? 'Add a service' : ucwords( str_replace( '_', ' ', $key ) ) ) . '</legend>';
-			if ( '' !== $key ) {
-				echo '<input type="hidden" name="' . esc_attr( $name . '[key]' ) . '" value="' . esc_attr( $key ) . '">';
-			}
-			self::field( $name . '[name]', 'Service name', ucwords( str_replace( '_', ' ', $key ) ), 'text', '' !== $key ? 'readonly' : '' );
-			self::field( $name . '[enabled]', 'Enable service', '1', 'checkbox', checked( $s['enabled'], true, false ) );
-			self::field( $name . '[capacity]', 'Rider capacity', $s['capacity'], 'number', 'min="1" max="100"' );
-			self::field( $name . '[duration_minutes]', 'Duration in minutes', $s['duration_minutes'], 'number', 'min="1" max="1440"' );
-			self::select(
-				$name . '[horse_source]',
-				'Horse source',
-				$s['horse_source'],
-				array(
-					'school' => 'School horses',
-					'client' => 'Client-owned horses',
-					'either' => 'Either',
-					'none'   => 'No horse',
-				)
-			);
-			self::field( $name . '[requires_travel]', 'Include travel buffer', '1', 'checkbox', checked( $s['requires_travel'], true, false ) );
-			foreach ( array( 'instructor', 'horse', 'arena', 'location' ) as $kind ) {
-				self::field( $name . '[resources][]', 'Require ' . $kind, $kind, 'checkbox', checked( in_array( $kind, $s['required_resources'] ?? array(), true ), true, false ) );
-			}
-			echo '</fieldset>';
+		echo '</fieldset><fieldset id="csf-lesson-catalog"><legend>Manage lesson types</legend><p>Friendly names can change; internal references and booked labels remain stable. Paid and unpaid are classifications only: no prices, wages or credits are calculated. Review changes before saving. Rule changes or disabling are blocked while future bookings remain.</p><div class="csf-catalog-rows">';
+		$i = 0;
+		foreach ( $p['services'] as $key => $service ) {
+			self::service_row( $i++, $key, $service );
 		}
+		echo '</div><button type="button" class="button csf-catalog-add">Add lesson type</button> <button type="button" class="button csf-catalog-examples" data-examples="' . esc_attr( wp_json_encode( CSF_Scheduling_Catalog::examples() ) ) . '">Add proposed catalog examples (disabled, not saved)</button><p role="status" class="csf-catalog-status"></p><template class="csf-catalog-template">';
+		self::service_row(
+			'__INDEX__',
+			'',
+			array(
+				'enabled'            => false,
+				'capacity'           => null,
+				'duration_minutes'   => null,
+				'horse_source'       => null,
+				'requires_travel'    => false,
+				'required_resources' => null,
+				'label'              => '',
+				'category'           => '',
+				'classification'     => 'unspecified',
+				'sort_order'         => 0,
+			)
+		);
+		echo '</template>';
+
 		echo '</fieldset><button type="submit" class="button button-primary">Review changes</button></form></details></section>';
+	}
+	/** Native catalog fields; new records stay disabled and unconfigured.
+	 *
+	 * @param int|string $index Form index.
+	 * @param string     $key Stable ID, blank for unsaved rows.
+	 * @param array      $s Service definition.
+	 */
+	private static function service_row( $index, $key, $s ) {
+		$name = 'settings[services][' . $index . ']';
+		echo '<fieldset class="csf-catalog-row"><legend>' . esc_html( $key ? CSF_Scheduling_Catalog::label( $key, $s ) : 'New lesson type' ) . '</legend><input type="hidden" name="' . esc_attr( $name . '[catalog]' ) . '" value="1">';
+		if ( $key ) {
+			echo '<input type="hidden" name="' . esc_attr( $name . '[key]' ) . '" value="' . esc_attr( $key ) . '"><details><summary>Stable internal reference</summary><code>' . esc_html( $key ) . '</code></details>';
+		}
+		self::field( $name . '[name]', 'Lesson type name', $key ? CSF_Scheduling_Catalog::label( $key, $s ) : '', 'text', 'maxlength="160"' );
+		self::field( $name . '[category]', 'Category (optional)', $s['category'] ?? '', 'text', 'maxlength="80"' );
+		self::field( $name . '[sort_order]', 'Display order', $s['sort_order'] ?? 0, 'number', 'min="0" max="9999"' );
+		self::select( $name . '[classification]', 'Classification (no financial calculation)', $s['classification'] ?? 'unspecified', CSF_Scheduling_Catalog::classifications() );
+		self::field( $name . '[enabled]', 'Enable lesson type', '1', 'checkbox', checked( $s['enabled'], true, false ) );
+		self::field( $name . '[capacity]', 'Rider capacity', $s['capacity'], 'number', 'min="1" max="100"' );
+		self::field( $name . '[duration_minutes]', 'Duration in minutes', $s['duration_minutes'], 'number', 'min="15" max="1440" step="15"' );
+		self::select(
+			$name . '[horse_source]',
+			'Horse source',
+			$s['horse_source'],
+			array(
+				''       => 'Not configured',
+				'school' => 'School horses',
+				'client' => 'Client-owned horses',
+				'either' => 'Either',
+				'none'   => 'No horse',
+			)
+		);
+		self::field( $name . '[requires_travel]', 'Include travel buffer', '1', 'checkbox', checked( $s['requires_travel'], true, false ) );
+		foreach ( array( 'instructor', 'horse', 'arena', 'location' ) as $kind ) {
+			self::field( $name . '[resources][]', 'Require ' . $kind, $kind, 'checkbox', checked( in_array( $kind, $s['required_resources'] ?? array(), true ), true, false ) );
+		}
+		self::field( $name . '[resources_reviewed]', 'Resource requirements reviewed (including none if intentional)', '1', 'checkbox', checked( null !== $s['required_resources'], true, false ) );
+		if ( ! $key ) {
+			echo '<button type="button" class="button csf-catalog-remove">Remove unsaved type</button>';
+		}
+		echo '</fieldset>';
 	}
 }

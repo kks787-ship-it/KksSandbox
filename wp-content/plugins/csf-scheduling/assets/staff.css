@@ -3,3 +3,22 @@
 .csf-calendar [hidden]{display:none!important}
 
 .csf-calendar .csf-policy-table{overflow-x:auto}.csf-calendar .csf-policy-table table{table-layout:fixed;overflow-wrap:anywhere}.csf-calendar .csf-policy-form input:not([type=checkbox]),.csf-calendar .csf-policy-form select{width:100%;max-width:32rem}
+
+/* Long catalog labels/references must fit the native phone editor. */
+#csf-lesson-catalog,
+#csf-lesson-catalog fieldset,
+#csf-lesson-catalog .csf-catalog-rows {
+ min-width: 0;
+ max-width: 100%;
+ box-sizing: border-box;
+ overflow-wrap: anywhere;
+}
+#csf-lesson-catalog legend { max-width: 100%; white-space: normal; }
+#csf-lesson-catalog label { min-width: 0; max-width: 100%; }
+#csf-lesson-catalog input:not([type="checkbox"]),
+#csf-lesson-catalog select,
+#csf-lesson-catalog button {
+ box-sizing: border-box;
+ max-width: 100%;
+}
+#csf-lesson-catalog button { white-space: normal; height: auto; }

@@ -2,8 +2,9 @@
 // Native controls, genuine fixture MFA, synthetic records; fixture guard is in parent runner.
 module.exports=async({op,cli,check,base,browser,login})=>{
  const p=op.p,url=base+'/wp-admin/admin.php?page=csf-scheduling';
- const visit=async(date='2027-01-25',view='day')=>p.goto(url+'&date='+date+'&view='+view);
- async function save(form,label){await Promise.all([p.waitForNavigation(),form.getByRole('button',{name:label,exact:true}).click()]);check((await p.locator('.csf-calendar').innerText()).includes('Command committed.'),'native '+label+' committed');}
+ async function exposeList(){const list=p.locator('.csf-planner-list');if(await list.count()&&!await list.evaluate(e=>e.open))await list.locator(':scope > summary').click();}
+ const visit=async(date='2027-01-25',view='day')=>{await p.goto(url+'&date='+date+'&view='+view);await exposeList();};
+ async function save(form,label){await Promise.all([p.waitForNavigation(),form.getByRole('button',{name:label,exact:true}).click()]);check((await p.locator('.csf-calendar').innerText()).includes('Command committed.'),'native '+label+' committed');await exposeList();}
  async function open(label){const d=p.locator('#csf-farm-setup details').filter({has:p.locator('summary').filter({hasText:new RegExp('^'+label.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))})}).first();if(!await d.evaluate(e=>e.open))await d.locator('summary').first().click();return d.locator('form').first();}
  const lookup=(table,label)=>{
   const predicate=table==='resources'?'label':"JSON_UNQUOTE(JSON_EXTRACT(body_json,'$.label'))";

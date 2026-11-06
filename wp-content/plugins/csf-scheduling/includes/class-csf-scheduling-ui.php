@@ -209,6 +209,7 @@ class CSF_Scheduling_UI {
 			'resource_conflict'  => 'Already reserved. Change the horse, instructor, arena or time, then preview again.',
 			'rider_conflict'     => 'This rider already has an appointment. Choose another time.',
 			'outside_hours'      => 'This time is outside facility hours or a resource’s recorded availability. Check availability before continuing.',
+			'service_in_use'     => 'This lesson type has protected booking history. Reconcile future bookings or choose a new lesson type before changing its rules.',
 			'horse_unsafe'       => 'The horse or its resource may be inactive, or suitability is missing. Review the horse’s resource, approved riders and services.',
 			'welfare_conflict'   => 'A protective block, workload limit or required horse break prevents this schedule. Review welfare and ride times.',
 			'capacity'           => 'The service capacity or training enrollment limit is exceeded. Reduce the roster or review the approved policy.',
@@ -339,6 +340,10 @@ class CSF_Scheduling_UI {
 	 * @param string $id ID.
 	 */
 	public static function appointment_advanced( $body, $ctx, $id = '' ) {
+		if ( $body['expected'] && ! isset( $ctx['services'][ $body['service_type'] ] ) ) {
+			$p                                        = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
+			$ctx['services'][ $body['service_type'] ] = CSF_Scheduling_Catalog::label( $body['service_type'], $p['services'][ $body['service_type'] ] ?? array() ) . ' (disabled; select an enabled type to reschedule)';
+		}
 		if ( ( ! CSF_Scheduling_Access::can( 'appointment_edit' ) && ( ! $body['expected'] || ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) || ( 'confirmed' === ( $body['state'] ?? '' ) && ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) {
 			return; }
 		self::begin( 'appointment_saved', $body, $id );
@@ -403,6 +408,10 @@ class CSF_Scheduling_UI {
 	 * @param string $id Form identity.
 	 */
 	public static function appointment( $body, $ctx, $id = '' ) {
+		if ( $body['expected'] && ! isset( $ctx['services'][ $body['service_type'] ] ) ) {
+			$p                                        = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
+			$ctx['services'][ $body['service_type'] ] = CSF_Scheduling_Catalog::label( $body['service_type'], $p['services'][ $body['service_type'] ] ?? array() ) . ' (disabled; select an enabled type to reschedule)';
+		}
 		if ( ! CSF_Scheduling_Booking::simple( $body ) ) {
 			self::appointment_advanced( $body, $ctx, $id );
 			return;
@@ -535,7 +544,7 @@ class CSF_Scheduling_UI {
 				);
 				self::select( 'resource_uuid', 'School horse availability resource (school horses only)', array( '' => 'No school resource for client-owned horse' ) + $ctx['school_resources'], $d['resource_uuid'] ); } else {
 				echo '<p>' . esc_html( ucfirst( $d['source'] ) . ' horse · identity retained' ) . '</p>'; }
-				self::checks( 'suitable_services', 'Approved services', $ctx['services'], $d['suitable_services'] );
+				self::checks( 'suitable_services', 'Approved services', $ctx['all_services'] ?? $ctx['services'], $d['suitable_services'] );
 				self::checks( 'suitable_riders', 'Approved riders', $ctx['riders'], $d['suitable_riders'] );
 				self::input( 'training_enrolled', 'Enrolled in full training (counts toward facility cap)', $d['training_enrolled'], 'checkbox', ! CSF_Scheduling_Access::can( 'resource_manage' ) );
 		}
@@ -593,6 +602,7 @@ class CSF_Scheduling_UI {
 			return; }
 		wp_enqueue_style( 'csf-scheduling-staff', plugins_url( '../assets/staff.css', __FILE__ ), array(), CSF_SCHEDULING_VERSION );
 		wp_enqueue_script( 'csf-scheduling-staff', plugins_url( '../assets/staff.js', __FILE__ ), array(), CSF_SCHEDULING_VERSION, true );
+		wp_enqueue_script( 'csf-scheduling-catalog', plugins_url( '../assets/catalog.js', __FILE__ ), array(), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_script( 'csf-scheduling-routine', plugins_url( '../assets/routine.js', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_style( 'csf-scheduling-planner', plugins_url( '../assets/planner.css', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION );
 		wp_enqueue_script( 'csf-scheduling-planner', plugins_url( '../assets/planner.js', __FILE__ ), array( 'csf-scheduling-routine' ), CSF_SCHEDULING_VERSION, true );
@@ -622,8 +632,8 @@ class CSF_Scheduling_UI {
 		if ( ! CSF_Scheduling_Access::can() && ! CSF_Scheduling_Access::writer() ) {
 			return array(); }
 		global $wpdb;
-		$t   = CSF_Scheduling_Schema::table( 'resources' );
-		$ctx = array(
+		$t                   = CSF_Scheduling_Schema::table( 'resources' );
+		$ctx                 = array(
 			'resource_rows'    => CSF_Scheduling_Access::can( 'resource_view' ) ? $wpdb->get_results( "SELECT * FROM `$t` ORDER BY kind,label", ARRAY_A ) : array(),
 			'rider_rows'       => CSF_Scheduling_Calendar::documents( 'riders' ),
 			'horse_rows'       => CSF_Scheduling_Calendar::documents( 'horses' ),
@@ -634,10 +644,11 @@ class CSF_Scheduling_UI {
 			'targets'          => array(),
 			'school_resources' => array(),
 		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$p   = $policy ?? json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
-		foreach ( $p['services'] as $key => $service ) {
-			if ( $service['enabled'] ) {
-				$ctx['services'][ $key ] = ucwords( str_replace( '_', ' ', $key ) ); }
+		$p                   = $policy ?? json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
+		$ctx['services']     = CSF_Scheduling_Catalog::choices( $p['services'] );
+		$ctx['all_services'] = array();
+		foreach ( $p['services'] as $id => $service ) {
+			$ctx['all_services'][ $id ] = CSF_Scheduling_Catalog::label( $id, $service ) . ( $service['enabled'] ? '' : ' (disabled)' );
 		}
 		foreach ( $ctx['resource_rows'] as $r ) {
 			$ctx['targets'][ $r['uuid'] ] = $r['kind'] . ': ' . $r['label'];
@@ -775,8 +786,10 @@ class CSF_Scheduling_UI {
 			echo '<p role="alert">Calendar blocked: configure facility policies and timezone before scheduling.</p>'; } elseif ( ! $rows ) {
 			echo '<p>No appointments in this view.</p>'; }
 			foreach ( is_array( $rows ) ? $rows : array() as $row ) {
-				$d = $details[ $row['uuid'] ];
+				$d      = $details[ $row['uuid'] ];
+				$booked = CSF_Scheduling_Catalog::booked( $row['uuid'], $d['service_type'], $p );
 				echo '<article id="csf-event-' . esc_attr( $row['uuid'] ) . '"><h2>' . esc_html( $row['title'] ) . '</h2><p>' . esc_html( self::display_time( $row['start'] ) . ' – ' . self::display_time( $row['end'] ) ) . '</p><p>Status: <strong>' . esc_html( $row['state'] ) . ( $row['hold_expired'] ? ' (expired; not reserved)' : '' ) . '</strong></p><p class="' . ( $row['rider_cleared'] ? 'csf-clear' : 'csf-blocked' ) . '">' . ( $row['rider_cleared'] ? ( $d['riders'] ? 'Rider evidence verified' : 'No rider participation recorded' ) : 'PRE-RIDE BLOCK: rider evidence incomplete' ) . '</p><p class="' . ( $row['welfare_review'] ? 'csf-blocked' : '' ) . '">' . ( $row['welfare_review'] ? 'WELFARE BLOCK: staff review required' : 'No recorded welfare restriction' ) . '</p>';
+				echo '<p>Lesson type (as booked): ' . esc_html( $booked['label'] ?? 'Unavailable' ) . '</p>';
 				echo '<p>' . esc_html( implode( ', ', array_map( static fn( $id ) => $ctx['resources'][ $id ] ?? 'Unavailable resource', $d['resources'] ) ) ) . '</p><ul class="csf-rotation">';
 				foreach ( $d['rides'] as $ride ) {
 					echo '<li>' . esc_html( ( $ctx['riders'][ $ride['rider'] ?? '' ] ?? 'Rider details restricted' ) . ' · ' . ( $ctx['horses'][ $ride['horse'] ] ?? 'Unknown horse' ) . ' · ' . self::display_time( $ride['start'] ) . '–' . self::display_time( $ride['end'] ) ) . '</li>'; }

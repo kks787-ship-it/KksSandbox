@@ -56,5 +56,11 @@ flock 9
 if [[ "${CSF_TEST_SECURITY_ONLY:-0}" != 1 ]]; then CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/mfa-browser.js";fi
 if [[ "${CSF_TEST_SECURITY:-0}" == 1 ]]; then CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/security-browser.js";fi
 flock -u 9
+if [[ "${CSF_TEST_CATALOG:-0}" == 1 ]]; then
+ "${D[@]}" exec -e CSF_TEST_CATALOG_RECOVERY=before "$STAMP-web" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/catalog-recovery.php
+ "${D[@]}" exec "$STAMP-db" sh -c 'DUMP=$(command -v mariadb-dump || command -v mysqldump); "$DUMP" -uroot -pfixture-only --single-transaction --skip-comments csf_fixture > /tmp/catalog.sql'
+ "${D[@]}" exec "$STAMP-db" sh -c 'CLIENT=$(command -v mariadb || command -v mysql); "$CLIENT" -uroot -pfixture-only csf_fixture < /tmp/catalog.sql; rm /tmp/catalog.sql'
+ "${D[@]}" exec -e CSF_TEST_CATALOG_RECOVERY=after "$STAMP-web" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/catalog-recovery.php
+fi
 "${D[@]}" exec -e CSF_TEST_MFA_DISABLED=1 "$STAMP-web" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'if(CSF_MFA_Session::ready()||CSF_MFA_Session::enrolled(true,1)||CSF_MFA_Session::verified(true,1)){throw new RuntimeException("disabled adapter granted access");}echo "MFA_DISABLED_DEFAULT_DENY_PASS\n";'
 "${D[@]}" exec "$STAMP-web" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'global $wp_version;echo "MFA_STACK WordPress=".$wp_version." PHP=".PHP_VERSION." SQL=".$GLOBALS["wpdb"]->db_version()."\n";'

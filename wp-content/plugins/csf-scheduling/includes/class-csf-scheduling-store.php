@@ -219,6 +219,12 @@ class CSF_Scheduling_Store {
 					$result['previous_staff'] = is_array( $previous ) ? array_values( array_filter( $previous, static fn( $id ) => is_int( $id ) && $id > 0 ) ) : array();
 					$update['staff_json']     = wp_json_encode( $payload );
 				} elseif ( 'policy_replaced' === $kind ) {
+					self::$calendar_transaction = true;
+					try {
+						CSF_Scheduling_Catalog::policy_changed( json_decode( $row['policy_json'], true ), $payload, $row );
+					} finally {
+						self::$calendar_transaction = false;
+					}
 					$update['policy_json'] = wp_json_encode( $payload );
 				} elseif ( in_array( $kind, array_merge( CSF_Scheduling_Calendar::COMMANDS, CSF_Scheduling_Permissions::COMMANDS, CSF_Scheduling_Identity::COMMANDS ), true ) ) {
 					if ( $preview && $availability ) {
@@ -279,7 +285,7 @@ class CSF_Scheduling_Store {
 				return $result;
 			} catch ( Throwable $error ) {
 				$wpdb->query( 'ROLLBACK' );
-				$reason = in_array( $error->getMessage(), array_merge( CSF_Scheduling_Calendar::ERRORS, array( 'schema_changed', 'command_conflict', 'stale_revision', 'resource_failed', 'write_failed', 'commit_unknown' ) ), true ) ? $error->getMessage() : 'storage_error';
+				$reason = in_array( $error->getMessage(), array_merge( CSF_Scheduling_Calendar::ERRORS, array( 'service_in_use', 'schema_changed', 'command_conflict', 'stale_revision', 'resource_failed', 'write_failed', 'commit_unknown' ) ), true ) ? $error->getMessage() : 'storage_error';
 				return new WP_Error(
 					'scheduling_write_failed',
 					'Command not acknowledged; retry the same UUID after resolving storage or revision conflict.',

@@ -132,3 +132,13 @@ account creation, public booking, emergency or operational acceptance is implied
 Routine single-rider booking now uses a date and 15-minute start choices, with finish and horse turn calculated from the configured service. Use **Show later starts** for later parts of the day. **Advanced rotation** retains the explicit group/short-turn workflow. A longer service never waives horse welfare limits, and confirmation does not clear a rider's participation requirements.
 
 Follow the [routine-booking validation and protected acceptance record](test-results/scheduling-routine-booking.md) for the exact candidate and outstanding protected-site acceptance. Do not expect family visit grouping, merged 15+15 buffers, horse deletion/archive changes, booking alerts or the dashboard in this first increment. No real booking email is enabled.
+
+### Lesson catalog review (Scheduling 0.4.6)
+
+In the MFA-authenticated Farm Owner calendar, expand **Facility settings → Edit facility settings → Manage lesson types**. Add a lesson type or load the seven proposed examples as **disabled, unsaved drafts**. Review names/categories/order, capacity, duration, horse source and required resources. Only Student Lesson 30/60 has an owner-specified duration; other operating values stay unknown. Paid/unpaid classifications do not calculate money, wages or credits.
+
+Enable a type only after completing its rules and explicitly reviewing resource requirements. Select **Review changes**, inspect the comparison and booking impact, then **Apply reviewed settings**. Existing service IDs, horse suitability and booked labels are retained. Future noncanceled bookings block rule/classification changes and disabling: reconcile them or create a new type. Renaming does not rename existing bookings.
+
+In the planner, select an open 15-minute start, then the enabled lesson type. Check its calculated finish, resource/horse suitability and normal preview before saving a fictional appointment. Open its details and verify **Lesson type (as booked)**. Disable an unused type and confirm it disappears from new-booking choices while history remains readable. Actual protected-site acceptance belongs to the owner; local browser checks are not a substitute.
+
+After any catalog policy edit, do not downgrade to 0.4.5: its validator does not understand catalog metadata. Prefer a compatible forward fix. A database rollback requires separately reviewed recovery that preserves newer owner changes; never strip metadata or overwrite records automatically.

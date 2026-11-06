@@ -63,8 +63,11 @@ class CSF_Scheduling_Policy {
 			return new WP_Error( 'policy_services', 'Invalid services.' );
 		}
 		foreach ( $p['services'] as $key => $service ) {
-			if ( ! is_string( $key ) || ! preg_match( '/^[a-z][a-z0-9_]{0,39}$/D', $key ) || ! is_array( $service ) || ! self::keys( $service, array( 'enabled', 'capacity', 'duration_minutes', 'horse_source', 'requires_travel', 'required_resources' ) ) || ! is_bool( $service['enabled'] ) || ! is_bool( $service['requires_travel'] ) || ! in_array( $service['horse_source'], array( 'school', 'client', 'either', 'none' ), true ) || ! self::number( $service['capacity'], 1, 100 ) || ! self::number( $service['duration_minutes'], 1, 1440 ) ) {
+			if ( ! is_string( $key ) || ! preg_match( '/^[a-z][a-z0-9_]{0,39}$/D', $key ) || ! is_array( $service ) || ! self::keys( array_diff_key( $service, array_flip( CSF_Scheduling_Catalog::META ) ), array( 'enabled', 'capacity', 'duration_minutes', 'horse_source', 'requires_travel', 'required_resources' ) ) || ! is_bool( $service['enabled'] ) || ! is_bool( $service['requires_travel'] ) || ! in_array( $service['horse_source'], array( null, 'school', 'client', 'either', 'none' ), true ) || ! CSF_Scheduling_Catalog::valid( $service ) || ! self::number( $service['capacity'], 1, 100 ) || ! self::number( $service['duration_minutes'], 1, 1440 ) ) {
 				return new WP_Error( 'policy_services', 'Invalid service fields or bounds.' );
+			}
+			if ( $service['enabled'] && isset( $service['label'] ) && ( null === $service['horse_source'] || null === $service['capacity'] || null === $service['required_resources'] || null === $service['duration_minutes'] || $service['duration_minutes'] < 15 || 0 !== $service['duration_minutes'] % 15 ) ) {
+				return new WP_Error( 'policy_services', 'Enabled lesson types need capacity, horse source, reviewed resources and a duration in 15-minute steps.' );
 			}
 			$required = $service['required_resources'];
 			if ( null !== $required && ( ! is_array( $required ) || ! array_is_list( $required ) || count( array_filter( $required, 'is_string' ) ) !== count( $required ) || array_values( array_unique( $required ) ) !== $required || array_diff( $required, array( 'instructor', 'horse', 'arena', 'location' ) ) ) ) {
@@ -154,7 +157,7 @@ class CSF_Scheduling_Policy {
 				continue;
 			}
 			$enabled = true;
-			if ( null === $s['capacity'] || null === $s['duration_minutes'] || null === $s['required_resources'] ) {
+			if ( null === $s['horse_source'] || null === $s['capacity'] || null === $s['duration_minutes'] || null === $s['required_resources'] ) {
 				$missing[] = 'service:' . $key;
 			}
 			if ( in_array( $s['horse_source'], array( 'school', 'either' ), true ) && in_array( null, $p['workload'], true ) ) {

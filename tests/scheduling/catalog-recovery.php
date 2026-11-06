@@ -1,0 +1,6 @@
+<?php
+// Full disposable 27-table restore comparison; never a farm database.
+if(ABSPATH!=='/test/site/'||DB_NAME!=='csf_fixture'||wp_get_environment_type()!=='local')throw new RuntimeException('Fixture only');
+global$wpdb;$snapshot=array();$tables=$wpdb->get_col('SHOW TABLES');sort($tables);if(count($tables)!==27)throw new RuntimeException('Expected 27 fixture tables');
+foreach($tables as$t){if(!preg_match('/^fixture_[A-Za-z0-9_]+$/D',$t))throw new RuntimeException('Unexpected fixture table');$columns=$wpdb->get_col("SHOW COLUMNS FROM `$t`");$order=implode(',',array_map(static fn($c)=>'`'.str_replace('`','``',$c).'`',$columns));$rows=$wpdb->get_results("SELECT * FROM `$t` ORDER BY $order",ARRAY_A);if($wpdb->last_error)throw new RuntimeException('Fixture read failed');$snapshot[$t]=hash('sha256',wp_json_encode($rows));}
+$file='/test/catalog-recovery-hashes.json';if(getenv('CSF_TEST_CATALOG_RECOVERY')==='before'){file_put_contents($file,wp_json_encode($snapshot));echo "CATALOG_RECOVERY_BASELINE_27_TABLES\n";}else{if(json_decode(file_get_contents($file),true)!==$snapshot)throw new RuntimeException('Restored database differs');echo "CATALOG_RECOVERY_VERIFIED_27_TABLES_METADATA_HISTORY_MFA\n";}
