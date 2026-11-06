@@ -206,31 +206,33 @@ class CSF_Scheduling_UI {
 	public static function message( $error ) {
 		$reason   = $error->get_error_data()['reason'] ?? $error->get_error_code();
 		$messages = array(
-			'resource_conflict'  => 'Already reserved. Change the horse, instructor, arena or time, then preview again.',
-			'rider_conflict'     => 'This rider already has an appointment. Choose another time.',
-			'outside_hours'      => 'This time is outside facility hours or a resource’s recorded availability. Check availability before continuing.',
-			'service_in_use'     => 'This lesson type has protected booking history. Reconcile future bookings or choose a new lesson type before changing its rules.',
-			'horse_unsafe'       => 'The horse or its resource may be inactive, or suitability is missing. Review the horse’s resource, approved riders and services.',
-			'welfare_conflict'   => 'A protective block, workload limit or required horse break prevents this schedule. Review welfare and ride times.',
-			'capacity'           => 'The service capacity or training enrollment limit is exceeded. Reduce the roster or review the approved policy.',
-			'policy_incomplete'  => 'Facility policy is incomplete. Ask the pilot operator to finish approved settings before scheduling.',
-			'stale_revision'     => 'Someone changed the calendar. Your draft is retained. Review the latest calendar, then preview the draft again.',
-			'stale_appointment'  => 'This record changed. Your draft is retained; compare it with the current record before making a new edit.',
-			'commit_unknown'     => 'The save result is uncertain. Do not create another appointment. Retry the original command below to recover its result.',
-			'ambiguous_time'     => 'This time occurs twice when clocks go back. Choose the first or second occurrence.',
-			'nonexistent_time'   => 'This local time does not exist when clocks go forward. Choose another time.',
-			'booking_busy'       => 'The slot check took too long. Keep your draft and check starts again.',
-			'lesson_service'     => 'Choose an enabled lesson type with a duration in 15-minute increments.',
-			'lesson_grid'        => 'Choose a start on the 15-minute grid.',
-			'lesson_start'       => 'Choose a date and an available start slot.',
-			'lesson_rider'       => 'Choose the rider for this lesson.',
-			'lesson_horse'       => 'Choose a suitable horse, or use Advanced rotation for multiple horse turns.',
-			'lesson_resource'    => 'Choose every required instructor, arena or location before selecting a start.',
-			'hold_expiry'        => 'For a held appointment, choose its actual expiry before the lesson and within 24 hours.',
-			'service_duration'   => 'The finish must match the selected lesson type duration. Recheck the service and calculated finish.',
-			'invalid_time'       => 'Check local dates, service duration, hold expiry and cancellation notice. Times must be valid in the facility timezone.',
-			'forbidden'          => 'Your scheduling permission does not allow this action.',
-			'invalid_transition' => 'This appointment cannot change to that state. Canceled appointments stay in history.',
+			'resource_conflict'      => 'Already reserved. Change the horse, instructor, arena or time, then preview again.',
+			'rider_conflict'         => 'This rider already has an appointment. Choose another time.',
+			'outside_hours'          => 'This time is outside facility hours or a resource’s recorded availability. Check availability before continuing.',
+			'resource_hours_invalid' => 'Review the resource date, 15-minute weekly ranges, timezone, reason and repeat end date. Weekly ranges must not overlap; overnight ranges must be split across days.',
+			'resource_impact_limit'  => 'More than 2,000 future appointments need review. Ask the operator to narrow the resource change before saving.',
+			'service_in_use'         => 'This lesson type has protected booking history. Reconcile future bookings or choose a new lesson type before changing its rules.',
+			'horse_unsafe'           => 'The horse or its resource may be inactive, or suitability is missing. Review the horse’s resource, approved riders and services.',
+			'welfare_conflict'       => 'A protective block, workload limit or required horse break prevents this schedule. Review welfare and ride times.',
+			'capacity'               => 'The service capacity or training enrollment limit is exceeded. Reduce the roster or review the approved policy.',
+			'policy_incomplete'      => 'Facility policy is incomplete. Ask the pilot operator to finish approved settings before scheduling.',
+			'stale_revision'         => 'Someone changed the calendar. Your draft is retained. Review the latest calendar, then preview the draft again.',
+			'stale_appointment'      => 'This record changed. Your draft is retained; compare it with the current record before making a new edit.',
+			'commit_unknown'         => 'The save result is uncertain. Do not create another appointment. Retry the original command below to recover its result.',
+			'ambiguous_time'         => 'This time occurs twice when clocks go back. Choose the first or second occurrence.',
+			'nonexistent_time'       => 'This local time does not exist when clocks go forward. Choose another time.',
+			'booking_busy'           => 'The slot check took too long. Keep your draft and check starts again.',
+			'lesson_service'         => 'Choose an enabled lesson type with a duration in 15-minute increments.',
+			'lesson_grid'            => 'Choose a start on the 15-minute grid.',
+			'lesson_start'           => 'Choose a date and an available start slot.',
+			'lesson_rider'           => 'Choose the rider for this lesson.',
+			'lesson_horse'           => 'Choose a suitable horse, or use Advanced rotation for multiple horse turns.',
+			'lesson_resource'        => 'Choose every required instructor, arena or location before selecting a start.',
+			'hold_expiry'            => 'For a held appointment, choose its actual expiry before the lesson and within 24 hours.',
+			'service_duration'       => 'The finish must match the selected lesson type duration. Recheck the service and calculated finish.',
+			'invalid_time'           => 'Check local dates, service duration, hold expiry and cancellation notice. Times must be valid in the facility timezone.',
+			'forbidden'              => 'Your scheduling permission does not allow this action.',
+			'invalid_transition'     => 'This appointment cannot change to that state. Canceled appointments stay in history.',
 		);
 		$text     = $messages[ $reason ] ?? 'The command was not accepted. Review required fields and refresh before trying again.';
 		$detail   = $error->get_error_data()['detail'] ?? null;
@@ -602,6 +604,7 @@ class CSF_Scheduling_UI {
 			return; }
 		wp_enqueue_style( 'csf-scheduling-staff', plugins_url( '../assets/staff.css', __FILE__ ), array(), CSF_SCHEDULING_VERSION );
 		wp_enqueue_script( 'csf-scheduling-staff', plugins_url( '../assets/staff.js', __FILE__ ), array(), CSF_SCHEDULING_VERSION, true );
+		wp_enqueue_script( 'csf-scheduling-resources', plugins_url( '../assets/resources.js', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_script( 'csf-scheduling-catalog', plugins_url( '../assets/catalog.js', __FILE__ ), array(), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_script( 'csf-scheduling-routine', plugins_url( '../assets/routine.js', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_style( 'csf-scheduling-planner', plugins_url( '../assets/planner.css', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION );
@@ -721,7 +724,7 @@ class CSF_Scheduling_UI {
 		);
 		$nav = isset( $_POST['csf_calendar_view'] ) ? $_POST : $_GET;
 		if ( isset( $_POST['calendar_date'] ) ) {
-			check_admin_referer( 'csf_calendar_write' );
+			check_admin_referer( isset( $_POST['csf_resource_action'] ) ? 'csf_resource_review' : 'csf_calendar_write' );
 			$nav = array(
 				'date'     => isset( $_POST['calendar_date'] ) && is_string( $_POST['calendar_date'] ) ? sanitize_text_field( wp_unslash( $_POST['calendar_date'] ) ) : '',
 				'view'     => isset( $_POST['calendar_view'] ) && is_string( $_POST['calendar_view'] ) ? sanitize_text_field( wp_unslash( $_POST['calendar_view'] ) ) : '',
@@ -781,6 +784,7 @@ class CSF_Scheduling_UI {
 			$details[ $row['uuid'] ] = json_decode( CSF_Scheduling_Calendar::find( 'details', $row['uuid'] )['body_json'], true );
 		}
 		CSF_Scheduling_Planner::render( $date, $view, $filter, $rows, $details, $ctx, $p );
+		CSF_Scheduling_Resource_UI::render( $ctx, $p, self::$reviewed, $date, $view, $filter );
 		echo '<details class="csf-planner-list"><summary>Appointment list and details</summary><div id="csf-calendar-list" class="appointments">';
 		if ( is_wp_error( $rows ) ) {
 			echo '<p role="alert">Calendar blocked: configure facility policies and timezone before scheduling.</p>'; } elseif ( ! $rows ) {
@@ -907,7 +911,7 @@ class CSF_Scheduling_UI {
 				'resource_uuid' => $r['uuid'],
 				'intervals'     => array(),
 			);
-			echo '<details><summary>Availability: ' . esc_html( $r['label'] ) . ( $data['intervals'] ? ' · intervals recorded' : ' · unavailable until dates are added' ) . '</summary><ul>';
+			echo '<details><summary>Availability: ' . esc_html( $r['label'] ) . ( isset( $data['weekly'] ) && 'legacy' !== $data['weekly']['mode'] ? ' · weekly base configured; dated entries preserved' : ( $data['intervals'] ? ' · intervals recorded' : ' · unavailable until reviewed hours/dates are saved' ) ) . '</summary><ul>';
 			foreach ( $data['intervals'] as $interval ) {
 				echo '<li>' . esc_html( self::display_time( $interval['start'] ) . ' – ' . self::display_time( $interval['end'] ) ) . '</li>';
 			} echo '</ul>';
@@ -916,7 +920,7 @@ class CSF_Scheduling_UI {
 				array(
 					'uuid'     => $r['uuid'],
 					'expected' => $doc ? (int) $doc['revision'] : 0,
-					'data'     => $data,
+					'data'     => array_intersect_key( $data, array_flip( array( 'resource_uuid', 'intervals' ) ) ),
 				),
 				$ctx
 			);

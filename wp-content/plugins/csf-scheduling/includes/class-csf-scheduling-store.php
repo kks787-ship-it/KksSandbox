@@ -158,6 +158,20 @@ class CSF_Scheduling_Store {
 		return self::change( 'appointment_saved', $body, $revision, $command, true, $availability );
 	}
 
+	/** Resource preview uses the exact same lock and writer, then rolls back.
+	 *
+	 * @param string $kind Reviewed resource command.
+	 * @param array  $body Typed body.
+	 * @param int    $revision Global revision.
+	 * @param string $command Actor-bound UUID.
+	 * @return array|WP_Error
+	 */
+	public static function resource_preview( $kind, $body, $revision, $command ) {
+		if ( ! in_array( $kind, CSF_Scheduling_Resource_Hours::COMMANDS, true ) || ! is_array( $body ) || strlen( wp_json_encode( $body ) ) > 65536 ) {
+			return new WP_Error( 'invalid_body', 'Bounded resource command required.' ); }
+		return self::change( $kind, $body, $revision, $command, true );
+	}
+
 	/** Internal command dispatch. Every path rechecks caller authorization.
 	 *
 	 * @param string $kind Fixed operation.
@@ -285,7 +299,7 @@ class CSF_Scheduling_Store {
 				return $result;
 			} catch ( Throwable $error ) {
 				$wpdb->query( 'ROLLBACK' );
-				$reason = in_array( $error->getMessage(), array_merge( CSF_Scheduling_Calendar::ERRORS, array( 'service_in_use', 'schema_changed', 'command_conflict', 'stale_revision', 'resource_failed', 'write_failed', 'commit_unknown' ) ), true ) ? $error->getMessage() : 'storage_error';
+				$reason = in_array( $error->getMessage(), array_merge( CSF_Scheduling_Calendar::ERRORS, CSF_Scheduling_Resource_Hours::ERRORS, array( 'service_in_use', 'schema_changed', 'command_conflict', 'stale_revision', 'resource_failed', 'write_failed', 'commit_unknown' ) ), true ) ? $error->getMessage() : 'storage_error';
 				return new WP_Error(
 					'scheduling_write_failed',
 					'Command not acknowledged; retry the same UUID after resolving storage or revision conflict.',

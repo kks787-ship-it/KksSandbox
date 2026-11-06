@@ -214,6 +214,8 @@ class CSF_Scheduling_Permissions {
 			global $wpdb;
 			if ( in_array( $kind, CSF_Scheduling_Identity::COMMANDS, true ) ) {
 				return CSF_Scheduling_Identity::authorize( $kind, $b ); }
+			if ( in_array( $kind, CSF_Scheduling_Resource_Hours::COMMANDS, true ) ) {
+				return CSF_Scheduling_Resource_Hours::authorize( $kind, $b ); }
 			$map = array(
 				'policy_replaced'      => 'policy_manage',
 				'resource_created'     => 'resource_manage',

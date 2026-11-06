@@ -1,0 +1,306 @@
+{
+  "scope": "local candidate; protected source/runtime deployment pending",
+  "version": "0.4.7",
+  "schema": 3,
+  "tables": 15,
+  "scheduler_files": 31,
+  "MFA_provider_files_unchanged": 25,
+  "release_hash": "c923da8c4afbbcf707494c091e36a98fbef93eba60ea9e6cb70d3662fb01e9be",
+  "release_hash_format": "CSF_Scheduling_Identity::release_hash: version, MFA adapter version and sorted scheduling/MFA relative-path SHA-256 map, WordPress JSON",
+  "base_commit": "b21c95ac2a08362cdb2a72116da21f39cd5f628f",
+  "prior_scheduler_candidate": "c2783b5e3f6eba046b97e5dc517a198517532377",
+  "changed_paths": [
+    "wp-content/plugins/csf-scheduling/assets/resources.js",
+    "wp-content/plugins/csf-scheduling/assets/staff.css",
+    "wp-content/plugins/csf-scheduling/csf-scheduling.php",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-calendar.php",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-permissions.php",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-planner.php",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-resource-hours.php",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-resource-ui.php",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-store.php",
+    "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-ui.php"
+  ],
+  "files": [
+    {
+      "path": "wp-content/plugins/csf-mfa/csf-mfa.php",
+      "sha256": "c522b717bb58d442c312525914bd406128dfa7f855d5e6233f6416456886d409",
+      "git_blob": "3b109daeaaa09103e1a8efb3a19dbc128d106eb2"
+    },
+    {
+      "path": "wp-content/plugins/csf-mfa/includes/class-csf-mfa-admin.php",
+      "sha256": "daf451e4ffe14096d583af93ef821a2bf14c7d774bb062e95054abfb5d02c5fe",
+      "git_blob": "04da8ed78323080adeddaea5ed8829bb04bfe903"
+    },
+    {
+      "path": "wp-content/plugins/csf-mfa/includes/class-csf-mfa-session.php",
+      "sha256": "5f0ca5f4d1dd0b0565b3aabc04fd70619d3e3db2bc229cab178c8597c94c47e1",
+      "git_blob": "098761b02647850d9becc0babeca512a68b885bd"
+    },
+    {
+      "path": "wp-content/plugins/csf-mfa/provider-files.json",
+      "sha256": "2cd20e97ac12d4ef67b942964e022930c6ce3b0e4c272e43c9b9363e01142707",
+      "git_blob": "6037cb2b3c67d4cd84a9b282539f2176ff407a31"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/catalog.js",
+      "sha256": "172db66f548774e4219a5b60896a5e6dcc071fd607ebd66b211a244056417777",
+      "git_blob": "6d47bedf14a2ada955ff1dbd0016a45b7919bce5"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/planner.css",
+      "sha256": "5e72209248493889a5bfe4ac56fb8caae69b12eb67e99671b31846471030f656",
+      "git_blob": "b0b1e755d06907c6e86fbba3f127292f026e5fb4"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/planner.js",
+      "sha256": "d921c2ad51850d485a53f94a500783f3a73c769fe980417e382a5690742f3899",
+      "git_blob": "8505ab17f6057f795ff91789f758b906684510ba"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/resources.js",
+      "sha256": "9a68ef83b643b2396811d928e8660bca54db3232f98a17c97dbc5c734f32b3ac",
+      "git_blob": "65ad361fb5934a542dccb817deddc49c7280fcdf"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/routine.js",
+      "sha256": "78f9c12277d845d1e04becc21020c75357bdaae90014e9520581d6cb4310be80",
+      "git_blob": "d73cd7619349359d02d37ffef4a669f9a102ea04"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/staff.css",
+      "sha256": "fb9921330aa9fc8bc2283fa9bd4fc9c519a844fd9ba3aadacd61ff05e41b087f",
+      "git_blob": "2397a378059068397cb904631f753dbadd6af7d7"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/staff.js",
+      "sha256": "d772e6f1db2a128500aa2d1b1735da1f04073e7163ff5a614dcff8f9ae3cd89d",
+      "git_blob": "35f1692068b1825ada12294bb8b17a2ff3bb3e0b"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/team.css",
+      "sha256": "dfb011f9be9f69235de1095b66149bedbda9c0233a55c3759999028d439da1a2",
+      "git_blob": "9ff85cda2875b1267b081b819ae64c3c0cdd0f99"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/team.js",
+      "sha256": "bba2067c47062975053d72543a4fec7522b94fee8b60d6d4f839d8e24e777d6e",
+      "git_blob": "99a2d70dfa0fee7b7004b09b38b9edffc43a5418"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/csf-scheduling.php",
+      "sha256": "1975e3df907477783d6eb082cf434bbb98e79c3ffe48f5ca06f87a3b6bac92a5",
+      "git_blob": "0e76f7c3d0989c0edc1249148a508eb6e0f64099"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-access.php",
+      "sha256": "9f9fc644d0308beb0f8c36dbc05e7a3b51468f49276117023d95ce81712393e0",
+      "git_blob": "5908d5999437e28549d34cac83a33e4e7f895c8c"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-admin.php",
+      "sha256": "3d3c582d65b389392f542b49b0320de5d5a12aaf4b69a2c07c162602b868bfb9",
+      "git_blob": "cb4120b8cf7bd13894aa27f75416148eba401aac"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-audit.php",
+      "sha256": "af94cee23715731aec0f7e0df79e2886d5fae976986405c4b2da071827114a94",
+      "git_blob": "884d3c8d5a9840944c4b82e17edac86aaea77f00"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-booking.php",
+      "sha256": "edb15a684c4cb9975c1414eb22ac01ae56576fe34ca172a9966d98a78d15bf06",
+      "git_blob": "0f6f77e78310be8ebc3f0d7fb4b2d45205d23104"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-calendar.php",
+      "sha256": "487c61b7bbdb992a4696fe3998f9b23fa4d23b60888b89c5d6917f466c6a1ef5",
+      "git_blob": "fda20a5d0c3afcca7d64889882667a135a55d08e"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-catalog.php",
+      "sha256": "8a254949409774e0da685fac41f1392038b00c35bb0ea154f9a9ebe1844e3094",
+      "git_blob": "430f163f0ae2884ff8d9c0a1e1be1d1406b8f2a5"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-cli.php",
+      "sha256": "e5e1a26a776b87eff22156b5e99fbc54151cd7d0843596523d16e1f8222f9ec0",
+      "git_blob": "cb60e24ee561073ef1e5a38b3ffe489baa12d0fc"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-conflict.php",
+      "sha256": "75fba13414d029aae6c27396ff4cfe80780fcc72a391f02cb13a6c98873c51c1",
+      "git_blob": "ac09cbc27363afc829bf7c22cc2e81a4155c5051"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-diagnostics.php",
+      "sha256": "4ad08bafd57b93b9a782f7b5c16541ecd72877d2441151d3b98296add1e56185",
+      "git_blob": "4ceab9df1451c8c5528cbce14325abef519a4adf"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-identity.php",
+      "sha256": "c470f8f31746526e44ba3a3236533137e982fe46397d43c07e9555baca17ab4b",
+      "git_blob": "8e9e41d373c67369e6389bce64d37c70f42825bd"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-permissions.php",
+      "sha256": "5205c68c5d875178c31150ae7e03645c0779bc7e0fad664d96ce6fd56c47623b",
+      "git_blob": "99d24805e2a0584f3fb2166671736c5aff4cdb90"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-planner.php",
+      "sha256": "804cfab5b40871d06579e2062f854eea91d0c0d341cdf7be2e2945e626133320",
+      "git_blob": "fc79720b49f652fa5180c6ec585366300e15799a"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-policy.php",
+      "sha256": "f4c580ec2d71982172ae7e764864ba69d0384a180071badbf4cdc152d5ee2e3f",
+      "git_blob": "ce1d93ba4e85f8aa69b13cebb8e08b906f86feb1"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-resource-hours.php",
+      "sha256": "4a14cdd19e2610252ea928291ca63ca8e2c803ce3b0b2428e3d59b03085b8bc4",
+      "git_blob": "8e3abf6746c8584000e8b2cca471bb3d4b6966c5"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-resource-ui.php",
+      "sha256": "602d7ff2b95b9e38738abed5dc56c59ad809b7039eac8de019f754a90cd46de9",
+      "git_blob": "529dad57dc08fbdf1b8d4115473273ae3b4ee853"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-schema.php",
+      "sha256": "20267dec58e77d65fd25e68e45fc0083981e0672779926dde1d3c512fd001c1a",
+      "git_blob": "589a298efd13af86ac420bb3f134e29a9a22b758"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-settings.php",
+      "sha256": "43b03168fab4e4e590918eb3267e8ccb5bbc86557a4f2e30b0d54098e7de5bb5",
+      "git_blob": "ba03db162f7a2bf9b473eb856afdde8a8cd7f891"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-store.php",
+      "sha256": "e6e33b485864e7a24d3a6260d7572922e53aa496f8fa9693f526a528b6b02822",
+      "git_blob": "b36820fbc0ce93630910ab1c91f82b9bce8cd3bb"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-team.php",
+      "sha256": "c9d71f2ded98eaa258a2ce2c00bd4d12663485b71d850e63c985dae3c8ca774d",
+      "git_blob": "bf681a070f301a8922a46239945aa3e6e38ccc41"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-time.php",
+      "sha256": "cef24403a438357626d968c21d72699aebdeb56784856efdb32ef94866b81279",
+      "git_blob": "307b0509352d38ca080ca2973326d837541528a6"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-ui.php",
+      "sha256": "b034e76c9f024133b991ff978ee647435f7459408da2cac11d9c2043fa6fccf2",
+      "git_blob": "050b73c46e54b20733d475206819357eefc6b0cb"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/CLI/class-two-factor-cli-command.php",
+      "sha256": "0ec5a422591a813b80a0be9dcf0cad8af10adf14495c6fe7daab4f8a5091c3c6",
+      "git_blob": "c81bf80b5493de386e78bf58bcb3205f0020c894"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/LICENSE.md",
+      "sha256": "d8c320ffc0030d1b096ae4732b50d2b811cf95e9a9b7377c1127b2563e0a0388",
+      "git_blob": "d8cf7d463e2a4f064a157fa994bb394d3623b9cc"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/class-two-factor-compat.php",
+      "sha256": "a9a4970138a5db17262cbd7a158aa768a42193548c9041211e78b5a399bda091",
+      "git_blob": "355b9a58da8f2e143389c8a6856df9ae725a57c9"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/class-two-factor-core.php",
+      "sha256": "9dc40cf51efa6349ced14f9406ade30a4a0529a54867d2d69b52ceed8483dfed",
+      "git_blob": "5fdf1232f9e8ea9cd6585ec9f4980ed23d47ecd4"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/includes/function.login-footer.php",
+      "sha256": "055dd9305b3e7f8edb7123e6f24df074293cbd03cb9c499b8e95c765c71af6bd",
+      "git_blob": "1d4518a56e675b20efe9b2ae0c34cc50f37f5d6e"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/includes/function.login-header.php",
+      "sha256": "0cbaf3a7947fc9ffd52e4f208ecfd44deae356a73086b2b2adffbce50547791b",
+      "git_blob": "fc1a9d89ec590cdc8d60b27ef8b16d795c88de56"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/includes/qrcode-generator/qrcode.js",
+      "sha256": "79ec86f82856005b1c887905cfccfcfbec3821ca61c7fd5a952faa5f778f791c",
+      "git_blob": "df13f829bf41f36b82f0ed85751ed3b4c39cfeb8"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/class-two-factor-backup-codes.php",
+      "sha256": "4404f5ff8248c8d9d8bbe4acdabe5b347477747b72f6b8599076b62fb6246716",
+      "git_blob": "ec958a3d429d9fb5557a78fc6e779f16e7dd2569"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/class-two-factor-dummy.php",
+      "sha256": "cfd4d1249371fa291de2a8a8de5d341d7cf19fab75ced3c2e7bd3eddb644ef38",
+      "git_blob": "fc81e03bb5e53d1bc6f3d00aeb7256564b7dc5f2"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/class-two-factor-email.php",
+      "sha256": "b4391b28bbb23d41793fe2278a6dceae513f14301704d13d25469bc3c52d9808",
+      "git_blob": "aafb7a0d8282cd73f07a59c98d51e3127315843a"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/class-two-factor-provider.php",
+      "sha256": "5f4ee21f3cc81e16aac83e281488db7df9f51227ba299239c26a995195278abb",
+      "git_blob": "5659309b4ea25ad9aabb8f9148623dd3a518abf8"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/class-two-factor-totp.php",
+      "sha256": "770c9081ff0e9b1441030cda1b2b9d5cb21663fc8063e3c8476dcc1c4d8caecb",
+      "git_blob": "55c602fc2d4eb85f04f5689cec9fa612f2c4475f"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/js/backup-codes-admin.js",
+      "sha256": "61dc1a32fdf433afd2e7b871794ad10556456d8965bdd8b894a69ecb02920efe",
+      "git_blob": "9349e379afe2399b98001a8d1aa181301c76c950"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/js/totp-admin-qrcode.js",
+      "sha256": "3fc587b514a8bdc3457acd8935a91d45589ab0bff72f2d1adb98aeac4f9f570b",
+      "git_blob": "cb898d0716e9573a2c632024a6f8e4fc199d6dad"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/js/totp-admin.js",
+      "sha256": "70fba39163b757ff3e4c3d79f1f3e2fd1ae01240a6bf0fc281f40253d2645b4d",
+      "git_blob": "9650a2fdf4007b6b4dd20528f97cfb847bd1c296"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/js/two-factor-login-authcode.js",
+      "sha256": "d4448ff9f96b9f3a3e238aba2c3f1c9430148bc935b4d35fb8e841571fbfd514",
+      "git_blob": "8d1f8434a675f609a34b5cdb2f1ec97657cc0418"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/providers/js/two-factor-login.js",
+      "sha256": "f0b1441a1d7d28b771a86277f536932d1d01956c2f3ef7e391a9d1e355f07184",
+      "git_blob": "e996e8181f1b0f484eac835e82f0b10a229a8c46"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/readme.txt",
+      "sha256": "7ad1492037e147615925c90d37cf6614dfca64e44d0e06d0be53c165db789704",
+      "git_blob": "1d863d49fec2f13643fb154e53e1aca786c49c71"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/settings/class-two-factor-settings.php",
+      "sha256": "bff05e59bfff263c126bc1e1dcbc4b445349ff479cf943b1c6ced2e0c3637c06",
+      "git_blob": "b8fc47335630a7da10cd9b01248d88e445e58dd1"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/two-factor.php",
+      "sha256": "1f9bdff5f23c88d5f395dc1f88ead65779b8ec4a06ee04bf61448fce5d41a20b",
+      "git_blob": "6c3909fb56235a14f28212e9af918bfee469ab47"
+    },
+    {
+      "path": "wp-content/plugins/two-factor/user-edit.css",
+      "sha256": "e712c7e4920f6c13bd31c47fbe47417eecad3aaf396980e652b64d073e1e7ccb",
+      "git_blob": "83cef064b2d889ac2800a6e30d4dfdf332b9b92d"
+    }
+  ]
+}

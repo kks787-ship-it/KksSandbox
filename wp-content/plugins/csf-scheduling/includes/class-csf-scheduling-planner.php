@@ -127,9 +127,28 @@ class CSF_Scheduling_Planner {
 		$lanes        = array();
 		$availability = array();
 		foreach ( CSF_Scheduling_Calendar::documents( 'availability' ) as $doc ) {
-			$availability[ $doc['entity_uuid'] ] = $doc['data']['intervals'];
+			$availability[ $doc['entity_uuid'] ] = isset( $doc['data']['weekly'] ) ? CSF_Scheduling_Resource_Hours::project( $doc['data'], $date, $days, $p ) : $doc['data']['intervals'];
 		}
 		$restrictions = CSF_Scheduling_Calendar::documents( 'restrictions' );
+		$expanded     = array();
+		foreach ( $restrictions as $restriction ) {
+			if ( 'resource_closure' !== ( $restriction['data']['closure_kind'] ?? null ) ) {
+				$expanded[] = $restriction;
+				continue; }
+			foreach ( CSF_Scheduling_Resource_Hours::closure_windows( $restriction['data'], $first, $first->modify( '+' . $days . ' days' ) ) as $window ) {
+				$copy                  = $restriction;
+				$copy['data']['start'] = $window['start'];
+				$copy['data']['end']   = $window['end'];
+				$expanded[]            = $copy; }
+		}
+		$restrictions = $expanded;
+		$manageable   = array();
+		if ( CSF_Scheduling_Access::can( 'availability_manage' ) && CSF_Scheduling_Access::can( 'resource_view' ) ) {
+			foreach ( $ctx['resource_rows'] as $r ) {
+				if ( in_array( $r['kind'], array( 'arena', 'instructor', 'location' ), true ) ) {
+					$manageable[] = $r['uuid']; }
+			}
+		}
 		foreach ( $ctx['resource_rows'] as $r ) {
 			if ( ! (int) $r['active'] ) {
 				$availability[ $r['uuid'] ] = array();
@@ -189,6 +208,8 @@ class CSF_Scheduling_Planner {
 			}
 			echo '</select></label>';
 		}
+		if ( $manageable ) {
+			echo '<button type="button" class="button csf-resource-mode" aria-pressed="false">Manage resource availability</button><label><input type="checkbox" class="csf-resource-range"> Two-tap range selection</label><p class="csf-resource-mode-status" role="status">Use a specific instructor/arena lane or calendar resource filter. Booking mode is unchanged until you enable resource selection.</p>'; }
 		echo '<div class="csf-planner-scroll" tabindex="0" role="region" aria-label="Scrollable visual schedule"><div class="csf-planner-columns" style="--columns:' . esc_attr( $days * count( $lanes ) ) . '">';
 		for ( $day_index = 0; $day_index < $days; ++$day_index ) {
 			$day   = $first->modify( '+' . $day_index . ' days' );
@@ -249,7 +270,18 @@ class CSF_Scheduling_Planner {
 
 					$status = self::status( $tick, (int) $day->format( 'w' ), $mapped, $p, $availability, $lane_blocks, $events );
 
-					echo '<div class="csf-planner-tick" style="--index:' . esc_attr( $index ) . '"><span>' . esc_html( $tick['label'] ) . '</span><button type="button" class="csf-planner-slot ' . ( $status ? 'csf-slot-closed' : 'csf-slot-candidate' ) . '" data-local="' . esc_attr( $tick['local'] ) . '" data-choice="' . esc_attr( $tick['iso'] ) . '" data-resource="' . esc_attr( $resource ) . '" aria-label="' . esc_attr( $day->format( 'D M j' ) . ', ' . $tick['label'] . ', ' . $label . ': ' . ( $status ? $status : 'Open candidate; create a lesson draft' ) ) . '"' . ( $status || ! $can_create ? ' disabled' : '' ) . '>' . esc_html( $status ? $status : '+' ) . '</button></div>';
+					echo '<div class="csf-planner-tick" style="--index:' . esc_attr( $index ) . '"><span>' . esc_html( $tick['label'] ) . '</span><button type="button" class="csf-planner-slot ' . ( $status ? 'csf-slot-closed' : 'csf-slot-candidate' ) . '" data-local="' . esc_attr( $tick['local'] ) . '" data-choice="' . esc_attr( $tick['iso'] ) . '" data-resource="' . esc_attr( $resource ) . '" aria-label="' . esc_attr( $day->format( 'D M j' ) . ', ' . $tick['label'] . ', ' . $label . ': ' . ( $status ? $status : 'Open candidate; create a lesson draft' ) ) . '"' . ( $status || ! $can_create ? ' disabled' : '' ) . '>' . esc_html( $status ? $status : '+' ) . '</button>';
+					if ( in_array( $resource, $manageable, true ) ) {
+						$ids   = array();
+						$start = new DateTimeImmutable( $tick['iso'] );
+						$end   = $start->setTimestamp( $start->getTimestamp() + 900 );
+						foreach ( $lane_blocks as $block ) {
+							if ( $block['entity_uuid'] === $resource && 'resource_closure' === ( $block['data']['closure_kind'] ?? null ) && empty( $block['data']['released'] ) && strtotime( $block['data']['start'] ) < $end->getTimestamp() && strtotime( $block['data']['end'] ) > $start->getTimestamp() ) {
+								$ids[] = $block['uuid']; }
+						}
+						echo '<button type="button" class="csf-resource-slot" data-resource="' . esc_attr( $resource ) . '" data-start="' . esc_attr( $tick['iso'] ) . '" data-end="' . esc_attr( $end->format( 'Y-m-d\TH:iP' ) ) . '" data-closures="' . esc_attr( implode( ',', array_unique( $ids ) ) ) . '" aria-label="' . esc_attr( 'Manage ' . $label . ', ' . $day->format( 'D M j' ) . ' ' . $tick['label'] . ( $status ? ': ' . $status : ': candidate' ) ) . '">' . esc_html( $ids ? 'Review / reopen closure' : ( $status ? 'Close / review: ' . $status : 'Select closure period' ) ) . '</button>';
+					}
+					echo '</div>';
 				}
 				foreach ( $events as $event ) {
 					$row   = $event['row'];

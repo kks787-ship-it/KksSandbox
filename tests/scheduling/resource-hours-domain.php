@@ -1,0 +1,72 @@
+<?php
+// Disposable synthetic fixture only; never uses a farm config or grants real access.
+if(ABSPATH!=='/test/site/'||DB_NAME!=='csf_fixture'||wp_get_environment_type()!=='local')throw new RuntimeException('Fixture only');
+ob_start();require '/repo/tests/scheduling/auto-slot-fixture.php';$ids=json_decode(ob_get_clean(),true);
+$checks=0;$check=static function($v,$m)use(&$checks){if(!$v)throw new RuntimeException($m);++$checks;};
+$rev=static fn()=>(int)CSF_Scheduling_Schema::settings()['revision'];
+$cmd=static fn($k,$b,$revision=null,$id=null)=>CSF_Scheduling_Store::calendar($k,$b,$revision??$rev(),$id??wp_generate_uuid4());
+$policy=static fn()=>json_decode(CSF_Scheduling_Schema::settings()['policy_json'],true);$p=$policy();
+$doc=static fn($id)=>CSF_Scheduling_Calendar::find('availability',$id);
+$data=static fn($id)=>json_decode(CSF_Scheduling_Calendar::find('availability',$id)['body_json'],true);
+$hourBody=static fn($id,$mode,$periods=array())=>array('uuid'=>$id,'expected'=>($doc($id)?(int)$doc($id)['revision']:0),'impact_acknowledged'=>true,'data'=>array('mode'=>$mode,'timezone'=>'America/Los_Angeles','from'=>'2027-01-01','periods'=>$periods));
+$hours=static fn($id,$mode,$periods=array())=>$cmd('resource_hours_saved',$hourBody($id,$mode,$periods));
+$legacy=$data($ids['arena'])['intervals'];$b=$hourBody($ids['arena'],'inherit');
+global$wpdb;$snapshot=static function()use($wpdb){$out=array();foreach(CSF_Scheduling_Schema::definitions()as$n=>$v){$t=CSF_Scheduling_Schema::table($n);$out[$n]=$wpdb->get_results("SELECT * FROM `$t` ORDER BY 1",ARRAY_A);}return wp_json_encode($out);};
+$before=$snapshot();$check(!is_wp_error(CSF_Scheduling_Store::resource_preview('resource_hours_saved',$b,$rev(),wp_generate_uuid4()))&&$before===$snapshot(),'Resource preview leaves all fifteen tables byte-identical');
+$version=$rev();$command=wp_generate_uuid4();$r=$cmd('resource_hours_saved',$b,$version,$command);$check(!is_wp_error($r)&&$r['affected_appointments']===0,'Inherited base saved');$check($cmd('resource_hours_saved',$b,$version,$command)===$r,'Hours exact replay idempotent');
+$check($data($ids['arena'])['intervals']===$legacy,'Original dated intervals preserved');
+$bad=$b;$bad['data']['from']='2027-02-30';$check(is_wp_error($cmd('resource_hours_saved',$bad)),'Impossible effective date rejected');
+$check(is_wp_error($cmd('resource_hours_saved',$hourBody($ids['arena'],'inherit'),$version)),'Stale global revision rejected');
+$periods=array(array('weekday'=>1,'start'=>'08:00','end'=>'10:00'),array('weekday'=>1,'start'=>'11:00','end'=>'18:00'));
+$check(!is_wp_error($hours($ids['arena'],'custom',$periods)),'Split Monday weekly hours saved');
+$covers=static fn($d,$a,$z,$policy=null)=>CSF_Scheduling_Resource_Hours::covers($d,new DateTimeImmutable($a),new DateTimeImmutable($z),$policy??$p);
+$check($covers($data($ids['arena']),'2027-01-25T09:00-08:00','2027-01-25T10:00-08:00'),'Configured weekday covered');
+$check(!$covers($data($ids['arena']),'2027-01-25T09:30-08:00','2027-01-25T11:30-08:00'),'Split-day gap never bridged');
+$check(!$covers($data($ids['arena']),'2027-01-26T09:00-08:00','2027-01-26T10:00-08:00'),'Unlisted weekday remains closed');
+foreach(array(array('weekday'=>1,'start'=>'09:15','end'=>'11:30'),array('weekday'=>1,'start'=>'08:01','end'=>'09:00'),array('weekday'=>7,'start'=>'08:00','end'=>'09:00'),array('weekday'=>1,'start'=>'22:00','end'=>'02:00'))as$period){$x=$periods;$x[]=$period;$check(is_wp_error($hours($ids['arena'],'custom',$x)),'Overlapping/non-grid/invalid/overnight period rejected');}
+$changed=$p;$changed['timezone']='UTC';$check(!$covers($data($ids['arena']),'2027-01-25T09:00-08:00','2027-01-25T10:00-08:00',$changed),'Timezone mismatch closes weekly base until review');
+$legacyBody=array('uuid'=>$ids['arena'],'expected'=>(int)$doc($ids['arena'])['revision'],'data'=>array('resource_uuid'=>$ids['arena'],'intervals'=>$legacy));$w=$data($ids['arena'])['weekly'];$check(!is_wp_error($cmd('availability_saved',$legacyBody))&&$data($ids['arena'])['weekly']===$w,'Legacy interval editing cannot erase recurring base');
+$appointment=array('uuid'=>wp_generate_uuid4(),'expected'=>0,'title'=>'Synthetic resource-hours appointment','service_type'=>'pilot_ground_60','state'=>'confirmed','start'=>'2027-01-25T09:00-08:00','end'=>'2027-01-25T10:00-08:00','hold_expires'=>null,'resources'=>array($ids['instructor'],$ids['arena']),'riders'=>array(),'rides'=>array());
+$check(!is_wp_error($cmd('appointment_saved',$appointment)),'Real engine books inside reviewed weekly hours');
+$x=$appointment;$x['uuid']=wp_generate_uuid4();$x['start']='2027-01-26T09:00-08:00';$x['end']='2027-01-26T10:00-08:00';$check(is_wp_error($cmd('appointment_saved',$x)),'Real engine rejects closed weekday');
+$closed=array('uuid'=>wp_generate_uuid4(),'expected'=>0,'impact_acknowledged'=>true,'data'=>array('target_uuid'=>$ids['arena'],'start'=>'2027-01-25T09:00-08:00','end'=>'2027-01-25T10:00-08:00','category'=>'unavailable','note'=>'Synthetic weekly arena maintenance','repeat_until'=>'2027-02-08'));
+$before=$snapshot();$r=CSF_Scheduling_Store::resource_preview('resource_closure_added',$closed,$rev(),wp_generate_uuid4());$check(!is_wp_error($r)&&$r['affected_appointments']===1&&$before===$snapshot(),'Closure preview counts existing booking without changing it');
+$check(!is_wp_error($cmd('resource_closure_added',$closed)),'Reviewed recurring closure committed');
+$otherArena=wp_generate_uuid4();$otherResource=CSF_Scheduling_Store::resource(array('uuid'=>$otherArena,'kind'=>'arena','label'=>'Synthetic unrelated arena'),$rev(),wp_generate_uuid4());$check(!is_wp_error($otherResource),'Independent arena created');
+$check(!is_wp_error($cmd('availability_saved',array('uuid'=>$otherArena,'expected'=>0,'data'=>array('resource_uuid'=>$otherArena,'intervals'=>$legacy)))),'Independent arena retains its own availability');
+$otherLesson=$appointment;$otherLesson['uuid']=wp_generate_uuid4();$otherLesson['start']='2027-02-01T09:00-08:00';$otherLesson['end']='2027-02-01T10:00-08:00';$otherLesson['resources']=array($ids['instructor'],$otherArena);$check(!is_wp_error(CSF_Scheduling_Store::preview($otherLesson,$rev(),wp_generate_uuid4())),'Closure on one arena never blocks unrelated arena or instructor');
+
+$restriction=static fn($id)=>CSF_Scheduling_Calendar::find('restrictions',$id);
+$restrictionData=static fn($id)=>json_decode(CSF_Scheduling_Calendar::find('restrictions',$id)['body_json'],true);
+$blocks=static fn($d,$a,$z)=>CSF_Scheduling_Resource_Hours::blocks($d,new DateTimeImmutable($a),new DateTimeImmutable($z));
+$check($blocks($restrictionData($closed['uuid']),'2027-02-01T09:15-08:00','2027-02-01T09:30-08:00'),'Weekly closure protects later occurrence');
+$check(!$blocks($restrictionData($closed['uuid']),'2027-02-15T09:15-08:00','2027-02-15T09:30-08:00'),'Closure stops after inclusive repeat end');
+$x=$appointment;$x['expected']=1;$check(is_wp_error(CSF_Scheduling_Store::preview($x,$rev(),wp_generate_uuid4())),'Existing booking flagged; not silently canceled/reassigned');
+$rows=CSF_Scheduling_Calendar::view('2027-01-25','day',$ids['arena']);$check(!is_wp_error($rows)&&$rows[0]['welfare_review']&&$rows[0]['state']==='confirmed','Read model retains confirmed booking and review warning');
+$release=static fn($id,$date)=>array('uuid'=>$id,'expected'=>(int)$restriction($id)['revision'],'impact_acknowledged'=>true,'data'=>array('note'=>'Synthetic reviewed reopening','date'=>$date));
+$check(is_wp_error($cmd('resource_closure_released',$release($closed['uuid'],'2027-01-26'))),'Wrong weekday exception rejected');
+$check(!is_wp_error($cmd('resource_closure_released',$release($closed['uuid'],'2027-01-25'))),'Single weekly occurrence reopened');
+$check(!$blocks($restrictionData($closed['uuid']),'2027-01-25T09:15-08:00','2027-01-25T09:30-08:00')&&$blocks($restrictionData($closed['uuid']),'2027-02-01T09:15-08:00','2027-02-01T09:30-08:00'),'Exception removes only the chosen occurrence');
+$check(!is_wp_error(CSF_Scheduling_Store::preview($x,$rev(),wp_generate_uuid4())),'Actual engine honors reopened occurrence');
+$legacyRestriction=wp_generate_uuid4();$check(!is_wp_error($cmd('restriction_added',array('uuid'=>$legacyRestriction,'expected'=>0,'data'=>array('target_uuid'=>$ids['arena'],'start'=>'2027-01-25T09:00-08:00','end'=>'2027-01-25T09:30-08:00','reason'=>'protected_training')))),'Independent existing protection recorded');
+$check(is_wp_error($cmd('resource_closure_released',$release($legacyRestriction,null))),'Resource reopening cannot release another restriction namespace');
+$check(is_wp_error(CSF_Scheduling_Store::preview($x,$rev(),wp_generate_uuid4())),'Reopened date does not bypass other protective block');
+$check(!is_wp_error($cmd('resource_closure_released',$release($closed['uuid'],null))),'Whole-series release separately reviewed');
+$check(!$blocks($restrictionData($closed['uuid']),'2027-02-01T09:15-08:00','2027-02-01T09:30-08:00'),'Whole-series release stops remaining recurrence');
+$bad=$closed;$bad['uuid']=wp_generate_uuid4();$bad['data']['repeat_until']='2029-01-01';$check(is_wp_error($cmd('resource_closure_added',$bad)),'Unbounded/overlong repeat rejected');
+$bad=$hourBody($ids['arena'],'inherit');$bad['impact_acknowledged']=false;$check(is_wp_error($cmd('resource_hours_saved',$bad)),'Explicit impact acknowledgement required');
+$before=$snapshot();$inject=static fn($q)=>str_starts_with($q,'INSERT INTO `'.CSF_Scheduling_Schema::table('history').'`')?'SELECT * FROM resource_missing_fixture':$q;$wpdb->suppress_errors(true);add_filter('query',$inject);$r=$hours($ids['arena'],'inherit');remove_filter('query',$inject);$check(is_wp_error($r)&&$snapshot()===$before,'History failure rolls back resource state and ledger');
+// Conservative DST semantics use the existing PHP instant choices.
+$d=array('resource_uuid'=>$ids['arena'],'intervals'=>array(),'weekly'=>array('mode'=>'custom','timezone'=>$p['timezone'],'from'=>'2027-01-01','periods'=>array(array('weekday'=>0,'start'=>'01:30','end'=>'02:30'))));
+$check(!$covers($d,'2027-11-07T01:30-07:00','2027-11-07T01:45-07:00')&&$covers($d,'2027-11-07T01:30-08:00','2027-11-07T01:45-08:00'),'Repeated opening uses later start, never widens availability');
+$d['weekly']['periods'][0]=array('weekday'=>0,'start'=>'02:30','end'=>'03:30');$check(!$covers($d,'2027-03-14T03:00-07:00','2027-03-14T03:15-07:00'),'Missing weekly opening boundary stays closed');
+$d['weekly']['periods'][0]=array('weekday'=>0,'start'=>'00:00','end'=>'04:00');$check($covers($d,'2027-11-07T00:00-07:00','2027-11-07T04:00-08:00'),'Unambiguous boundaries cover real five-hour fold interval');
+$pattern=array('released'=>false,'recurrence'=>array('timezone'=>$p['timezone'],'from'=>'2027-03-07','until'=>'2027-03-21','weekday'=>0,'start'=>'02:30','end'=>'03:00'),'reopen_dates'=>array());$check($blocks($pattern,'2027-03-14T00:00-08:00','2027-03-14T00:15-08:00'),'Missing closure boundary conservatively protects entire date');
+$pattern['recurrence']=array('timezone'=>$p['timezone'],'from'=>'2027-10-31','until'=>'2027-11-14','weekday'=>0,'start'=>'01:30','end'=>'02:00');$check($blocks($pattern,'2027-11-07T01:30-07:00','2027-11-07T01:45-07:00')&&$blocks($pattern,'2027-11-07T01:30-08:00','2027-11-07T01:45-08:00'),'Protective weekly boundary covers both fold occurrences');
+// Preserve original booking and clear only synthetic protections for browser cases.
+$check(!is_wp_error($cmd('restriction_released',array('uuid'=>$legacyRestriction,'expected'=>1,'reason'=>'Synthetic fixture cleanup'))),'Fixture operator releases its independent protection through original rights');
+$check(!is_wp_error($hours($ids['arena'],'inherit'))&&!is_wp_error($hours($ids['instructor'],'inherit')),'Portable arena/instructor inherited base prepared');
+wp_set_current_user(0);$check(is_wp_error($hours($ids['arena'],'inherit')),'Anonymous recurring-hours write denied');wp_set_current_user(1);
+$check($data($ids['arena'])['intervals']===$legacy,'Dated entries still preserved after all operations');
+$check(count(CSF_Scheduling_Schema::definitions())===15&&CSF_Scheduling_Schema::inspect()['ready'],'No physical schema migration');
+$ids['domain_checks']=$checks;$ids['appointment']=$appointment['uuid'];file_put_contents('/test/resource-hours-fixture.json',wp_json_encode($ids));echo wp_json_encode($ids);

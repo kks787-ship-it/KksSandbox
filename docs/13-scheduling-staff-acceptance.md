@@ -142,3 +142,8 @@ Enable a type only after completing its rules and explicitly reviewing resource 
 In the planner, select an open 15-minute start, then the enabled lesson type. Check its calculated finish, resource/horse suitability and normal preview before saving a fictional appointment. Open its details and verify **Lesson type (as booked)**. Disable an unused type and confirm it disappears from new-booking choices while history remains readable. Actual protected-site acceptance belongs to the owner; local browser checks are not a substitute.
 
 After any catalog policy edit, do not downgrade to 0.4.5: its validator does not understand catalog metadata. Prefer a compatible forward fix. A database rollback requires separately reviewed recovery that preserves newer owner changes; never strip metadata or overwrite records automatically.
+
+
+## Native weekly resource hours and visual closures
+
+Scheduling 0.4.7 adds explicit arena/instructor/location weekly bases, reviewed closures, weekly repetition and one-occurrence reopening. Follow the [increment walkthrough and rollback limits](test-results/scheduling-resource-hours.md). Source installation does not choose real farm hours. Verify affected appointments manually; this release never silently cancels them and does not yet implement family-session buffers.
