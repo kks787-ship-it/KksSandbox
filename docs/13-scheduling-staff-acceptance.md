@@ -1,5 +1,7 @@
 # Staff calendar acceptance — Beth and Kris
 
+**Current protected pilot: Scheduling 0.4.4 visual Day/Week planner.** Start with the [visual planner review steps and validation](test-results/scheduling-visual-planner.md#owner-review--exact-click-path). Prior increment notes below remain history/reference; protected hands-on acceptance remains open.
+
 ## Security prerequisite for the current local candidate
 
 For scheduling0.4.0 / csf-mfa0.2.0, the [current GateB decision package](pilot/gate-b-owner-review.md)
