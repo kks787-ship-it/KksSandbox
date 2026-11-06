@@ -17,6 +17,8 @@
 
 ## 1A. Owner-requested lesson/service catalog — real farm program choices (November 6, 2026)
 
+**Implementation checkpoint:** Scheduling 0.4.6 is installed and source/runtime verified on the protected sandbox. Manage lesson types, stable IDs, booked-label history and reviewed changes are implemented; proposed examples remain disabled/unsaved until owner configuration and Review/Apply. Native owner acceptance remains pending. See [validation and rollout evidence](../test-results/scheduling-lesson-catalog.md).
+
 **Active pilot usability requirement:** A booking's **Lesson type** dropdown must let staff select the actual *kind of lesson or account arrangement*, not merely the generic fictional `Pilot Private` placeholder. Facility Settings already has a configurable service list with duration, capacity, horse-source and required-resource rules, but the user-facing catalog must be easy to add, rename, order, disable and select without editing code or erasing booking history.
 
 **Owner-supplied distinct example labels** (these are proposed selectable catalog entries, NOT verified prices, billing outcomes, automatic entitlements or fully configured durations):

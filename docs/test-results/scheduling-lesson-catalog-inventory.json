@@ -1,5 +1,5 @@
 {
-  "scope": "local candidate; protected source/runtime deployment pending",
+  "scope": "protected sandbox source/runtime installation verified; native owner catalog acceptance pending",
   "version": "0.4.6",
   "schema": 3,
   "tables": 15,
@@ -286,5 +286,6 @@
       "sha256": "e712c7e4920f6c13bd31c47fbe47417eecad3aaf396980e652b64d073e1e7ccb",
       "git_blob": "83cef064b2d889ac2800a6e30d4dfdf332b9b92d"
     }
-  ]
+  ],
+  "source_commit": "c2783b5e3f6eba046b97e5dc517a198517532377"
 }
