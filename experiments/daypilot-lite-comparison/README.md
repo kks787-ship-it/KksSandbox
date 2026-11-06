@@ -52,12 +52,10 @@ The scope selector changes **synthetic fixtures**, not authentication. The bundl
 - Native renderer: actual Scheduling 0.4.6 source pin `c2783b5e3f6eba046b97e5dc517a198517532377`; planner/time/JS unchanged from 0.4.5. System-font/iframe shell and CLI stubs are experimental. See [native notice](NATIVE-NOTICE.md) and [source hashes](evidence/native-source.json).
 - Experimental wrapper/distribution: GPL-3.0-or-later, retaining native GPL-2.0-or-later notices. This does not change the scheduling plugin license. No DayPilot files are added to the farm plugins.
 
-## Screenshot evidence — owner-approved publication
+## Screenshot evidence — private retention
 
-The owner explicitly approved public publication of these six synthetic screenshots after reviewing the experiment handoff. They contain invented records only; no farm calendar or server changes accompany publication.
+The experiment is closed with the decision to retain the native calendar. The six synthetic screenshots remain in the private offline ZIP. They were published in `8ad5044` following an earlier explicit approval, then removed from the current branch following the owner's subsequent direction to keep them private. **The earlier commit remains in Git history; this removal does not purge historical copies.** No history rewrite or renewed publication attempt is authorized.
 
-[Phone split comparison](evidence/screenshots/comparison-390.png) · [Tablet split comparison](evidence/screenshots/comparison-768.png) · [Desktop split comparison](evidence/screenshots/comparison-1280.png) · [Arena columns](evidence/screenshots/resources-1280.png) · [Native full-width week](evidence/screenshots/native-week-1280.png) · [DayPilot full-width week](evidence/screenshots/daypilot-week-1280.png).
-
-The public source, [text findings](DECISION.md), [browser receipt](evidence/browser-results.json) and exact screenshot hashes accompany the images. The earlier automated publication hold was honored until the owner's explicit approval. Reproduce the images locally with the browser command above. After reviewing a new local run, `node collect-evidence.mjs` refreshes screenshot copies, receipt and checksum allowlist for `python3 bundle.py`. Collection never commits or uploads anything; newly generated artifacts still require content review before publication.
+The [text findings](DECISION.md), [browser receipt](evidence/browser-results.json) and per-image hashes remain available. Screenshots can be regenerated locally; `collect-evidence.mjs` never publishes them. Do not upload further images for this experiment.
 
 Recurring arena/instructor hours and visual closures remain the next active calendar increment. This experiment does not replace that work or authorize DayPilot adoption.
