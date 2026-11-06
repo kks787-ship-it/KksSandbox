@@ -46,7 +46,7 @@
   function invalidate(){previewHash=null;if(preview)save.disabled=true;}
   function impact(){
    if(!preview)return;
-   const b=body(form),service=config.services[b.service_type],totals=new Map();
+   const b=body(form),hold=form.querySelector('.csf-advanced-hold');if(hold){const held=b.state==='held';hold.hidden=!held;hold.querySelectorAll('input,select').forEach(el=>el.disabled=!held);hold.querySelector('input').required=held;}const service=config.services[b.service_type],totals=new Map();
    b.rides.forEach(ride=>{const n=minutes(ride.end?.local)-minutes(ride.start?.local);if(Number.isFinite(n))totals.set(ride.horse,(totals.get(ride.horse)||0)+n);});
    const names=Array.from(totals,([id,n])=>{const option=form.querySelector('[data-field=horse] option[value="'+CSS.escape(id)+'"]');return (option?.textContent||'Horse')+': '+n+' local-clock minutes';});
    form.querySelector('.csf-impact').textContent=b.riders.length+' riders / capacity '+(service?.capacity??'not configured')+' · service duration '+(service?.duration_minutes??'unknown')+' minutes. Required: '+(service?.required_resources||[]).join(', ')+'.\n'+names.join('\n')+'\nHorse policy: daily '+(config.workload.daily_minutes??'unknown')+', consecutive '+(config.workload.consecutive_minutes??'unknown')+', recovery break '+(config.workload.break_minutes??'unknown')+' minutes. Server preview checks actual instants, travel and existing workloads.';
@@ -74,7 +74,7 @@
    if(busy||!form.reportValidity())return;
    busy=true;preview.disabled=true;save.disabled=true;feedback.textContent='Checking local times, reservations and horse welfare…';
    try{
-    await Promise.all(Array.from(form.querySelectorAll('[data-time]')).filter(el=>el.value).map(resolveTime));
+    await Promise.all(Array.from(form.querySelectorAll('[data-time]')).filter(el=>el.value&&!el.disabled).map(resolveTime));
     const b=body(form),pool=Array.from(form.querySelector('[data-array=pool]').querySelectorAll('input:checked'),el=>el.value);
     if(b.rides.some(ride=>!pool.includes(ride.horse)))throw new Error('Choose each assigned horse in the horse pool before previewing.');
     const hash=JSON.stringify(b),result=await request('preview',{body:hash,facility_revision:form.elements.facility_revision.value,command_id:form.elements.command_id.value});
@@ -87,6 +87,14 @@
    const b=body(form),hash=JSON.stringify(b);
    if(preview&&hash!==previewHash){event.preventDefault();save.disabled=true;feedback.textContent='Check this schedule before saving. No appointment was saved.';return;}
    form.elements.body.value=hash;save.disabled=true;
+  });
+  if(form.id==='csf-new-appointment-advanced')form.addEventListener('csf:prefill-advanced',event=>{
+   if((form.querySelector('[data-field=title]').value||form.querySelector('.csf-rows').children.length)&&!window.confirm('Replace the unsaved advanced lesson draft with this copy?'))return;
+   const copy=event.detail,seed=JSON.parse(form.elements.body.value);Object.assign(seed,{title:copy.title,service_type:copy.service_type,state:'requested',start:copy.start,end:copy.end,hold_expires:null,resources:copy.resources,riders:copy.riders,rides:copy.rides});form.elements.body.value=JSON.stringify(seed);
+   function populate(scope,record){scope.querySelectorAll('[data-field]').forEach(el=>{if(Object.hasOwn(record,el.dataset.field))el.value=record[el.dataset.field]??'';});scope.querySelectorAll('[data-time]').forEach(el=>{const iso=record[el.dataset.time],local=typeof iso==='string'?iso.slice(0,16):iso?.local;el.value=local||'';el.closest('.csf-time').querySelector('[data-fold]').replaceChildren(new Option('Copied server time',typeof iso==='string'?iso:iso?.choice||''));});}
+   const rows=form.querySelector('.csf-rows');rows.replaceChildren();populate(form,seed);for(const ride of copy.rides){const row=form.querySelector('.csf-row-template').content.firstElementChild.cloneNode(true);populate(row,ride);rows.append(row);}
+   for(const key of['resources','riders','pool']){const ids=key==='pool'?copy.rides.map(ride=>ride.horse):copy[key];form.querySelectorAll('[data-array='+key+'] input').forEach(el=>el.checked=ids.includes(el.value));}
+   shiftedStart=form.querySelector('[data-time=start]').value;invalidate();impact();feedback.textContent='Copied as a new request. Choose a new time and check the schedule before saving. Nothing has been reserved.';form.scrollIntoView({block:'start'});form.querySelector('[data-field=title]').focus();
   });
   impact();
  });

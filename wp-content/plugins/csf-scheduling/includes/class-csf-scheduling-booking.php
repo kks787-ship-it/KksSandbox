@@ -16,7 +16,7 @@ class CSF_Scheduling_Booking {
 	 * @return bool
 	 */
 	public static function simple( $b ) {
-		if ( ! empty( $b['_routine'] ) || empty( $b['expected'] ) ) {
+		if ( ! empty( $b['_routine'] ) || ( empty( $b['expected'] ) && empty( $b['riders'] ) && empty( $b['rides'] ) ) ) {
 			return true;
 		}
 		return 1 === count( $b['riders'] ?? array() ) && ( empty( $b['rides'] ) || ( 1 === count( $b['rides'] ) && $b['rides'][0]['rider'] === $b['riders'][0] && $b['rides'][0]['start'] === $b['start'] && $b['rides'][0]['end'] === $b['end'] ) );

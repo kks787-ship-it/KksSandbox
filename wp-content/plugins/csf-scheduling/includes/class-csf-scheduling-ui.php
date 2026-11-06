@@ -356,7 +356,9 @@ class CSF_Scheduling_UI {
 		self::select( 'state', 'State', $states, $body['state'] );
 		self::time( 'start', 'Appointment start', $body['start'] );
 		self::time( 'end', 'Appointment end', $body['end'] );
+		echo '<div class="csf-advanced-hold"' . ( 'held' === $body['state'] ? '' : ' hidden' ) . '>';
 		self::time( 'hold_expires', 'Hold expires (held only)', $body['hold_expires'], true );
+		echo '</div>';
 		if ( $body['expected'] ) {
 			echo '<button type="button" class="button csf-shift">Move end and all turns to match the new start</button>'; }
 		self::checks( 'resources', 'Instructor, arena and location', $ctx['resources'], $body['resources'] );
@@ -592,6 +594,8 @@ class CSF_Scheduling_UI {
 		wp_enqueue_style( 'csf-scheduling-staff', plugins_url( '../assets/staff.css', __FILE__ ), array(), CSF_SCHEDULING_VERSION );
 		wp_enqueue_script( 'csf-scheduling-staff', plugins_url( '../assets/staff.js', __FILE__ ), array(), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_script( 'csf-scheduling-routine', plugins_url( '../assets/routine.js', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION, true );
+		wp_enqueue_style( 'csf-scheduling-planner', plugins_url( '../assets/planner.css', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION );
+		wp_enqueue_script( 'csf-scheduling-planner', plugins_url( '../assets/planner.js', __FILE__ ), array( 'csf-scheduling-routine' ), CSF_SCHEDULING_VERSION, true );
 		$p = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
 		wp_add_inline_script(
 			'csf-scheduling-staff',
@@ -695,9 +699,10 @@ class CSF_Scheduling_UI {
 			'csf-scheduling-staff',
 			'Object.assign(window.CSFStaff||{},' . wp_json_encode(
 				array(
-					'services' => $p['services'],
-					'workload' => $p['workload'],
-					'timezone' => $p['timezone'],
+					'resourceKinds' => array_column( $ctx['resource_rows'], 'kind', 'uuid' ),
+					'services'      => $p['services'],
+					'workload'      => $p['workload'],
+					'timezone'      => $p['timezone'],
 				),
 				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 			) . ');',
@@ -712,9 +717,21 @@ class CSF_Scheduling_UI {
 				'resource' => isset( $_POST['calendar_resource'] ) && is_string( $_POST['calendar_resource'] ) ? sanitize_text_field( wp_unslash( $_POST['calendar_resource'] ) ) : '',
 			); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Typed and sanitized below.
 		} // phpcs:ignore WordPress.Security.NonceVerification -- Controller verifies navigation POST, GET is read-only.
-		$date             = isset( $nav['date'] ) && is_string( $nav['date'] ) ? sanitize_text_field( wp_unslash( $nav['date'] ) ) : wp_date( 'Y-m-d', null, new DateTimeZone( $p['timezone'] ?? 'UTC' ) );
-		$view             = isset( $nav['view'] ) && 'week' === $nav['view'] ? 'week' : 'day';
-		$filter           = ( isset( $_POST['csf_calendar_view'] ) || isset( $_POST['calendar_date'] ) ) && isset( $nav['resource'] ) && is_string( $nav['resource'] ) ? sanitize_text_field( wp_unslash( $nav['resource'] ) ) : '';
+		$date   = isset( $nav['date'] ) && is_string( $nav['date'] ) ? sanitize_text_field( wp_unslash( $nav['date'] ) ) : wp_date( 'Y-m-d', null, new DateTimeZone( $p['timezone'] ?? 'UTC' ) );
+		$view   = isset( $nav['view'] ) && 'week' === $nav['view'] ? 'week' : 'day';
+		$filter = isset( $nav['resource'] ) && is_string( $nav['resource'] ) ? sanitize_text_field( wp_unslash( $nav['resource'] ) ) : '';
+		if ( $filter && ! isset( $ctx['resources'][ $filter ] ) && ! isset( $ctx['horses'][ $filter ] ) ) {
+			$filter = '';
+		}
+		if ( 'week' === $view && is_string( $p['timezone'] ) ) {
+			try {
+				CSF_Scheduling_Planner::ticks( $date, $p['timezone'] );
+				$anchor = new DateTimeImmutable( $date, new DateTimeZone( $p['timezone'] ) );
+				$date   = $anchor->modify( '-' . ( (int) $anchor->format( 'N' ) - 1 ) . ' days' )->format( 'Y-m-d' );
+			} catch ( Throwable $error ) {
+				$view = 'day'; // The existing read model returns a bounded invalid-date error below.
+			}
+		}
 		self::$navigation = array(
 			'date'     => $date,
 			'view'     => $view,
@@ -747,17 +764,37 @@ class CSF_Scheduling_UI {
 		echo '<label>Date <input type="date" name="date" value="' . esc_attr( $date ) . '" required></label><label>View <select name="view"><option value="day">Day</option><option value="week" ' . selected( $view, 'week', false ) . '>Week (7 days)</option></select></label><label>Instructor, arena or horse <select name="resource"><option value="">All</option>';
 		foreach ( $ctx['resources'] + $ctx['horses'] as $uuid => $label ) {
 			echo '<option value="' . esc_attr( $uuid ) . '" ' . selected( $filter, $uuid, false ) . '>' . esc_html( $label ) . '</option>'; }
-		echo '</select></label><button class="button">Show calendar</button></form><div id="csf-calendar-list" class="appointments">';
+		echo '</select></label><button class="button">Show calendar</button></form>';
+		$details = array();
+		foreach ( is_array( $rows ) ? $rows : array() as $row ) {
+			$details[ $row['uuid'] ] = json_decode( CSF_Scheduling_Calendar::find( 'details', $row['uuid'] )['body_json'], true );
+		}
+		CSF_Scheduling_Planner::render( $date, $view, $filter, $rows, $details, $ctx, $p );
+		echo '<details class="csf-planner-list"><summary>Appointment list and details</summary><div id="csf-calendar-list" class="appointments">';
 		if ( is_wp_error( $rows ) ) {
 			echo '<p role="alert">Calendar blocked: configure facility policies and timezone before scheduling.</p>'; } elseif ( ! $rows ) {
 			echo '<p>No appointments in this view.</p>'; }
 			foreach ( is_array( $rows ) ? $rows : array() as $row ) {
-				$d = json_decode( CSF_Scheduling_Calendar::find( 'details', $row['uuid'] )['body_json'], true );
-				echo '<article><h2>' . esc_html( $row['title'] ) . '</h2><p>' . esc_html( self::display_time( $row['start'] ) . ' – ' . self::display_time( $row['end'] ) ) . '</p><p>Status: <strong>' . esc_html( $row['state'] ) . ( $row['hold_expired'] ? ' (expired; not reserved)' : '' ) . '</strong></p><p class="' . ( $row['rider_cleared'] ? 'csf-clear' : 'csf-blocked' ) . '">' . ( $row['rider_cleared'] ? ( $d['riders'] ? 'Rider evidence verified' : 'No rider participation recorded' ) : 'PRE-RIDE BLOCK: rider evidence incomplete' ) . '</p><p class="' . ( $row['welfare_review'] ? 'csf-blocked' : '' ) . '">' . ( $row['welfare_review'] ? 'WELFARE BLOCK: staff review required' : 'No recorded welfare restriction' ) . '</p>';
+				$d = $details[ $row['uuid'] ];
+				echo '<article id="csf-event-' . esc_attr( $row['uuid'] ) . '"><h2>' . esc_html( $row['title'] ) . '</h2><p>' . esc_html( self::display_time( $row['start'] ) . ' – ' . self::display_time( $row['end'] ) ) . '</p><p>Status: <strong>' . esc_html( $row['state'] ) . ( $row['hold_expired'] ? ' (expired; not reserved)' : '' ) . '</strong></p><p class="' . ( $row['rider_cleared'] ? 'csf-clear' : 'csf-blocked' ) . '">' . ( $row['rider_cleared'] ? ( $d['riders'] ? 'Rider evidence verified' : 'No rider participation recorded' ) : 'PRE-RIDE BLOCK: rider evidence incomplete' ) . '</p><p class="' . ( $row['welfare_review'] ? 'csf-blocked' : '' ) . '">' . ( $row['welfare_review'] ? 'WELFARE BLOCK: staff review required' : 'No recorded welfare restriction' ) . '</p>';
 				echo '<p>' . esc_html( implode( ', ', array_map( static fn( $id ) => $ctx['resources'][ $id ] ?? 'Unavailable resource', $d['resources'] ) ) ) . '</p><ul class="csf-rotation">';
 				foreach ( $d['rides'] as $ride ) {
 					echo '<li>' . esc_html( ( $ctx['riders'][ $ride['rider'] ?? '' ] ?? 'Rider details restricted' ) . ' · ' . ( $ctx['horses'][ $ride['horse'] ] ?? 'Unknown horse' ) . ' · ' . self::display_time( $ride['start'] ) . '–' . self::display_time( $ride['end'] ) ) . '</li>'; }
 				echo '</ul>';
+				if ( CSF_Scheduling_Access::can( 'appointment_edit' ) && CSF_Scheduling_Access::can( 'calendar_all' ) ) {
+					$copy                 = $d;
+					$copy['title']        = 'Copy of ' . $d['title'];
+					$copy['single_rider'] = $d['riders'][0] ?? '';
+					$copy['single_horse'] = $d['rides'][0]['horse'] ?? '';
+					$copy['start']        = self::local_value( $d['start'] );
+					$copy['end']          = self::local_value( $d['end'] );
+					foreach ( $copy['rides'] as &$turn ) {
+						$turn['start'] = self::local_value( $turn['start'] );
+						$turn['end']   = self::local_value( $turn['end'] );
+					}
+					unset( $turn, $copy['uuid'], $copy['expected'], $copy['hold_expires'] );
+					echo '<button type="button" class="button csf-planner-duplicate" data-copy-kind="' . ( CSF_Scheduling_Booking::simple( $d ) ? 'routine' : 'advanced' ) . '" data-copy="' . esc_attr( wp_json_encode( $copy ) ) . '">Duplicate as a new requested lesson</button>';
+				}
 				if ( CSF_Scheduling_Access::writer() && 'canceled' !== $row['state'] ) {
 					$d['expected'] = $row['revision'];
 					echo '<details><summary>Edit or confirm appointment</summary>';
@@ -786,7 +823,7 @@ class CSF_Scheduling_UI {
 				}
 				echo '</article>';
 			}
-			echo '</div>';
+			echo '</div></details>';
 			if ( CSF_Scheduling_Access::writer() ) {
 				if ( $draft && is_wp_error( $result ) && 'commit_unknown' !== ( $result->get_error_data()['reason'] ?? '' ) ) {
 					echo '<section><h2>Your unsaved draft</h2><p>Compare with current records before previewing. A changed record still requires a fresh edit; it will not be overwritten.</p>';
