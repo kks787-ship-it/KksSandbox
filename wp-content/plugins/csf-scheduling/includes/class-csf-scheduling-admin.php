@@ -64,10 +64,10 @@ class CSF_Scheduling_Admin {
 			} else {
 				$body = CSF_Scheduling_UI::normalize( $kind, $body ); }
 		} catch ( Throwable $error ) {
-			$code = in_array( $error->getMessage(), array( 'ambiguous_time', 'nonexistent_time', 'invalid_time' ), true ) ? $error->getMessage() : 'invalid_body';
+			$code = in_array( $error->getMessage(), array_merge( CSF_Scheduling_Booking::ERRORS, array( 'ambiguous_time', 'nonexistent_time', 'invalid_time', 'policy_incomplete', 'stale_revision' ) ), true ) ? $error->getMessage() : 'invalid_body';
 			if ( 'invalid_body' === $code ) {
 				self::$draft = null; }
-			self::$result = new WP_Error( $code, 'Invalid local time.' );
+			self::$result = new WP_Error( $code, 'Invalid scheduling fields.', $error instanceof CSF_Scheduling_Conflict ? array( 'detail' => $error->resource_label ) : null );
 			return;
 		}
 			self::$retry = array(
@@ -99,18 +99,28 @@ class CSF_Scheduling_Admin {
 				$p     = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
 				wp_send_json_success( array( 'choices' => CSF_Scheduling_Time::choices( $local, $p['timezone'] ) ) );
 			}
-			if ( 'preview' !== $op ) {
+			if ( ! in_array( $op, array( 'preview', 'booking_slots' ), true ) ) {
 				throw new RuntimeException( 'invalid_body' ); }
 			$raw  = isset( $_POST['body'] ) && is_string( $_POST['body'] ) ? wp_unslash( $_POST['body'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Strict typed service validation.
 			$body = strlen( $raw ) <= 65536 ? json_decode( $raw, true ) : null;
 			if ( ! is_array( $body ) ) {
 				throw new RuntimeException( 'invalid_body' ); }
-			$body = CSF_Scheduling_UI::normalize( 'appointment_saved', $body );
-			$rev  = isset( $_POST['facility_revision'] ) && is_string( $_POST['facility_revision'] ) ? sanitize_text_field( wp_unslash( $_POST['facility_revision'] ) ) : '';
-			$id   = isset( $_POST['command_id'] ) && is_string( $_POST['command_id'] ) ? sanitize_text_field( wp_unslash( $_POST['command_id'] ) ) : '';
+			$rev = isset( $_POST['facility_revision'] ) && is_string( $_POST['facility_revision'] ) ? sanitize_text_field( wp_unslash( $_POST['facility_revision'] ) ) : '';
+			$id  = isset( $_POST['command_id'] ) && is_string( $_POST['command_id'] ) ? sanitize_text_field( wp_unslash( $_POST['command_id'] ) ) : '';
 			if ( ! preg_match( '/^(0|[1-9][0-9]{0,9})$/D', $rev ) ) {
 				throw new RuntimeException( 'invalid_body' ); }
-			$result = CSF_Scheduling_Store::preview( $body, (int) $rev, $id );
+			if ( 'booking_slots' === $op ) {
+				$day = isset( $_POST['day'] ) && is_string( $_POST['day'] ) ? sanitize_text_field( wp_unslash( $_POST['day'] ) ) : '';
+
+				$offset = isset( $_POST['offset'] ) && is_string( $_POST['offset'] ) ? sanitize_text_field( wp_unslash( $_POST['offset'] ) ) : '0';
+				if ( ! preg_match( '/^(0|[1-9][0-9]?)$/D', $offset ) || (int) $offset > 95 ) {
+					throw new RuntimeException( 'invalid_body' );
+				}
+				wp_send_json_success( CSF_Scheduling_Booking::slots( $body, $day, (int) $rev, (int) $offset ) );
+			}
+			$routine = ! empty( $body['_routine'] );
+			$body    = CSF_Scheduling_UI::normalize( 'appointment_saved', $body );
+			$result  = CSF_Scheduling_Store::preview( $body, (int) $rev, $id, $routine );
 			if ( is_wp_error( $result ) ) {
 				wp_send_json_error( array( 'message' => CSF_Scheduling_UI::message( $result ) ) ); }
 
@@ -122,7 +132,7 @@ class CSF_Scheduling_Admin {
 				$name            = $horse['label'];
 				$totals[ $name ] = ( $totals[ $name ] ?? 0 ) + ( strtotime( $ride['end'] ) - strtotime( $ride['start'] ) ) / 60 + 2 * $buffer;
 			}
-			$impact = array();
+			$impact = array( 'Reserved interval: ' . wp_date( 'M j, g:i a T', strtotime( $body['start'] ) - 60 * $buffer, new DateTimeZone( $p['timezone'] ) ) . ' – ' . wp_date( 'M j, g:i a T', strtotime( $body['end'] ) + 60 * $buffer, new DateTimeZone( $p['timezone'] ) ) . '. Teaching duration excludes configured travel. No additional preparation/wrap-up time is reserved.' );
 			foreach ( $totals as $name => $minutes ) {
 				$impact[] = $name . ': ' . $minutes . ' reserved minutes, including configured travel.'; }
 			wp_send_json_success(
@@ -133,8 +143,8 @@ class CSF_Scheduling_Admin {
 				)
 			);
 		} catch ( Throwable $error ) {
-			$code = in_array( $error->getMessage(), array( 'ambiguous_time', 'nonexistent_time', 'invalid_time' ), true ) ? $error->getMessage() : 'invalid_body';
-			wp_send_json_error( array( 'message' => CSF_Scheduling_UI::message( new WP_Error( $code, 'Invalid scheduling fields.' ) ) ) );
+			$code = in_array( $error->getMessage(), array_merge( CSF_Scheduling_Booking::ERRORS, array( 'ambiguous_time', 'nonexistent_time', 'invalid_time', 'policy_incomplete', 'stale_revision' ) ), true ) ? $error->getMessage() : 'invalid_body';
+			wp_send_json_error( array( 'message' => CSF_Scheduling_UI::message( new WP_Error( $code, 'Invalid scheduling fields.', $error instanceof CSF_Scheduling_Conflict ? array( 'detail' => $error->resource_label ) : null ) ) ) );
 		}
 	}
 

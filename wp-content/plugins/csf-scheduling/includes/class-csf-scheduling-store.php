@@ -149,12 +149,13 @@ class CSF_Scheduling_Store {
 	 * @param array  $body Appointment.
 	 * @param int    $revision Reviewed facility revision.
 	 * @param string $command Command UUID.
+	 * @param bool   $availability Check occupied slots even for requested drafts.
 	 * @return array|WP_Error
 	 */
-	public static function preview( $body, $revision, $command ) {
+	public static function preview( $body, $revision, $command, $availability = false ) {
 		if ( ! is_array( $body ) || strlen( wp_json_encode( $body ) ) > 65536 ) {
 			return new WP_Error( 'invalid_body', 'Bounded appointment required.' ); }
-		return self::change( 'appointment_saved', $body, $revision, $command, true );
+		return self::change( 'appointment_saved', $body, $revision, $command, true, $availability );
 	}
 
 	/** Internal command dispatch. Every path rechecks caller authorization.
@@ -165,9 +166,10 @@ class CSF_Scheduling_Store {
 	 * @param string $command UUID.
 	 * @return array|WP_Error
 	 * @param bool   $preview Roll back rather than committing.
+	 * @param bool   $availability Read-only occupied-slot checking.
 	 * @throws RuntimeException Caught locally to roll back all transaction participants.
 	 */
-	private static function change( $kind, $payload, $revision, $command, $preview = false ) {
+	private static function change( $kind, $payload, $revision, $command, $preview = false, $availability = false ) {
 		global $wpdb;
 		$previous_error_suppression = $wpdb->suppress_errors( true );
 		try {
@@ -219,6 +221,9 @@ class CSF_Scheduling_Store {
 				} elseif ( 'policy_replaced' === $kind ) {
 					$update['policy_json'] = wp_json_encode( $payload );
 				} elseif ( in_array( $kind, array_merge( CSF_Scheduling_Calendar::COMMANDS, CSF_Scheduling_Permissions::COMMANDS, CSF_Scheduling_Identity::COMMANDS ), true ) ) {
+					if ( $preview && $availability ) {
+						$row['availability_preview'] = true;
+					}
 					self::$calendar_transaction = true;
 					try {
 						$result = in_array( $kind, CSF_Scheduling_Identity::COMMANDS, true ) ? CSF_Scheduling_Identity::apply( $kind, $payload, $row ) : ( in_array( $kind, CSF_Scheduling_Permissions::COMMANDS, true ) ? CSF_Scheduling_Permissions::apply( $kind, $payload ) : CSF_Scheduling_Calendar::apply( $kind, $payload, $row ) );

@@ -16,7 +16,7 @@ class CSF_Scheduling_Calendar {
 	 */
 	private static $reading = false;
 	const COMMANDS          = array( 'resource_saved', 'rider_saved', 'horse_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
-	const ERRORS            = array( 'forbidden', 'invalid_body', 'invalid_time', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
+	const ERRORS            = array( 'forbidden', 'invalid_body', 'invalid_time', 'service_duration', 'lesson_resource', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
 
 	/** Fixed private table lookup.
 	 *
@@ -142,7 +142,7 @@ class CSF_Scheduling_Calendar {
 		self::require( CSF_Scheduling_Permissions::authorize( $kind, $body ), 'forbidden' );
 		$policy = json_decode( $settings['policy_json'], true );
 		if ( in_array( $kind, array( 'appointment_saved', 'appointment_canceled' ), true ) ) {
-			return self::appointment( $kind, $body, $policy );
+			return self::appointment( $kind, $body, $policy, ! empty( $settings['availability_preview'] ) );
 		}
 		if ( 'resource_saved' === $kind ) {
 			self::keys( $body, array( 'uuid', 'expected', 'data' ) );
@@ -342,9 +342,11 @@ class CSF_Scheduling_Calendar {
 	 * @param string $kind Command.
 	 * @param array  $b Body.
 	 * @param array  $p Facility policy.
+	 * @param bool   $availability Read-only occupied-slot checking.
 	 * @return array
+	 * @throws CSF_Scheduling_Conflict Missing required resource kind.
 	 */
-	private static function appointment( $kind, $b, $p ) {
+	private static function appointment( $kind, $b, $p, $availability = false ) {
 		global $wpdb;
 		self::require( CSF_Scheduling_Audit::uuid( $b['uuid'] ?? null ) );
 		$old = self::find( 'appointments', $b['uuid'] );
@@ -379,7 +381,8 @@ class CSF_Scheduling_Calendar {
 			self::require( $s && $s['enabled'], 'policy_incomplete' );
 			$start = CSF_Scheduling_Time::parse( $b['start'], $p['timezone'] );
 			$end   = CSF_Scheduling_Time::parse( $b['end'], $p['timezone'] );
-			self::require( $end > $start && $end->getTimestamp() - $start->getTimestamp() <= 86400 && $end->getTimestamp() - $start->getTimestamp() === 60 * $s['duration_minutes'], 'invalid_time' );
+			self::require( $end > $start && $end->getTimestamp() - $start->getTimestamp() <= 86400, 'invalid_time' );
+			self::require( $end->getTimestamp() - $start->getTimestamp() === 60 * $s['duration_minutes'], 'service_duration' );
 			// Every appointment is contained in one explicit local opening interval; crossing a closed day is never allowed.
 			$open = false;
 			foreach ( $p['service_hours'][ (int) $start->format( 'w' ) ] as $interval ) {
@@ -406,7 +409,9 @@ class CSF_Scheduling_Calendar {
 				$kinds[]                = $r['kind'];
 			}
 			foreach ( $s['required_resources'] as $required ) {
-				self::require( 'horse' === $required || in_array( $required, $kinds, true ), 'not_found' );
+				if ( 'horse' !== $required && ! in_array( $required, $kinds, true ) ) {
+					throw new CSF_Scheduling_Conflict( 'lesson_resource', esc_html( ucfirst( $required ) ) );
+				}
 			}
 			foreach ( $b['riders'] as $uuid ) {
 				self::require( self::find( 'riders', $uuid ), 'not_found' );
@@ -428,7 +433,7 @@ class CSF_Scheduling_Calendar {
 				'revision'             => $b['expected'] + 1,
 				'confirmed_by'         => 'confirmed' === $b['state'] ? get_current_user_id() : null,
 			);
-			self::validate_allocations( $b, $s, $p, $start, $end, $resource_rows, $old ? (int) $old['id'] : 0 );
+			self::validate_allocations( $b, $s, $p, $start, $end, $resource_rows, $old ? (int) $old['id'] : 0, $availability );
 		}
 		$id = $old ? (int) $old['id'] : 0;
 		if ( $old ) {
@@ -517,9 +522,10 @@ class CSF_Scheduling_Calendar {
 	 * @param DateTimeImmutable $end End.
 	 * @param array             $resources Resolved resources.
 	 * @param int               $exclude Existing appointment ID.
+	 * @param bool              $availability Read-only occupied-slot checking.
 	 * @throws CSF_Scheduling_Conflict Selected resource is reserved.
 	 */
-	private static function validate_allocations( $b, $s, $p, $start, $end, $resources, $exclude ) {
+	private static function validate_allocations( $b, $s, $p, $start, $end, $resources, $exclude, $availability = false ) {
 		global $wpdb;
 		$buffer = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
 		$left   = $start->modify( "-$buffer minutes" );
@@ -527,14 +533,14 @@ class CSF_Scheduling_Calendar {
 		foreach ( $resources as $uuid => $r ) {
 			self::available( $uuid, $left, $right, $p );
 			self::unrestricted( $uuid, $left, $right, $p );
-			if ( 'requested' !== $b['state'] ) {
+			if ( $availability || 'requested' !== $b['state'] ) {
 				if ( self::overlap( 'allocations', 'resource_id', (int) $r['id'], $left, $right, $exclude ) ) {
 					throw new CSF_Scheduling_Conflict( 'resource_conflict', esc_html( $r['kind'] . ': ' . $r['label'] ) ); }
 			}
 		}
 		foreach ( $b['riders'] as $uuid ) {
 			$r = self::find( 'riders', $uuid );
-			if ( 'requested' !== $b['state'] ) {
+			if ( $availability || 'requested' !== $b['state'] ) {
 				if ( self::overlap( 'participants', 'rider_id', (int) $r['id'], $left, $right, $exclude ) ) {
 					throw new CSF_Scheduling_Conflict( 'rider_conflict', esc_html( json_decode( $r['body_json'], true )['label'] ) ); }
 			}
@@ -565,7 +571,7 @@ class CSF_Scheduling_Calendar {
 			foreach ( $slots as $slot ) {
 				self::require( ! ( ( $slot['key'] === $key || ( null !== $ride['rider'] && $slot['rider'] === $ride['rider'] ) ) && $slot['start'] < $z && $slot['end'] > $a ), 'resource_conflict' );
 			}
-			if ( 'requested' !== $b['state'] ) {
+			if ( $availability || 'requested' !== $b['state'] ) {
 				if ( self::overlap( 'slots', 'resource_id', $key, $a->modify( "-$buffer minutes" ), $z->modify( "+$buffer minutes" ), $exclude ) ) {
 					throw new CSF_Scheduling_Conflict( 'resource_conflict', esc_html( 'Horse: ' . $horse['label'] ) ); }
 			}
@@ -619,6 +625,7 @@ class CSF_Scheduling_Calendar {
 	 * @param DateTimeImmutable $a Start.
 	 * @param DateTimeImmutable $z End.
 	 * @param array             $p Policy.
+	 * @throws CSF_Scheduling_Conflict Selected resource is unavailable.
 	 */
 	private static function available( $uuid, $a, $z, $p ) {
 		$doc = self::find( 'availability', $uuid );
@@ -626,7 +633,10 @@ class CSF_Scheduling_Calendar {
 		foreach ( $doc ? json_decode( $doc['body_json'], true )['intervals'] : array() as $interval ) {
 			$ok = $ok || ( CSF_Scheduling_Time::parse( $interval['start'], $p['timezone'] ) <= $a && CSF_Scheduling_Time::parse( $interval['end'], $p['timezone'] ) >= $z );
 		}
-		self::require( $ok, 'outside_hours' );
+		if ( ! $ok ) {
+			$r = self::find( 'resources', $uuid );
+			throw new CSF_Scheduling_Conflict( 'outside_hours', $r ? esc_html( ucfirst( $r['kind'] ) . ': ' . $r['label'] ) : 'Selected resource' );
+		}
 	}
 
 	/** Protective restrictions are allowed over existing bookings; reads flag review.

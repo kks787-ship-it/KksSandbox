@@ -35,6 +35,12 @@ class CSF_Scheduling_UI {
 	 * @return bool
 	 */
 	public static function editable( $kind, $body ) {
+		if ( 'appointment_saved' === $kind && array_key_exists( '_routine', $body ) ) {
+			if ( true !== $body['_routine'] || ! array_key_exists( 'single_rider', $body ) || ! array_key_exists( 'single_horse', $body ) || ! self::shape( $body['single_rider'], 'id' ) || ! self::shape( $body['single_horse'], 'id' ) ) {
+				return false;
+			}
+			unset( $body['_routine'], $body['single_rider'], $body['single_horse'] );
+		}
 		$common  = array(
 			'uuid'     => 'id',
 			'expected' => 'revision',
@@ -169,7 +175,10 @@ class CSF_Scheduling_UI {
 	public static function normalize( $kind, $body ) {
 		if ( ! self::editable( $kind, $body ) ) {
 			throw new RuntimeException( 'invalid_body' ); }
-		$p       = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
+		$p = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
+		if ( 'appointment_saved' === $kind && ! empty( $body['_routine'] ) ) {
+			$body = CSF_Scheduling_Booking::derive( $body, $p );
+		}
 		$convert = static function ( &$record ) use ( $p ) {
 			foreach ( array( 'start', 'end', 'hold_expires', 'notice', 'effective' ) as $key ) {
 				if ( isset( $record[ $key ] ) && '' !== $record[ $key ] ) {
@@ -209,6 +218,15 @@ class CSF_Scheduling_UI {
 			'commit_unknown'     => 'The save result is uncertain. Do not create another appointment. Retry the original command below to recover its result.',
 			'ambiguous_time'     => 'This time occurs twice when clocks go back. Choose the first or second occurrence.',
 			'nonexistent_time'   => 'This local time does not exist when clocks go forward. Choose another time.',
+			'booking_busy'       => 'The slot check took too long. Keep your draft and check starts again.',
+			'lesson_service'     => 'Choose an enabled lesson type with a duration in 15-minute increments.',
+			'lesson_grid'        => 'Choose a start on the 15-minute grid.',
+			'lesson_start'       => 'Choose a date and an available start slot.',
+			'lesson_rider'       => 'Choose the rider for this lesson.',
+			'lesson_horse'       => 'Choose a suitable horse, or use Advanced rotation for multiple horse turns.',
+			'lesson_resource'    => 'Choose every required instructor, arena or location before selecting a start.',
+			'hold_expiry'        => 'For a held appointment, choose its actual expiry before the lesson and within 24 hours.',
+			'service_duration'   => 'The finish must match the selected lesson type duration. Recheck the service and calculated finish.',
 			'invalid_time'       => 'Check local dates, service duration, hold expiry and cancellation notice. Times must be valid in the facility timezone.',
 			'forbidden'          => 'Your scheduling permission does not allow this action.',
 			'invalid_transition' => 'This appointment cannot change to that state. Canceled appointments stay in history.',
@@ -294,9 +312,10 @@ class CSF_Scheduling_UI {
 	 * @param string $kind Command.
 	 * @param array  $body Body.
 	 * @param string $id Form ID.
+	 * @param bool   $routine Routine entry instead of rotation editor.
 	 */
-	public static function begin( $kind, $body, $id = '' ) {
-		echo '<form method="post" class="csf-editor" data-kind="' . esc_attr( $kind ) . '" id="' . esc_attr( $id ) . '">';
+	public static function begin( $kind, $body, $id = '', $routine = false ) {
+		echo '<form method="post" class="' . ( $routine ? 'csf-routine-editor' : 'csf-editor' ) . '" data-kind="' . esc_attr( $kind ) . '" id="' . esc_attr( $id ) . '">';
 		wp_nonce_field( 'csf_calendar_write' );
 		self::navigation_fields();
 		echo '<input type="hidden" name="csf_calendar_command" value="' . esc_attr( $kind ) . '"><input type="hidden" name="body" value="' . esc_attr( wp_json_encode( $body ) ) . '"><input type="hidden" name="facility_revision" value="' . esc_attr( ( self::$reviewed ?? CSF_Scheduling_Schema::settings() )['revision'] ) . '"><input type="hidden" name="command_id" value="' . esc_attr( wp_generate_uuid4() ) . '">';
@@ -319,7 +338,7 @@ class CSF_Scheduling_UI {
 	 * @param array  $ctx Private labels and policy.
 	 * @param string $id ID.
 	 */
-	public static function appointment( $body, $ctx, $id = '' ) {
+	public static function appointment_advanced( $body, $ctx, $id = '' ) {
 		if ( ( ! CSF_Scheduling_Access::can( 'appointment_edit' ) && ( ! $body['expected'] || ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) || ( 'confirmed' === ( $body['state'] ?? '' ) && ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) {
 			return; }
 		self::begin( 'appointment_saved', $body, $id );
@@ -373,6 +392,56 @@ class CSF_Scheduling_UI {
 		self::time( 'start', 'Turn start', $ride['start'] );
 		self::time( 'end', 'Turn end', $ride['end'] );
 		echo '<button type="button" class="button csf-remove-row">Remove this turn</button></fieldset>';
+	}
+
+	/** Default lesson entry, preserving the advanced editor for group/short turns.
+	 *
+	 * @param array  $body Appointment.
+	 * @param array  $ctx Visible choices.
+	 * @param string $id Form identity.
+	 */
+	public static function appointment( $body, $ctx, $id = '' ) {
+		if ( ! CSF_Scheduling_Booking::simple( $body ) ) {
+			self::appointment_advanced( $body, $ctx, $id );
+			return;
+		}
+		if ( ! CSF_Scheduling_Access::can( 'appointment_edit' ) || ( 'confirmed' === $body['state'] && ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) {
+			self::appointment_advanced( $body, $ctx, $id );
+			return;
+		}
+		$wire                 = $body;
+		$wire['_routine']     = true;
+		$wire['single_rider'] = $body['single_rider'] ?? ( $body['riders'][0] ?? '' );
+		$wire['single_horse'] = $body['single_horse'] ?? ( $body['rides'][0]['horse'] ?? '' );
+		self::begin( 'appointment_saved', $wire, $id, true );
+		self::input( 'title', 'Appointment title', $body['title'] );
+		self::select( 'service_type', 'Lesson type', $ctx['services'], $body['service_type'] );
+
+		$states = array(
+			'requested' => 'Requested — no time reserved',
+			'held'      => 'Held — temporary reservation',
+		);
+		if ( CSF_Scheduling_Access::can( 'appointment_confirm' ) ) {
+			$states['confirmed'] = 'Confirmed';
+		}
+		self::select( 'state', 'Booking state', $states, $body['state'] );
+		$start  = self::local_value( $body['start'] );
+		$local  = is_array( $start ) ? ( $start['local'] ?? '' ) : substr( $start ?? '', 0, 16 );
+		$choice = is_array( $start ) ? ( $start['choice'] ?? '' ) : ( $start ?? '' );
+		echo '<label>Lesson date <input type="date" class="csf-lesson-date" value="' . esc_attr( $local ? substr( $local, 0, 10 ) : ( self::$navigation['date'] ?? '' ) ) . '" required></label>';
+		self::select( 'single_rider', 'Rider', array( '' => 'Choose rider' ) + $ctx['riders'], $wire['single_rider'] );
+		echo '<div class="csf-routine-horse">';
+		self::select( 'single_horse', 'Horse', array( '' => 'Choose horse' ) + $ctx['horses'], $wire['single_horse'] );
+		echo '</div>';
+		self::checks( 'resources', 'Instructor, arena and location', $ctx['resources'], $body['resources'] );
+		echo '<button type="button" class="button csf-load-slots">Show 15-minute start slots</button><button type="button" class="button csf-more-slots" hidden>Show later starts</button><label>Available start <select class="csf-start-slot" required><option value="">Check the selected date and resources first</option></select></label><input type="hidden" class="csf-routine-start" value="' . esc_attr( $local ) . '" data-choice="' . esc_attr( $choice ) . '"><p class="csf-routine-summary" role="status" aria-live="polite">Choose a start to calculate the finish. Long lessons may require shorter turns in Advanced rotation.</p><details class="csf-slot-reasons"><summary>Why other starts are unavailable</summary><ul></ul></details><div class="csf-routine-hold"' . ( 'held' === $body['state'] ? '' : ' hidden' ) . '>';
+		self::time( 'hold_expires', 'Hold expires', $body['hold_expires'], true );
+		echo '</div>';
+		self::end( $body['expected'] ? 'Save appointment' : 'Create appointment', true );
+		echo '<details class="csf-advanced-rotation"><summary>Advanced rotation — group lessons or shorter horse turns</summary><p>Use explicit turns for multiple riders/horses or when one horse cannot safely work for the full lesson. Ordinary finish times are calculated above.</p>';
+		unset( $body['_routine'], $body['single_rider'], $body['single_horse'] );
+		self::appointment_advanced( $body, $ctx, $id ? $id . '-advanced' : '' );
+		echo '</details>';
 	}
 
 	/** Cancellation is an ordinary form with local times.
@@ -522,6 +591,7 @@ class CSF_Scheduling_UI {
 			return; }
 		wp_enqueue_style( 'csf-scheduling-staff', plugins_url( '../assets/staff.css', __FILE__ ), array(), CSF_SCHEDULING_VERSION );
 		wp_enqueue_script( 'csf-scheduling-staff', plugins_url( '../assets/staff.js', __FILE__ ), array(), CSF_SCHEDULING_VERSION, true );
+		wp_enqueue_script( 'csf-scheduling-routine', plugins_url( '../assets/routine.js', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION, true );
 		$p = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
 		wp_add_inline_script(
 			'csf-scheduling-staff',
@@ -652,7 +722,7 @@ class CSF_Scheduling_UI {
 		);
 		$rows             = CSF_Scheduling_Calendar::view( $date, $view, $filter );
 		echo '<div class="wrap csf-calendar"><h1>Digital Ranch Staff Calendar</h1><p>All times: <strong>' . esc_html( $p['timezone'] ?? 'Timezone not configured' ) . '</strong>. Confirmation reserves time; rider permission is checked separately.</p><nav aria-label="Calendar sections"><a href="#csf-calendar-list">Appointments</a> · <a href="#csf-create">New appointment</a> · <a href="#csf-farm-setup">Farm setup and horse availability</a>' . ( CSF_Scheduling_Access::can( 'policy_manage' ) ? ' · <a href="#csf-facility-settings">Facility settings</a>' : '' ) . '</nav><noscript><p>Appointment editing requires JavaScript. Viewing remains available.</p></noscript>';
-		CSF_Scheduling_Settings::render();
+		CSF_Scheduling_Settings::render( self::$reviewed );
 		if ( $result ) {
 			if ( is_wp_error( $result ) ) {
 				echo '<div class="notice notice-error" role="alert"><p>' . esc_html( self::message( $result ) ) . '</p></div>'; } else {

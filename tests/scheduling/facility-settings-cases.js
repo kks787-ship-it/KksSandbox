@@ -60,6 +60,6 @@ module.exports=async({browser,cli,check,login,base})=>{
  // Typed parser failures are evaluated in this disposable site only, not a privileged HTTP path.
  const parsed=cli('$p=CSF_Scheduling_Settings::pilot();if(is_wp_error(CSF_Scheduling_Policy::validate($p))||CSF_Scheduling_Policy::missing($p)){throw new RuntimeException("Invalid pilot policy");}echo "valid";');
  check(parsed==='valid','fictional policy satisfies existing domain readiness without new engine rules');
- await require('./facility-workflow-cases')({op,cli,check,base});
+ await require('./facility-workflow-cases')({op,cli,check,base,browser,login});
  await trainer.c.close();await op.c.close();
 };

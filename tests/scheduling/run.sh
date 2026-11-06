@@ -20,7 +20,11 @@ PYV2
 STAMP="csf-foundation-$$"
 cleanup(){ "${D[@]}" rm -f "$STAMP-web" "$STAMP-db" >/dev/null 2>&1 || true; "${D[@]}" volume rm "$STAMP-site" >/dev/null 2>&1 || true; "${D[@]}" network rm "$STAMP-net" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
-"${D[@]}" build -q --build-arg "CSF_TEST_PHP_VERSION=$CSF_PHP_VERSION" -t "$PHP_IMAGE" "$ROOT/tests/scheduling"
+if [[ "${CSF_TEST_REUSE_IMAGE:-0}" == 1 ]]; then
+ "${D[@]}" image inspect "$PHP_IMAGE" >/dev/null
+else
+ "${D[@]}" build -q --build-arg "CSF_TEST_PHP_VERSION=$CSF_PHP_VERSION" -t "$PHP_IMAGE" "$ROOT/tests/scheduling"
+fi
 "${D[@]}" run --rm --network none "$PHP_IMAGE" php -r 'echo "CALENDAR_TEST_PHP=".PHP_VERSION."\n";'
 "${D[@]}" network create --internal "$STAMP-net" >/dev/null
 "${D[@]}" volume create "$STAMP-site" >/dev/null

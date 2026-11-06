@@ -26,3 +26,13 @@ add_action('template_redirect',static function(){
 add_action('wp_ajax_fixture_identity',static function(){
  check_ajax_referer('csf_identity','nonce');$body=json_decode(wp_unslash($_POST['body']??''),true);$kind=sanitize_key($_POST['kind']??'');$r=CSF_Scheduling_Store::identity($kind,$body,(int)($_POST['revision']??-1),sanitize_text_field($_POST['command']??''));if(is_wp_error($r)){wp_send_json_error(array('code'=>$r->get_error_code(),'reason'=>$r->get_error_data()),403);}wp_send_json_success($r);
 });
+
+// Local-only arithmetic probe requires the same genuine browser MFA as the calendar.
+add_action('init',static function(){
+ if(isset($_GET['fixture_routine_domain'])){
+  if(!CSF_Scheduling_Access::writer()){status_header(403);exit;}
+  header('Content-Type: text/plain');
+  require '/repo/tests/scheduling/routine-booking-domain.php';
+  exit;
+ }
+});

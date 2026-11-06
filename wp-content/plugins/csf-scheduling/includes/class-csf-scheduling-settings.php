@@ -296,14 +296,18 @@ class CSF_Scheduling_Settings {
 		return $out;
 	}
 
-	/** Owner settings appear before appointment forms; loading a sample never applies it. */
-	public static function render() {
+	/** Owner settings appear before appointment forms; loading a sample never applies it.
+	 *
+	 * @param array|null $snapshot Shared presentation settings/revision.
+	 */
+	public static function render( $snapshot = null ) {
 		if ( ! CSF_Scheduling_Access::can( 'policy_manage' ) ) {
 			return;
 		}
-		$current = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
-		$p       = self::$draft ?? $current;
-		$days    = array( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' );
+		$snapshot = $snapshot ?? CSF_Scheduling_Schema::settings();
+		$current  = json_decode( $snapshot['policy_json'], true );
+		$p        = self::$draft ?? $current;
+		$days     = array( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' );
 		echo '<section id="csf-facility-settings"><h2>Facility settings</h2><p>These settings control scheduling for this facility. Empty hours mean closed. Blank limits stay unconfigured. Initial pilot examples are fictional, not approved farm operating policies.</p>';
 		if ( self::$notice ) {
 			echo '<p role="status">' . esc_html( self::$notice ) . '</p>';
@@ -328,7 +332,7 @@ class CSF_Scheduling_Settings {
 		wp_nonce_field( 'csf_facility_settings' );
 		echo '<button class="button" name="csf_facility_settings" value="pilot">Load fictional pilot example (not saved)</button></form><form method="post" class="csf-policy-form">';
 		wp_nonce_field( 'csf_facility_settings' );
-		echo '<input type="hidden" name="csf_facility_settings" value="review"><input type="hidden" name="facility_revision" value="' . esc_attr( CSF_Scheduling_Schema::settings()['revision'] ) . '">';
+		echo '<input type="hidden" name="csf_facility_settings" value="review"><input type="hidden" name="facility_revision" value="' . esc_attr( $snapshot['revision'] ) . '">';
 		echo '<button type="submit" class="button button-primary">Review facility settings</button>';
 		self::select( 'settings[timezone]', 'Facility timezone', $p['timezone'], array( '' => 'Choose timezone' ) + array_combine( timezone_identifiers_list(), timezone_identifiers_list() ) );
 		echo '<fieldset><legend>Weekly opening hours</legend><p>Leave both times blank for a closed day. Use the additional row for a split day.</p>';
