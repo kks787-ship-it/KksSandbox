@@ -4,6 +4,8 @@
 
 **Goal:** Make scheduling practical for a boutique lesson/training barn. A staff member should be able to book 15-minute-grid lesson slots by choosing a service, efficiently book consecutive members of the same family, protect horse/staff recovery time without wasting instructor hours, correct setup mistakes, and immediately see new bookings and meaningful overrides on the Digital Ranch homepage.
 
+**Implementation follow-up:** Scheduling 0.4.5 is installed on the protected sandbox from `67c7406`. The visual planner click-to-selected-time handoff and automatic guarded validation are delivered; native owner retest remains open. See [validation and retest steps](../test-results/scheduling-auto-selected-time.md). Recurring resource hours/closures and the remaining requirements below are still queued.
+
 ## 1. Routine booking: choose a start slot; derive the rest
 
 - Date and **start time selected on a 15-minute grid** in the farm's configured IANA timezone. Show available candidates based on actual policy and instructor/resource availability; unavailable slots must explain why.
