@@ -431,6 +431,30 @@ class CSF_Scheduling_UI {
 		self::begin( 'appointment_saved', $wire, $id, true );
 		self::select( 'service_type', 'Lesson type', $ctx['services'], $body['service_type'] );
 
+		$states = array(
+			'requested' => 'Requested — no time reserved',
+			'held'      => 'Held — temporary reservation',
+		);
+		if ( CSF_Scheduling_Access::can( 'appointment_confirm' ) ) {
+			$states['confirmed'] = 'Confirmed — reserves time';
+		}
+		self::select( 'state', 'Booking state', $states, $body['state'] );
+		echo '<p class="csf-reservation-state" role="status"></p>';
+		if ( CSF_Scheduling_Access::can( 'policy_manage' ) ) {
+			$policy  = json_decode( ( self::$reviewed ?? CSF_Scheduling_Schema::settings() )['policy_json'], true );
+			$student = array();
+			foreach ( $policy['services'] as $key => $type ) {
+				$name = strtolower( preg_replace( '/[^a-zA-Z0-9]/', '', CSF_Scheduling_Catalog::label( $key, $type ) ) );
+				foreach ( array( 30, 60 ) as $minutes ) {
+					if ( $type['enabled'] && $type['duration_minutes'] === $minutes && 'studentlesson' . $minutes . 'minutes' === $name ) {
+						$student[ $minutes ] = true; }
+				}
+			}
+			echo '<p class="csf-lesson-setup-help">' . ( count( $student ) < 2 ? 'Student 30/60 choices are not yet saved and enabled. ' : '' ) . '<a href="' . esc_url( CSF_Scheduling_UX::url( 'types' ) ) . '">Manage Lesson Types</a></p>';
+		} elseif ( ! $ctx['services'] ) {
+			echo '<p>No enabled lesson types. Ask a farm manager to set them up before booking.</p>';
+		}
+
 		$start  = self::local_value( $body['start'] );
 		$local  = is_array( $start ) ? ( $start['local'] ?? '' ) : substr( $start ?? '', 0, 16 );
 		$choice = is_array( $start ) ? ( $start['choice'] ?? '' ) : ( $start ?? '' );
@@ -445,14 +469,6 @@ class CSF_Scheduling_UI {
 		echo '</div>';
 		echo '<details class="csf-lesson-options"><summary>More options</summary>';
 		echo '<label>Custom lesson title (optional) <input data-field="title" type="text" value="' . esc_attr( $body['title'] ) . '" maxlength="180"></label>';
-		$states = array(
-			'requested' => 'Requested — no time reserved',
-			'held'      => 'Held — temporary reservation',
-		);
-		if ( CSF_Scheduling_Access::can( 'appointment_confirm' ) ) {
-			$states['confirmed'] = 'Confirmed — reserves time';
-		}
-		self::select( 'state', 'Booking state', $states, $body['state'] );
 		echo '</details>';
 		self::end( $body['expected'] ? 'Save lesson' : 'Schedule lesson', true );
 		echo '<details class="csf-advanced-rotation"><summary>Advanced rotation — group lessons or shorter horse turns</summary><p>Use explicit turns for multiple riders/horses or when one horse cannot safely work for the full lesson. Ordinary finish times are calculated above.</p>';

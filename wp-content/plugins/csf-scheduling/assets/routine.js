@@ -31,7 +31,7 @@
    if(b.state==='held'&&!b.hold_expires)items.push('hold expiry');return items;
   }
   function controls(){save.textContent=original.expected?'Save lesson':value('state')==='confirmed'?'Schedule lesson':value('state')==='held'?'Hold lesson':'Request lesson (not reserved)';save.disabled=running||(!warning.hidden&&!acknowledge.checked)||previewHash!==JSON.stringify(body())||validatedKey!==key();preview.disabled=running||validatedKey!==key();load.disabled=running;more.disabled=running;load.textContent=form.dataset.slotStatus==='error'?'Retry selected time check':selected?'Browse alternative starts':'Show 15-minute start slots';}
-  function visibility(){const held=value('state')==='held';form.querySelector('.csf-routine-hold').hidden=!held;expiry.disabled=!held;fold.disabled=!held;expiry.required=held;form.querySelector('.csf-routine-horse').hidden=service()?.horse_source==='none';}
+  function visibility(){const held=value('state')==='held';const stateInfo=form.querySelector('.csf-reservation-state');if(stateInfo)stateInfo.textContent=held?'Held — temporary reservation. An expiry is required. For a normal reservation, choose Confirmed if available.':value('state')==='confirmed'?'Confirmed — reserves the time when saved; rider clearance is separate.':'Requested — does not reserve time.';form.querySelector('.csf-routine-hold').hidden=!held;expiry.disabled=!held;fold.disabled=!held;expiry.required=held;form.querySelector('.csf-routine-horse').hidden=service()?.horse_source==='none';}
   function showSelection(){if(clockChoices.length>1)form.querySelector('.csf-time-alternatives').open=true;
    start.value=selected?.local||'';start.dataset.choice=selected?.choice||'';
    const keep=selected?(selected.choice||selected.local):'';slot.replaceChildren();

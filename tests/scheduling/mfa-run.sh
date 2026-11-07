@@ -67,7 +67,7 @@ if [[ "${CSF_TEST_RESOURCE_HOURS:-0}" == 1 ]]; then
  wait "${pids[closure]}"
  "${D[@]}" exec -e CSF_RESOURCE_RACE=verify "$STAMP-web" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/resource-hours-race.php
 fi
-if [[ "${CSF_TEST_CATALOG:-0}" == 1 || "${CSF_TEST_RESOURCE_HOURS:-0}" == 1 ]]; then
+if [[ "${CSF_TEST_CATALOG:-0}" == 1 || "${CSF_TEST_RESOURCE_HOURS:-0}" == 1 || "${CSF_TEST_STUDENT_SETUP:-0}" == 1 ]]; then
  "${D[@]}" exec -e CSF_TEST_CATALOG_RECOVERY=before "$STAMP-web" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/catalog-recovery.php
  "${D[@]}" exec "$STAMP-db" sh -c 'DUMP=$(command -v mariadb-dump || command -v mysqldump); "$DUMP" -uroot -pfixture-only --single-transaction --skip-comments csf_fixture > /tmp/catalog.sql'
  "${D[@]}" exec "$STAMP-db" sh -c 'CLIENT=$(command -v mariadb || command -v mysql); "$CLIENT" -uroot -pfixture-only csf_fixture < /tmp/catalog.sql; rm /tmp/catalog.sql'

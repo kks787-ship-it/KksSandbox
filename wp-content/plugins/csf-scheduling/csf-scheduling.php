@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Digital Ranch Staff Scheduling
  * Description: Private staff calendar with explicit confirmation and resource protection.
- * Version: 0.4.8
+ * Version: 0.4.9
  * Requires PHP: 8.1
  * Requires at least: 6.6
  * Text Domain: csf-scheduling
@@ -13,7 +13,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CSF_SCHEDULING_VERSION', '0.4.8' );
+define( 'CSF_SCHEDULING_VERSION', '0.4.9' );
 foreach ( array( 'schema', 'audit', 'policy', 'catalog', 'permissions', 'access', 'store', 'time', 'conflict', 'calendar', 'resource-hours', 'resource-ui', 'admin', 'ui', 'diagnostics', 'team', 'identity', 'settings', 'booking', 'planner', 'ux', 'cli' ) as $csf_module ) {
 	require_once __DIR__ . '/includes/class-csf-scheduling-' . $csf_module . '.php';
 }

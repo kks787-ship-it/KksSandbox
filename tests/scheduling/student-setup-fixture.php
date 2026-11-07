@@ -1,0 +1,9 @@
+<?php
+// Disposable synthetic fixture only. No farm policy or records are copied here.
+if(ABSPATH!=='/test/site/'||DB_NAME!=='csf_fixture'||wp_get_environment_type()!=='local')throw new RuntimeException('Fixture only');
+ob_start();require '/repo/tests/scheduling/routine-fixture.php';$ids=json_decode(ob_get_clean(),true);
+$doc=CSF_Scheduling_Calendar::find('riders',$ids['riders'][0]);$d=json_decode($doc['body_json'],true);$d['release_verified']=true;$d['guardian_verified']=true;$d['emergency_verified']=true;
+$r=CSF_Scheduling_Store::calendar('rider_saved',array('uuid'=>$doc['uuid'],'expected'=>(int)$doc['revision'],'data'=>$d),(int)CSF_Scheduling_Schema::settings()['revision'],wp_generate_uuid4());if(is_wp_error($r))throw new RuntimeException('Synthetic rider seed');
+$p=json_decode(CSF_Scheduling_Schema::settings()['policy_json'],true);if(count($p['services'])!==3||array_filter(CSF_Scheduling_Catalog::choices($p['services']),static fn($v)=>str_contains($v,'Student')))throw new RuntimeException('Fixture must start without Student types');
+$legacy=wp_generate_uuid4();$body=array('uuid'=>$legacy,'expected'=>0,'title'=>'Legacy pilot lesson','service_type'=>'pilot_private','state'=>'confirmed','start'=>'2027-01-25T09:00-08:00','end'=>null,'hold_expires'=>null,'resources'=>array($ids['instructor'],$ids['arena']),'riders'=>array(),'rides'=>array(),'_routine'=>true,'single_rider'=>$ids['riders'][0],'single_horse'=>$ids['horses'][0]);$body=CSF_Scheduling_UI::normalize('appointment_saved',$body);$r=CSF_Scheduling_Store::calendar('appointment_saved',$body,(int)CSF_Scheduling_Schema::settings()['revision'],wp_generate_uuid4());if(is_wp_error($r))throw new RuntimeException('Legacy booking fixture');
+$ids['legacy_booking']=$legacy;$ids['legacy_body_hash']=hash('sha256',CSF_Scheduling_Calendar::find('details',$legacy)['body_json']);$ids['initial_services']=$p['services'];echo wp_json_encode($ids);

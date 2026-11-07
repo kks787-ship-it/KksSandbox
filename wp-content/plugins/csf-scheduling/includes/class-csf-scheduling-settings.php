@@ -177,7 +177,23 @@ class CSF_Scheduling_Settings {
 			$native['academy'][ $k ] = 'enabled' === $k ? ( $v ? '1' : '' ) : (string) $v; }
 		if ( empty( $current['academy']['enabled'] ) ) {
 			unset( $native['academy']['enabled'] ); }
-		$parsed              = self::parse( $native );
+		$parsed = self::parse( $native );
+		$index  = 0;
+		foreach ( $current['services'] as $key => $old ) {
+			if ( isset( $parsed['services'][ $key ] ) ) {
+				$proposed = $parsed['services'][ $key ];
+				if ( is_array( $old['required_resources'] ) && is_array( $proposed['required_resources'] ) && ! array_diff( $old['required_resources'], $proposed['required_resources'] ) && ! array_diff( $proposed['required_resources'], $old['required_resources'] ) ) {
+					$proposed['required_resources'] = $old['required_resources']; }
+				$displayed                  = $old + array(
+					'label'          => CSF_Scheduling_Catalog::label( $key, $old ),
+					'category'       => '',
+					'classification' => 'unspecified',
+					'sort_order'     => $index * 10,
+				);
+				$parsed['services'][ $key ] = CSF_Scheduling_Store::canonical( $proposed ) === CSF_Scheduling_Store::canonical( $displayed ) ? $old : $proposed;
+			}
+			++$index;
+		}
 		$current['services'] = $parsed['services'];
 		return $current;
 	}
@@ -368,6 +384,9 @@ class CSF_Scheduling_Settings {
 		if ( self::$notice ) {
 			echo '<p role="status">' . esc_html( self::$notice ) . '</p>';
 		}
+		if ( $catalog_only && 'Facility settings committed and audited.' === self::$notice ) {
+			echo '<p><a class="button button-primary" href="' . esc_url( CSF_Scheduling_UX::url( 'calendar' ) ) . '">Open Calendar — use enabled lesson types</a> <a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'farm' ) ) . '">Review horse suitability</a></p><p>Enabling a type does not authorize existing horses for it. Review suitable lesson types for each horse; existing workload and recovery limits still apply.</p>';
+		}
 		if ( self::$review ) {
 			$r = self::$review;
 			echo '<h3>Review facility changes</h3><div class="csf-policy-table"><table class="widefat striped"><thead><tr><th>Setting</th><th>Current</th><th>Proposed</th></tr></thead><tbody>';
@@ -443,7 +462,9 @@ class CSF_Scheduling_Settings {
 			}
 			echo '</fieldset>';
 		}
-		echo '<fieldset id="csf-lesson-catalog"><legend>Manage lesson types</legend><p>Friendly names can change; internal references and booked labels remain stable. Paid and unpaid are classifications only: no prices, wages or credits are calculated. Review changes before saving. Rule changes or disabling are blocked while future bookings remain.</p><div class="csf-catalog-rows">';
+		echo '<fieldset id="csf-lesson-catalog"><legend>Manage lesson types</legend><p>Friendly names can change; internal references and booked labels remain stable. Paid and unpaid are classifications only: no prices, wages or credits are calculated. Review changes before saving. Rule changes or disabling are blocked while future bookings remain.</p><button type="button" class="button button-primary csf-student-setup">Set up Student 30 &amp; 60 Minute Lessons</button><p>Setup prepares unsaved proposals only. Confirm each type’s rider capacity, horse source and required resources, then Review changes and Apply to save and enable. Existing types and booked labels stay intact.</p>';
+		echo '<p class="csf-student-welfare-review">When using horses, the current maximum continuous work is ' . esc_html( null === $p['workload']['consecutive_minutes'] ? 'not configured' : $p['workload']['consecutive_minutes'] . ' minutes' ) . '. A 60-minute lesson does not raise that limit. Review horse suitability separately and use shorter turns where required.</p>';
+		echo '<div class="csf-catalog-rows">';
 		$i = 0;
 		foreach ( $p['services'] as $key => $service ) {
 			self::service_row( $i++, $key, $service );
