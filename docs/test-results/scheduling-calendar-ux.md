@@ -45,6 +45,17 @@ All 100 custom-plugin PHP files pass syntax checks; the 95 files selected by con
 
 Family grouping/outer buffers, horse archive controls, notifications and the weekly dashboard remain queued. This increment supplies their compact shell, not those business features. Closing a dialog preserves its draft within the page; cross-page/reload draft persistence is not added. Complex groups still use the explicit advanced rotation editor. Impact details are scoped to visible first-occurrence bookings; the full future count must still be reviewed when other dates or travel are involved.
 
-Candidate source is ready; protected rollout remains pending. No server command ran during this increment. Operational review details and bindings remain private. No production changes, account grants, MFA changes, public booking or real notifications are part of this release.
+Scheduling **0.4.8 is installed on the protected sandbox** from source commit `964905c7664cc9a0304891333b402fa4a1752184`. Transparent preflight, the separately reviewed source update, and independent readback passed. Detailed operational review material and receipts remain private. Owner hands-on acceptance is still outstanding. No production changes, account grants, MFA changes, public booking or real notifications were part of this release.
 
 For rollout, use a complete integrity-verified backup younger than 24 hours and the qualified 27-table recovery procedure. Compare all 59 package files (34 scheduling plus 25 unchanged MFA/provider files), publish only the nine reviewed scheduling paths, preserve permissions and compare all 15 scheduling-table row baselines before/after. Retain the exact prior source and a recovery reference. Do not automatically restore a database over newer owner changes. Do not downgrade below the 0.4.7 metadata-aware engine while weekly-hours/closure records exist.
+
+## Narrow owner retest
+
+Sign in with the existing MFA-protected Farm Owner account and open Digital Ranch → Calendar.
+
+1. Click an open time cell. Choose lesson type, fictional rider and a suitable horse when required. Check the calculated finish and reservation label, then Schedule. Test a 30-minute and a 60-minute service.
+2. Use Block Time to review a 90-minute arena block. Verify any affected-booking warning; leave existing appointments intact. Reopen one recorded occurrence if appropriate.
+3. Use Manage Hours for the selected instructor/arena. Review a Friday change and an Add Break split, then save deliberately.
+4. Open Lesson Types and confirm its editor is separate from Farm Settings. Open an existing lesson to edit or duplicate it; copied requests must clearly remain unreserved until confirmed.
+
+Use fictional pilot records. Family grouping/outer buffers remain pending; this release does not add them.

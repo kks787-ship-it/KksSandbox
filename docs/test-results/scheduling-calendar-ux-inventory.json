@@ -1,5 +1,5 @@
 {
-  "scope": "local candidate; protected source/runtime deployment pending",
+  "scope": "verified source inventory for Scheduling 0.4.8; sandbox update completed; detailed operational receipts private",
   "version": "0.4.8",
   "schema": 3,
   "tables": 15,
