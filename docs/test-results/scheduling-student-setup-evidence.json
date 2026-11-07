@@ -1,0 +1,12 @@
+{
+  "scope": "local synthetic test logs only; excludes protected operational evidence",
+  "source_commit": "e653f484e539e2caddb85ac6ccf923f2d7bceb92",
+  "sha256": {
+    "student-regression-mariadb.log": "735e78cba1ec4010261006edfc4b94c42dbe84ad9a5607bb8bc0fe135765c09c",
+    "student-regression-mysql.log": "ad7da66a2f733001e700007911f825f90a714e9bc6bca0777657b58a356de1b0",
+    "student-browser-mariadb-release.log": "d3e6c7a6f7eac8eda69aa15d67407c654943634bd44ca6a68f16506a981d30d3",
+    "student-browser-mysql-release.log": "bb483da320f74fdf582f07e16b8be50b5b71ce357f260a49f5076364d65fa4eb",
+    "student-ux-regression.log": "5eadf71fe40e9288005d40c4a6f6386316ec495825d67e440bf67ec858bdba5c",
+    "student-php-release-final.log": "38fac68a94b8674010b58d134c855ddd202f08d4ae0968dccf4b67ea086a4d98"
+  }
+}

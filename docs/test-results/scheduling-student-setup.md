@@ -5,7 +5,9 @@
 Implements Issue #11 acceptance blocker and master specification §1B (0469261).
 Six scheduling source files change; no schema, engine, MFA, permissions or account changes.
 The 59-file source inventory is in `scheduling-student-setup-inventory.json`.
-Source deployment is pending; real facility lesson settings remain owner-controlled.
+Scheduling 0.4.9 source update completed on the development sandbox, with independent
+integrity readback. Real facility lesson settings remain owner-controlled; no types were
+automatically enabled. Protected operational receipts remain private.
 
 ## Behavior
 
@@ -38,6 +40,8 @@ attributed to a default defect without evidence.
 
 All appointments and configuration mutations in these tests use disposable synthetic fixtures.
 Local passes do not establish owner acceptance or prove any real Student type is enabled.
+
+Local log SHA-256 evidence is recorded in `scheduling-student-setup-evidence.json`.
 
 ## Owner acceptance
 
