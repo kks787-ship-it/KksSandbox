@@ -132,14 +132,20 @@ class CSF_Scheduling_Admin {
 				$name            = $horse['label'];
 				$totals[ $name ] = ( $totals[ $name ] ?? 0 ) + ( strtotime( $ride['end'] ) - strtotime( $ride['start'] ) ) / 60 + 2 * $buffer;
 			}
-			$impact = array( 'Reserved interval: ' . wp_date( 'M j, g:i a T', strtotime( $body['start'] ) - 60 * $buffer, new DateTimeZone( $p['timezone'] ) ) . ' – ' . wp_date( 'M j, g:i a T', strtotime( $body['end'] ) + 60 * $buffer, new DateTimeZone( $p['timezone'] ) ) . '. Teaching duration excludes configured travel. No additional preparation/wrap-up time is reserved.' );
+			$impact = array( ( 'requested' === $body['state'] ? 'Requested interval (not reserved): ' : 'Reservation if saved: ' ) . wp_date( 'M j, g:i a T', strtotime( $body['start'] ) - 60 * $buffer, new DateTimeZone( $p['timezone'] ) ) . ' – ' . wp_date( 'M j, g:i a T', strtotime( $body['end'] ) + 60 * $buffer, new DateTimeZone( $p['timezone'] ) ) . '. Teaching duration excludes configured travel. No additional preparation/wrap-up time is reserved.' );
 			foreach ( $totals as $name => $minutes ) {
 				$impact[] = $name . ': ' . $minutes . ' reserved minutes, including configured travel.'; }
+			$cleared = true;
+			foreach ( $body['riders'] as $rider_id ) {
+				$rider   = json_decode( CSF_Scheduling_Calendar::find( 'riders', $rider_id )['body_json'], true );
+				$cleared = $cleared && $rider['release_verified'] && $rider['emergency_verified'] && ( $rider['adult'] || $rider['guardian_verified'] );
+			}
 			wp_send_json_success(
 				array(
-					'message' => ! empty( $result['preview'] ) ? 'Schedule checked. No reservation has been made. Saving checks it again.' : 'This command was already saved. Saving again replays its original result; check the current calendar.',
-					'times'   => array( $body['start'], $body['end'] ),
-					'impact'  => implode( ' ', $impact ),
+					'rider_cleared' => $cleared,
+					'message'       => ! empty( $result['preview'] ) ? 'Schedule checked. No reservation has been made. Saving checks it again.' : 'This command was already saved. Saving again replays its original result; check the current calendar.',
+					'times'         => array( $body['start'], $body['end'] ),
+					'impact'        => implode( ' ', $impact ),
 				)
 			);
 		} catch ( Throwable $error ) {

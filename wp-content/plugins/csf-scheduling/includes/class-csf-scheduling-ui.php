@@ -349,7 +349,9 @@ class CSF_Scheduling_UI {
 		if ( ( ! CSF_Scheduling_Access::can( 'appointment_edit' ) && ( ! $body['expected'] || ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) || ( 'confirmed' === ( $body['state'] ?? '' ) && ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) ) {
 			return; }
 		self::begin( 'appointment_saved', $body, $id );
-		self::input( 'title', 'Appointment title', $body['title'] );
+		echo '<details class="csf-lesson-options"><summary>More options</summary>';
+		echo '<label>Custom lesson title (optional) <input data-field="title" type="text" value="' . esc_attr( $body['title'] ) . '" maxlength="180"></label>';
+		echo '</details>';
 		self::select( 'service_type', 'Service', $ctx['services'], $body['service_type'] );
 		$states = array(
 			'requested' => 'requested',
@@ -368,7 +370,7 @@ class CSF_Scheduling_UI {
 		echo '</div>';
 		if ( $body['expected'] ) {
 			echo '<button type="button" class="button csf-shift">Move end and all turns to match the new start</button>'; }
-		self::checks( 'resources', 'Instructor, arena and location', $ctx['resources'], $body['resources'] );
+		CSF_Scheduling_UX::resource_choices( $ctx, $body['resources'] );
 		self::checks( 'riders', 'Riders attending', $ctx['riders'], $body['riders'] );
 		self::checks( 'pool', 'Approved horse pool for these ride rows', $ctx['horses'], array_values( array_unique( array_column( $body['rides'], 'horse' ) ) ) );
 		echo '<p>Choose a horse pool, then add one row for each rider’s turn. Unchecked horses cannot be assigned. Suitability and rest are checked by the server.</p><div class="csf-rows" data-rows="rides">';
@@ -386,7 +388,7 @@ class CSF_Scheduling_UI {
 		);
 		echo '</template>';
 		echo '<label>Recovery minutes before the next added turn <input type="number" data-recovery value="0" min="0" max="1440"></label><button type="button" class="button csf-add-row">Add rider / horse turn</button><p class="csf-impact" aria-live="polite"></p><p>Confirmation reserves time after direct agreement. PRE-RIDE BLOCK remains until rider evidence is verified. A preview does not reserve resources.</p>';
-		self::end( $body['expected'] ? 'Save appointment' : 'Create appointment', true );
+		self::end( $body['expected'] ? 'Save lesson' : 'Schedule lesson', true );
 	}
 
 	/** One explicit ride row.
@@ -427,17 +429,8 @@ class CSF_Scheduling_UI {
 		$wire['single_rider'] = $body['single_rider'] ?? ( $body['riders'][0] ?? '' );
 		$wire['single_horse'] = $body['single_horse'] ?? ( $body['rides'][0]['horse'] ?? '' );
 		self::begin( 'appointment_saved', $wire, $id, true );
-		self::input( 'title', 'Appointment title', $body['title'] );
 		self::select( 'service_type', 'Lesson type', $ctx['services'], $body['service_type'] );
 
-		$states = array(
-			'requested' => 'Requested — no time reserved',
-			'held'      => 'Held — temporary reservation',
-		);
-		if ( CSF_Scheduling_Access::can( 'appointment_confirm' ) ) {
-			$states['confirmed'] = 'Confirmed';
-		}
-		self::select( 'state', 'Booking state', $states, $body['state'] );
 		$start  = self::local_value( $body['start'] );
 		$local  = is_array( $start ) ? ( $start['local'] ?? '' ) : substr( $start ?? '', 0, 16 );
 		$choice = is_array( $start ) ? ( $start['choice'] ?? '' ) : ( $start ?? '' );
@@ -446,11 +439,22 @@ class CSF_Scheduling_UI {
 		echo '<div class="csf-routine-horse">';
 		self::select( 'single_horse', 'Horse', array( '' => 'Choose horse' ) + $ctx['horses'], $wire['single_horse'] );
 		echo '</div>';
-		self::checks( 'resources', 'Instructor, arena and location', $ctx['resources'], $body['resources'] );
-		echo '<button type="button" class="button csf-load-slots">Show 15-minute start slots</button><button type="button" class="button csf-more-slots" hidden>Show later starts</button><label>Available start <select class="csf-start-slot" required><option value="">Check the selected date and resources first</option></select></label><input type="hidden" class="csf-routine-start" value="' . esc_attr( $local ) . '" data-choice="' . esc_attr( $choice ) . '"><p class="csf-routine-summary" role="status" aria-live="polite">Choose a start to calculate the finish. Long lessons may require shorter turns in Advanced rotation.</p><details class="csf-slot-reasons"><summary>Why other starts are unavailable</summary><ul></ul></details><div class="csf-routine-hold"' . ( 'held' === $body['state'] ? '' : ' hidden' ) . '>';
+		CSF_Scheduling_UX::resource_choices( $ctx, $body['resources'] );
+		echo '<label>Start time <input type="time" class="csf-lesson-clock" step="900" value="' . esc_attr( $local ? substr( $local, 11, 5 ) : '' ) . '"></label><details class="csf-time-alternatives"><summary>Change time / See alternatives</summary><button type="button" class="button csf-load-slots">Show 15-minute start slots</button><button type="button" class="button csf-more-slots" hidden>Show later starts</button><label>Available start <select class="csf-start-slot" required><option value="">Check the selected date and resources first</option></select></label><input type="hidden" class="csf-routine-start" value="' . esc_attr( $local ) . '" data-choice="' . esc_attr( $choice ) . '"></details><p class="csf-routine-summary" role="status" aria-live="polite">Choose a start to calculate the finish. Long lessons may require shorter turns in Advanced rotation.</p><details class="csf-slot-reasons"><summary>Why other starts are unavailable</summary><ul></ul></details><div class="csf-routine-hold"' . ( 'held' === $body['state'] ? '' : ' hidden' ) . '>';
 		self::time( 'hold_expires', 'Hold expires', $body['hold_expires'], true );
 		echo '</div>';
-		self::end( $body['expected'] ? 'Save appointment' : 'Create appointment', true );
+		echo '<details class="csf-lesson-options"><summary>More options</summary>';
+		echo '<label>Custom lesson title (optional) <input data-field="title" type="text" value="' . esc_attr( $body['title'] ) . '" maxlength="180"></label>';
+		$states = array(
+			'requested' => 'Requested — no time reserved',
+			'held'      => 'Held — temporary reservation',
+		);
+		if ( CSF_Scheduling_Access::can( 'appointment_confirm' ) ) {
+			$states['confirmed'] = 'Confirmed — reserves time';
+		}
+		self::select( 'state', 'Booking state', $states, $body['state'] );
+		echo '</details>';
+		self::end( $body['expected'] ? 'Save lesson' : 'Schedule lesson', true );
 		echo '<details class="csf-advanced-rotation"><summary>Advanced rotation — group lessons or shorter horse turns</summary><p>Use explicit turns for multiple riders/horses or when one horse cannot safely work for the full lesson. Ordinary finish times are calculated above.</p>';
 		unset( $body['_routine'], $body['single_rider'], $body['single_horse'] );
 		self::appointment_advanced( $body, $ctx, $id ? $id . '-advanced' : '' );
@@ -608,6 +612,8 @@ class CSF_Scheduling_UI {
 		wp_enqueue_script( 'csf-scheduling-catalog', plugins_url( '../assets/catalog.js', __FILE__ ), array(), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_script( 'csf-scheduling-routine', plugins_url( '../assets/routine.js', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_style( 'csf-scheduling-planner', plugins_url( '../assets/planner.css', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION );
+		wp_enqueue_script( 'csf-scheduling-ux', plugins_url( '../assets/ux.js', __FILE__ ), array( 'csf-scheduling-planner', 'csf-scheduling-resources' ), CSF_SCHEDULING_VERSION, true );
+		wp_enqueue_style( 'csf-scheduling-ux', plugins_url( '../assets/ux.css', __FILE__ ), array( 'csf-scheduling-planner' ), CSF_SCHEDULING_VERSION );
 		wp_enqueue_script( 'csf-scheduling-planner', plugins_url( '../assets/planner.js', __FILE__ ), array( 'csf-scheduling-routine' ), CSF_SCHEDULING_VERSION, true );
 		$p = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
 		wp_add_inline_script(
@@ -752,8 +758,10 @@ class CSF_Scheduling_UI {
 			'resource' => $filter,
 		);
 		$rows             = CSF_Scheduling_Calendar::view( $date, $view, $filter );
-		echo '<div class="wrap csf-calendar"><h1>Digital Ranch Staff Calendar</h1><p>All times: <strong>' . esc_html( $p['timezone'] ?? 'Timezone not configured' ) . '</strong>. Confirmation reserves time; rider permission is checked separately.</p><nav aria-label="Calendar sections"><a href="#csf-calendar-list">Appointments</a> · <a href="#csf-create">New appointment</a> · <a href="#csf-farm-setup">Farm setup and horse availability</a>' . ( CSF_Scheduling_Access::can( 'policy_manage' ) ? ' · <a href="#csf-facility-settings">Facility settings</a>' : '' ) . '</nav><noscript><p>Appointment editing requires JavaScript. Viewing remains available.</p></noscript>';
-		CSF_Scheduling_Settings::render( self::$reviewed );
+		$screen           = CSF_Scheduling_UX::screen();
+		echo '<div class="wrap csf-calendar" data-screen="' . esc_attr( $screen ) . '"><h1>Digital Ranch Calendar</h1>';
+		CSF_Scheduling_UX::navigation( $screen, $date, $view, $filter );
+
 		if ( $result ) {
 			if ( is_wp_error( $result ) ) {
 				echo '<div class="notice notice-error" role="alert"><p>' . esc_html( self::message( $result ) ) . '</p></div>'; } else {
@@ -773,6 +781,13 @@ class CSF_Scheduling_UI {
 				echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '">'; }
 			echo '<button class="button">Retry exact command</button></form></details>';
 		}
+		if ( 'calendar' !== $screen ) {
+			CSF_Scheduling_UX::screen_content( $screen, $ctx, $p, self::$reviewed, $date, $view, $filter );
+			echo '</div>';
+			return;
+		}
+		echo '<p>All times: ' . esc_html( $p['timezone'] ?? 'Timezone not configured' ) . '. Confirmed reserves time; rider clearance is checked separately.</p>';
+		CSF_Scheduling_UX::actions( $date, $view, $filter );
 		echo '<form method="post" class="csf-navigation"><input type="hidden" name="csf_calendar_view" value="1">';
 		wp_nonce_field( 'csf_calendar_view' );
 		echo '<label>Date <input type="date" name="date" value="' . esc_attr( $date ) . '" required></label><label>View <select name="view"><option value="day">Day</option><option value="week" ' . selected( $view, 'week', false ) . '>Week (7 days)</option></select></label><label>Instructor, arena or horse <select name="resource"><option value="">All</option>';
@@ -784,7 +799,7 @@ class CSF_Scheduling_UI {
 			$details[ $row['uuid'] ] = json_decode( CSF_Scheduling_Calendar::find( 'details', $row['uuid'] )['body_json'], true );
 		}
 		CSF_Scheduling_Planner::render( $date, $view, $filter, $rows, $details, $ctx, $p );
-		CSF_Scheduling_Resource_UI::render( $ctx, $p, self::$reviewed, $date, $view, $filter );
+		CSF_Scheduling_UX::block_panel( $ctx, $p, self::$reviewed, $date, $view, $filter, $rows );
 		echo '<details class="csf-planner-list"><summary>Appointment list and details</summary><div id="csf-calendar-list" class="appointments">';
 		if ( is_wp_error( $rows ) ) {
 			echo '<p role="alert">Calendar blocked: configure facility policies and timezone before scheduling.</p>'; } elseif ( ! $rows ) {
@@ -851,14 +866,14 @@ class CSF_Scheduling_UI {
 										} echo '</section>';
 				}
 				if ( CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
-					echo '<section id="csf-create"><h2>Create manual appointment</h2>'; }
+					echo '<section id="csf-create"><h2>Schedule lesson</h2>'; }
 				self::appointment(
 					array(
 						'uuid'         => wp_generate_uuid4(),
 						'expected'     => 0,
 						'title'        => '',
 						'service_type' => array_key_first( $ctx['services'] ) ?? '',
-						'state'        => 'requested',
+						'state'        => CSF_Scheduling_Access::can( 'appointment_confirm' ) ? 'confirmed' : 'requested',
 						'start'        => '',
 						'end'          => '',
 						'hold_expires' => null,
@@ -871,7 +886,7 @@ class CSF_Scheduling_UI {
 				);
 				if ( CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
 					echo '</section>'; }
-				self::setup( $ctx );
+				// Farm setup is separately navigable; never emitted on the everyday calendar.
 			}
 			echo '</div>';
 	}

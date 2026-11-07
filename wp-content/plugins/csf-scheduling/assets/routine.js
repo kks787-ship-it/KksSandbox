@@ -13,11 +13,14 @@
  const display=iso=>new Intl.DateTimeFormat('en-US',{timeZone:config.timezone,month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'}).format(new Date(iso));
  document.querySelectorAll('.csf-routine-editor').forEach(form=>{
   const original=JSON.parse(form.elements.body.value),save=form.querySelector('.csf-save'),preview=form.querySelector('.csf-preview'),load=form.querySelector('.csf-load-slots'),more=form.querySelector('.csf-more-slots'),feedback=form.querySelector('.csf-feedback'),date=form.querySelector('.csf-lesson-date'),slot=form.querySelector('.csf-start-slot'),start=form.querySelector('.csf-routine-start'),summary=form.querySelector('.csf-routine-summary'),expiry=form.querySelector('[data-time=hold_expires]'),fold=form.querySelector('[data-fold]');
+  const warning=document.createElement('label');warning.className='csf-clearance-ack';warning.hidden=true;warning.innerHTML='<input type="checkbox"> I understand this reservation does not clear the rider to participate.';feedback.after(warning);const acknowledge=warning.querySelector('input');acknowledge.addEventListener('change',controls);
   let selected=start.value?{local:start.value,choice:start.dataset.choice||'',resolve:!start.dataset.choice}:null;
   let generation=0,previewHash=null,validatedKey=null,lastAttempt=null,running=false,queued=false,timer=null,dirty=false,slots=[],next=null,clockChoices=[],checkedEnd=null,active=false,lastLane='';
   const value=key=>form.querySelector('[data-field='+key+']').value;
+  const clock=form.querySelector('.csf-lesson-clock');
+  function title(){return value('title').trim()||((form.querySelector('[data-field=service_type] option:checked')?.textContent||'Lesson')+' · '+(form.querySelector('[data-field=single_rider] option:checked')?.textContent||'Rider')).slice(0,180);}
   const service=()=>config.services[value('service_type')];
-  function body(){return {...original,_routine:true,title:value('title'),service_type:value('service_type'),state:value('state'),single_rider:value('single_rider'),single_horse:value('single_horse'),resources:Array.from(form.querySelectorAll('[data-array=resources] input:checked'),el=>el.value),riders:[],rides:[],start:selected?{local:selected.local,choice:selected.choice||null}:null,end:null,hold_expires:value('state')==='held'&&expiry.value?{local:expiry.value,choice:fold.value||null}:null};}
+  function body(){return {...original,_routine:true,title:title(),service_type:value('service_type'),state:value('state'),single_rider:value('single_rider'),single_horse:value('single_horse'),resources:Array.from(form.querySelectorAll('[data-array=resources] input:checked'),el=>el.value),riders:[],rides:[],start:selected?{local:selected.local,choice:selected.choice||null}:null,end:null,hold_expires:value('state')==='held'&&expiry.value?{local:expiry.value,choice:fold.value||null}:null};}
   function key(){const b=body();delete b.title;return JSON.stringify(b);}
   function missing(){
    const b=body(),s=service(),items=[];
@@ -27,9 +30,9 @@
    for(const kind of s?.required_resources||[]){if(kind!=='horse'&&!b.resources.some(id=>config.resourceKinds?.[id]===kind))items.push(kind);}
    if(b.state==='held'&&!b.hold_expires)items.push('hold expiry');return items;
   }
-  function controls(){save.disabled=running||previewHash!==JSON.stringify(body())||validatedKey!==key();preview.disabled=running||validatedKey!==key();load.disabled=running;more.disabled=running;load.textContent=form.dataset.slotStatus==='error'?'Retry selected time check':selected?'Browse alternative starts':'Show 15-minute start slots';}
+  function controls(){save.textContent=original.expected?'Save lesson':value('state')==='confirmed'?'Schedule lesson':value('state')==='held'?'Hold lesson':'Request lesson (not reserved)';save.disabled=running||(!warning.hidden&&!acknowledge.checked)||previewHash!==JSON.stringify(body())||validatedKey!==key();preview.disabled=running||validatedKey!==key();load.disabled=running;more.disabled=running;load.textContent=form.dataset.slotStatus==='error'?'Retry selected time check':selected?'Browse alternative starts':'Show 15-minute start slots';}
   function visibility(){const held=value('state')==='held';form.querySelector('.csf-routine-hold').hidden=!held;expiry.disabled=!held;fold.disabled=!held;expiry.required=held;form.querySelector('.csf-routine-horse').hidden=service()?.horse_source==='none';}
-  function showSelection(){
+  function showSelection(){if(clockChoices.length>1)form.querySelector('.csf-time-alternatives').open=true;
    start.value=selected?.local||'';start.dataset.choice=selected?.choice||'';
    const keep=selected?(selected.choice||selected.local):'';slot.replaceChildren();
    if(selected){const status=form.dataset.slotStatus||'pending';slot.add(new Option((selected.choice?display(selected.choice):selected.local.replace('T',' '))+' · '+(status==='available'?'checked':status==='unavailable'?'unavailable':'selected, awaiting check'),keep));}
@@ -37,7 +40,7 @@
    for(const choice of clockChoices){if(choice===keep)continue;const option=new Option(display(choice)+' · choose clock-change occurrence',choice);option.dataset.clock='1';slot.add(option);}
    for(const item of slots){if(item.choice===keep)continue;const option=new Option(item.label+(item.available?'':' — unavailable'),item.choice);option.disabled=!item.available;slot.add(option);}
    slot.value=keep;
-   if(selected?.choice){const minutes=service()?.duration_minutes,end=checkedEnd|| (Number.isInteger(minutes)?new Date(Date.parse(selected.choice)+minutes*60000).toISOString():null);summary.textContent='Selected: '+display(selected.choice)+(end?' → '+display(end)+' · '+minutes+' elapsed teaching minutes':'')+'. '+(validatedKey===key()?'Availability checked; final preview is still required.':'Availability has not been confirmed.')+' No time is reserved.';}
+   if(selected?.choice){const minutes=service()?.duration_minutes,end=checkedEnd|| (Number.isInteger(minutes)?new Date(Date.parse(selected.choice)+minutes*60000).toISOString():null);summary.textContent=(value('state')==='requested'?'Requested — no time will be reserved. ':value('state')==='confirmed'?'Confirmed — reserves time when saved. ':'Held — temporary reservation when saved. ')+'Selected: '+display(selected.choice)+(end?' → '+display(end)+' · '+minutes+' elapsed teaching minutes':'')+'. '+(validatedKey===key()?'Availability checked. Review the details below, then save.':'Availability has not been confirmed.')+' No time is reserved.';}
    else summary.textContent=selected?'Selected local time: '+selected.local.replace('T',' ')+'. Choose an explicit valid occurrence; no time is reserved.':'Choose a start to calculate the finish. Long horse turns may need Advanced rotation.';
   }
   function invalidate(){generation++;previewHash=null;validatedKey=null;lastAttempt=null;checkedEnd=null;slots=[];next=null;more.hidden=true;form.dataset.slotStatus='pending';visibility();showSelection();controls();}
@@ -73,11 +76,11 @@
    running=true;form.dataset.slotStatus='checking';controls();showSelection();feedback.textContent='Checking selected time, resources and horse welfare…';
    try{
     if(await holdTime()===false){queued=true;return;}
-    context=key();const checkedContext=context,probe={...body(),title:'Availability check'};
+    context=key();const checkedContext=context,probe=body(),wire=JSON.stringify(probe);
     const result=await request('preview',{body:JSON.stringify(probe),facility_revision:form.elements.facility_revision.value,command_id:crypto.randomUUID()});
     if(checkedContext!==key())return;
     if(result.times[0]!==selected.choice)throw new Error('The selected clock offset changed. Choose the explicit local occurrence again.');
-    validatedKey=checkedContext;lastAttempt=checkedContext;checkedEnd=result.times[1];form.dataset.slotStatus='available';feedback.textContent='Selected time checked. Review the lesson with Check schedule before saving; nothing has been reserved.';showSelection();
+    if(wire!==JSON.stringify(body())){queued=true;return;}warning.hidden=result.rider_cleared!==false;acknowledge.checked=false;validatedKey=checkedContext;previewHash=wire;lastAttempt=checkedContext;checkedEnd=result.times[1];form.dataset.slotStatus='available';feedback.textContent='Availability checked. '+result.impact+(result.rider_cleared===false?' PRE-RIDE BLOCK: rider clearance incomplete. A confirmed reservation does not clear this rider to participate.':'')+' '+(value('state')==='requested'?'This request will NOT reserve time.':'Saving rechecks all resources. No reservation exists until you save.');showSelection();
    }catch(error){
     if(context!==key())return;
     lastAttempt=context;form.dataset.slotStatus=error.uncertain?'error':'unavailable';feedback.textContent=error.message;showSelection();
@@ -85,12 +88,12 @@
    }finally{finish();}
   }
   function changed(event){
-   if(event.target===slot)return;
+   if(event.target===slot||event.target===acknowledge)return;
    dirty=true;active=true;
    if(event.target===date&&selected){clockChoices=[];selected={local:date.value+'T'+selected.local.slice(11,16),choice:'',resolve:true};}
    if(event.target===expiry)fold.replaceChildren(new Option('Validate hold expiry before saving',''));
    // A title affects final preview, but does not change resource availability.
-   if(event.target.matches('[data-field=title]')){generation++;previewHash=null;controls();return;}
+   if(event.target.matches('[data-field=title]')){invalidate();lastAttempt=null;schedule();return;}
    invalidate();if(selected){pendingMessage();schedule();}
   }
   form.addEventListener('input',changed);form.addEventListener('change',changed);
@@ -98,7 +101,7 @@
    const iso=slot.value,item=slots.find(x=>x.choice===iso&&x.available),clock=clockChoices.includes(iso);
    if(!item&&!clock)return;
    selected={local:item?.local||selected.local,choice:iso,resolve:false};clockChoices=[];active=true;dirty=true;invalidate();
-   if(item){validatedKey=key();lastAttempt=key();checkedEnd=item.end;form.dataset.slotStatus='available';feedback.textContent='Alternative selected and checked. Final preview is required.';showSelection();controls();}else schedule(0);
+   if(item){validatedKey=key();lastAttempt=key();checkedEnd=item.end;form.dataset.slotStatus='pending';feedback.textContent='Alternative selected. Checking the exact lesson…';lastAttempt=null;showSelection();controls();schedule(0);}else schedule(0);
   });
   async function browse(offset=0,append=false){
    if(running||!date.reportValidity())return;
@@ -116,19 +119,21 @@
    try{const wire=JSON.stringify(body()),version=generation,result=await request('preview',{body:wire,facility_revision:form.elements.facility_revision.value,command_id:form.elements.command_id.value});if(version!==generation||wire!==JSON.stringify(body())){feedback.textContent='Your draft changed during the final check. Review it and check again; nothing was saved.';return;}previewHash=wire;feedback.textContent=result.message+'\n'+display(result.times[0])+' → '+display(result.times[1])+'\n'+result.impact;}
    catch(error){previewHash=null;feedback.textContent=error.message;}finally{finish();}
   });
-  form.addEventListener('submit',event=>{const wire=JSON.stringify(body());if(wire!==previewHash||validatedKey!==key()||running){event.preventDefault();save.disabled=true;feedback.textContent='Check this schedule before saving. No appointment was saved.';return;}form.elements.body.value=wire;running=true;clearTimeout(timer);controls();});
+  form.addEventListener('submit',event=>{const wire=JSON.stringify(body());if(wire!==previewHash||validatedKey!==key()||running||(!warning.hidden&&!acknowledge.checked)){event.preventDefault();save.disabled=true;feedback.textContent='Check this schedule before saving. No appointment was saved.';return;}form.elements.body.value=wire;running=true;clearTimeout(timer);controls();});
   form.addEventListener('csf:prefill',event=>{
    const intent=event.detail;
    const resourceSelected=!intent.resource||value('single_horse')===intent.resource||Array.from(form.querySelectorAll('[data-array=resources] input:checked')).some(el=>el.value===intent.resource);
    const same=selected?.choice===intent.choice&&selected.local===intent.local&&lastLane===(intent.resource||'')&&resourceSelected;
-   if(!intent.fields&&same){form.scrollIntoView({block:'start'});return;}
+   if(!intent.fields&&same){form.dispatchEvent(new CustomEvent('csf:edit',{bubbles:true}));return;}
    if(dirty&&!window.confirm('Use this selection in the current unsaved lesson draft? Your previous preview will be cleared.'))return;
    if(intent.fields){for(const[k,v]of Object.entries(intent.fields)){const el=form.querySelector('[data-field='+CSS.escape(k)+']');if(el)el.value=v;}for(const box of form.querySelectorAll('[data-array=resources] input'))box.checked=intent.resources.includes(box.value);}
-   date.value=intent.local.slice(0,10);lastLane=intent.resource||'';
+   date.value=intent.local.slice(0,10);if(clock)clock.value=intent.local.slice(11,16);lastLane=intent.resource||'';
    if(intent.resource){const horse=form.querySelector('[data-field=single_horse]');if(Array.from(horse.options).some(o=>o.value===intent.resource))horse.value=intent.resource;else{const kind=config.resourceKinds?.[intent.resource];for(const box of form.querySelectorAll('[data-array=resources] input')){if(kind&&config.resourceKinds[box.value]===kind)box.checked=box.value===intent.resource;}}}
-   selected={local:intent.local,choice:intent.choice||'',resolve:!intent.choice};clockChoices=[];dirty=true;active=true;invalidate();pendingMessage();schedule(0);form.scrollIntoView({block:'start'});form.querySelector('[data-field=title]').focus();
+   selected={local:intent.local,choice:intent.choice||'',resolve:!intent.choice};clockChoices=[];dirty=true;active=true;invalidate();pendingMessage();schedule(0);form.dispatchEvent(new CustomEvent('csf:edit',{bubbles:true}));if(!form.closest('dialog'))form.scrollIntoView({block:'start'});form.querySelector('[data-field=service_type]').focus();
   });
   form.closest('details')?.addEventListener('toggle',()=>{if(form.closest('details').open&&selected){active=true;schedule(0);}});
+  clock?.addEventListener('change',()=>{if(!clock.value||!date.value)return;selected={local:date.value+'T'+clock.value,choice:'',resolve:true};clockChoices=[];active=true;dirty=true;invalidate();pendingMessage();schedule(0);});
+  form.addEventListener('csf:activate',()=>{active=true;lastAttempt=null;if(selected)schedule(0);});
   visibility();showSelection();controls();
  });
 })();

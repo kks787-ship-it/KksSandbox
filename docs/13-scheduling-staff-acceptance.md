@@ -147,3 +147,7 @@ After any catalog policy edit, do not downgrade to 0.4.5: its validator does not
 ## Native weekly resource hours and visual closures
 
 Scheduling 0.4.7 adds explicit arena/instructor/location weekly bases, reviewed closures, weekly repetition and one-occurrence reopening. Follow the [increment walkthrough and rollback limits](test-results/scheduling-resource-hours.md). Source installation does not choose real farm hours. Verify affected appointments manually; this release never silently cancels them and does not yet implement family-session buffers.
+
+## Calendar-first 0.4.8 candidate
+
+Use [the compact workflow walkthrough, measurements and validation](test-results/scheduling-calendar-ux.md). Once the candidate is released, start at Calendar: click a time for Schedule Lesson, use Block Time for closures, and use Manage Hours for the selected weekly schedule. Lesson Types and Farm Settings are separate screens. Review unreserved-request versus confirmed-reservation labels and all genuine clearance/impact warnings. Family grouping/buffers are not yet implemented.

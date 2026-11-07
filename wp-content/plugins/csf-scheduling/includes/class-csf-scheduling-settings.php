@@ -144,6 +144,44 @@ class CSF_Scheduling_Settings {
 		return $p;
 	}
 
+
+	/** Parse catalog-only fields against current server policy, never hidden client copies.
+	 *
+	 * @param mixed $form Native catalog rows.
+	 * @param array $current Current policy.
+	 * @return array
+	 * @throws RuntimeException Invalid rows.
+	 */
+	public static function parse_catalog( $form, $current ) {
+		if ( ! is_array( $form ) || array_keys( $form ) !== array( 'services' ) ) {
+			throw new RuntimeException( 'Invalid lesson type fields.' ); }
+		$native = array(
+			'timezone' => $current['timezone'] ?? '',
+			'hours'    => array(),
+			'services' => $form['services'],
+			'academy'  => array(),
+		);
+		for ( $day = 0; $day < 7; ++$day ) {
+			$native['hours'][ $day ] = array_map(
+				static fn( $x ) => array(
+					'start' => $x[0],
+					'end'   => $x[1],
+				),
+				$current['service_hours'][ $day ] ?? array()
+			); }
+		foreach ( $current['workload'] as $k => $v ) {
+			$native[ $k ] = null === $v ? '' : (string) $v; }
+		foreach ( array( 'training_horse_cap', 'preferred_offsite_day', 'travel_buffer_minutes' ) as $k ) {
+			$native[ $k ] = null === $current[ $k ] ? '' : (string) $current[ $k ]; }
+		foreach ( $current['academy'] as $k => $v ) {
+			$native['academy'][ $k ] = 'enabled' === $k ? ( $v ? '1' : '' ) : (string) $v; }
+		if ( empty( $current['academy']['enabled'] ) ) {
+			unset( $native['academy']['enabled'] ); }
+		$parsed              = self::parse( $native );
+		$current['services'] = $parsed['services'];
+		return $current;
+	}
+
 	/** Synthetic example only; loading it never saves or adds records. */
 	public static function pilot() {
 		$p                          = CSF_Scheduling_Policy::defaults();
@@ -217,7 +255,7 @@ class CSF_Scheduling_Settings {
 				if ( ! preg_match( '/^(0|[1-9][0-9]{0,9})$/D', $revision ) || (int) CSF_Scheduling_Schema::settings()['revision'] !== (int) $revision ) {
 					throw new RuntimeException( 'Settings changed. Reload before reviewing again.' );
 				}
-				self::$draft = self::parse( isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Strict typed fields and domain validation.
+				self::$draft = isset( $_POST['catalog_only'] ) ? self::parse_catalog( isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : null, $current ) : self::parse( isset( $_POST['settings'] ) ? wp_unslash( $_POST['settings'] ) : null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Strict typed fields and domain validation.
 				if ( array_diff( array_keys( $current['services'] ), array_keys( self::$draft['services'] ) ) ) {
 					throw new RuntimeException( 'Existing services cannot be removed here. Disable a service to retain its history.' );
 				}
@@ -316,8 +354,9 @@ class CSF_Scheduling_Settings {
 	/** Owner settings appear before appointment forms; loading a sample never applies it.
 	 *
 	 * @param array|null $snapshot Shared presentation settings/revision.
+	 * @param bool       $catalog_only Render only lesson types.
 	 */
-	public static function render( $snapshot = null ) {
+	public static function render( $snapshot = null, $catalog_only = false ) {
 		if ( ! CSF_Scheduling_Access::can( 'policy_manage' ) ) {
 			return;
 		}
@@ -334,6 +373,8 @@ class CSF_Scheduling_Settings {
 			echo '<h3>Review facility changes</h3><div class="csf-policy-table"><table class="widefat striped"><thead><tr><th>Setting</th><th>Current</th><th>Proposed</th></tr></thead><tbody>';
 			$old = self::summary( $current );
 			foreach ( self::summary( $r['policy'] ) as $label => $text ) {
+				if ( $catalog_only && ( $old[ $label ] ?? '' ) === $text ) {
+					continue; }
 				echo '<tr><th scope="row">' . esc_html( $label ) . '</th><td>' . esc_html( $old[ $label ] ?? 'Not configured' ) . '</td><td>' . esc_html( $text ) . '</td></tr>';
 			}
 			echo '</tbody></table></div>';
@@ -353,48 +394,56 @@ class CSF_Scheduling_Settings {
 				echo '<input type="hidden" name="csf_facility_settings" value="apply"><input type="hidden" name="review" value="' . esc_attr( wp_json_encode( $r ) ) . '"><input type="hidden" name="signature" value="' . esc_attr( self::signature( $r ) ) . '"><label><input type="checkbox" name="reviewed" value="1" required> I reviewed these exact facility settings.</label><button type="submit" class="button button-primary">Apply reviewed settings</button><p>For an uncertain result, retry this exact form rather than starting another change.</p></form>';
 			}
 		}
-		echo '<details class="csf-policy-editor"' . ( null !== self::$draft || CSF_Scheduling_Policy::missing( $current ) ? ' open' : '' ) . '><summary>Edit facility settings</summary><form method="post" class="csf-policy-example">';
+		echo '<details class="csf-policy-editor"' . ( null !== self::$draft || CSF_Scheduling_Policy::missing( $current ) ? ' open' : ( $catalog_only ? ' open' : '' ) ) . '><summary>Edit facility settings</summary><form method="post" class="csf-policy-example">';
 		wp_nonce_field( 'csf_facility_settings' );
-		echo '<button class="button" name="csf_facility_settings" value="pilot">Load fictional pilot example (not saved)</button></form><form method="post" class="csf-policy-form">';
+		if ( ! $catalog_only ) {
+			echo '<button class="button" name="csf_facility_settings" value="pilot">Load fictional pilot example (not saved)</button>';
+		}
+		echo '</form><form method="post" class="csf-policy-form">';
 		wp_nonce_field( 'csf_facility_settings' );
 		echo '<input type="hidden" name="csf_facility_settings" value="review"><input type="hidden" name="facility_revision" value="' . esc_attr( $snapshot['revision'] ) . '">';
-		echo '<button type="submit" class="button button-primary">Review facility settings</button>';
-		self::select( 'settings[timezone]', 'Facility timezone', $p['timezone'], array( '' => 'Choose timezone' ) + array_combine( timezone_identifiers_list(), timezone_identifiers_list() ) );
-		echo '<fieldset><legend>Weekly opening hours</legend><p>Leave both times blank for a closed day. Use the additional row for a split day.</p>';
-		foreach ( $days as $day => $label ) {
-			$rows   = $p['service_hours'][ $day ] ?? array();
-			$rows[] = array( '', '' );
-			echo '<fieldset><legend>' . esc_html( $label ) . '</legend>';
-			foreach ( $rows as $i => $range ) {
-				self::field( 'settings[hours][' . $day . '][' . $i . '][start]', 'Open', $range[0], 'time' );
-				self::field( 'settings[hours][' . $day . '][' . $i . '][end]', 'Close', $range[1], 'time' );
+		if ( $catalog_only ) {
+			echo '<input type="hidden" name="catalog_only" value="1">';
+		} else {
+			echo '<button type="submit" class="button button-primary">Review facility settings</button>';
+			self::select( 'settings[timezone]', 'Facility timezone', $p['timezone'], array( '' => 'Choose timezone' ) + array_combine( timezone_identifiers_list(), timezone_identifiers_list() ) );
+			echo '<fieldset><legend>Weekly opening hours</legend><p>Leave both times blank for a closed day. Use the additional row for a split day.</p>';
+			foreach ( $days as $day => $label ) {
+				$rows   = $p['service_hours'][ $day ] ?? array();
+				$rows[] = array( '', '' );
+				echo '<fieldset><legend>' . esc_html( $label ) . '</legend>';
+				foreach ( $rows as $i => $range ) {
+					self::field( 'settings[hours][' . $day . '][' . $i . '][start]', 'Open', $range[0], 'time' );
+					self::field( 'settings[hours][' . $day . '][' . $i . '][end]', 'Close', $range[1], 'time' );
+				}
+				echo '</fieldset>';
+			}
+			echo '</fieldset><fieldset><legend>Horse workload and travel</legend>';
+			foreach ( array(
+				'daily_minutes'       => 'Maximum horse minutes per day',
+				'consecutive_minutes' => 'Maximum continuous horse minutes',
+				'break_minutes'       => 'Minimum horse recovery minutes',
+			) as $key => $label ) {
+				self::field( 'settings[' . $key . ']', $label, $p['workload'][ $key ], 'number', 'min="0" max="1440"' );
+			}
+			self::field( 'settings[training_horse_cap]', 'Maximum full-training horses', $p['training_horse_cap'], 'number', 'min="0" max="10000"' );
+			self::field( 'settings[travel_buffer_minutes]', 'Travel buffer minutes', $p['travel_buffer_minutes'], 'number', 'min="0" max="1440"' );
+			self::select( 'settings[preferred_offsite_day]', 'Preferred off-site day', $p['preferred_offsite_day'], array( '' => 'Not configured' ) + $days );
+			echo '</fieldset><fieldset><legend>Horse Academy</legend>';
+			self::field( 'settings[academy][enabled]', 'Enable Horse Academy', '1', 'checkbox', checked( ! empty( $p['academy']['enabled'] ), true, false ) );
+			self::select( 'settings[academy][weekday]', 'Academy day', $p['academy']['weekday'] ?? '', array( '' => 'Choose day' ) + $days );
+			foreach ( array(
+				'start'        => array( 'Academy start', 'time' ),
+				'end'          => array( 'Academy end', 'time' ),
+				'season_start' => array( 'Season starts', 'date' ),
+				'season_end'   => array( 'Season ends', 'date' ),
+				'capacity'     => array( 'Academy capacity', 'number' ),
+			) as $key => $spec ) {
+				self::field( 'settings[academy][' . $key . ']', $spec[0], $p['academy'][ $key ] ?? '', $spec[1] );
 			}
 			echo '</fieldset>';
 		}
-		echo '</fieldset><fieldset><legend>Horse workload and travel</legend>';
-		foreach ( array(
-			'daily_minutes'       => 'Maximum horse minutes per day',
-			'consecutive_minutes' => 'Maximum continuous horse minutes',
-			'break_minutes'       => 'Minimum horse recovery minutes',
-		) as $key => $label ) {
-			self::field( 'settings[' . $key . ']', $label, $p['workload'][ $key ], 'number', 'min="0" max="1440"' );
-		}
-		self::field( 'settings[training_horse_cap]', 'Maximum full-training horses', $p['training_horse_cap'], 'number', 'min="0" max="10000"' );
-		self::field( 'settings[travel_buffer_minutes]', 'Travel buffer minutes', $p['travel_buffer_minutes'], 'number', 'min="0" max="1440"' );
-		self::select( 'settings[preferred_offsite_day]', 'Preferred off-site day', $p['preferred_offsite_day'], array( '' => 'Not configured' ) + $days );
-		echo '</fieldset><fieldset><legend>Horse Academy</legend>';
-		self::field( 'settings[academy][enabled]', 'Enable Horse Academy', '1', 'checkbox', checked( ! empty( $p['academy']['enabled'] ), true, false ) );
-		self::select( 'settings[academy][weekday]', 'Academy day', $p['academy']['weekday'] ?? '', array( '' => 'Choose day' ) + $days );
-		foreach ( array(
-			'start'        => array( 'Academy start', 'time' ),
-			'end'          => array( 'Academy end', 'time' ),
-			'season_start' => array( 'Season starts', 'date' ),
-			'season_end'   => array( 'Season ends', 'date' ),
-			'capacity'     => array( 'Academy capacity', 'number' ),
-		) as $key => $spec ) {
-			self::field( 'settings[academy][' . $key . ']', $spec[0], $p['academy'][ $key ] ?? '', $spec[1] );
-		}
-		echo '</fieldset><fieldset id="csf-lesson-catalog"><legend>Manage lesson types</legend><p>Friendly names can change; internal references and booked labels remain stable. Paid and unpaid are classifications only: no prices, wages or credits are calculated. Review changes before saving. Rule changes or disabling are blocked while future bookings remain.</p><div class="csf-catalog-rows">';
+		echo '<fieldset id="csf-lesson-catalog"><legend>Manage lesson types</legend><p>Friendly names can change; internal references and booked labels remain stable. Paid and unpaid are classifications only: no prices, wages or credits are calculated. Review changes before saving. Rule changes or disabling are blocked while future bookings remain.</p><div class="csf-catalog-rows">';
 		$i = 0;
 		foreach ( $p['services'] as $key => $service ) {
 			self::service_row( $i++, $key, $service );

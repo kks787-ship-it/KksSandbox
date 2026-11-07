@@ -1,0 +1,200 @@
+{
+  "version": "0.4.8",
+  "scope": "local synthetic fixtures; protected rollout pending; not owner operational acceptance",
+  "schema": 3,
+  "suites": [
+    {
+      "suite": "full existing regression",
+      "php": "8.3.36",
+      "engine": "MariaDB 10.6.28",
+      "assertions": 366,
+      "log_sha256": "cef6bbc2a946cf04b4ecca4e38d366f36d10c3c1be3cd894b839e4ca5866c868"
+    },
+    {
+      "suite": "full existing regression",
+      "php": "8.3.36",
+      "engine": "MySQL 8.0.46",
+      "assertions": 366,
+      "log_sha256": "31dda120021f252a1924f7e22f713a03e5d99eb22d8c18cb70ef6ef1377e4cf2"
+    },
+    {
+      "suite": "compact calendar UX",
+      "php": "8.3.36",
+      "engine": "MariaDB 10.6.28",
+      "browser_assertions": 71,
+      "resource_domain_assertions": 49,
+      "two_worker_race": "passed",
+      "full_27_table_restore": "passed",
+      "axe_widths": [
+        390,
+        768,
+        1280
+      ],
+      "metrics": [
+        {
+          "version": "0.4.8",
+          "scenario": "30-minute confirmed lesson from an arena cell; verified synthetic rider; qualified horse",
+          "actions": 5,
+          "action_labels": [
+            "Choose calendar time",
+            "Choose lesson type",
+            "Choose rider",
+            "Choose horse",
+            "Schedule lesson"
+          ],
+          "page_scroll_jumps_over_150px": 2,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        },
+        {
+          "version": "0.4.8",
+          "scenario": "90-minute dated arena block with zero affected appointments",
+          "actions": 6,
+          "action_labels": [
+            "Block Time",
+            "Choose block start",
+            "Choose block finish",
+            "Enter reason",
+            "Review block",
+            "Save block"
+          ],
+          "page_scroll_jumps_over_150px": 0,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        },
+        {
+          "version": "0.4.8",
+          "scenario": "Adjust Friday finish in an existing custom weekday schedule, zero affected appointments",
+          "actions": 4,
+          "action_labels": [
+            "Manage Hours",
+            "Adjust Friday finish",
+            "Review hours",
+            "Save hours"
+          ],
+          "page_scroll_jumps_over_150px": 2,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        }
+      ],
+      "log_sha256": "7336570033e9e443196bef7ab8356b8a3432c21882a6006a31af76543de81c17"
+    },
+    {
+      "suite": "compact calendar UX",
+      "php": "8.1.34",
+      "engine": "MySQL 8.0.46",
+      "browser_assertions": 71,
+      "resource_domain_assertions": 49,
+      "two_worker_race": "passed",
+      "full_27_table_restore": "passed",
+      "axe_widths": [
+        390,
+        768,
+        1280
+      ],
+      "metrics": [
+        {
+          "version": "0.4.8",
+          "scenario": "30-minute confirmed lesson from an arena cell; verified synthetic rider; qualified horse",
+          "actions": 5,
+          "action_labels": [
+            "Choose calendar time",
+            "Choose lesson type",
+            "Choose rider",
+            "Choose horse",
+            "Schedule lesson"
+          ],
+          "page_scroll_jumps_over_150px": 2,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        },
+        {
+          "version": "0.4.8",
+          "scenario": "90-minute dated arena block with zero affected appointments",
+          "actions": 6,
+          "action_labels": [
+            "Block Time",
+            "Choose block start",
+            "Choose block finish",
+            "Enter reason",
+            "Review block",
+            "Save block"
+          ],
+          "page_scroll_jumps_over_150px": 0,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        },
+        {
+          "version": "0.4.8",
+          "scenario": "Adjust Friday finish in an existing custom weekday schedule, zero affected appointments",
+          "actions": 4,
+          "action_labels": [
+            "Manage Hours",
+            "Adjust Friday finish",
+            "Review hours",
+            "Save hours"
+          ],
+          "page_scroll_jumps_over_150px": 2,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        }
+      ],
+      "log_sha256": "fd441dfce6320bd3bce986249433f38bd8f0249e188545fdc183d607a054ae71"
+    },
+    {
+      "suite": "source-pinned native baseline",
+      "source": "4fc4542d4dc0f9e148d028b1ebf4bba5f6173fe5",
+      "version": "0.4.7",
+      "verified_package_files": 56,
+      "metrics": [
+        {
+          "version": "0.4.7",
+          "scenario": "30-minute confirmed lesson from an arena cell; verified synthetic rider; qualified horse",
+          "actions": 9,
+          "action_labels": [
+            "Choose calendar time",
+            "Enter required title",
+            "Choose lesson type",
+            "Choose confirmed reservation",
+            "Choose rider",
+            "Choose horse",
+            "Assign instructor",
+            "Explicit manual check",
+            "Schedule lesson"
+          ],
+          "page_scroll_jumps_over_150px": 3,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        },
+        {
+          "version": "0.4.7",
+          "scenario": "90-minute dated arena block with zero affected appointments",
+          "actions": 7,
+          "action_labels": [
+            "Open selected resource controls",
+            "Choose block start",
+            "Choose block finish",
+            "Enter reason",
+            "Review block",
+            "Acknowledge review",
+            "Save block"
+          ],
+          "page_scroll_jumps_over_150px": 5,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        },
+        {
+          "version": "0.4.7",
+          "scenario": "Adjust Friday finish in an existing custom weekday schedule, zero affected appointments",
+          "actions": 5,
+          "action_labels": [
+            "Open selected resource hours",
+            "Adjust Friday finish",
+            "Review hours",
+            "Acknowledge review",
+            "Save hours"
+          ],
+          "page_scroll_jumps_over_150px": 5,
+          "method": "Playwright on real native local WordPress controls; one action per click/fill/select; includes final navigation; excludes authentication and initial resource-filter selection"
+        }
+      ],
+      "log_sha256": "dc93d2372e3b44ec95866e6636c393483ddf479e46b94584f1b33ad6ebf1ebf6"
+    }
+  ],
+  "php_files_linted": 100,
+  "php_files_coding_standards": 95,
+  "php_log_sha256": "b1c8e404d0502bb4dffcf9395bb82d777cdf9dd3da6722f829e24c4161fa3bc7",
+  "release_hash": "ac385a836bf1fa13e9165d0f4e3d14d89bbefacfdda6ae539cd7c3a4b6bcc3a9"
+}

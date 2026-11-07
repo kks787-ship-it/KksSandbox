@@ -5,7 +5,7 @@ require '/repo/tests/scheduling/auth-fixture.php';add_filter('csf_scheduling_mfa
 $mode=getenv('CSF_RESOURCE_RACE');$path='/test/resource-hours-race.json';
 if($mode==='setup'){
  $ids=json_decode(file_get_contents('/test/resource-hours-fixture.json'),true);$a=wp_generate_uuid4();$c=wp_generate_uuid4();
- $booking=array('uuid'=>$a,'expected'=>0,'title'=>'Synthetic concurrent availability booking','service_type'=>'pilot_ground_60','state'=>'confirmed','start'=>'2027-01-25T14:00-08:00','end'=>'2027-01-25T15:00-08:00','hold_expires'=>null,'resources'=>array($ids['instructor'],$ids['arena']),'riders'=>array(),'rides'=>array());
+ $booking=array('uuid'=>$a,'expected'=>0,'title'=>'Synthetic concurrent availability booking','service_type'=>'pilot_ground_60','state'=>'confirmed','start'=>'2027-01-25T16:00-08:00','end'=>'2027-01-25T17:00-08:00','hold_expires'=>null,'resources'=>array($ids['instructor'],$ids['arena']),'riders'=>array(),'rides'=>array());
  $closure=array('uuid'=>$c,'expected'=>0,'impact_acknowledged'=>true,'data'=>array('target_uuid'=>$ids['arena'],'start'=>$booking['start'],'end'=>$booking['end'],'category'=>'unavailable','note'=>'Synthetic concurrent closure','repeat_until'=>null));
  file_put_contents($path,wp_json_encode(array('revision'=>(int)CSF_Scheduling_Schema::settings()['revision'],'booking'=>$booking,'closure'=>$closure)));exit;
 }
