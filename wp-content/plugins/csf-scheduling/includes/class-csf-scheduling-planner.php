@@ -227,11 +227,17 @@ class CSF_Scheduling_Planner {
 					$z      = strtotime( $row['end'] );
 					$active = 'confirmed' === $row['state'] || ( 'held' === $row['state'] && ! $row['hold_expired'] );
 					$travel = $active && ! empty( $p['services'][ $d['service_type'] ]['requires_travel'] ) ? 60 * (int) $p['travel_buffer_minutes'] : 0;
-					if ( $a - $travel < end( $ticks )['stamp'] + 900 && $z + $travel > $ticks[0]['stamp'] ) {
+					$left = $a - $travel; $right = $z + $travel;
+					if ( $active ) {
+						foreach ( $row['resource_reservations'] ?? array() as $window ) {
+							if ( ! $resource || $resource === $window['resource_uuid'] ) { $left = min( $left, $window['start'] ); $right = max( $right, $window['end'] ); }
+						}
+					}
+					if ( $left < end( $ticks )['stamp'] + 900 && $right > $ticks[0]['stamp'] ) {
 						$events[] = array(
 							'row'      => $row,
-							'left'     => $a - $travel,
-							'right'    => $z + $travel,
+							'left'     => $left,
+							'right'    => $right,
 							'start'    => $a,
 							'end'      => $z,
 							'reserved' => $active,
@@ -287,10 +293,10 @@ class CSF_Scheduling_Planner {
 					$row   = $event['row'];
 					$style = '--top:' . max( 0, ( $event['start'] - $ticks[0]['stamp'] ) / 900 ) . ';--length:' . max( 1, ( min( $event['end'], end( $ticks )['stamp'] + 900 ) - max( $event['start'], $ticks[0]['stamp'] ) ) / 900 ) . ';--lane:' . $event['column'] . ';--lanes:' . $visual_columns;
 					if ( $event['left'] < $event['start'] || $event['right'] > $event['end'] ) {
-						echo '<div class="csf-planner-travel" style="--top:' . esc_attr( max( 0, ( $event['left'] - $ticks[0]['stamp'] ) / 900 ) ) . ';--length:' . esc_attr( ( min( $event['right'], end( $ticks )['stamp'] + 900 ) - max( $event['left'], $ticks[0]['stamp'] ) ) / 900 ) . '">Travel reserved</div>';
+						echo '<div class="csf-planner-travel" style="--top:' . esc_attr( max( 0, ( $event['left'] - $ticks[0]['stamp'] ) / 900 ) ) . ';--length:' . esc_attr( ( min( $event['right'], end( $ticks )['stamp'] + 900 ) - max( $event['left'], $ticks[0]['stamp'] ) ) / 900 ) . '">Preparation / wrap-up or travel reserved</div>';
 					}
 					$state = $row['state'] . ( $row['hold_expired'] ? ' · expired, not reserved' : ( 'requested' === $row['state'] ? ' · not reserved' : '' ) );
-					echo '<button type="button" class="csf-planner-event csf-event-' . esc_attr( $row['state'] ) . ( $row['hold_expired'] ? ' csf-event-expired' : '' ) . '" style="' . esc_attr( $style ) . '" data-event="' . esc_attr( $row['uuid'] ) . '" aria-haspopup="dialog"><strong>' . esc_html( $row['title'] ) . '</strong><span>' . esc_html( $state . ' · ' . wp_date( 'g:i a T', $event['start'], new DateTimeZone( $p['timezone'] ) ) . '–' . wp_date( 'g:i a T', $event['end'], new DateTimeZone( $p['timezone'] ) ) ) . '</span><span>' . esc_html( implode( ', ', array_map( static fn( $id ) => $ctx['resources'][ $id ] ?? 'Resource details restricted', $details[ $row['uuid'] ]['resources'] ) ) ) . '</span>' . ( ! $row['rider_cleared'] ? '<span>⚠ Rider clearance incomplete</span>' : '' ) . ( $row['welfare_review'] ? '<span>⚠ Welfare review required</span>' : '' ) . '</button>';
+					echo '<button type="button" class="csf-planner-event csf-event-' . esc_attr( $row['state'] ) . ( $row['hold_expired'] ? ' csf-event-expired' : '' ) . ( ! empty( $row['buffer_overrides'] ) ? ' csf-buffer-override' : '' ) . '" style="' . esc_attr( $style ) . '" data-event="' . esc_attr( $row['uuid'] ) . '" aria-haspopup="dialog"><strong>' . esc_html( $row['title'] ) . '</strong><span>' . esc_html( $state . ' · ' . wp_date( 'g:i a T', $event['start'], new DateTimeZone( $p['timezone'] ) ) . '–' . wp_date( 'g:i a T', $event['end'], new DateTimeZone( $p['timezone'] ) ) ) . '</span><span>' . esc_html( implode( ', ', array_map( static fn( $id ) => $ctx['resources'][ $id ] ?? 'Resource details restricted', $details[ $row['uuid'] ]['resources'] ) ) ) . '</span>' . ( ! empty( $row['buffer_overrides'] ) ? '<span>⚠ BUFFER OVERRIDE</span>' : '' ) . ( ! $row['rider_cleared'] ? '<span>⚠ Rider clearance incomplete</span>' : '' ) . ( $row['welfare_review'] ? '<span>⚠ Welfare review required</span>' : '' ) . '</button>';
 				}
 				echo '</div></div>';
 			}

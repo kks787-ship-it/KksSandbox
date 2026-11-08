@@ -38,6 +38,21 @@ if [[ "${CSF_TEST_PHASE:-all}" == foundation ]]; then
 fi
 "${WP[@]}" eval-file /repo/tests/scheduling/calendar.php
 bash /repo/tests/scheduling/races.sh
+php /repo/tests/scheduling/horse-correction-unit.php
+"${WP[@]}" eval-file /repo/tests/scheduling/horse-correction.php
+php /repo/tests/scheduling/horse-lifecycle-unit.php
+php /repo/tests/scheduling/horse-delete-unit.php
+php /repo/tests/scheduling/resource-hours-unit.php
+php /repo/tests/scheduling/closure-edit-unit.php
+php /repo/tests/scheduling/visit-plan-unit.php
+php /repo/tests/scheduling/family-command-unit.php
+php /repo/tests/scheduling/dashboard-unit.php
+php /repo/tests/scheduling/notifications-unit.php
+php /repo/tests/scheduling/email-sink-unit.php
+"${WP[@]}" eval-file /repo/tests/scheduling/horse-lifecycle.php
+bash /repo/tests/scheduling/horse-lifecycle-races.sh
+"${WP[@]}" eval-file /repo/tests/scheduling/family-visit.php
+bash /repo/tests/scheduling/family-races.sh
 "${WP[@]}" eval-file /repo/tests/scheduling/usability.php
 bash /repo/tests/scheduling/usability-races.sh
 "${WP[@]}" eval-file /repo/tests/scheduling/permissions.php

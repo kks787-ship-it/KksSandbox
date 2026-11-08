@@ -13,7 +13,7 @@ class CSF_Scheduling_UX {
 	 */
 	public static function screen() {
 		$screen = isset( $_GET['screen'] ) && is_string( $_GET['screen'] ) ? sanitize_key( wp_unslash( $_GET['screen'] ) ) : 'calendar'; // phpcs:ignore WordPress.Security.NonceVerification -- Read-only navigation.
-		return in_array( $screen, array( 'calendar', 'hours', 'types', 'settings', 'farm' ), true ) ? $screen : 'calendar';
+		return in_array( $screen, array( 'calendar', 'family', 'hours', 'types', 'settings', 'farm' ), true ) ? $screen : 'calendar';
 	}
 	/** Safe navigation URL.
 	 *
@@ -76,6 +76,9 @@ class CSF_Scheduling_UX {
 	public static function actions( $date, $view, $filter ) {
 		echo '<div class="csf-calendar-actions">';
 		if ( CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
+			echo '<a class="button" href="' . esc_url( self::url( 'family' ) ) . '">Book family visit</a>';
+		}
+		if ( CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
 			echo '<a class="button button-primary csf-new-lesson" href="#csf-create">Schedule Lesson</a>'; }
 		if ( CSF_Scheduling_Access::can( 'availability_manage' ) && CSF_Scheduling_Access::can( 'resource_view' ) ) {
 			echo '<a class="button csf-block-time" href="#csf-block-panel">Block Time</a><a class="button" href="' . esc_url(
@@ -118,6 +121,10 @@ class CSF_Scheduling_UX {
 	 * @param string $filter Resource.
 	 */
 	public static function screen_content( $screen, $ctx, $p, $snapshot, $date, $view, $filter ) {
+		if ( 'family' === $screen ) {
+			CSF_Scheduling_Family_UI::render( $ctx, $p, $snapshot );
+			return;
+		}
 		if ( in_array( $screen, array( 'types', 'settings' ), true ) ) {
 			if ( ! CSF_Scheduling_Access::can( 'policy_manage' ) ) {
 				wp_die( 'Facility policy permission required.', '', array( 'response' => 403 ) ); }

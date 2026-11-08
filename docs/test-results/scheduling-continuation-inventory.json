@@ -1,0 +1,178 @@
+{
+  "status": "local_review_only_not_installation_approval",
+  "version": "0.4.18-dev",
+  "schema": 4,
+  "physical_scheduling_tables": 15,
+  "files": [
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/catalog.js",
+      "sha256": "04c1e01a16e894d788fda5dd7b764653cfe16d0b419262ca2837e7a10ff7d28c"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/planner.css",
+      "sha256": "5e72209248493889a5bfe4ac56fb8caae69b12eb67e99671b31846471030f656"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/planner.js",
+      "sha256": "d921c2ad51850d485a53f94a500783f3a73c769fe980417e382a5690742f3899"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/resources.js",
+      "sha256": "9a68ef83b643b2396811d928e8660bca54db3232f98a17c97dbc5c734f32b3ac"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/routine.js",
+      "sha256": "365b91ef2deba3ffa7c14258b435d3a28609cec968198eb091d0826820b49a14"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/staff.css",
+      "sha256": "86f77ab8f0c04fe413a99d367d77fe8cd997cd1162203e0df25bc4cae6ec8d9d"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/staff.js",
+      "sha256": "6f4fd5ae613a7b162021cd6b29b1d187dc6ec1ac7462b262f6e7b99281d2c45d"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/team.css",
+      "sha256": "dfb011f9be9f69235de1095b66149bedbda9c0233a55c3759999028d439da1a2"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/team.js",
+      "sha256": "bba2067c47062975053d72543a4fec7522b94fee8b60d6d4f839d8e24e777d6e"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/ux.css",
+      "sha256": "e94c16766cab601eec57322b78c7f212ab84ef9d30c4c0edfa770389aae7fbe5"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/assets/ux.js",
+      "sha256": "52ca5a2751341e599a59653d11fcc32e4e1b89df2fbd6d031c5fcd1cea7b1624"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/csf-scheduling.php",
+      "sha256": "db08e317b9f70a81d03fac57f488d623be7e4a3f0fec9889ce80dfd64aad763d"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-access.php",
+      "sha256": "9f9fc644d0308beb0f8c36dbc05e7a3b51468f49276117023d95ce81712393e0"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-admin.php",
+      "sha256": "32629f6285aa6bb6dd2b42469d8fc3993e4c50d1d304cc5b335d024b23706ac6"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-audit.php",
+      "sha256": "af94cee23715731aec0f7e0df79e2886d5fae976986405c4b2da071827114a94"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-booking.php",
+      "sha256": "edb15a684c4cb9975c1414eb22ac01ae56576fe34ca172a9966d98a78d15bf06"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-buffer-override.php",
+      "sha256": "bbdf9d56ae7bf1a9cbf12c84a5c4e8c7012c1661f5f3cacb63daaa1a9a56162b"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-buffer-ui.php",
+      "sha256": "daade80c611b8f0fe0bfc55846395e0fd600e947e756f94d25ee94beef997a52"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-calendar.php",
+      "sha256": "16138841de5e45b90fba0ae80d84bc62dd1683c08e115475d08b3ffa401e13b8"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-catalog.php",
+      "sha256": "8a254949409774e0da685fac41f1392038b00c35bb0ea154f9a9ebe1844e3094"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-cli.php",
+      "sha256": "e5e1a26a776b87eff22156b5e99fbc54151cd7d0843596523d16e1f8222f9ec0"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-conflict.php",
+      "sha256": "75fba13414d029aae6c27396ff4cfe80780fcc72a391f02cb13a6c98873c51c1"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-dashboard.php",
+      "sha256": "5c2094819c9a3de6deb8fa1ebd77ca76b1f257ec23e66b30dc582cebf6fd87e8"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-diagnostics.php",
+      "sha256": "4ad08bafd57b93b9a782f7b5c16541ecd72877d2441151d3b98296add1e56185"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-email-sink.php",
+      "sha256": "63fdca63df20c60fea78b3510e83fc24e11825f0146683b3c3b957cabab3749f"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-family-ui.php",
+      "sha256": "beb97fa31e6b59512b6ab3b0adba44e8e6e300c3feaadfba6b3afba63abbebf6"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-family-visit.php",
+      "sha256": "ae75a746644d687511225075b54f147e79665b5a9a05842df4bf31277aa9bb4e"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-identity.php",
+      "sha256": "c470f8f31746526e44ba3a3236533137e982fe46397d43c07e9555baca17ab4b"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-notifications.php",
+      "sha256": "c94e2fb7baba9436f4191393769cd769b408e5f21843b42080a2ff7abbe4847b"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-permissions.php",
+      "sha256": "298b299f972cf73e9c1e8b402b9418b91007dc77ae6b4288457e78dc9a704637"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-planner.php",
+      "sha256": "f28eb6a957c4266d201d459cb76144a4d0798c9d96bb01e961226aa195b423b0"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-policy.php",
+      "sha256": "f4c580ec2d71982172ae7e764864ba69d0384a180071badbf4cdc152d5ee2e3f"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-resource-hours.php",
+      "sha256": "1aa31a7c726b3cc7ba45a6051dbcd119aa40908fe063803758fc5be103753b9e"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-resource-ui.php",
+      "sha256": "7a1ee2d32e376c3f08fbace25424d8bc62f5d5e5279940afff8d145944a77057"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-schema.php",
+      "sha256": "af53b64f109fb8cd308d4add65903c99ba7b782f2c64dd2634ec7fad667babfc"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-settings.php",
+      "sha256": "dd9de1642820e7cdd88cb3b2b2ceaebca8c65b29f0651c5d222d063faf5261cd"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-store.php",
+      "sha256": "00aa61d3f613a38e690a63c6ba7ee529d142e222a9c893c4d3b5b60d1e91539d"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-team.php",
+      "sha256": "4f73264715f5de892cf492a68676090927a7ead556cc6ec9f8f51249e673e49e"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-time.php",
+      "sha256": "cef24403a438357626d968c21d72699aebdeb56784856efdb32ef94866b81279"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-ui.php",
+      "sha256": "63ab1c9c9e84d88d8b06dc3efe464637169369519c7b9cf1f5528078a9a7186e"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-ux.php",
+      "sha256": "6911e6cc79a2e212541825c4ddd53c3406b7c09d9419adea749feb44e8ca5099"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-visit-plan.php",
+      "sha256": "fee4aba556e2966ae8b7cb86bd092b582eebc9f1f2c248c7597de17e8716cbc8"
+    }
+  ],
+  "email_sink_loaded_by_plugin": false,
+  "functional_database_browser_recovery_qualified": false
+}

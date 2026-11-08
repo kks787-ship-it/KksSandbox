@@ -84,7 +84,7 @@ class CSF_Scheduling_Resource_UI {
 					); }
 			}
 			CSF_Scheduling_Resource_Hours::validate( $d, $p );
-		} elseif ( 'resource_closure_added' === $kind ) {
+		} elseif ( in_array( $kind, array( 'resource_closure_added', 'resource_closure_edited' ), true ) ) {
 			$resolve = static fn( $name ) => CSF_Scheduling_Time::resolve(
 				array(
 					'local'  => self::value( $input, $name . '_local' ),
@@ -264,20 +264,24 @@ class CSF_Scheduling_Resource_UI {
 				}echo '</ul>';
 				if ( 'custom' === $d['mode'] && ! $d['periods'] ) {
 					echo '<p>All custom weekdays are closed.</p>'; }
-			} elseif ( 'resource_closure_added' === $r['kind'] ) {
+			} elseif ( in_array( $r['kind'], array( 'resource_closure_added', 'resource_closure_edited' ), true ) ) {
 				echo '<p>' . esc_html( CSF_Scheduling_UI::display_time( $d['start'] ) . ' – ' . CSF_Scheduling_UI::display_time( $d['end'] ) . ' · ' . $d['category'] . ' · ' . $d['note'] . ( $d['repeat_until'] ? ' · repeats weekly through ' . $d['repeat_until'] : ' · dated closure only' ) ) . '</p>';
 			} else {
 				echo '<p>' . esc_html( $d['date'] ? 'Reopen only ' . $d['date'] : 'Release this entire closure/series' ) . '. ' . esc_html( $d['note'] ) . '</p><p>Other closures, welfare/rest and base hours remain in force.</p>'; }
 			echo '<p><strong>Future appointments requiring review: ' . esc_html( $r['impact'] ) . '</strong>. Includes recorded reserved travel/envelopes and requested lesson intervals. Existing bookings are unchanged.</p>';
 
-			if ( $r['impact'] > 0 && 'resource_closure_added' === $r['kind'] ) {
+			if ( $r['impact'] > 0 && in_array( $r['kind'], array( 'resource_closure_added', 'resource_closure_edited' ), true ) ) {
 				echo '<h4>Affected bookings visible in this view (first occurrence)</h4><ul>';
 				foreach ( $ctx['visible_appointments'] ?? array() as $booking ) {
 					if ( 'canceled' === $booking['state'] ) {
 						continue; }
 					$detail      = CSF_Scheduling_Calendar::find( 'details', $booking['uuid'] );
 					$record_body = $detail ? json_decode( $detail['body_json'], true ) : null;
-					if ( $record_body && in_array( $d['target_uuid'], $record_body['resources'], true ) && strtotime( $booking['start'] ) < strtotime( $d['end'] ) && strtotime( $booking['end'] ) > strtotime( $d['start'] ) ) {
+					$reserve_start = strtotime( $booking['start'] ); $reserve_end = strtotime( $booking['end'] );
+					foreach ( $booking['resource_reservations'] ?? array() as $window ) {
+						if ( $window['resource_uuid'] === $d['target_uuid'] ) { $reserve_start = min( $reserve_start, $window['start'] ); $reserve_end = max( $reserve_end, $window['end'] ); }
+					}
+					if ( $record_body && in_array( $d['target_uuid'], $record_body['resources'], true ) && $reserve_start < strtotime( $d['end'] ) && $reserve_end > strtotime( $d['start'] ) ) {
 						echo '<li>' . esc_html( $booking['title'] . ' · ' . CSF_Scheduling_UI::display_time( $booking['start'] ) . '–' . CSF_Scheduling_UI::display_time( $booking['end'] ) ) . '</li>'; }
 				}
 				echo '</ul><p>The full count also includes other dates and reserved travel envelopes. Review the resource calendar before proceeding.</p>';
@@ -295,7 +299,7 @@ class CSF_Scheduling_Resource_UI {
 					echo '<label class="csf-impact-ack"><input type="checkbox" name="resource_reviewed" value="1" required> I reviewed these affected bookings and will resolve them. This does not cancel any appointment.</label>';
 				} else {
 					echo '<input type="hidden" name="resource_reviewed" value="1">'; }
-				echo '<button class="button button-primary">' . esc_html( 'resource_hours_saved' === $r['kind'] ? 'Save hours' : ( 'resource_closure_added' === $r['kind'] ? 'Save block' : 'Reopen time' ) ) . '</button></form>';
+				echo '<button class="button button-primary">' . esc_html( 'resource_hours_saved' === $r['kind'] ? 'Save hours' : ( 'resource_closure_added' === $r['kind'] ? 'Save block' : ( 'resource_closure_edited' === $r['kind'] ? 'Save closure edit' : 'Reopen time' ) ) ) . '</button></form>';
 			} else {
 				echo '<p role="alert">This earlier proposal is retained for comparison only. Review the current hours below and submit a new review before applying.</p>';
 			}
@@ -384,6 +388,21 @@ class CSF_Scheduling_Resource_UI {
 					if ( $d['recurrence'] ) {
 						$series = $d['recurrence'];
 						echo '<p>' . esc_html( $days[ $series['weekday'] ] . ' weekly ' . $series['start'] . '–' . $series['end'] . ' ' . $series['timezone'] . ' through ' . $series['until'] . '; reopened dates: ' . implode( ', ', $d['reopen_dates'] ?? array() ) ) . '</p>'; }
+					if ( strtotime( $d['start'] ) > time() ) {
+						echo '<details><summary>Edit this future closure / series</summary><p>History and reopened dates are preserved. Review all affected bookings before saving.</p>';
+						self::begin( 'resource_closure_edited', $record['uuid'], (int) $record['revision'], (int) $snapshot['revision'], $id );
+						foreach ( array( 'start' => 'Closure starts', 'end' => 'Closure ends' ) as $key => $label ) {
+							$instant = CSF_Scheduling_Time::parse( $d[$key], $p['timezone'] );
+							self::time( $key, $label, $instant->format( 'Y-m-d\TH:i' ), $instant->format( 'Y-m-d\TH:iP' ), $p['timezone'] );
+						}
+						echo '<label>Category <select name="category"><option value="unavailable">Unavailable / maintenance</option><option value="protected_training" ' . selected( $d['reason'], 'protected_training', false ) . '>Protected training time</option></select></label>';
+						self::field( 'note', 'Reason for edited closure (no private health/contact details)', $d['note'], 'text', 'maxlength="200" required' );
+						self::field( 'repeat', 'Repeat weekly', '1', 'checkbox', $d['recurrence'] ? 'checked' : '' );
+						self::field( 'repeat_until', 'Repeat through', $d['recurrence']['until'] ?? '', 'date' );
+						echo '<button class="button">Review closure edit</button></form></details>';
+					} else {
+						echo '<p>This closure has started. Edit is held to preserve its past occurrences; use reviewed reopening and a new future closure.</p>';
+					}
 					self::begin( 'resource_closure_released', $record['uuid'], (int) $record['revision'], (int) $snapshot['revision'], $id );
 					self::field( 'note', 'Reason for reopening', '', 'text', 'required maxlength="200"' );
 					echo '<input type="hidden" name="only_date" value=""><button class="button">Review reopening entire closure / series</button></form>';

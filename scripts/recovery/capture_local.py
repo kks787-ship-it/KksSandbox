@@ -60,7 +60,7 @@ def run(b,inspector,params,root=None,parent=None,discovery=None,db_factory=None)
         return {'state':'complete','code':'LOCAL_CAPTURE_VERIFIED','bundle_id':bundle.name,
                 'manifest_sha256':receipt['manifest_sha256'],'receipt_sha256':receipt_digest,
                 'offserver_verified':False,'restore_verified':False,'schema_phase':receipt['schema_phase'],
-                'schema_context_complete':receipt['schema_phase'] in ('pre_scheduling','scheduling_v3')}
+                'schema_context_complete':receipt['schema_phase'] in ('pre_scheduling','scheduling_v3','scheduling_v4')}
     finally:secret.clear()
 
 

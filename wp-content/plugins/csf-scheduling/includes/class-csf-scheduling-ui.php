@@ -90,6 +90,8 @@ class CSF_Scheduling_UI {
 					'emergency_verified' => 'bool',
 				),
 			),
+			'horse_deleted'        => $common + array( 'reason' => 'text', 'confirm_label' => 'text', 'irreversible' => 'bool' ),
+			'horse_status_saved'   => $common + array( 'archived' => 'bool', 'reason' => 'text', 'confirm_label' => 'text' ),
 			'horse_saved'          => $common + array(
 				'data' => array(
 					'label'             => 'text',
@@ -206,12 +208,24 @@ class CSF_Scheduling_UI {
 	public static function message( $error ) {
 		$reason   = $error->get_error_data()['reason'] ?? $error->get_error_code();
 		$messages = array(
+			'buffer_future_only' => 'Buffer exceptions must be reviewed before teaching starts; historical reservations cannot be waived retroactively.',
+			'buffer_mandatory' => 'Only optional preparation or wrap-up can be reduced. Teaching, mandatory travel, occupied time and horse welfare remain protected.',
+			'buffer_snapshot_required' => 'Review and save this lesson with an explicit buffer snapshot before requesting an exception.',
+			'visit_required' => 'Open the family visit to review all surviving lessons and recalculated buffers before saving or canceling.',
+			'visit_state' => 'Every active lesson in a family visit must have the same state and, when held, the same expiry. Review all lessons together.',
+			'visit_members_required' => 'Include every active lesson in this family review; cancel a lesson explicitly rather than omitting it.',
 			'resource_conflict'      => 'Already reserved. Change the horse, instructor, arena or time, then preview again.',
 			'rider_conflict'         => 'This rider already has an appointment. Choose another time.',
 			'outside_hours'          => 'This time is outside facility hours or a resource’s recorded availability. Check availability before continuing.',
 			'resource_hours_invalid' => 'Review the resource date, 15-minute weekly ranges, timezone, reason and repeat end date. Weekly ranges must not overlap; overnight ranges must be split across days.',
+			'closure_edit_future_only' => 'Only closures that have not started can be edited. Preserve prior occurrences with reviewed reopening and a new future closure.',
 			'resource_impact_limit'  => 'More than 2,000 future appointments need review. Ask the operator to narrow the resource change before saving.',
 			'service_in_use'         => 'This lesson type has protected booking history. Reconcile future bookings or choose a new lesson type before changing its rules.',
+			'horse_mapping_in_use'   => 'This horse or its old/new school resource has appointment, reservation or protective-block history. Its classification was not changed. Used-horse remapping requires a separate reviewed migration; do not delete records to bypass this protection.',
+			'horse_deleted'          => 'This horse UUID was deleted as an unused setup mistake and cannot be recreated. Its audit history is retained.',
+			'horse_delete_in_use'    => 'This horse has booking, reservation, protection or lifecycle dependencies. Delete is blocked; use Archive and retain its history.',
+			'horse_archived'         => 'This horse is archived and cannot be booked. An authorized manager must review and restore it first.',
+			'horse_future_bookings'  => 'This horse has future requests, holds or confirmed lessons. Review and reconcile those appointments before changing archive status. Nothing was canceled or reassigned.',
 			'horse_unsafe'           => 'The horse or its resource may be inactive, or suitability is missing. Review the horse’s resource, approved riders and services.',
 			'welfare_conflict'       => 'A protective block, workload limit or required horse break prevents this schedule. Review welfare and ride times.',
 			'capacity'               => 'The service capacity or training enrollment limit is exceeded. Reduce the roster or review the approved policy.',
@@ -372,7 +386,7 @@ class CSF_Scheduling_UI {
 			echo '<button type="button" class="button csf-shift">Move end and all turns to match the new start</button>'; }
 		CSF_Scheduling_UX::resource_choices( $ctx, $body['resources'] );
 		self::checks( 'riders', 'Riders attending', $ctx['riders'], $body['riders'] );
-		self::checks( 'pool', 'Approved horse pool for these ride rows', $ctx['horses'], array_values( array_unique( array_column( $body['rides'], 'horse' ) ) ) );
+		self::checks( 'pool', 'Approved horse pool for these ride rows', $ctx['active_horses'], array_values( array_unique( array_column( $body['rides'], 'horse' ) ) ) );
 		echo '<p>Choose a horse pool, then add one row for each rider’s turn. Unchecked horses cannot be assigned. Suitability and rest are checked by the server.</p><div class="csf-rows" data-rows="rides">';
 		foreach ( $body['rides'] as $ride ) {
 			self::ride( $ride, $ctx ); }
@@ -399,7 +413,7 @@ class CSF_Scheduling_UI {
 	public static function ride( $ride, $ctx ) {
 		echo '<fieldset class="csf-row"><legend>Horse turn</legend>';
 		self::select( 'rider', 'Rider for this turn', array( '' => 'No rider (horse training)' ) + $ctx['riders'], $ride['rider'] );
-		self::select( 'horse', 'Horse for this turn', array( '' => 'Choose a horse from the pool' ) + $ctx['horses'], $ride['horse'] );
+		self::select( 'horse', 'Horse for this turn', array( '' => 'Choose a horse from the pool' ) + $ctx['active_horses'], $ride['horse'] );
 		self::time( 'start', 'Turn start', $ride['start'] );
 		self::time( 'end', 'Turn end', $ride['end'] );
 		echo '<button type="button" class="button csf-remove-row">Remove this turn</button></fieldset>';
@@ -412,6 +426,9 @@ class CSF_Scheduling_UI {
 	 * @param string $id Form identity.
 	 */
 	public static function appointment( $body, $ctx, $id = '' ) {
+		if ( ! empty( $body['buffer_overrides'] ) ) { echo '<p>Saving this lesson restores standard buffers. Any new exception needs a separate review; prior approvals remain in history.</p>'; }
+		unset( $body['resource_reservations'], $body['buffer_overrides'] ); // Saved evidence is never accepted as client authority.
+
 		if ( $body['expected'] && ! isset( $ctx['services'][ $body['service_type'] ] ) ) {
 			$p                                        = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
 			$ctx['services'][ $body['service_type'] ] = CSF_Scheduling_Catalog::label( $body['service_type'], $p['services'][ $body['service_type'] ] ?? array() ) . ' (disabled; select an enabled type to reschedule)';
@@ -461,7 +478,7 @@ class CSF_Scheduling_UI {
 		echo '<label>Lesson date <input type="date" class="csf-lesson-date" value="' . esc_attr( $local ? substr( $local, 0, 10 ) : ( self::$navigation['date'] ?? '' ) ) . '" required></label>';
 		self::select( 'single_rider', 'Rider', array( '' => 'Choose rider' ) + $ctx['riders'], $wire['single_rider'] );
 		echo '<div class="csf-routine-horse">';
-		self::select( 'single_horse', 'Horse', array( '' => 'Choose horse' ) + $ctx['horses'], $wire['single_horse'] );
+		self::select( 'single_horse', 'Horse', array( '' => 'Choose horse' ) + $ctx['active_horses'], $wire['single_horse'] );
 		echo '</div>';
 		CSF_Scheduling_UX::resource_choices( $ctx, $body['resources'] );
 		echo '<label>Start time <input type="time" class="csf-lesson-clock" step="900" value="' . esc_attr( $local ? substr( $local, 11, 5 ) : '' ) . '"></label><details class="csf-time-alternatives"><summary>Change time / See alternatives</summary><button type="button" class="button csf-load-slots">Show 15-minute start slots</button><button type="button" class="button csf-more-slots" hidden>Show later starts</button><label>Available start <select class="csf-start-slot" required><option value="">Check the selected date and resources first</option></select></label><input type="hidden" class="csf-routine-start" value="' . esc_attr( $local ) . '" data-choice="' . esc_attr( $choice ) . '"></details><p class="csf-routine-summary" role="status" aria-live="polite">Choose a start to calculate the finish. Long lessons may require shorter turns in Advanced rotation.</p><details class="csf-slot-reasons"><summary>Why other starts are unavailable</summary><ul></ul></details><div class="csf-routine-hold"' . ( 'held' === $body['state'] ? '' : ' hidden' ) . '>';
@@ -514,6 +531,8 @@ class CSF_Scheduling_UI {
 			'resource_created'     => 'resource_manage',
 			'resource_saved'       => 'resource_manage',
 			'rider_saved'          => CSF_Scheduling_Access::can( 'rider_edit' ) ? 'rider_edit' : 'rider_clearance',
+			'horse_status_saved'   => 'resource_manage',
+			'horse_deleted'        => 'resource_manage',
 			'horse_saved'          => CSF_Scheduling_Access::can( 'suitability_manage' ) ? 'suitability_manage' : 'resource_manage',
 			'availability_saved'   => 'availability_manage',
 			'restriction_added'    => 'welfare_hold',
@@ -522,6 +541,9 @@ class CSF_Scheduling_UI {
 		if ( ! $cap || ! CSF_Scheduling_Access::can( $cap ) ) {
 			return; }
 
+		if ( 'horse_saved' === $kind ) {
+			unset( $body['data']['archived'] ); // Status changes use their own reviewed command.
+		}
 		self::begin( $kind, $body );
 		$d = $body['data'] ?? $body;
 		if ( in_array( $kind, array( 'resource_created', 'resource_saved', 'rider_saved', 'horse_saved' ), true ) ) {
@@ -554,10 +576,10 @@ class CSF_Scheduling_UI {
 			}
 		}
 		if ( 'horse_saved' === $kind ) {
-			if ( ! $body['expected'] ) {
+			if ( CSF_Scheduling_Access::can( 'resource_manage' ) ) {
 				self::select(
 					'source',
-					'Horse ownership',
+					'Booking classification (not legal ownership)',
 					array(
 						'client' => 'Client-owned',
 						'school' => 'School horse',
@@ -565,7 +587,10 @@ class CSF_Scheduling_UI {
 					$d['source']
 				);
 				self::select( 'resource_uuid', 'School horse availability resource (school horses only)', array( '' => 'No school resource for client-owned horse' ) + $ctx['school_resources'], $d['resource_uuid'] ); } else {
-				echo '<p>' . esc_html( ucfirst( $d['source'] ) . ' horse · identity retained' ) . '</p>'; }
+				echo '<p>' . esc_html( ucfirst( $d['source'] ) . ' booking classification · resource-management permission required to change' ) . '</p>'; }
+			if ( $body['expected'] ) {
+				echo '<p>Correct an unused entry by reviewing its booking classification and school resource above, then saving. The horse identity and edit history are preserved. Any appointment, reservation or protective-block history blocks remapping; no existing booking or welfare record is rewritten.</p>';
+			}
 				self::checks( 'suitable_services', 'Approved services', $ctx['all_services'] ?? $ctx['services'], $d['suitable_services'] );
 				self::checks( 'suitable_riders', 'Approved riders', $ctx['riders'], $d['suitable_riders'] );
 				self::input( 'training_enrolled', 'Enrolled in full training (counts toward facility cap)', $d['training_enrolled'], 'checkbox', ! CSF_Scheduling_Access::can( 'resource_manage' ) );
@@ -598,6 +623,10 @@ class CSF_Scheduling_UI {
 			);
 			self::time( 'start', 'Block starts', $d['start'] );
 			self::time( 'end', 'Block ends', $d['end'] );
+		}
+		if ( 'horse_status_saved' === $kind ) {
+			self::input( 'reason', 'Reason for this change (no medical details)', $body['reason'] );
+			self::input( 'confirm_label', 'Type the current horse name to confirm', $body['confirm_label'] );
 		}
 		if ( 'restriction_released' === $kind ) {
 			self::input( 'reason', 'Reason staff released the block', $body['reason'] ); }
@@ -666,6 +695,7 @@ class CSF_Scheduling_UI {
 			'resources'        => array(),
 			'riders'           => array(),
 			'horses'           => array(),
+			'active_horses'    => array(),
 			'targets'          => array(),
 			'school_resources' => array(),
 		); // phpcs:ignore WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -684,9 +714,38 @@ class CSF_Scheduling_UI {
 		foreach ( $ctx['rider_rows'] as $r ) {
 			$ctx['riders'][ $r['uuid'] ] = $r['data']['label']; }
 		foreach ( $ctx['horse_rows'] as $h ) {
-			$ctx['horses'][ $h['uuid'] ] = $h['data']['label'] . ' (' . $h['data']['source'] . ')'; }
+			$ctx['horses'][ $h['uuid'] ] = $h['data']['label'] . ' (' . $h['data']['source'] . ')' . ( empty( $h['data']['archived'] ) ? '' : ' (archived)' );
+			if ( empty( $h['data']['archived'] ) ) {
+				$ctx['active_horses'][ $h['uuid'] ] = $ctx['horses'][ $h['uuid'] ];
+			}
+		}
 		$ctx['targets'] += $ctx['horses'];
 		return $ctx;
+	}
+
+	/** Explicit named archive/restore review; no mutations while rendering.
+	 *
+	 * @param array $horse Horse document.
+	 */
+	private static function horse_status_form( $horse ) {
+		if ( ! CSF_Scheduling_Access::can( 'resource_manage' ) ) {
+			return;
+		}
+		$archive = empty( $horse['data']['archived'] );
+		$label   = $horse['data']['label'];
+		echo '<details><summary>' . esc_html( ( $archive ? 'Archive horse: ' : 'Restore horse: ' ) . $label ) . '</summary>';
+		echo '<p>' . esc_html( $archive ? 'Archive keeps this horse and its history, removes it from new booking choices and active training counts, and does not cancel any appointment. Future appointments must be reconciled first.' : 'Restore rechecks the resource, recorded suitability, active training cap and current protective blocks. Future bookings must still pass all normal availability and welfare checks.' ) . '</p>';
+		self::begin( 'horse_status_saved', array( 'uuid' => $horse['uuid'], 'expected' => (int) $horse['revision'], 'archived' => $archive, 'reason' => '', 'confirm_label' => '' ) );
+		self::input( 'reason', 'Reason for this change (no medical details)' );
+		self::input( 'confirm_label', 'Type the horse name to confirm: ' . $label );
+		self::end( $archive ? 'Archive this horse' : 'Restore this horse' );
+		echo '</details>';
+		if ( $archive ) {
+			echo '<details><summary>Delete mistaken unused entry: ' . esc_html( $label ) . '</summary><p>Irreversible removal from the horse roster. All appointment, resource, protective-block and history dependencies are checked under the booking lock. Existing audit/history and a UUID tombstone remain; the associated resource is not deleted. Used horses must be archived instead.</p>';
+			self::begin( 'horse_deleted', array( 'uuid' => $horse['uuid'], 'expected' => (int) $horse['revision'], 'reason' => '', 'confirm_label' => '', 'irreversible' => false ) );
+			self::input( 'reason', 'Why this entry was a setup mistake' ); self::input( 'confirm_label', 'Type the exact horse name: ' . $label ); self::input( 'irreversible', 'I understand this unused entry will be permanently removed; it cannot be restored through Archive / Restore', false, 'checkbox' );
+			self::end( 'Permanently delete this unused entry' ); echo '</details>';
+		}
 	}
 
 	/** Format original local time without requiring offsets from the user.
@@ -803,6 +862,8 @@ class CSF_Scheduling_UI {
 			return;
 		}
 		echo '<p>All times: ' . esc_html( $p['timezone'] ?? 'Timezone not configured' ) . '. Confirmed reserves time; rider clearance is checked separately.</p>';
+		CSF_Scheduling_Buffer_UI::review();
+		CSF_Scheduling_Dashboard::render();
 		CSF_Scheduling_UX::actions( $date, $view, $filter );
 		echo '<form method="post" class="csf-navigation"><input type="hidden" name="csf_calendar_view" value="1">';
 		wp_nonce_field( 'csf_calendar_view' );
@@ -829,6 +890,7 @@ class CSF_Scheduling_UI {
 				foreach ( $d['rides'] as $ride ) {
 					echo '<li>' . esc_html( ( $ctx['riders'][ $ride['rider'] ?? '' ] ?? 'Rider details restricted' ) . ' · ' . ( $ctx['horses'][ $ride['horse'] ] ?? 'Unknown horse' ) . ' · ' . self::display_time( $ride['start'] ) . '–' . self::display_time( $ride['end'] ) ) . '</li>'; }
 				echo '</ul>';
+				if ( 'canceled' !== $row['state'] && CSF_Scheduling_Access::can( 'appointment_edit' ) ) { echo '<a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', empty( $d['visit_uuid'] ) ? array( 'from_lesson' => $row['uuid'] ) : array( 'visit' => $d['visit_uuid'] ) ) ) . '">Book another lesson for this family</a>'; }
 				if ( CSF_Scheduling_Access::can( 'appointment_edit' ) && CSF_Scheduling_Access::can( 'calendar_all' ) ) {
 					$copy                 = $d;
 					$copy['title']        = 'Copy of ' . $d['title'];
@@ -840,10 +902,16 @@ class CSF_Scheduling_UI {
 						$turn['start'] = self::local_value( $turn['start'] );
 						$turn['end']   = self::local_value( $turn['end'] );
 					}
-					unset( $turn, $copy['uuid'], $copy['expected'], $copy['hold_expires'] );
+					unset( $turn, $copy['uuid'], $copy['expected'], $copy['hold_expires'], $copy['visit_uuid'], $copy['resource_reservations'], $copy['buffer_overrides'] );
 					echo '<button type="button" class="button csf-planner-duplicate" data-copy-kind="' . ( CSF_Scheduling_Booking::simple( $d ) ? 'routine' : 'advanced' ) . '" data-copy="' . esc_attr( wp_json_encode( $copy ) ) . '">Duplicate as a new requested lesson</button>';
 				}
-				if ( CSF_Scheduling_Access::writer() && 'canceled' !== $row['state'] ) {
+				if ( ! empty( $d['resource_reservations'] ) ) {
+					if ( ! empty( $d['visit_uuid'] ) ) { echo '<p><a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', array( 'visit' => $d['visit_uuid'] ) ) ) . '">Open family visit / edit or cancel together</a></p>'; }
+					foreach ( $d['resource_reservations'] ?? array() as $window ) {
+						echo '<p>' . esc_html( ( $ctx['resources'][$window['resource_uuid']] ?? 'Assigned resource' ) . ' · ' . ( 'canceled' === $row['state'] ? 'Previous reservation: ' : ( 'confirmed' === $row['state'] || ( 'held' === $row['state'] && ! $row['hold_expired'] ) ? 'Reserved: ' : 'Planned, not reserved: ' ) ) . wp_date( 'Y-m-d H:i P', $window['start'], new DateTimeZone( $p['timezone'] ) ) . '–' . wp_date( 'H:i P', $window['end'], new DateTimeZone( $p['timezone'] ) ) . ' · preparation ' . $window['pre_minutes'] . ' min / wrap-up ' . $window['post_minutes'] . ' min' ) . '</p>';
+					}
+				}
+				if ( CSF_Scheduling_Access::writer() && 'canceled' !== $row['state'] && empty( $d['visit_uuid'] ) ) {
 					$d['expected'] = $row['revision'];
 					echo '<details><summary>Edit or confirm appointment</summary>';
 					self::appointment( $d, $ctx );
@@ -861,6 +929,8 @@ class CSF_Scheduling_UI {
 					);
 					echo '</details>';
 				}
+				CSF_Scheduling_Buffer_UI::marker( $d['buffer_overrides'] ?? array(), $ctx );
+				CSF_Scheduling_Buffer_UI::form( $row, $d, $ctx );
 				if ( CSF_Scheduling_Access::can( 'csf_schedule_audit' ) ) {
 					echo '<details><summary>Appointment history and cancellation record</summary><ul>';
 					foreach ( CSF_Scheduling_Calendar::documents( 'history' ) as $event ) {
@@ -989,6 +1059,9 @@ class CSF_Scheduling_UI {
 			'horse_rows' => 'horse_saved',
 		) as $key => $kind ) {
 			foreach ( $ctx[ $key ] as $doc ) {
+				if ( 'horse_rows' === $key ) {
+					self::horse_status_form( $doc );
+				}
 				self::details_form(
 					( 'rider_rows' === $key ? 'Rider: ' : 'Horse: ' ) . $doc['data']['label'],
 					$kind,

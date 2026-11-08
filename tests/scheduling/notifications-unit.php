@@ -1,0 +1,51 @@
+<?php
+/** Real notice classification and effective-permission selection; no transport. */
+define( 'ABSPATH', '/synthetic/' );
+$root = dirname( __DIR__, 2 ) . '/wp-content/plugins/csf-scheduling/includes/';
+require $root . 'class-csf-scheduling-permissions.php'; require $root . 'class-csf-scheduling-notifications.php';
+$n = 0; function nt_check( $ok, $label ) { global $n; if ( ! $ok ) { throw new RuntimeException( $label ); } ++$n; }
+$a = array( 'state' => 'confirmed', 'title' => 'Synthetic', 'start' => '2027-01-25T10:00+00:00', 'end' => '2027-01-25T10:30+00:00', 'resources' => array( 'instructor' ), 'riders' => array( 'rider' ), 'rides' => array() );
+nt_check( 'NEW' === CSF_Scheduling_Notifications::change( null, $a ), 'new confirmed booking emits NEW' );
+nt_check( null === CSF_Scheduling_Notifications::change( $a, $a + array( 'expected' => 2 ) ), 'revision-only/untouched sibling does not create fake alert' );
+$b = $a; $b['state'] = 'requested'; nt_check( null === CSF_Scheduling_Notifications::change( null, $b ), 'requested draft is not a new booking' );
+$b['state'] = 'held'; nt_check( null === CSF_Scheduling_Notifications::change( null, $b ), 'temporary hold is not a confirmed notice' );
+nt_check( 'NEW' === CSF_Scheduling_Notifications::change( $b, $a ), 'confirmation creates first notice' );
+$b = $a; $b['state'] = 'canceled'; nt_check( 'CANCELED' === CSF_Scheduling_Notifications::change( $a, $b ), 'confirmed cancellation classified separately' );
+nt_check( null === CSF_Scheduling_Notifications::change( array( 'state' => 'held' ), $b ), 'canceling an unconfirmed hold does not claim a confirmed lesson changed' );
+$b = $a; $b['start'] = '2027-01-26T10:00+00:00'; nt_check( 'RESCHEDULED' === CSF_Scheduling_Notifications::change( $a, $b ), 'actual teaching change emits rescheduled' );
+$b = $a; $b['resource_reservations'] = array( 'new envelope' ); nt_check( 'RESCHEDULED' === CSF_Scheduling_Notifications::change( $a, $b ), 'changed arrival buffer is meaningful' );
+$now = strtotime( '2027-01-25T09:00+00:00' );
+nt_check( CSF_Scheduling_Notifications::urgent( $a, array( 'start' => '2027-02-01T10:00+00:00' ), $now ), 'moving imminent lesson away remains urgent' );
+nt_check( ! CSF_Scheduling_Notifications::urgent( array( 'start' => '2027-01-20T10:00+00:00' ), array( 'start' => '2027-02-01T10:00+00:00' ), $now ), 'past or distant changes not mislabeled urgent' );
+$member = static fn( $group, $resources = array(), $overrides = array() ) => array( 'active' => true, 'verified' => true, 'group' => $group, 'resources' => $resources, 'overrides' => $overrides );
+$s = array( 'master' => 99, 'groups' => CSF_Scheduling_Permissions::presets(), 'members' => array( 1 => $member( 'operations' ), 2 => $member( 'instructor', array( 'i1' ) ), 3 => $member( 'instructor', array( 'i2' ) ), 4 => $member( 'read_only' ), 5 => $member( 'barn' ), 6 => $member( 'operations', array(), array( 'calendar_all' => 'deny' ) ), 7 => $member( 'instructor', array( 'arena' ) ) ) );
+$c = array( array( 'uuid' => 'a', 'instructors' => array( 'i1' ) ), array( 'uuid' => 'b', 'instructors' => array( 'i2' ) ) );
+$r = CSF_Scheduling_Notifications::recipients( $s, $c );
+nt_check( $r[1] === array( 'a', 'b' ), 'effective management rights receive one complete family envelope' );
+nt_check( $r[2] === array( 'a' ) && $r[3] === array( 'b' ), 'instructors receive only individually assigned sibling subset' );
+nt_check( ! isset( $r[4], $r[5], $r[6], $r[7] ) && count( $r ) === 3, 'read-only/barn/denied oversight/arena-only assignments do not imply recipient authority' );
+$s['members'][1]['active'] = false; $s['members'][2]['verified'] = false;
+$r = CSF_Scheduling_Notifications::recipients( $s, $c ); nt_check( array_keys( $r ) === array( 3 ), 'inactive and unverified membership never receives event' );
+$s['members'][3]['overrides']['calendar_assigned'] = 'deny'; nt_check( array() === CSF_Scheduling_Notifications::recipients( $s, $c ), 'individual deny wins over instructor preset' );
+$s['master'] = 1; $s['members'][1]['active'] = true;
+nt_check( ! CSF_Scheduling_Permissions::effective( $s, 1 )['buffer_override'], 'new exception right is not silently granted even to the master' );
+nt_check( ! array_filter( CSF_Scheduling_Permissions::presets(), static fn( $g ) => in_array( 'buffer_override', $g['permissions'], true ) ), 'existing role presets receive no new exception grant' );
+$s['members'][1]['overrides']['buffer_override'] = 'grant'; nt_check( CSF_Scheduling_Permissions::effective( $s, 1 )['buffer_override'], 'separately reviewed explicit permission can enable exception' );
+$s['members'][1]['overrides']['buffer_override'] = 'deny'; nt_check( ! CSF_Scheduling_Permissions::effective( $s, 1 )['buffer_override'], 'exception deny takes precedence' );
+// A -> B reassignment preserves A's minimal departure without new private details.
+$s = array( 'master' => 99, 'groups' => CSF_Scheduling_Permissions::presets(), 'members' => array( 1 => $member( 'operations' ), 2 => $member( 'instructor', array( 'i1' ) ), 3 => $member( 'instructor', array( 'i2' ) ) ) );
+$c = array( 'uuid' => 'lesson', 'kind' => 'RESCHEDULED', 'urgent' => true, 'previous_instructors' => array( 'i1' ), 'instructors' => array( 'i2' ), 'before_time' => array( 'start' => '2027-01-25T10:00-08:00', 'end' => '2027-01-25T10:30-08:00' ), 'after_time' => array( 'start' => '2027-01-26T11:00-08:00', 'end' => '2027-01-26T11:30-08:00' ) );
+$audience = CSF_Scheduling_Notifications::audience( $s, array( $c ) );
+nt_check( array_keys( $audience['items'] ) === array( 1, 2, 3 ), 'reassignment notifies oversight, former A and current B' );
+nt_check( $audience['departures'] === array( 2 => array( 'lesson' ) ), 'only former assigned-only instructor receives departure projection' );
+$departure = CSF_Scheduling_Notifications::project( $c, true, false, true );
+nt_check( $departure['kind'] === 'REMOVED_FROM_ASSIGNMENT' && $departure['start'] === $c['before_time']['start'] && $departure['restricted'], 'A sees only old assignment time with no current detail link' );
+nt_check( ! $departure['urgent'], 'departure urgency cannot disclose a newly imminent private schedule' );
+nt_check( ! isset( $departure['instructors'], $departure['after_time'] ) && ! str_contains( json_encode( $departure ), '2027-01-26' ), 'departure cannot disclose new resources or rescheduled date' );
+nt_check( null === CSF_Scheduling_Notifications::project( $c, true, false, false ), 'revoked history eligibility denies even minimal departure' );
+$historical = CSF_Scheduling_Notifications::project( $c, false, false, true ); nt_check( $historical['restricted'] && $historical['start'] === '2027-01-26T11:00-08:00', 'prior entitled notice remains historical without granting current details' );
+$old = CSF_Scheduling_Notifications::project( $c, false, true, true ); $second = $c; $second['before_time'] = $c['after_time']; $second['after_time'] = array( 'start' => '2027-02-01T12:00-08:00', 'end' => '2027-02-01T12:30-08:00' );
+$new = CSF_Scheduling_Notifications::project( $second, false, true, true ); nt_check( $old['start'] === '2027-01-26T11:00-08:00' && $new['start'] === '2027-02-01T12:00-08:00' && $old === CSF_Scheduling_Notifications::project( $c, false, true, true ), 'multiple reschedules never rewrite earlier event dates' );
+unset( $c['after_time'], $c['before_time'] ); nt_check( null === CSF_Scheduling_Notifications::project( $c, false, true, false )['start'], 'legacy notices do not fabricate event dates from current appointment' );
+$s['members'][2]['overrides']['calendar_assigned'] = 'deny'; nt_check( ! isset( CSF_Scheduling_Notifications::audience( $s, array( $c ) )['items'][2] ), 'explicit assigned-view denial suppresses departure recipient' );
+echo $n . " isolated notification classification/recipient checks passed\n";

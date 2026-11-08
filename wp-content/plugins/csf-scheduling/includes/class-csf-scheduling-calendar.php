@@ -15,8 +15,8 @@ class CSF_Scheduling_Calendar {
 	 * @var bool
 	 */
 	private static $reading = false;
-	const COMMANDS          = array( 'resource_hours_saved', 'resource_closure_added', 'resource_closure_released', 'resource_saved', 'rider_saved', 'horse_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
-	const ERRORS            = array( 'forbidden', 'invalid_body', 'invalid_time', 'service_duration', 'lesson_resource', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
+	const COMMANDS          = array( 'horse_deleted', 'buffer_overridden', 'notice_acknowledged', 'family_visit_saved', 'resource_hours_saved', 'resource_closure_added', 'resource_closure_edited', 'resource_closure_released', 'resource_saved', 'rider_saved', 'horse_saved', 'horse_status_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
+	const ERRORS            = array( 'horse_deleted', 'horse_delete_in_use', 'buffer_future_only', 'buffer_mandatory', 'buffer_snapshot_required', 'visit_required', 'visit_state', 'visit_members_required', 'forbidden', 'invalid_body', 'invalid_time', 'service_duration', 'lesson_resource', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'horse_mapping_in_use', 'horse_archived', 'horse_future_bookings', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
 
 	/** Fixed private table lookup.
 	 *
@@ -141,11 +141,24 @@ class CSF_Scheduling_Calendar {
 		self::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
 		self::require( CSF_Scheduling_Permissions::authorize( $kind, $body ), 'forbidden' );
 		$policy = json_decode( $settings['policy_json'], true );
+		if ( 'buffer_overridden' === $kind ) {
+			return CSF_Scheduling_Buffer_Override::apply( $body, $settings );
+		}
+		if ( 'notice_acknowledged' === $kind ) {
+			return CSF_Scheduling_Notifications::acknowledge( $body );
+		}
+		if ( 'family_visit_saved' === $kind ) {
+			return CSF_Scheduling_Family_Visit::apply( $body, $settings );
+		}
 		if ( in_array( $kind, CSF_Scheduling_Resource_Hours::COMMANDS, true ) ) {
 			return CSF_Scheduling_Resource_Hours::apply( $kind, $body, $settings );
 		}
 		if ( in_array( $kind, array( 'appointment_saved', 'appointment_canceled' ), true ) ) {
 			return self::appointment( $kind, $body, $policy, ! empty( $settings['availability_preview'] ) );
+		}
+		if ( 'horse_deleted' === $kind ) { return self::horse_delete( $body ); }
+		if ( 'horse_status_saved' === $kind ) {
+			return self::horse_status( $body, $policy );
 		}
 		if ( 'resource_saved' === $kind ) {
 			self::keys( $body, array( 'uuid', 'expected', 'data' ) );
@@ -224,6 +237,8 @@ class CSF_Scheduling_Calendar {
 			}
 			$table = 'riders';
 		} elseif ( 'horse_saved' === $kind ) {
+			$tombstone = self::find( 'details', $body['uuid'] );
+			self::require( ! $tombstone || 'horse_tombstone' !== ( json_decode( $tombstone['body_json'], true )['record_type'] ?? null ), 'horse_deleted' );
 			self::keys( $d, array( 'label', 'source', 'resource_uuid', 'suitable_services', 'suitable_riders', 'training_enrolled' ) );
 			self::label( $d['label'] );
 			self::require( in_array( $d['source'], array( 'school', 'client' ), true ) && is_array( $d['suitable_services'] ) && array_is_list( $d['suitable_services'] ) && count( $d['suitable_services'] ) <= 30 && is_bool( $d['training_enrolled'] ) );
@@ -243,18 +258,25 @@ class CSF_Scheduling_Calendar {
 			} else {
 				self::require( null === $d['resource_uuid'] );
 			}
-			if ( $d['training_enrolled'] ) {
+			$existing_horse = self::find( 'horses', $body['uuid'] );
+			$existing_data  = $existing_horse ? json_decode( $existing_horse['body_json'], true ) : array();
+			if ( array_key_exists( 'archived', $existing_data ) ) {
+				$d['archived'] = $existing_data['archived'];
+			}
+			if ( $d['training_enrolled'] && empty( $d['archived'] ) ) {
 				self::require( is_int( $policy['training_horse_cap'] ), 'policy_incomplete' );
 				$total = 1;
 				foreach ( self::documents( 'horses' ) as $horse ) {
-					$total += $horse['uuid'] !== $body['uuid'] && $horse['data']['training_enrolled'] ? 1 : 0;
+					$total += $horse['uuid'] !== $body['uuid'] && empty( $horse['data']['archived'] ) && $horse['data']['training_enrolled'] ? 1 : 0;
 				}
 				self::require( $total <= $policy['training_horse_cap'], 'capacity' );
 			}
 			$existing_horse = self::find( 'horses', $body['uuid'] );
 			if ( $existing_horse ) {
 				$identity = json_decode( $existing_horse['body_json'], true );
-				self::require( $identity['source'] === $d['source'] && $identity['resource_uuid'] === $d['resource_uuid'], 'horse_unsafe' );
+				if ( $identity['source'] !== $d['source'] || $identity['resource_uuid'] !== $d['resource_uuid'] ) {
+					self::unused_horse_mapping( $existing_horse, $identity, $d );
+				}
 			}
 			$table = 'horses';
 		} elseif ( 'availability_saved' === $kind ) {
@@ -299,6 +321,139 @@ class CSF_Scheduling_Calendar {
 			'uuid'            => $body['uuid'],
 			'entity_revision' => $next,
 		);
+	}
+
+	/** Delete only a proven unused setup mistake; retain history and an immutable UUID tombstone. */
+	private static function horse_delete( $body ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Store::in_calendar_transaction() && CSF_Scheduling_Access::can( 'resource_manage' ), 'forbidden' );
+		self::keys( $body, array( 'uuid', 'expected', 'reason', 'confirm_label', 'irreversible' ) );
+		self::require( CSF_Scheduling_Audit::uuid( $body['uuid'] ) && true === $body['irreversible'] ); self::label( $body['reason'] );
+		$old = self::find( 'horses', $body['uuid'] ); self::require( $old, 'not_found' );
+		self::require( is_int( $body['expected'] ) && (int) $old['revision'] === $body['expected'], 'stale_appointment' );
+		$before = json_decode( $old['body_json'], true ); self::require( $body['confirm_label'] === $before['label'], 'invalid_transition' );
+		self::require( empty( $before['archived'] ), 'horse_delete_in_use' );
+		try { self::unused_horse_mapping( $old, $before, $before ); }
+		catch ( RuntimeException $e ) { if ( 'horse_mapping_in_use' === $e->getMessage() ) { throw new RuntimeException( 'horse_delete_in_use' ); } throw $e; }
+		// Own setup-edit history is retained. Lifecycle/welfare or unknown history blocks deletion.
+		$history = self::table( 'history' );
+		$used = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$history` WHERE entity_uuid=%s AND COALESCE(JSON_UNQUOTE(JSON_EXTRACT(body_json,'$.kind')),'')<>'horse_saved' LIMIT 1", $body['uuid'] ) );
+		self::require( '' === $wpdb->last_error, 'write_failed' ); self::require( ! $used, 'horse_delete_in_use' );
+		self::require( ! self::find( 'details', $body['uuid'] ) && ! self::find( 'appointments', $body['uuid'] ), 'horse_delete_in_use' );
+		$tombstone = array( 'record_type' => 'horse_tombstone', 'label' => $before['label'], 'reason' => $body['reason'], 'deleted_revision' => $body['expected'] + 1 );
+		self::document( 'details', $body['uuid'], $body['uuid'], $tombstone, 0 );
+		self::document( 'history', wp_generate_uuid4(), $body['uuid'], array( 'kind' => 'horse_deleted', 'before' => $before, 'after' => $tombstone ), 0 );
+		self::require( 1 === $wpdb->delete( self::table( 'horses' ), array( 'id' => (int) $old['id'], 'uuid' => $body['uuid'], 'revision' => $body['expected'] ) ), 'write_failed' );
+		return array( 'uuid' => $body['uuid'], 'entity_revision' => $body['expected'] + 1, 'deleted' => true );
+	}
+
+	/** Archive/restore without deleting a horse or its related history.
+	 *
+	 * @param array $body   Reviewed lifecycle command.
+	 * @param array $policy Facility policy.
+	 * @return array
+	 */
+	private static function horse_status( $body, $policy ) {
+		global $wpdb;
+		self::keys( $body, array( 'uuid', 'expected', 'archived', 'reason', 'confirm_label' ) );
+		self::require( CSF_Scheduling_Store::in_calendar_transaction() && CSF_Scheduling_Access::can( 'resource_manage' ), 'forbidden' );
+		self::require( is_bool( $body['archived'] ) );
+		self::label( $body['reason'] );
+		$old = self::find( 'horses', $body['uuid'] );
+		self::require( $old, 'not_found' );
+		self::require( is_int( $body['expected'] ) && (int) $old['revision'] === $body['expected'], 'stale_appointment' );
+		$before = json_decode( $old['body_json'], true );
+		self::require( $body['confirm_label'] === $before['label'] && (bool) ( $before['archived'] ?? false ) !== $body['archived'], 'invalid_transition' );
+		// Preserve all existing requests, holds and confirmed future appointments.
+		// Nothing is silently canceled or reassigned to make archival possible.
+		$appointments = self::table( 'appointments' );
+		$details      = self::table( 'details' );
+		$future       = $wpdb->get_var( $wpdb->prepare( "SELECT a.id FROM `$appointments` a JOIN `$details` d ON d.uuid=a.uuid WHERE a.state<>'canceled' AND a.end_utc>%s AND d.body_json LIKE %s LIMIT 1", CSF_Scheduling_Audit::now(), '%' . $wpdb->esc_like( $body['uuid'] ) . '%' ) );
+		self::require( '' === $wpdb->last_error, 'write_failed' );
+		self::require( ! $future, 'horse_future_bookings' );
+		if ( ! $body['archived'] ) {
+			foreach ( $before['suitable_services'] as $service ) {
+				self::require( isset( $policy['services'][ $service ] ), 'horse_unsafe' );
+			}
+			foreach ( $before['suitable_riders'] as $rider ) {
+				self::require( self::find( 'riders', $rider ), 'horse_unsafe' );
+			}
+			if ( 'school' === $before['source'] ) {
+				$resource = self::find( 'resources', $before['resource_uuid'] );
+				self::require( $resource && 'horse' === $resource['kind'] && (int) $resource['active'] && self::find( 'availability', $before['resource_uuid'] ), 'horse_unsafe' );
+				foreach ( self::documents( 'horses' ) as $horse ) {
+					self::require( $horse['uuid'] === $body['uuid'] || $horse['data']['resource_uuid'] !== $before['resource_uuid'], 'horse_unsafe' );
+				}
+			}
+			if ( $before['training_enrolled'] ) {
+				self::require( is_int( $policy['training_horse_cap'] ), 'policy_incomplete' );
+				$total = 1;
+				foreach ( self::documents( 'horses' ) as $horse ) {
+					$total += $horse['uuid'] !== $body['uuid'] && empty( $horse['data']['archived'] ) && $horse['data']['training_enrolled'] ? 1 : 0;
+				}
+				self::require( $total <= $policy['training_horse_cap'], 'capacity' );
+			}
+			// Current protective blocks must be resolved independently, not by restore.
+			$now = new DateTimeImmutable( 'now', new DateTimeZone( $policy['timezone'] ) );
+			foreach ( array_filter( array( $body['uuid'], $before['resource_uuid'] ) ) as $target ) {
+				self::unrestricted( $target, $now, $now->modify( '+1 second' ), $policy );
+			}
+		}
+		$after             = $before;
+		$after['archived'] = $body['archived'];
+		$next              = self::document( 'horses', $body['uuid'], $body['uuid'], $after, $body['expected'] );
+		self::document( 'history', wp_generate_uuid4(), $body['uuid'], array( 'kind' => 'horse_status_saved', 'before' => $before, 'after' => $after, 'reason' => $body['reason'] ), 0 );
+		return array( 'uuid' => $body['uuid'], 'entity_revision' => $next, 'archived' => $body['archived'] );
+	}
+
+	/** Correct only an unused booking classification; never re-key historical reservations.
+	 *
+	 * This deliberately conservative first increment leaves used-horse remapping for
+	 * an explicit reservation/history migration. All reads run under Store's facility
+	 * lock, so another command cannot book the old mapping between check and save.
+	 *
+	 * @param array $horse  Existing horse row.
+	 * @param array $before Existing classification.
+	 * @param array $after  Proposed classification.
+	 */
+	private static function unused_horse_mapping( $horse, $before, $after ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
+		$details = self::table( 'details' );
+		// UUIDs are validated, immutable identifiers. Conservative matching also keeps
+		// canceled and requested appointments protected; they may have no slot rows.
+		$used = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$details` WHERE body_json LIKE %s LIMIT 1", '%' . $wpdb->esc_like( $horse['uuid'] ) . '%' ) );
+		self::require( '' === $wpdb->last_error, 'write_failed' );
+		self::require( ! $used, 'horse_mapping_in_use' );
+		$history = self::table( 'history' );
+		$used    = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$history` WHERE entity_uuid<>%s AND body_json LIKE %s LIMIT 1", $horse['uuid'], '%' . $wpdb->esc_like( $horse['uuid'] ) . '%' ) );
+		self::require( '' === $wpdb->last_error, 'write_failed' );
+		self::require( ! $used, 'horse_mapping_in_use' );
+		$targets = array_unique( array_filter( array( $horse['uuid'], $before['resource_uuid'], $after['resource_uuid'] ) ) );
+		$keys    = array( 0 - (int) $horse['id'] );
+		foreach ( $targets as $uuid ) {
+			$restrictions = self::table( 'restrictions' );
+			$used         = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$restrictions` WHERE entity_uuid=%s LIMIT 1", $uuid ) );
+			self::require( '' === $wpdb->last_error, 'write_failed' );
+			self::require( ! $used, 'horse_mapping_in_use' );
+			if ( $uuid !== $horse['uuid'] ) {
+				$resource = self::find( 'resources', $uuid );
+				self::require( $resource && 'horse' === $resource['kind'], 'horse_unsafe' );
+				$keys[] = (int) $resource['id'];
+			}
+		}
+		foreach ( array_unique( $keys ) as $key ) {
+			$slots = self::table( 'slots' );
+			$used  = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$slots` WHERE resource_id=%d LIMIT 1", $key ) );
+			self::require( '' === $wpdb->last_error, 'write_failed' );
+			self::require( ! $used, 'horse_mapping_in_use' );
+			if ( $key > 0 ) {
+				$allocations = self::table( 'allocations' );
+				$used        = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$allocations` WHERE resource_id=%d LIMIT 1", $key ) );
+				self::require( '' === $wpdb->last_error, 'write_failed' );
+				self::require( ! $used, 'horse_mapping_in_use' );
+			}
+		}
 	}
 
 	/** Private documents; never call from public output or unauthenticated endpoints.
@@ -362,6 +517,9 @@ class CSF_Scheduling_Calendar {
 		self::require( ! $old || 'canceled' !== $old['state'], 'invalid_transition' );
 		$previous = self::find( 'details', $b['uuid'] );
 		$before   = $previous ? json_decode( $previous['body_json'], true ) : null;
+		$visit = class_exists( 'CSF_Scheduling_Family_Visit' ) ? CSF_Scheduling_Family_Visit::context( $b['uuid'] ) : null;
+		$visit = $visit ?? ( class_exists( 'CSF_Scheduling_Buffer_Override' ) ? CSF_Scheduling_Buffer_Override::context( $b['uuid'] ) : null );
+		self::require( empty( $before['visit_uuid'] ) || ( $visit && $visit['visit_uuid'] === $before['visit_uuid'] ), 'visit_required' );
 		if ( 'appointment_canceled' === $kind ) {
 			self::keys( $b, array( 'uuid', 'expected', 'initiator', 'reason', 'notice', 'effective' ) );
 			self::require( $old && in_array( $b['initiator'], array( 'client', 'staff', 'facility', 'weather', 'horse_welfare' ), true ), 'invalid_transition' );
@@ -375,7 +533,7 @@ class CSF_Scheduling_Calendar {
 				'canceled_by'         => get_current_user_id(),
 				'notice_received_utc' => CSF_Scheduling_Time::utc( $notice ),
 			);
-			$detail = $before + array( 'cancellation' => $b );
+			$detail = array_merge( $before, array( 'state' => 'canceled', 'cancellation' => $b ) );
 		} else {
 			self::keys( $b, array( 'uuid', 'expected', 'title', 'service_type', 'state', 'start', 'end', 'hold_expires', 'resources', 'riders', 'rides' ) );
 			self::require( ! CSF_Scheduling_Policy::missing( $p ), 'policy_incomplete' );
@@ -424,7 +582,7 @@ class CSF_Scheduling_Calendar {
 			foreach ( $b['riders'] as $uuid ) {
 				self::require( self::find( 'riders', $uuid ), 'not_found' );
 			}
-			$detail = $b;
+			$detail = $b + ( $visit ?? array( 'resource_reservations' => self::independent_windows( $b, $s, $p, $start, $end, $resource_rows ) ) );
 			$data   = array(
 				'uuid'                 => $b['uuid'],
 				'title'                => $b['title'],
@@ -441,7 +599,7 @@ class CSF_Scheduling_Calendar {
 				'revision'             => $b['expected'] + 1,
 				'confirmed_by'         => 'confirmed' === $b['state'] ? get_current_user_id() : null,
 			);
-			self::validate_allocations( $b, $s, $p, $start, $end, $resource_rows, $old ? (int) $old['id'] : 0, $availability );
+			self::validate_allocations( $detail, $s, $p, $start, $end, $resource_rows, $old ? (int) $old['id'] : 0, $availability );
 		}
 		$id = $old ? (int) $old['id'] : 0;
 		if ( $old ) {
@@ -463,13 +621,14 @@ class CSF_Scheduling_Calendar {
 		if ( 'appointment_saved' === $kind && 'requested' !== $b['state'] ) {
 			$buffer = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
 			foreach ( $resource_rows as $r ) {
+				list( $resource_start, $resource_end ) = self::reservation_window( $detail, $r['uuid'], $start->modify( "-$buffer minutes" ), $end->modify( "+$buffer minutes" ) );
 				self::insert(
 					'allocations',
 					array(
 						'appointment_id' => $id,
 						'resource_id'    => $r['id'],
-						'start_utc'      => CSF_Scheduling_Time::utc( $start->modify( "-$buffer minutes" ) ),
-						'end_utc'        => CSF_Scheduling_Time::utc( $end->modify( "+$buffer minutes" ) ),
+						'start_utc'      => CSF_Scheduling_Time::utc( $resource_start ),
+						'end_utc'        => CSF_Scheduling_Time::utc( $resource_end ),
 					)
 				);
 			}
@@ -519,7 +678,43 @@ class CSF_Scheduling_Calendar {
 			'uuid'            => $b['uuid'],
 			'entity_revision' => $next,
 			'state'           => $data['state'],
+			'resource_reservations' => $detail['resource_reservations'] ?? array(),
+			'notice_before'   => $before ? array_intersect_key( $before, array_flip( array( 'state', 'start', 'end', 'resources' ) ) ) : null,
+			'notice_kind'     => CSF_Scheduling_Notifications::change( $before, array_merge( $detail, array( 'state' => $data['state'] ) ) ),
+			'notice_urgent'   => 'confirmed' === ( $before['state'] ?? null ) && CSF_Scheduling_Notifications::urgent( $before, $detail, time() ),
 		);
+	}
+
+	/** New/resaved independent lessons use explicit server-derived 15+15 windows. */
+	private static function independent_windows( $b, $s, $p, $start, $end, $rows ) {
+		$resources = array();
+		$travel = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
+		foreach ( $rows as $uuid => $r ) {
+			$resources[] = array( 'uuid' => $uuid, 'kind' => $r['kind'], 'mandatory_before' => $travel, 'mandatory_after' => $travel, 'shareable' => false );
+		}
+		$plan = CSF_Scheduling_Visit_Plan::calculate( array( array( 'uuid' => $b['uuid'], 'visit_uuid' => null, 'start' => $start->getTimestamp(), 'end' => $end->getTimestamp(), 'resources' => $resources ) ) );
+		return $plan['lessons'][0]['reservations'];
+	}
+
+	/** Internal saved/planned reservation metadata; never accepted in wire bodies. */
+	private static function reservation_window( $detail, $uuid, $left, $right ) {
+		foreach ( $detail['resource_reservations'] ?? array() as $window ) {
+			if ( $uuid === $window['resource_uuid'] ) {
+				return array( $left->setTimestamp( $window['start'] ), $right->setTimestamp( $window['end'] ) );
+			}
+		}
+		return array( $left, $right );
+	}
+
+	/** Buffer envelope must fit actual facility opening instants, including DST. */
+	private static function facility_window( $a, $z, $p ) {
+		$local = $a->setTimezone( new DateTimeZone( $p['timezone'] ) );
+		$open = false;
+		foreach ( $p['service_hours'][ (int) $local->format( 'w' ) ] as $range ) {
+			$window = CSF_Scheduling_Resource_Hours::window( $local->format( 'Y-m-d' ), $range[0], $range[1], $p['timezone'] );
+			$open = $open || ( $window && strtotime( $window['start'] ) <= $a->getTimestamp() && strtotime( $window['end'] ) >= $z->getTimestamp() );
+		}
+		self::require( $open, 'outside_hours' );
 	}
 
 	/** Allocation gate, run under the singleton lock even for requested previews.
@@ -532,18 +727,23 @@ class CSF_Scheduling_Calendar {
 	 * @param array             $resources Resolved resources.
 	 * @param int               $exclude Existing appointment ID.
 	 * @param bool              $availability Read-only occupied-slot checking.
+	 * @param bool              $historical Display a historical record without treating archival as a new eligibility failure.
 	 * @throws CSF_Scheduling_Conflict Selected resource is reserved.
 	 */
-	private static function validate_allocations( $b, $s, $p, $start, $end, $resources, $exclude, $availability = false ) {
+	private static function validate_allocations( $b, $s, $p, $start, $end, $resources, $exclude, $availability = false, $historical = false ) {
 		global $wpdb;
 		$buffer = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
 		$left   = $start->modify( "-$buffer minutes" );
 		$right  = $end->modify( "+$buffer minutes" );
 		foreach ( $resources as $uuid => $r ) {
-			self::available( $uuid, $left, $right, $p );
-			self::unrestricted( $uuid, $left, $right, $p );
+			list( $resource_start, $resource_end ) = self::reservation_window( $b, $uuid, $left, $right );
+			if ( ! empty( $b['resource_reservations'] ) ) {
+				self::facility_window( $resource_start, $resource_end, $p );
+			}
+			self::available( $uuid, $resource_start, $resource_end, $p );
+			self::unrestricted( $uuid, $resource_start, $resource_end, $p );
 			if ( $availability || 'requested' !== $b['state'] ) {
-				if ( self::overlap( 'allocations', 'resource_id', (int) $r['id'], $left, $right, $exclude ) ) {
+				if ( self::overlap( 'allocations', 'resource_id', (int) $r['id'], $resource_start, $resource_end, $exclude ) ) {
 					throw new CSF_Scheduling_Conflict( 'resource_conflict', esc_html( $r['kind'] . ': ' . $r['label'] ) ); }
 			}
 		}
@@ -562,6 +762,7 @@ class CSF_Scheduling_Calendar {
 			$h = self::find( 'horses', $ride['horse'] );
 			self::require( $h, 'horse_unsafe' );
 			$horse = json_decode( $h['body_json'], true );
+			self::require( $historical || empty( $horse['archived'] ), 'horse_archived' );
 			self::require( null === $ride['rider'] || in_array( $ride['rider'], $horse['suitable_riders'], true ), 'horse_unsafe' );
 			self::require( in_array( $b['service_type'], $horse['suitable_services'], true ) && ( 'either' === $s['horse_source'] || $horse['source'] === $s['horse_source'] ), 'horse_unsafe' );
 			$a = CSF_Scheduling_Time::parse( $ride['start'], $p['timezone'] );
@@ -746,7 +947,7 @@ class CSF_Scheduling_Calendar {
 						$service = CSF_Scheduling_Catalog::booked( $row['uuid'], $row['service_type'], $p )['service'] ?? $service;
 					}
 					self::require( $service && $service['enabled'] && ! CSF_Scheduling_Policy::missing( $p ), 'policy_incomplete' );
-					self::validate_allocations( $d, $service, $p, $a->setTimezone( new DateTimeZone( $row['timezone'] ) ), $z->setTimezone( new DateTimeZone( $row['timezone'] ) ), $resolved, (int) $row['id'] );
+					self::validate_allocations( $d, $service, $p, $a->setTimezone( new DateTimeZone( $row['timezone'] ) ), $z->setTimezone( new DateTimeZone( $row['timezone'] ) ), $resolved, (int) $row['id'], false, 'canceled' === $row['state'] || $row['end_utc'] <= CSF_Scheduling_Audit::now() );
 				} catch ( Throwable $error ) {
 					$review = true; }
 				$result[] = array(
@@ -758,6 +959,9 @@ class CSF_Scheduling_Calendar {
 					'revision'       => (int) $row['revision'],
 					'rider_cleared'  => $clear,
 					'welfare_review' => $review,
+					'visit_uuid'     => $d['visit_uuid'] ?? null,
+					'resource_reservations' => $d['resource_reservations'] ?? array(),
+					'buffer_overrides' => $d['buffer_overrides'] ?? array(),
 					'hold_expired'   => 'held' === $row['state'] && $row['hold_expires_utc'] <= CSF_Scheduling_Audit::now(),
 				);
 			}

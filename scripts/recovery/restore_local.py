@@ -453,7 +453,7 @@ def import_database(rt):
         comparison=b.drift(previous,baseline,policy)
         rt.write('artifact-source-comparison.json',b.canonical(comparison)+b'\n')
         require(not comparison['review_required'],'DATABASE_INTEGRITY_BLOCKED')
-        if b.schema_contract()['phase'](original_catalog)=='scheduling_v3':
+        if b.schema_contract()['phase'](original_catalog) in ('scheduling_v3','scheduling_v4'):
             pairs=[('allocations','appointment_id','appointments'),('allocations','resource_id','resources'),('participants','appointment_id','appointments'),('participants','rider_id','riders'),('slots','appointment_id','appointments')]
             for child,key,parent in pairs:
                 sql='SELECT COUNT(*) FROM `'+b.PREFIX+'csf_sched_'+child+'` c LEFT JOIN `'+b.PREFIX+'csf_sched_'+parent+'` p ON c.`'+key+'`=p.id WHERE p.id IS NULL;'
@@ -635,7 +635,7 @@ def worker(b,binding,params,parent_ns):
         flags=prepare_wordpress(rt,raw_config)
         phase=b.schema_contract()['phase'](json.loads((source/'before.catalog.json').read_text()))
         app_schema_ready=None
-        if phase=='scheduling_v3':
+        if phase in ('scheduling_v3','scheduling_v4'):
             rt.write('jail/work/login-input.json',b.canonical({'action':'schema'}),rt.web)
             app_schema_ready=json.loads(rt.execute(flags+['/work/login.php'],web=True)).get('ready') is True
             (rt.jail/'work/login-input.json').unlink()
@@ -646,7 +646,7 @@ def worker(b,binding,params,parent_ns):
         catalog=json.loads((source/'before.catalog.json').read_text())
         phase=b.schema_contract()['phase'](catalog)
         b.write_json(work/'schema-state.json',{'phase':phase,'tables_preserved':len({c['table'] for c in catalog['columns']}),'application_schema_ready':app_schema_ready})
-        if phase not in ('pre_scheduling','scheduling_v3') or (phase=='scheduling_v3' and app_schema_ready is not True):
+        if phase not in ('pre_scheduling','scheduling_v3','scheduling_v4') or (phase in ('scheduling_v3','scheduling_v4') and app_schema_ready is not True):
             receipt.update(state='partial',code='SCHEMA_STATE_REQUIRES_REVIEW',restore_verified=False)
     except Failure as error:receipt['code']=error.code
     except (Exception,KeyboardInterrupt):receipt['code']='RESTORE_UNCLASSIFIED'

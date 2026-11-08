@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 
 /** Physical schema contract and migration gate. */
 class CSF_Scheduling_Schema {
-	const VERSION = 3;
+	const VERSION = 4;
 
 	/** Checked table identifiers; never accept a caller's table name.
 	 *
@@ -295,7 +295,7 @@ class CSF_Scheduling_Schema {
 				$errors[] = 'settings:singleton';
 			}
 		}
-		if ( 3 === $version && ! in_array( 'authorization', $missing, true ) && ! array_filter( $errors, static fn( $e )=>str_starts_with( $e, 'authorization:' ) ) ) {
+		if ( $version >= 3 && ! in_array( 'authorization', $missing, true ) && ! array_filter( $errors, static fn( $e )=>str_starts_with( $e, 'authorization:' ) ) ) {
 			$auth = self::table( 'authorization' );
 			if ( 1 !== (int) $wpdb->get_var( "SELECT COUNT(*) FROM `$auth`" ) || ! CSF_Scheduling_Permissions::state() ) {
 				$errors[] = 'authorization:singleton'; }
@@ -340,10 +340,10 @@ class CSF_Scheduling_Schema {
 			}
 			try {
 				$state = self::inspect();
-				if ( in_array( $state['version'], array( 1, 2 ), true ) ) {
+				if ( in_array( $state['version'], array( 1, 2, 3 ), true ) ) {
 					$base = self::inspect( $state['version'] );
 					if ( $base['errors'] || $base['missing'] ) {
-						return new WP_Error( 'migration_incompatible', 'Installed v1 physical schema must be intact.' );
+						return new WP_Error( 'migration_incompatible', 'Installed versioned physical schema must be intact.' );
 					}
 					foreach ( array_diff( array_keys( self::definitions() ), array_keys( self::definitions( $state['version'] ) ) ) as $name ) {
 						if ( ! in_array( $name, $state['missing'], true ) ) {
@@ -354,7 +354,7 @@ class CSF_Scheduling_Schema {
 						}
 					}
 				}
-				if ( ( self::VERSION === $state['version'] && ! $state['ready'] ) || $state['errors'] || ( null !== $state['version'] && ! in_array( $state['version'], array( 0, 1, 2, self::VERSION ), true ) ) ) {
+				if ( ( self::VERSION === $state['version'] && ! $state['ready'] ) || $state['errors'] || ( null !== $state['version'] && ! in_array( $state['version'], array( 0, 1, 2, 3, self::VERSION ), true ) ) ) {
 					return new WP_Error( 'migration_incompatible', 'Existing schema is incompatible; no automatic destructive repair.' );
 				}
 				if ( $state['ready'] ) {
@@ -362,7 +362,7 @@ class CSF_Scheduling_Schema {
 				}
 				// Never adopt populated tables whose installation marker is absent/incomplete.
 				foreach ( self::definitions() as $name => $def ) {
-					if ( in_array( $state['version'], array( 1, 2 ), true ) || 'settings' === $name || in_array( $name, $state['missing'], true ) ) {
+					if ( in_array( $state['version'], array( 1, 2, 3 ), true ) || 'settings' === $name || in_array( $name, $state['missing'], true ) ) {
 						continue;
 					}
 					$t = self::table( $name );

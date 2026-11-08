@@ -16,6 +16,9 @@ root=pathlib.Path(sys.argv[1]);pin='6f5a9bf51747399a309b39637a135841fe4cf2a1'
 for row in (root/'docs/test-results/scheduling-staff-files.sha256').read_text().splitlines():
  digest,path=row.split();data=subprocess.check_output(['git','-C',str(root),'show',pin+':'+path]);assert hashlib.sha256(data).hexdigest()==digest
  target=root/'.wp-local/permissions-v2-source'/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+source=subprocess.check_output(['git','-C',str(root),'show','22657b84d192b91bc364553794e4aba9e7ccd1f2:wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-schema.php']).decode()
+assert source.count('class CSF_Scheduling_Schema {')==1
+(root/'.wp-local/lifecycle-v3-schema.php').write_text(source.replace('class CSF_Scheduling_Schema {','class CSF_Scheduling_Schema_V3_Fixture {'))
 PYV2
 STAMP="csf-foundation-$$"
 cleanup(){ "${D[@]}" rm -f "$STAMP-web" "$STAMP-db" >/dev/null 2>&1 || true; "${D[@]}" volume rm "$STAMP-site" >/dev/null 2>&1 || true; "${D[@]}" network rm "$STAMP-net" >/dev/null 2>&1 || true; }

@@ -8,8 +8,8 @@ defined( 'ABSPATH' ) || exit;
 // phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 /** No materialized recurrence, new tables, grants or independent writer. */
 class CSF_Scheduling_Resource_Hours {
-	const COMMANDS = array( 'resource_hours_saved', 'resource_closure_added', 'resource_closure_released' );
-	const ERRORS   = array( 'resource_hours_invalid', 'resource_impact_limit' );
+	const COMMANDS = array( 'resource_hours_saved', 'resource_closure_added', 'resource_closure_edited', 'resource_closure_released' );
+	const ERRORS   = array( 'resource_hours_invalid', 'resource_impact_limit', 'closure_edit_future_only' );
 	/** Strict date without PHP normalization.
 	 *
 	 * @param mixed $day Local date.
@@ -30,7 +30,7 @@ class CSF_Scheduling_Resource_Hours {
 	public static function authorize( $kind, $body ) {
 		if ( ! CSF_Scheduling_Access::can( 'availability_manage' ) || ! CSF_Scheduling_Access::can( 'resource_view' ) ) {
 			return false; }
-		if ( 'resource_closure_released' === $kind ) {
+		if ( in_array( $kind, array( 'resource_closure_released', 'resource_closure_edited' ), true ) ) {
 			$d = CSF_Scheduling_Calendar::find( 'restrictions', $body['uuid'] ?? '' );
 			if ( ! $d ) {
 				return false; }
@@ -236,7 +236,7 @@ class CSF_Scheduling_Resource_Hours {
 		$r       = CSF_Scheduling_Calendar::find( 'resources', $id );
 		$a       = CSF_Scheduling_Schema::table( 'appointments' );
 		$details = CSF_Scheduling_Schema::table( 'details' );
-		$slots   = CSF_Scheduling_Schema::table( 'slots' );
+		$slots   = CSF_Scheduling_Schema::table( 'allocations' );
 		$rows    = $wpdb->get_results( $wpdb->prepare( "SELECT a.start_utc,a.end_utc,(SELECT MIN(s.start_utc) FROM `$slots` s WHERE s.appointment_id=a.id AND s.resource_id=%d) reserve_start,(SELECT MAX(s.end_utc) FROM `$slots` s WHERE s.appointment_id=a.id AND s.resource_id=%d) reserve_end FROM `$a` a JOIN `$details` d ON d.uuid=a.uuid WHERE a.state<>'canceled' AND a.end_utc>%s AND JSON_CONTAINS(d.body_json,JSON_QUOTE(%s),'$.resources') ORDER BY a.id LIMIT 2001", $r['id'], $r['id'], CSF_Scheduling_Audit::now(), $id ), ARRAY_A );
 		CSF_Scheduling_Calendar::require( is_array( $rows ) && '' === $wpdb->last_error, 'write_failed' );
 		CSF_Scheduling_Calendar::require( count( $rows ) <= 2000, 'resource_impact_limit' );
@@ -274,9 +274,18 @@ class CSF_Scheduling_Resource_Hours {
 			$next['weekly'] = $d;
 			$entity         = $body['uuid'];
 			$impact         = self::impact( $entity, $next, $p, true );
-		} elseif ( 'resource_closure_added' === $kind ) {
+		} elseif ( in_array( $kind, array( 'resource_closure_added', 'resource_closure_edited' ), true ) ) {
 			CSF_Scheduling_Calendar::keys( $d, array( 'target_uuid', 'start', 'end', 'category', 'note', 'repeat_until' ) );
-			CSF_Scheduling_Calendar::require( 0 === $body['expected'] && ! CSF_Scheduling_Calendar::find( 'restrictions', $body['uuid'] ) && in_array( $d['category'], array( 'unavailable', 'protected_training' ), true ) && CSF_Scheduling_Catalog::text( $d['note'], 200 ), 'resource_hours_invalid' );
+			$old = CSF_Scheduling_Calendar::find( 'restrictions', $body['uuid'] );
+			$before = $old ? json_decode( $old['body_json'], true ) : null;
+			if ( 'resource_closure_added' === $kind ) {
+				CSF_Scheduling_Calendar::require( 0 === $body['expected'] && ! $old, 'resource_hours_invalid' );
+			} else {
+				CSF_Scheduling_Calendar::require( $old && 'resource_closure' === ( $before['closure_kind'] ?? null ) && empty( $before['released'] ) && $before['target_uuid'] === $d['target_uuid'], 'invalid_transition' );
+				CSF_Scheduling_Calendar::require( (int) $old['revision'] === $body['expected'], 'stale_appointment' );
+				CSF_Scheduling_Calendar::require( strtotime( $before['start'] ) > time() && strtotime( $d['start'] ) > time(), 'closure_edit_future_only' );
+			}
+			CSF_Scheduling_Calendar::require( in_array( $d['category'], array( 'unavailable', 'protected_training' ), true ) && CSF_Scheduling_Catalog::text( $d['note'], 200 ), 'resource_hours_invalid' );
 			$a = CSF_Scheduling_Time::parse( $d['start'], $p['timezone'] );
 			$z = CSF_Scheduling_Time::parse( $d['end'], $p['timezone'] );
 			CSF_Scheduling_Calendar::require( $z > $a && $z->getTimestamp() - $a->getTimestamp() <= 31622400 && 0 === (int) $a->format( 'i' ) % 15 && 0 === (int) $z->format( 'i' ) % 15, 'resource_hours_invalid' );
@@ -288,7 +297,7 @@ class CSF_Scheduling_Resource_Hours {
 				'note'         => $d['note'],
 				'closure_kind' => 'resource_closure',
 				'recurrence'   => null,
-				'reopen_dates' => array(),
+				'reopen_dates' => $before['reopen_dates'] ?? array(),
 			);
 			if ( null !== $d['repeat_until'] ) {
 				$full = '00:00' === $a->format( 'H:i' ) && '00:00' === $z->format( 'H:i' ) && $z->format( 'Y-m-d' ) === $a->modify( '+1 day' )->format( 'Y-m-d' );
@@ -303,7 +312,6 @@ class CSF_Scheduling_Resource_Hours {
 				);
 			}
 			$table  = 'restrictions';
-			$before = null;
 			$entity = $d['target_uuid'];
 			$impact = self::impact( $entity, $next, $p, false );
 		} else {

@@ -132,7 +132,13 @@ class CSF_Scheduling_Admin {
 				$name            = $horse['label'];
 				$totals[ $name ] = ( $totals[ $name ] ?? 0 ) + ( strtotime( $ride['end'] ) - strtotime( $ride['start'] ) ) / 60 + 2 * $buffer;
 			}
-			$impact = array( ( 'requested' === $body['state'] ? 'Requested interval (not reserved): ' : 'Reservation if saved: ' ) . wp_date( 'M j, g:i a T', strtotime( $body['start'] ) - 60 * $buffer, new DateTimeZone( $p['timezone'] ) ) . ' – ' . wp_date( 'M j, g:i a T', strtotime( $body['end'] ) + 60 * $buffer, new DateTimeZone( $p['timezone'] ) ) . '. Teaching duration excludes configured travel. No additional preparation/wrap-up time is reserved.' );
+			$impact = array( 'Teaching duration is separate from resource preparation, wrap-up and mandatory travel.' );
+			foreach ( $result['resource_reservations'] ?? array() as $window ) {
+				$resource = CSF_Scheduling_Calendar::find( 'resources', $window['resource_uuid'] );
+				$impact[] = ( $resource['label'] ?? 'Assigned resource' ) . ': ' . ( 'requested' === $body['state'] ? 'planned, not reserved ' : 'reservation if saved ' ) . wp_date( 'M j, H:i P', $window['start'], new DateTimeZone( $p['timezone'] ) ) . '–' . wp_date( 'M j, H:i P', $window['end'], new DateTimeZone( $p['timezone'] ) ) . '; preparation ' . $window['pre_minutes'] . ' min / wrap-up ' . $window['post_minutes'] . ' min.';
+			}
+			if ( empty( $result['resource_reservations'] ) ) { $impact[] = 'No new resource-window snapshot returned. For an already committed command, inspect its saved calendar record.'; }
+
 			foreach ( $totals as $name => $minutes ) {
 				$impact[] = $name . ': ' . $minutes . ' reserved minutes, including configured travel.'; }
 			$cleared = true;
