@@ -182,3 +182,12 @@ management using synthetic offers and mocked PayPal. This does not resolve the d
 above or enable sales. Supplemental real database/browser/MFA/restore evidence is in
 [the gift test report](test-results/gift-certificates.md); protected deployment and publication
 remain separate. No farm account grants, MFA changes or payment settings were applied.
+
+
+Gift-certificate follow-up (November8): sales remain blocked on authoritative monetary-value
+accounting and a reviewed cash-redemption workflow under RCW19.240.020, beyond the current ride
+balance. No expiration, blanket no-cash or automatic forfeiture language is approved. Owner/legal
+review must settle package-value allocation, annual-program separation, payout handling and
+no-show/transfer/withdrawal terms. Also identify the PayPal sandbox merchant controller, isolated
+non-farm HTTPS target/secure secret handoff, and encrypted off-server key custodian. See doc14
+and the billing recovery proposal; no secret or personal account details should be posted here.

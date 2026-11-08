@@ -189,3 +189,48 @@ no-overwrite equivalence and consistent capture coordination require independent
 qualification. Successful synthetic missing/wrong-key tests do not establish secure escrow,
 off-server custody or farm key/config/target bindings. No production adoption or installation
 is authorized by these tests, and no real PayPal verification is claimed.
+
+
+## Qualification work package — synthetic preparation only
+
+| Existing guarantee | Combined candidate evidence | Adoption work still required |
+| --- | --- | --- |
+| Exact target/approved payload/current backup | No farm contact; pinned synthetic source only | Bind approved root, DB/prefix, source, protected configs, current approval and backup age in reviewed versioned capture/restore contract |
+| Stable consistent capture | Stopped fixture clients and cron; exact source before/after; SQL dump single transaction | All-table MVCC canonical snapshot plus before/after schema/file fence under concurrent writes, no global freeze; abort on drift |
+| Physical schema and ledger | Strict six-table schema; 273 damage assertions, real ALTER rejection; all seven states, debit/correction/tombstones | Expand original catalog/descriptors through independently reviewed version; never bypass its current rejection of 33 tables |
+| Archive integrity and no overwrite | New candidate verifies whole bounded archive/member hashes before destination writes; nine corruption/reuse probes | Bind approved manifest/receipt and complete attributes; full SQL tamper/import-failure, stale evidence and interrupted extraction matrix |
+| Isolation | Offline Docker, separate web UID with no supplementary groups, clone-scoped DB user; explicit source DB/private config/archive denial and no external IPv4 route probes | Original per-clone mount/network namespaces, chroot, UID map, privilege/capability and IPv6/egress denial equivalence; process and `/proc` boundary tests |
+| Newer data preservation | Source files/rows and later owner note compared after restore | Concurrent newer auth revocations, owner data, source file/mode and operational changes across every injected failure |
+| Deadlines and cleanup | Outer container timeout/trap; original qualified suite independently passes failure cleanup | Fault injection in each combined capture/import/login/teardown phase; prove no child processes, credentials, mounts or databases remain; no automatic source restore |
+| Key custody | Synthetic correct/missing/wrong/tampered key tests | Approved custodian, encrypted off-server custody, recovery access and target/key binding ceremony below |
+
+The new archive helper is a bounded synthetic candidate, not an authorized bundle format or
+replacement for the original preflight. No combined deployment payload is produced and no
+production-adoption pass exists. Each remaining row must have executable negative tests and
+reviewed evidence before an expanded protected contract can be adopted.
+
+### Proposed key-custody ceremony (not executed)
+
+1. Owner names merchant controller, key custodian and separately accountable recovery operator;
+   approves isolated target and encrypted off-server repository. Use an existing reviewed secret
+   manager/KMS or approved encrypted backup system; do not invent encryption/escrow code here.
+2. Provision one random 32-byte billing number key directly through the chosen secure channel.
+   Record an opaque custody object/version reference and target/purpose binding privately. No
+   key, certificate number, token or plaintext configuration goes into chat, Git, argv or CI logs.
+   Keep it distinct from PayPal credentials, web session secrets and backup encryption keys.
+3. Backup captures exact key/config version with database/source bindings in a reviewed encrypted
+   envelope. Store decrypt authority separately from backup media; define retention, access audit,
+   owner succession and loss response. Permissions alone are not encrypted escrow. Do not rotate
+   the number key while certificates exist: no multi-key migration is implemented.
+4. Recovery operator obtains the original key via approved secret retrieval into ephemeral private
+   storage. Independently verify target/envelope bindings before opening it; deny missing, wrong,
+   stale-version or swapped-target envelopes. Then decrypt every restored certificate and check
+   its recorded digest without printing values. Keep all provider delivery and checkout off.
+5. Independently read back custody audit and successful offline restore, revoke temporary access,
+   destroy temporary plaintext and verify cleanup. Record only approved identifiers, digests and
+   pass/fail evidence. Repeat with unavailable escrow and denied access to prove fail-closed.
+
+Missing decisions: custody platform/location, named authorized custodians, retention and recovery
+access policy. No real key or backup can be provisioned by this preparation; farm access remains
+excluded. Financial value/cash-redemption schema changes must also be incorporated into the
+future physical and recovery contract before any sale or installation.

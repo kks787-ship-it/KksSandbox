@@ -244,3 +244,41 @@ simulator events cannot qualify this adapter. [Official webhook requirements](ht
 Owner action needed first: confirm the merchant controller and approved isolated test target,
 then use the secure handoff after its exact scope is prepared. Credential availability does
 not approve public sales, final terms, deployment, real delivery or production transactions.
+
+
+### Verified sandbox connection procedure and remaining commercial blocker
+
+Official PayPal documentation rechecked November 8, 2026: use Developer Dashboard Apps &
+Credentials in Sandbox, bind the REST app to its Business sandbox seller, and use a separate
+Personal sandbox buyer. OAuth exchanges the sandbox app credentials at
+`https://api-m.sandbox.paypal.com/v1/oauth2/token`; OAuth success alone does not prove the
+intended merchant binding. [Setup](https://developer.paypal.com/api/get-started/),
+[authentication](https://developer.paypal.com/api/rest/authentication).
+
+No PayPal connector or merchant credentials were found/used in this task. A Gateway secure
+stored-value writer is available, but no handoff or write has been invoked. Owner action is to
+identify the controller and authorize an isolated non-farm HTTPS test target and its secret
+store. Then an operator can arrange the scoped secret-manager handoff without receiving values
+in chat. Do not add protected CI secrets, remove farm Basic Auth or register a public listener
+under the existing publication-only approval. Genuine app-associated sandbox events are needed:
+the current postback verification adapter cannot use simulator events as signature evidence.
+Register the separately approved HTTPS443 endpoint on that app, retain the webhook ID securely,
+and qualify merchant/amount/currency bindings, event retries/reordering, uncertainty and freezes.
+[Official webhook guide](https://developer.paypal.com/api/rest/webhooks/rest/).
+
+Washington RCW19.240.020 generally prohibits paid gift-certificate expiration and fees (subject
+to narrow statutory exceptions). Following a partial purchase, remaining value must be available
+as cash or certificate credit at the issuer's option; a remaining balance below $5 is redeemable
+in cash on demand. No blanket no-cash, expiration or forfeiture term is approved here.
+[Statutory text](https://app.leg.wa.gov/RCW/default.aspx?cite=19.240.020).
+
+**Implementation gap:** schema2 tracks rides and original order amount, but not an authoritative
+remaining monetary-value ledger or cash-redemption workflow. Sales must remain disabled. A
+reviewed next schema must preserve original paid value/currency, separately journal ride/value
+consumption, corrections and cash redemption atomically with idempotency, audit, permissions
+and MFA, and handle uncertain payouts without duplicate payment or erasing credit. Proposed
+cash-request/review/recorded-payment states are design only, not payment authorization. Define
+reviewed package-value allocation/rounding and evidence of actual payout before implementation;
+never infer remaining value from current catalog prices. Expand recovery schema/ledger tests
+alongside that work. Annual scheduling commitments do not themselves expire paid certificate
+value; no-show forfeiture, nontransferability and withdrawal terms require tailored legal review.

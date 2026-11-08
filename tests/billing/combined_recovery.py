@@ -6,6 +6,7 @@ import base64,copy,hashlib,http.cookiejar,json,os,pathlib,pwd,re,secrets,shutil,
 from html.parser import HTMLParser
 sys.path.insert(0,'/fixture/tests/billing')
 from recovery_contract import qualify,compare,TABLES
+from candidate_archive import restore_archive,failure_checks
 P=pathlib.Path;SRC=P('/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com');DST=P('/tmp/csf-combined-restored');WORK=P('/tmp/csf-combined-evidence')
 assert os.environ.get('CSF_SYNTHETIC_RESTORE')=='container-only' and P('/.dockerenv').is_file()
 assert not SRC.exists() and not DST.exists() and not WORK.exists()
@@ -61,14 +62,8 @@ try:
  check(snapshot('wp_mdf4x')==before and files(SRC)==manifest,'capture source stable')
  # Preserve newer source evidence across isolated restore, never rewind the source.
  sql("INSERT INTO TXGEh_options(option_name,option_value,autoload) VALUES('synthetic_newer_owner_note','preserve-current-source','no');",'wp_mdf4x');source_current=snapshot('wp_mdf4x')
- with tarfile.open(WORK/'site.tar.gz','r:gz') as archive:
-  for item in archive.getmembers():
-   path=P(item.name);assert path.parts[0]=='site' and '..' not in path.parts and not path.is_absolute() and (item.isdir() or item.isfile())
-   target=DST.joinpath(*path.parts[1:])
-   if item.isdir():target.mkdir(parents=True,exist_ok=True)
-   else:
-    target.parent.mkdir(parents=True,exist_ok=True)
-    with archive.extractfile(item) as source,target.open('wb') as dest:shutil.copyfileobj(source,dest)
+ check(failure_checks(WORK)==9,'nine archive preflight and newer-destination preservation checks')
+ restore_archive(WORK/'site.tar.gz',DST,manifest)
  check(files(DST)==manifest,'all restored files match exact capture')
  check(snapshot('billing_restore')=={},'restore database initially empty')
  with (WORK/'database.sql').open('rb') as stream:subprocess.run(['/usr/bin/mariadb','--no-defaults','--socket=/run/mysqld/mysqld.sock','-uroot','billing_restore'],stdin=stream,stderr=subprocess.PIPE,check=True)
@@ -105,11 +100,14 @@ try:
  check(evalphp(DST,"echo apply_filters('pre_wp_mail',null,array())===false?'BLOCKED':'FAILED';")=='BLOCKED','restored email blocked')
  # Serve only the disposable restored copy as the separate www-data identity.
  user=pwd.getpwnam('www-data')
+ check(not P('/proc/net/route').read_text().splitlines()[1:],'offline container has no external IPv4 route')
+ denied="mysqli_report(MYSQLI_REPORT_OFF);$m=new mysqli('localhost','billing_clone','"+clone_password+"','billing_restore',0,'/run/mysqld/mysqld.sock');if($m->select_db('wp_mdf4x')){exit(2);}if(@file_get_contents('"+str(SRC)+"/wp-config.php')!==false||@file_get_contents('"+str(WORK)+"/database.sql')!==false){exit(3);}echo 'DENIED';"
+ check(run(php,input=('<?php '+denied).encode(),user=user.pw_uid,group=user.pw_gid,extra_groups=[]).decode()=='DENIED','restored web identity denied source database and private source/config/archive reads')
  for path in [DST,*DST.rglob('*')]:os.chown(path,user.pw_uid,user.pw_gid);path.chmod(0o700 if path.is_dir() else 0o600)
  router=WORK/'router.php';router.write_text("<?php $p=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);if(is_file('"+str(DST)+"'.$p)){return false;}require '"+str(DST)+"/index.php';")
  # Router lives with the restored web tree; private evidence directory is not exposed.
  shutil.copyfile(router,DST/'fixture-router.php');os.chown(DST/'fixture-router.php',user.pw_uid,user.pw_gid)
- web=subprocess.Popen(php+['-S','127.0.0.1:18890','-t',str(DST),str(DST/'fixture-router.php')],user=user.pw_uid,group=user.pw_gid,stdout=subprocess.DEVNULL,stderr=(WORK/'web.log').open('wb'))
+ web=subprocess.Popen(php+['-S','127.0.0.1:18890','-t',str(DST),str(DST/'fixture-router.php')],user=user.pw_uid,group=user.pw_gid,extra_groups=[],stdout=subprocess.DEVNULL,stderr=(WORK/'web.log').open('wb'))
  class Forms(HTMLParser):
   def __init__(self,text):super().__init__();self.forms=[];self.current=None;self.feed(text)
   def handle_starttag(self,tag,attrs):
