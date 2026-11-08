@@ -44,3 +44,32 @@ coherent reviewed source/data pair without overwriting newer owner data.
 Publication is still held after the earlier rejected branch push. No repeat push,
 CI upload, remote fixture deployment or farm operation was attempted. The public
 candidate inventory is review evidence only, not an approved installation manifest.
+
+## November 8 exact-pin runner investigation
+
+Read-only probes confirm this workspace has the exact approved Python binary:
+`/usr/bin/python3.13`, SHA256
+`889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9`.
+It has no Docker socket/runtime, Podman, rootlesskit, newuidmap or newgidmap.
+`/etc/subuid` and `/etc/subgid` list 65536 subordinate IDs, but the enclosing user
+namespace exposes only one mapped UID (`1000 0 1`). Successful single-UID `unshare`
+is therefore not evidence that a multi-user MariaDB/WordPress restore can run.
+Docker's official rootless prerequisites require newuidmap/newgidmap; extracting
+ordinary packages cannot create the required privileged mapping capability.
+Source: https://docs.docker.com/engine/security/rootless/ . No rejected sudo install
+was retried, no host mappings/capabilities changed, and no farm system was used.
+
+A reproducible qualification route requires one **isolated disposable runner** with:
+(1) the original pinned Python interpreter plus matching standard library/runtime,
+provided through an authorized private runner image/artifact; (2) Docker at the
+existing script's local socket, sufficient nested capabilities and 10 GiB memory;
+(3) the unchanged pinned MariaDB and WordPress image IDs checked by
+`tests/recovery/restore-local.sh`; (4) the existing verified WordPress/MFA fixture
+sources and exact candidate checkout. Run the unchanged qualifier for `pre full
+partial damaged`, retain phase logs and payload identity, and destroy only that
+synthetic fixture. Do not upload workspace binaries/libraries to a public repository
+or replace hashes with nearby package versions. The archived Debian 3.13.5 binary
+previously inspected does not match the required hash. CI currently satisfies the
+container side but lacks the pinned interpreter; this workspace satisfies the
+interpreter side but not the container capability. No available authorized runner
+has both, so exact-pin functional recovery remains **not run**, not waived.

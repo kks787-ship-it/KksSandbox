@@ -213,6 +213,9 @@ class CSF_Scheduling_Permissions {
 	public static function authorize( $kind, $b ) {
 		try {
 			global $wpdb;
+			if ( 'email_sink_transition' === $kind ) {
+				return class_exists( 'CSF_Scheduling_Email_Dispatch', false ) && CSF_Scheduling_Email_Dispatch::authorize();
+			}
 			if ( in_array( $kind, CSF_Scheduling_Identity::COMMANDS, true ) ) {
 				return CSF_Scheduling_Identity::authorize( $kind, $b ); }
 			if ( in_array( $kind, CSF_Scheduling_Resource_Hours::COMMANDS, true ) ) {

@@ -78,7 +78,7 @@
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-calendar.php",
-      "sha256": "efe18053fd304566ee4d6fb008a34c83525888950b0601b0b0f837cd58a2e530"
+      "sha256": "79d8f6d8156fc5d9154fdc4c7e62112d0dfd5f9a7d0034fb77176b056c2e27cc"
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-catalog.php",
@@ -99,6 +99,10 @@
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-diagnostics.php",
       "sha256": "4ad08bafd57b93b9a782f7b5c16541ecd72877d2441151d3b98296add1e56185"
+    },
+    {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-email-dispatch.php",
+      "sha256": "a8fa27a3042f1e0d65ca9a920be24f7397347b5497eef370e27ea7e896831a23"
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-email-sink.php",
@@ -130,7 +134,7 @@
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-permissions.php",
-      "sha256": "298b299f972cf73e9c1e8b402b9418b91007dc77ae6b4288457e78dc9a704637"
+      "sha256": "291ce5f490edd3d62ff4d858a226dbeeb2a91be211f80f582c1bd050bcccc34d"
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-planner.php",

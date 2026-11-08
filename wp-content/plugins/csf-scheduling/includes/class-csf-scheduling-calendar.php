@@ -15,7 +15,7 @@ class CSF_Scheduling_Calendar {
 	 * @var bool
 	 */
 	private static $reading = false;
-	const COMMANDS          = array( 'horse_deleted', 'buffer_overridden', 'notice_acknowledged', 'family_visit_saved', 'resource_hours_saved', 'resource_closure_added', 'resource_closure_edited', 'resource_closure_released', 'resource_saved', 'rider_saved', 'horse_saved', 'horse_status_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
+	const COMMANDS          = array( 'email_sink_transition', 'horse_deleted', 'buffer_overridden', 'notice_acknowledged', 'family_visit_saved', 'resource_hours_saved', 'resource_closure_added', 'resource_closure_edited', 'resource_closure_released', 'resource_saved', 'rider_saved', 'horse_saved', 'horse_status_saved', 'availability_saved', 'restriction_added', 'restriction_released', 'appointment_saved', 'appointment_canceled' );
 	const ERRORS            = array( 'horse_deleted', 'horse_delete_in_use', 'buffer_future_only', 'buffer_mandatory', 'buffer_snapshot_required', 'visit_required', 'visit_state', 'visit_members_required', 'forbidden', 'invalid_body', 'invalid_time', 'service_duration', 'lesson_resource', 'policy_incomplete', 'outside_hours', 'resource_conflict', 'rider_conflict', 'horse_unsafe', 'horse_mapping_in_use', 'horse_archived', 'horse_future_bookings', 'welfare_conflict', 'capacity', 'stale_appointment', 'invalid_transition', 'write_failed', 'not_found' );
 
 	/** Fixed private table lookup.
@@ -200,6 +200,9 @@ class CSF_Scheduling_Calendar {
 		// A raw public PHP call must not bypass the transaction boundary.
 		self::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
 		self::require( CSF_Scheduling_Permissions::authorize( $kind, $body ), 'forbidden' );
+		if ( 'email_sink_transition' === $kind ) {
+			return CSF_Scheduling_Email_Dispatch::apply( $body );
+		}
 		$policy = json_decode( $settings['policy_json'], true );
 		if ( 'buffer_overridden' === $kind ) {
 			return CSF_Scheduling_Buffer_Override::apply( $body, $settings );

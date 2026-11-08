@@ -85,3 +85,35 @@ rights. New events freeze before/after times; later reschedules cannot rewrite
 prior notice dates. Legacy missing dates are labeled unavailable, not reconstructed.
 30 isolated notification checks and 32 sink checks pass on each PHP version.
 Full HTTP/DB access and recipient regression still require the integration fixture.
+
+## November 8 durable dispatch qualification increment
+
+The explicitly loaded `Email_Dispatch` fixture worker persists stable event/recipient
+jobs in existing schema-4 details rows through the facility lock, command ledger and
+audit transaction. Queue, claim, pre-submit, completion, suppression and expiry are
+versioned. The worker always generates a fresh pre-submit command: a replayed ledger
+result is never send authority. Failed/unknown pre-submit commits do not submit;
+failed completion leaves `submitting`, and expiry becomes terminal `uncertain`.
+Only explicit synthetic transient rejection permits bounded backoff; uncertain
+results never automatically retry. This is not an exactly-once delivery claim.
+
+Current verified active membership, effective rights, native capability mirror,
+MFA enrollment, original audience and current assignment are rechecked under the
+lock immediately before pre-submit. Removed-instructor departure envelopes retain
+only the original minimal departure, while revoked rights/resource bindings suppress
+the job. A changed sibling scope suppresses the whole original job rather than
+silently changing an idempotent payload. A permission change after the committed
+pre-submit boundary is not retroactive; real transport requires a separately
+reviewed dispatch authorization/cutoff policy before activation.
+
+The class is not bootstrapped, has no cron/HTTP hooks, and accepts only the final
+in-memory sink. Its Store command fails closed unless explicitly loaded on
+`/test/site/`, database `csf_fixture`, environment `local`, with authenticated
+team-assignment/calendar rights. Source events remain `held_no_delivery_authorization`.
+No real email, address lookup, delivery switch, staff grants or schema change.
+
+Local recipient regression: 15 checks passed under PHP 8.3 WASM. New real-DB
+fixtures cover durable transitions, exact replay, ledger rollback before submission,
+completion failure, uncertain/expired claims, backoff, enrollment revocation and two
+workers attempting the same claimed job. CI execution results will be recorded
+separately; fixture source is not evidence of a passed database test.
