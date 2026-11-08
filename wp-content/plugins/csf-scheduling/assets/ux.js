@@ -23,12 +23,13 @@
   if(new URL(location.href).searchParams.get('tool')==='block'){const mode=calendar.querySelector('.csf-resource-mode');if(mode?.getAttribute('aria-pressed')!=='true')mode?.click();}
   if(block.querySelector('.csf-resource-review')||block.querySelector('#csf-resource-management > [role=status]'))open(block);
  }
- for(const form of root.querySelectorAll('.csf-routine-editor')){
+ for(const form of root.querySelectorAll('.csf-routine-editor,.csf-editor[data-kind=appointment_saved]')){
   const kinds=window.CSFStaff.resourceKinds||{};
   function sync(){for(const select of form.querySelectorAll('[data-resource-kind]')){const checked=[...form.querySelectorAll('[data-array=resources] input:checked')].filter(x=>kinds[x.value]===select.dataset.resourceKind);select.value=checked[0]?.value||'';}}
   for(const select of form.querySelectorAll('[data-resource-kind]')){select.addEventListener('change',()=>{form.querySelectorAll('[data-array=resources] input').forEach(x=>{if(kinds[x.value]===select.dataset.resourceKind)x.checked=x.value===select.value;});form.dispatchEvent(new Event('change',{bubbles:true}));});}
   form.addEventListener('csf:prefill',()=>queueMicrotask(sync));form.addEventListener('change',sync);
   if(form.id==='csf-new-appointment'){for(const select of form.querySelectorAll('[data-resource-kind]')){const options=[...select.options].filter(x=>x.value&&!x.disabled);if(options.length===1){select.value=options[0].value;form.querySelector('[data-array=resources] input[value="'+CSS.escape(select.value)+'"]').checked=true;}}}sync();
+  if(!form.classList.contains('csf-routine-editor'))continue;
   form.querySelector('.csf-preview').hidden=true;
   // Opening an existing simple lesson triggers the same exact automatic preview.
   form.closest('details')?.addEventListener('toggle',()=>{if(form.closest('details').open)form.dispatchEvent(new Event('csf:activate'));});

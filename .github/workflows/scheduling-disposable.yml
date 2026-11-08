@@ -55,38 +55,51 @@ jobs:
           CSF_TEST_PHP_VERSION: ${{ matrix.php }}
           CSF_TEST_DB_IMAGE: ${{ matrix.database }}
         run: bash tests/scheduling/run.sh
-      - name: Run isolated real-provider MFA and security browser tests
-        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
+  browser:
+    if: github.repository == 'kks787-ship-it/KksSandbox'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        suite: [mfa, calendar, hours, family]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Prepare pinned isolated WordPress and browser sources
+        run: |
+          set -euo pipefail
+          mkdir -p .wp-local/site
+          curl --fail --show-error --location --retry 2 https://wordpress.org/wordpress-7.1.4.tar.gz -o .wp-local/wordpress-mfa.tar.gz
+          echo 'b175879c4fb2d35300f9abe1153da9b543a35a2b  .wp-local/wordpress-mfa.tar.gz' | sha1sum --check -
+          tar -xzf .wp-local/wordpress-mfa.tar.gz --strip-components=1 -C .wp-local/site
+          curl --fail --show-error --location --retry 2 https://github.com/wp-cli/wp-cli/releases/download/v2.12.0/wp-cli-2.12.0.phar -o .wp-local/wp-cli.phar
+          curl --fail --show-error --location --retry 2 https://github.com/WordPress/two-factor/releases/download/0.17.0/two-factor.zip -o .wp-local/two-factor.zip
+          python3 tests/scheduling/verify-mfa-release.py .wp-local/two-factor.zip
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install playwright install --with-deps chromium
+          node -e "console.log('CSF_TEST_CHROMIUM=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
+          docker build --build-arg CSF_TEST_PHP_VERSION=8.3 -t csf-scheduling-php83 tests/scheduling
+      - name: Run required isolated native browser suite
         env:
           CSF_TEST_PHP_IMAGE: csf-scheduling-php83
           CSF_TEST_SECURITY: '1'
-        run: bash tests/scheduling/mfa-run.sh
-      - name: Run isolated native calendar browser acceptance
-        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
-        env:
-          CSF_TEST_PHP_IMAGE: csf-scheduling-php83
-          CSF_TEST_SECURITY: '1'
-          CSF_TEST_SECURITY_ONLY: '1'
-          CSF_TEST_UX: '1'
-        run: bash tests/scheduling/mfa-run.sh
-      - name: Run isolated recurring hours and closure browser acceptance
-        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
-        env:
-          CSF_TEST_PHP_IMAGE: csf-scheduling-php83
-          CSF_TEST_SECURITY: '1'
-          CSF_TEST_SECURITY_ONLY: '1'
-          CSF_TEST_RESOURCE_HOURS: '1'
-        run: bash tests/scheduling/mfa-run.sh
-      - name: Run isolated native family review acceptance
-        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
-        env:
-          CSF_TEST_PHP_IMAGE: csf-scheduling-php83
-          CSF_TEST_SECURITY: '1'
-          CSF_TEST_SECURITY_ONLY: '1'
-          CSF_TEST_FAMILY: '1'
-        run: bash tests/scheduling/mfa-run.sh
+          CSF_BROWSER_SUITE: ${{ matrix.suite }}
+        run: |
+          set -euo pipefail
+          case "$CSF_BROWSER_SUITE" in
+            mfa) ;;
+            calendar) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_UX=1 ;;
+            hours) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_RESOURCE_HOURS=1 ;;
+            family) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_FAMILY=1 ;;
+            *) exit 1 ;;
+          esac
+          bash tests/scheduling/mfa-run.sh
       - name: Qualify unchanged isolated functional recovery prerequisites
-        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
+        if: ${{ !cancelled() && matrix.suite == 'mfa' }}
         run: |
           set -euo pipefail
           docker pull wordpress:6.8.3-php8.1-apache
