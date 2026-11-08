@@ -157,3 +157,90 @@ Use transactional idempotency, private auditable revisions, direct authorization
 7. Owner/attorney/privacy/financial review and human Beth/Kris acceptance; only then consider actual signed documents, real money, public booking and production.
 
 **No GitHub issue/document, code test or planning conversation is deployment permission.** No existing protected client identity, contracts, payment provider, real invoices, MFA, scheduling plugin or production data should be changed until its separate approval.
+
+## 11. Gift certificates: November 8 sandbox-only development increment
+
+Kris has requested a public gift-certificate page, PayPal checkout, required acceptance of
+Beth's terms, and private unique certificate numbers and purchased/redeemed ride accounting.
+This selects PayPal for this gift-certificate development scope only. It does not authorize
+production deployment, live charges, other billing products, new grants, or public booking.
+The separate `csf-billing` plugin is under development on `codex/gift-certificates`; it does
+not modify scheduling. See `docs/test-results/gift-certificates.md` for exact completed work
+and the substantial unfinished integration/qualification steps. The shortcode currently
+renders a closed state; it is not an operational checkout or management feature.
+
+Prices remain provisional: two one-hour lessons $110; four one-hour lessons $210; twelve
+monthly two-hour sessions $795 upfront or four quarterly payments of $225. None are encoded
+as approved products. Confirm package definitions and currency as well as prices. Quarterly
+billing, credit vesting, installments, subscriptions and debt collection are not implemented.
+
+Historical gift-certificate draft terms included a named package, non-refundable and
+non-transferable wording, waiver/guardian signatures before riding, appointment/availability,
+safety rescheduling and barn rules. These are historical draft evidence, not published policy.
+Expiration was blank. Annual commitment/payment structure, notice/makeup policy and emergency
+exceptions need a final owner-approved text; some prior elaborations were assistant drafted.
+Do not infer that shorter packages have the annual makeup rules. A twelve-month program
+commitment must not silently become an expiration of purchased credit.
+
+Legal review is required before approved terms are supplied. Washington RCW 19.240.020 generally
+prohibits expiration/fees except specified exceptions and includes a cash-on-demand rule for
+certain remaining balances below $5. Thus absolute “no cash” and automatic forfeiture/expiry
+must not be copied into checkout. Applicability to the final service package and interaction
+with federal rules require review; this document is not a legal determination.
+Sources: https://apps.leg.wa.gov/rcw/default.aspx?cite=19.240.020,
+https://apps.leg.wa.gov/rcw/default.aspx?cite=19.240.030,
+https://www.consumerfinance.gov/rules-policy/regulations/1005/20/.
+
+The protected sandbox retains HTTP Basic Auth. Do not open a webhook exception, expose its
+private records, or substitute a mock webhook for real PayPal verification. Real provider
+callbacks need a separately reviewed public test ingress/relay or isolated test target. The
+current module registers no payment or webhook HTTP routes. Production hosting of any public
+financial endpoint is a separate security/recovery/deployment decision.
+
+### November 8 sandbox-only gift implementation update
+
+The gift scope now has a local 0.2.0-dev/schema-2 candidate: public sandbox checkout/session
+controls, private management and audited corrections, provider uncertainty recovery and
+conservative refund/dispute holds. Real disposable database, browser, official MFA and
+functional restore tests have run; actual PayPal transport remains mocked. This supersedes
+foundation-only implementation status, not the broader onboarding blueprint or its holds.
+See [current evidence and remaining gates](test-results/gift-certificates.md). No gift module
+has been published or deployed; catalog, exact terms and owner decisions remain provisional.
+
+### PayPal sandbox credential and merchant-verification handoff (prepared, not executed)
+
+No account ownership or merchant readiness is inferred from historical PayPal usage. Kris or
+the authorized merchant controller should use PayPal Developer Dashboard **Apps & Credentials**
+in **Sandbox**, select/create the gift-testing REST app and its Business sandbox seller, and
+use a separate Personal sandbox buyer. Never provide the live app secret or PayPal password
+in chat, Git, an issue, screenshots or test logs. [Official setup](https://developer.paypal.com/api/get-started/),
+[sandbox account roles](https://developer.paypal.com/sandbox-testing/accounts).
+
+Before any credential handoff, identify the approved isolated test host, responsible operator,
+merchant controller and app; confirm that no real catalog or live adapter is enabled. The
+server needs the sandbox client ID/secret and expected seller merchant ID; the seller ID is
+an independent reviewed binding, not a value accepted from a browser payment response. An
+OAuth success authenticates the app but does not alone establish farm ownership or the intended
+payee. Verify the seller account-to-app relationship in the owner's dashboard, then verify the
+expected payee merchant ID in server-fetched sandbox order/capture results. Retain only a
+redacted pass/fail/account-binding review record, never tokens or complete payment payloads.
+
+Use a scoped secret handoff: Gateway's existing secure stored-value link can receive a named
+sandbox credential without exposing its content to chat, then an authorized exact-target job
+can reference that stored value. Alternatively, the owner can provision the approved isolated
+runner's secret manager directly. Neither method has been invoked or provisioned by this work;
+no protected CI secrets or farm config were changed. Provision a separate random billing data
+key with private backup custody; credentials and encrypted certificate key are different assets.
+Keep key material outside the document root and repository, with restricted ownership/mode.
+Do not replace the data key after certificates exist.
+
+A separate approved **HTTPS port443** test listener is required for genuine signed webhooks;
+register it on the same sandbox app and securely record its webhook ID. Do not remove protected
+sandbox Basic Auth or forward owner traffic into the local fixture. Verify completed, pending,
+denied, refunded, reversed and dispute events and their replay/reordering with that app.
+PayPal's simulator does not support the postback signature-verification method used here, so
+simulator events cannot qualify this adapter. [Official webhook requirements](https://developer.paypal.com/api/rest/webhooks/rest/).
+
+Owner action needed first: confirm the merchant controller and approved isolated test target,
+then use the secure handoff after its exact scope is prepared. Credential availability does
+not approve public sales, final terms, deployment, real delivery or production transactions.

@@ -154,3 +154,31 @@ unknown. No incident is established, no broad forensic investigation or database
 implied, and no older options table should be restored to force a match. Check critical settings
 and obtain a fresh consistent change-window baseline before any approved write. This correction
 performs no server reinspection or change and does not resolve the historical drift's attribution.
+
+### November 8 gift-certificate decisions awaiting confirmation
+
+Development request: PayPal sandbox/mock integration in a separate `csf-billing` module with
+required exact-version terms acceptance and private ride/certificate accounting. No sales,
+publication, production install, new financial access grants, or real delivery is activated.
+
+Still required before checkout can be enabled:
+- Final package prices, ride durations/counts, currency and named-recipient/transfer policy.
+- Beth's exact approved terms and applicable legal review of refunds, cash redemption,
+  expiration and the relation between annual commitments and purchased credit.
+- Applicability of cancellation/makeup rules to each package; distinguish owner decisions
+  from prior assistant-drafted elaborations.
+- Quarterly collection schedule, credit availability before full payment, failed-payment
+  handling and cancellation obligations. Current implementation accepts one-time products only.
+- Merchant legal entity, authorized PayPal Business/sandbox app and verified payee identity;
+  secure credential provisioning, not credentials pasted into Git or chat.
+- Delivery method, purchaser/recipient information actually needed, and private retention/access.
+- Separately approved financial operators and real MFA; no scheduling/admin role inherits access.
+- Reviewed test target/ingress that does not weaken the protected sandbox's Basic Auth.
+
+Proposed amounts remain unconfirmed and are recorded in doc 14, not activated in code.
+
+The November 8 continuation implements and locally qualifies sandbox checkout/private
+management using synthetic offers and mocked PayPal. This does not resolve the decisions
+above or enable sales. Supplemental real database/browser/MFA/restore evidence is in
+[the gift test report](test-results/gift-certificates.md); protected deployment and publication
+remain separate. No farm account grants, MFA changes or payment settings were applied.

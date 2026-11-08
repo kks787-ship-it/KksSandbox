@@ -5,6 +5,7 @@
 	<file>wp-content/plugins/csf-core</file>
 	<file>wp-content/plugins/csf-scheduling</file>
 	<file>wp-content/plugins/csf-mfa</file>
+	<file>wp-content/plugins/csf-billing</file>
 	<exclude-pattern>*/assets/vendor/*</exclude-pattern>
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
@@ -21,6 +22,9 @@
 				<element value="csf_schedule_manage"/>
 				<element value="csf_schedule_confirm"/>
 				<element value="csf_schedule_audit"/>
+				<element value="csf_billing_manage"/>
+				<element value="csf_billing_redeem"/>
+				<element value="csf_billing_audit"/>
 			</property>
 		</properties>
 	</rule>
@@ -31,6 +35,7 @@
 				<element value="csf-core"/>
 				<element value="csf-scheduling"/>
 				<element value="csf-mfa"/>
+				<element value="csf-billing"/>
 			</property>
 		</properties>
 	</rule>
