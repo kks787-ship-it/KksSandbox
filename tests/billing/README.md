@@ -139,3 +139,20 @@ disabled in the restored site. Candidate reports are not deployment approvals.
 proposed offline invariant layer only. It does not replace qualified target binding, physical
 schema/custody controls or exact-pin runtime isolation. Review
 [the proposal](../../docs/pilot/billing-recovery-proposal.md) before any further integration.
+
+
+## Draft CI and combined exact-runtime rehearsal
+
+The authorized draft PR runs `.github/workflows/billing-disposable.yml`. It checks contracts on
+PHP8.1 and PHP8.3, syntax/coding standards, and deployment guards. `ci-prepare.sh` obtains verified
+official dependencies and the original pinned interpreter/images. The unchanged qualified
+scheduling recovery suite must pass before `combined-recovery.sh` runs its separate synthetic
+33-table candidate. No farm data, protected secrets, live provider calls or uploaded artifacts
+are used. Docker and the original disposable namespace prerequisites are required.
+
+`combined_recovery.py` verifies exact table/file restoration, billing invariants, key/tamper
+checks, real official TOTP login and closed checkout over isolated HTTP, and preservation of
+newer source data. Each absent billing table is rejected and the original qualified table
+contract must still reject the expanded schema. Clone credentials cannot access the source DB.
+This is candidate qualification, not a replacement for the qualified contract or target-bound
+recovery gates. See PR27 for final exact-head CI results and the recovery proposal for gaps.

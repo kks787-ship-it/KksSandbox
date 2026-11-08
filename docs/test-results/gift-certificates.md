@@ -1,6 +1,10 @@
 # Gift-certificate development evidence — November 8, 2026
 
-Status: **sandbox-only local candidate, not published, deployed or ready for live sales**.
+Status: **published draft candidate for isolated tests, not deployed or ready for live sales**.
+Published with Kris's explicit approval in [draft PR27](https://github.com/kks787-ship-it/KksSandbox/pull/27),
+stacked on the unchanged scheduling continuation branch. Publication does not authorize installation,
+merging, payment enablement or financial grants. Earlier unpublished status below is historical.
+The PR records the exact final source tree and CI outcome; do not treat a pending run as a pass.
 Branch `codex/gift-certificates`; foundation commit `4c7d6d7` is superseded by this
 0.2.0-dev increment. The follow-up below advances the local candidate to 0.2.1-dev. Installed scheduling, draft PR #26, farm data/configuration and all
 existing holds are unchanged. No actual merchant account or credentials have been verified.

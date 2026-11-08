@@ -107,7 +107,7 @@ are not a substitute for the existing qualified consistent-snapshot capture. Roo
 process isolation does not prove the production namespace/security controls. No target-bound
 backup or recovery claim is made.
 
-## Docker-capable CI route, prepared only
+## Docker-capable CI route — historical preparation
 
 Read-only connector inspection confirmed [PR26](https://github.com/kks787-ship-it/KksSandbox/pull/26)
 remains draft/unmerged at `6883b29034b18581e81bf8cadaf52aef9c01a774`. Its published
@@ -130,3 +130,31 @@ already-qualified Debian packages and matched SHA256
 `889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9`.
 No new runtime upload, protected CI secret changes or pin substitutions are needed or proposed.
 The additional combined-schema payload/job remains a review item, not a claimed executed gate.
+
+## Authorized draft publication and candidate rehearsal
+
+Kris subsequently approved publishing the gift branch as a draft PR solely for isolated tests.
+[PR27](https://github.com/kks787-ship-it/KksSandbox/pull/27) now contains
+`.github/workflows/billing-disposable.yml`: PHP8.1/8.3 contracts and deployment guards, the
+**unchanged** qualified recovery suite, then a separate combined-schema candidate rehearsal.
+It uses the original image and interpreter hashes, read-only repository permission, no persisted
+checkout credentials, no protected secrets or farm mounts, and no artifact uploads.
+
+`tests/billing/combined-recovery.sh` builds a new disposable fixture without changing the original
+runner, Dockerfile, baseline table contract or deployment scripts. The candidate captures and
+restores 33 tables and exact file hashes; verifies six billing tables and encrypted numbers;
+rejects each missing billing table; requires restored official password/TOTP authentication and
+a closed gift page; and checks scheduling/billing rows and newer source data remain unchanged.
+The restored web identity has database credentials scoped only to its restored database.
+Provider HTTP and email are blocked; synthetic records do not prove PayPal verification.
+
+The first CI attempt exposed a missing runner ripgrep dependency, which was added rather than
+waiving deployment guards. Review also corrected a database-startup retry exception and removed
+a direct-render fallback so actual restored page rendering is required. Final exact-head run
+results belong in the PR evidence; the existence of this workflow is not evidence of a pass.
+
+Even a successful combined rehearsal remains a **proposed** billing recovery extension: it does
+not adopt a 33-table production contract, qualify protected key escrow/custody, or authorize a
+farm backup, migration or deployment. Original qualified failure gates remain separate. Combined
+source-capture coordination, damaged-state/no-overwrite and namespace-boundary equivalence need
+independent review before extending the protected recovery contract.
