@@ -5,13 +5,18 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-/** No route is registered unless the sandbox-only configuration is explicitly enabled. */
+/** Public checkout and private management have independent default-off gates. */
 final class CSF_Billing_HTTP {
 	/** Register only bounded POST routes; never expose balances by certificate number. */
 	public static function register() {
-		if ( ! CSF_Billing_Config::enabled() ) {
-			return; }
-		foreach ( array( 'session', 'prepare', 'create', 'capture', 'receipt', 'list', 'detail', 'redeem', 'correct', 'recover', 'cash' ) as $action ) {
+		$actions = array();
+		if ( CSF_Billing_Config::enabled() ) {
+			$actions = array( 'session', 'prepare', 'create', 'capture', 'receipt' );
+		}
+		if ( CSF_Billing_Config::enabled() || CSF_Billing_Config::management_enabled() ) {
+			$actions = array_merge( $actions, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash' ) );
+		}
+		foreach ( $actions as $action ) {
 			register_rest_route(
 				'csf-billing/v1',
 				'/' . $action,
@@ -22,7 +27,7 @@ final class CSF_Billing_HTTP {
 				)
 			);
 		}
-		if ( defined( 'CSF_BILLING_WEBHOOK_QUALIFIED' ) && true === CSF_BILLING_WEBHOOK_QUALIFIED ) {
+		if ( CSF_Billing_Config::enabled() && defined( 'CSF_BILLING_WEBHOOK_QUALIFIED' ) && true === CSF_BILLING_WEBHOOK_QUALIFIED ) {
 			register_rest_route(
 				'csf-billing/v1',
 				'/webhook',

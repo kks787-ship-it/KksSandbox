@@ -171,3 +171,16 @@ historical until a fresh schema3 run is reported.
 `node tests/billing/value-browser.cjs` runs supplemental cash-recording UI checks with fully
 mocked API responses. Use the existing isolated Chromium executable via `CSF_TEST_CHROMIUM`;
 it routes only fixture.invalid and rejects external requests. This is not real-backend/MFA proof.
+
+
+Management-route review correction: registration previously returned early when sandbox checkout
+was disabled, even when private management was explicitly enabled. Public checkout and private
+route registration now use separate gates; the webhook still requires both sandbox checkout
+and its independent qualification flag. Both switches default off; no farm configuration changed.
+`management-rest.py` adds actual WordPress REST tests over a locally trusted loopback TLS
+terminator, real official TOTP and fresh scratch financial tables. It exercises list/detail/cash
+with sandbox=false/management=true, public/webhook absence even for an authenticated manager,
+both-gates-off absence, anonymous/bad-nonce/wrong-origin denial, and the closed gift page. TLS
+keys, test configuration and scratch tables are cleaned up; restored financial rows are compared
+again. This is a disposable test terminator, not a change to production proxy trust or MFA.
+Final exact-head outcome is recorded in draft PR27; implementation alone is not a passing test.

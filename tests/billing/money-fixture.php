@@ -13,14 +13,15 @@ try{
   $ids=array();foreach(array('workflow','race','replay') as $label){
    $id=wp_generate_uuid4();$ids[$label]=$id;
    $store->command(hash('sha256','seed:'.$id),array('synthetic'=>$id),static function($s)use($id){
+    $order=wp_generate_uuid4();$s->insert('orders',array('id'=>$order,'session_hash'=>str_repeat('a',64),'status'=>'issued','revision'=>1,'document'=>wp_json_encode(array('product'=>array('label'=>'Synthetic management fixture'),'amount_minor'=>101,'currency'=>'USD','terms'=>array('version'=>'synthetic','text'=>'Fixture only'),'accepted_at'=>'2026-11-08T00:00:00Z')),'created_at'=>'2026-11-08 00:00:00'));
     $v=CSF_Billing_Value::initial(101,3,array('method'=>'proportional_floor_v1','version'=>'synthetic','approved'=>true));
-    $s->insert('certificates',array('id'=>$id,'order_id'=>wp_generate_uuid4(),'number_hash'=>hash('sha256',$id),'number_sealed'=>CSF_Billing_Config::seal('SYNTHETIC-'.$id),'value_json'=>wp_json_encode($v),'purchased'=>3,'redeemed'=>0,'status'=>'active','revision'=>1));return array('seeded'=>true);
+    $s->insert('certificates',array('id'=>$id,'order_id'=>$order,'number_hash'=>hash('sha256',$id),'number_sealed'=>CSF_Billing_Config::seal('SYNTHETIC-'.$id),'value_json'=>wp_json_encode($v),'purchased'=>3,'redeemed'=>0,'status'=>'active','revision'=>1));return array('seeded'=>true);
    });
   }$result=$ids;
  }elseif($action==='cash'){$result=$service->cash($input['command'],$input['id'],$input['revision'],$input['transition'],$input['request'],$input['amount'],$input['evidence'],$input['attested']);}
  elseif($action==='redeem'){$result=$service->redeem($input['command'],$input['id'],$input['rides'],$input['revision'],$input['ride']);}
  elseif($action==='correct'){$result=$service->correct($input['command'],$input['id'],$input['original'],$input['revision'],'mistaken_ride');}
- elseif($action==='state'){$result=$store->snapshot(static function($s)use($input){$row=$s->row('certificates',$input['id']);return array('revision'=>(int)$row['revision'],'redeemed'=>(int)$row['redeemed'],'value'=>CSF_Billing_Value::read($row));});}
+ elseif($action==='state'){$result=$store->snapshot(static function($s)use($input){$row=$s->row('certificates',$input['id']);return array('order_id'=>$row['order_id'],'revision'=>(int)$row['revision'],'redeemed'=>(int)$row['redeemed'],'value'=>CSF_Billing_Value::read($row));});}
  elseif($action==='cleanup'){foreach(array('guard','orders','certificates','commands','audit','throttle') as $table){$wpdb->query('DROP TABLE '.$store->table($table));}$result=array('removed'=>true);}
  else{throw new RuntimeException('Unknown fixture action');}
  wp_send_json(array('ok'=>true,'result'=>$result));

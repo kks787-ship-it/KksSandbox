@@ -131,9 +131,11 @@ try:
  check('Online gift certificate purchases are not available yet.' in request('/?p='+evalphp(DST,"echo get_page_by_path('gifts')->ID;")),'restored checkout closed')
  money_checks=runpy.run_path('/fixture/tests/billing/money-http.py')['money_checks'](opener,base,json.loads(request('/fixture-proof'))['nonce'])
  check(money_checks==18,'real database monetary workflow and two-worker concurrency with official MFA')
+ management_rest_checks=runpy.run_path('/fixture/tests/billing/management-rest.py')['management_rest_checks'](DST,WORK,run,evalphp,Forms)
+ check(management_rest_checks==35,'real TLS REST management works with checkout disabled and defaults closed')
  after=snapshot('billing_restore');check({k:v for k,v in after.items() if '_csf_' in k}=={k:v for k,v in before.items() if '_csf_' in k},'scheduling and billing rows preserved after functional checks')
  check(snapshot('wp_mdf4x')==source_current and files(SRC)==manifest,'newer source owner data and files never overwritten')
- print(json.dumps({'combined_tables':33,'checks':checks,'schema_damage_checks':schema_damage_checks,'money_checks':money_checks,'monetary_damage_checks':monetary_damage_checks,'exact_runtime_pins':True,'candidate_only':True,'qualified_contract_changed':False,'provider_verified':False,'sales_enabled':False,'source_preserved':True,'key_and_mfa_verified':True}),flush=True)
+ print(json.dumps({'combined_tables':33,'checks':checks,'schema_damage_checks':schema_damage_checks,'money_checks':money_checks,'management_rest_checks':management_rest_checks,'monetary_damage_checks':monetary_damage_checks,'exact_runtime_pins':True,'candidate_only':True,'qualified_contract_changed':False,'provider_verified':False,'sales_enabled':False,'source_preserved':True,'key_and_mfa_verified':True}),flush=True)
 finally:
  if web:os.killpg(web.pid,signal.SIGTERM);web.wait(timeout=15)
  if server:server.terminate();server.wait(timeout=30)

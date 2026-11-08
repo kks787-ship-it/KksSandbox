@@ -330,3 +330,16 @@ not backend/MFA or provider verification. Run7 passed the first schema3 real-DB/
 workflow and two-worker race suite, monetary recovery and unchanged qualified recovery. The
 subsequent review hardens duplicate cash audit identities and type checks; final exact-head run
 is recorded in PR27. No actual payout, external provider call or farm access occurred.
+
+
+Management-route review correction: registration previously returned early when sandbox checkout
+was disabled, even when private management was explicitly enabled. Public checkout and private
+route registration now use separate gates; the webhook still requires both sandbox checkout
+and its independent qualification flag. Both switches default off; no farm configuration changed.
+`management-rest.py` adds actual WordPress REST tests over a locally trusted loopback TLS
+terminator, real official TOTP and fresh scratch financial tables. It exercises list/detail/cash
+with sandbox=false/management=true, public/webhook absence even for an authenticated manager,
+both-gates-off absence, anonymous/bad-nonce/wrong-origin denial, and the closed gift page. TLS
+keys, test configuration and scratch tables are cleaned up; restored financial rows are compared
+again. This is a disposable test terminator, not a change to production proxy trust or MFA.
+Final exact-head outcome is recorded in draft PR27; implementation alone is not a passing test.
