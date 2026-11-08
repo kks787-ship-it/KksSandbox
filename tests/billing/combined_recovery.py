@@ -1,6 +1,7 @@
 """Unqualified combined-schema candidate on exact pinned runtime; offline synthetic container only.
 Does not modify or invoke a broadened version of the qualified source contract.
 """
+import runpy
 import base64,copy,hashlib,http.cookiejar,json,os,pathlib,pwd,re,secrets,shutil,subprocess,sys,tarfile,time,urllib.parse,urllib.request
 from html.parser import HTMLParser
 sys.path.insert(0,'/fixture/tests/billing')
@@ -46,7 +47,10 @@ try:
  check(evalphp(SRC,"require '/fixture/tests/billing/combined-seed.php';").endswith('SYNTHETIC_COMBINED_33_TABLES_SEEDED'),'synthetic billing seeded with sales disabled')
  check(evalphp(SRC,"require '/fixture/tests/billing/database.php';").endswith('REAL_DATABASE_PROBE_ASSERTIONS=19'),'nineteen real SQL failure and replay probes')
  before=snapshot('wp_mdf4x');manifest=files(SRC)
- check(len(before)==33,'combined exact 33 tables');plan=qualify(before,'TXGEh_');check(plan['billing_tables']==6 and plan['certificates']==2,'combined billing invariants')
+ damage=runpy.run_path('/fixture/tests/billing/schema-damage-test.py')['schema_damage_checks']
+ schema_damage_checks=damage(before,'TXGEh_')
+ check(schema_damage_checks==273,'strict physical schema rejects damaged capture and identical damaged restore')
+ check(len(before)==33,'combined exact 33 tables');plan=qualify(before,'TXGEh_');check(plan['billing_tables']==6 and plan['certificates']==2 and plan['debits']==2 and plan['corrections']==1 and all(n==1 for n in plan['reconciliation_counts'].values()),'combined billing invariants')
  old={};exec(compile(P('/fixture/docs/pilot/baseline-select-plan.py.txt').read_bytes(),'original_contract','exec'),old)
  try:old['table_set'](before)
  except ValueError:check(True,'unchanged qualified contract rejects billing additions')
@@ -69,6 +73,13 @@ try:
  check(snapshot('billing_restore')=={},'restore database initially empty')
  with (WORK/'database.sql').open('rb') as stream:subprocess.run(['/usr/bin/mariadb','--no-defaults','--socket=/run/mysqld/mysqld.sock','-uroot','billing_restore'],stdin=stream,stderr=subprocess.PIPE,check=True)
  restored=snapshot('billing_restore');check(restored==before,'all 33 restored table definitions and rows match')
+ sql('ALTER TABLE TXGEh_csf_billing_certificates MODIFY redeemed varchar(1) NOT NULL;','billing_restore')
+ damaged=snapshot('billing_restore')
+ try:compare(damaged,damaged,'TXGEh_')
+ except ValueError:check(True,'real database damaged redeemed type rejected even when capture equals restore')
+ else:raise AssertionError('Corrupt physical schema accepted')
+ sql('ALTER TABLE TXGEh_csf_billing_certificates MODIFY redeemed int unsigned NOT NULL;','billing_restore')
+ check(snapshot('billing_restore')==before,'synthetic damaged-schema probe restored exactly')
  check(compare(before,restored,'TXGEh_')==plan,'all six billing tables match and reconcile without writes')
  for name in TABLES:
   bad=copy.deepcopy(restored);bad.pop('TXGEh_csf_billing_'+name)
@@ -82,6 +93,13 @@ try:
  mu=DST/'wp-content/mu-plugins';mu.mkdir(exist_ok=True)
  (mu/'offline.php').write_text("<?php add_filter('pre_wp_mail',static fn()=>false,-999999);add_filter('pre_http_request',static fn()=>new WP_Error('offline','Blocked'),-999999);add_action('init',static function(){if(($_SERVER['REQUEST_URI']??'')==='/fixture-proof'){wp_send_json(array('verified'=>CSF_MFA_Session::web_verified(1)));}});")
  verify="global $wpdb;if(CSF_Billing_Config::enabled()){throw new RuntimeException('Sales enabled');}$rows=$wpdb->get_results('SELECT * FROM TXGEh_csf_billing_certificates',ARRAY_A);foreach($rows as $r){$p=CSF_Billing_Config::open($r['number_sealed']);if(!hash_equals($r['number_hash'],hash('sha256',$p))){throw new RuntimeException('Key mismatch');}$raw=base64_decode($r['number_sealed']);$raw[28]=chr(ord($raw[28])^1);try{CSF_Billing_Config::open(base64_encode($raw));throw new RuntimeException('Tamper accepted');}catch(CSF_Billing_Failure $e){}}if(!CSF_MFA_Session::enrolled(false,1)){throw new RuntimeException('MFA lost');}echo 'KEY_AND_MFA_OK';"
+ # Separate PHP processes ensure configuration constants cannot reuse a prior good key.
+ sealed_probe="global $wpdb;$v=$wpdb->get_var('SELECT number_sealed FROM TXGEh_csf_billing_certificates LIMIT 1');try{CSF_Billing_Config::open($v);echo 'BAD';}catch(CSF_Billing_Failure $e){echo 'REJECTED';}"
+ for label,bad_config in [('missing',clone_config.replace("define('CSF_BILLING_DATA_KEY','"+key+"');",'')),('wrong',clone_config.replace(key,base64.b64encode(secrets.token_bytes(32)).decode()))]:
+  try:
+   (DST/'wp-config.php').write_text(bad_config)
+   check(evalphp(DST,sealed_probe)=='REJECTED','synthetic '+label+' number key rejected')
+  finally:(DST/'wp-config.php').write_text(clone_config)
  check(evalphp(DST,verify)=='KEY_AND_MFA_OK','restored encrypted numbers key tamper rejection and official MFA enrollment')
  check(evalphp(DST,"$r=wp_remote_get('https://example.invalid');echo is_wp_error($r)?$r->get_error_code():'FAILED';")=='offline','restored outbound HTTP blocked')
  check(evalphp(DST,"echo apply_filters('pre_wp_mail',null,array())===false?'BLOCKED':'FAILED';")=='BLOCKED','restored email blocked')
@@ -113,7 +131,7 @@ try:
  check('Online gift certificate purchases are not available yet.' in request('/?p='+evalphp(DST,"echo get_page_by_path('gifts')->ID;")),'restored checkout closed')
  after=snapshot('billing_restore');check({k:v for k,v in after.items() if '_csf_' in k}=={k:v for k,v in before.items() if '_csf_' in k},'scheduling and billing rows preserved after functional checks')
  check(snapshot('wp_mdf4x')==source_current and files(SRC)==manifest,'newer source owner data and files never overwritten')
- print(json.dumps({'combined_tables':33,'checks':checks,'exact_runtime_pins':True,'candidate_only':True,'qualified_contract_changed':False,'provider_verified':False,'sales_enabled':False,'source_preserved':True,'key_and_mfa_verified':True}),flush=True)
+ print(json.dumps({'combined_tables':33,'checks':checks,'schema_damage_checks':schema_damage_checks,'exact_runtime_pins':True,'candidate_only':True,'qualified_contract_changed':False,'provider_verified':False,'sales_enabled':False,'source_preserved':True,'key_and_mfa_verified':True}),flush=True)
 finally:
  if web:web.terminate();web.wait(timeout=15)
  if server:server.terminate();server.wait(timeout=30)

@@ -158,3 +158,34 @@ not adopt a 33-table production contract, qualify protected key escrow/custody, 
 farm backup, migration or deployment. Original qualified failure gates remain separate. Combined
 source-capture coordination, damaged-state/no-overwrite and namespace-boundary equivalence need
 independent review before extending the protected recovery contract.
+
+
+## Independent review follow-up: physical schema and CI provenance
+
+The initial recovery candidate checked physical column names but not all declarations. A
+`redeemed` column changed from unsigned integer to varchar could pass when the captured and
+restored copies were identically damaged. The revised schema-2 contract independently checks
+complete ordered declarations (type/size/signedness/nullability/default/charset/collation/extra),
+primary/unique/secondary indexes and table options for all six tables. Only known integer
+display widths and the audit AUTO_INCREMENT sequence value are normalized. Unknown layouts
+fail closed; valid capture/restore equality is still required separately. The original qualified
+scheduling contract and deployment/capture scripts remain unchanged.
+
+273 adversarial assertions on a real synthetic snapshot reject damaged capture and identical
+damaged capture/restore pairs; the existing 24 recovery assertions also pass locally. Combined
+CI adds an actual ALTER-to-varchar probe, checks all seven stored payment states, two debit
+audit trails and one correction with tombstones, and rejects missing/wrong synthetic keys.
+These ledger fixtures are explicitly seeded through Store transactions, not evidence of actual
+provider payment or an authenticated redemption service flow. The separate prior native tests
+cover service behavior; recovery verifies preserved records and invariants.
+
+Correction: CI run42514457937 used GitHub's PR merge commit, not literal branch head. The revised
+workflow explicitly checks out `github.event.pull_request.head.sha` and records commit/tree in
+each job. Final run and exact tested identifiers are recorded in draft PR27 after completion.
+
+Remaining adoption gaps are unchanged: the combined runner is separate from the qualified
+deployment/capture contract; full combined damaged-capture, timeout, cleanup, namespace and
+no-overwrite equivalence and consistent capture coordination require independent review and
+qualification. Successful synthetic missing/wrong-key tests do not establish secure escrow,
+off-server custody or farm key/config/target bindings. No production adoption or installation
+is authorized by these tests, and no real PayPal verification is claimed.

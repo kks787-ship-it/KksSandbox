@@ -29,7 +29,7 @@ cp "$root"/scripts/recovery/*.py "$context/rootfs/fixture/scripts/recovery/"
 cp "$root"/docs/pilot/baseline-contract.json "$root"/docs/pilot/baseline-select-plan.py.txt "$context/rootfs/fixture/docs/pilot/"
 cp "$root"/tests/recovery/restore_fixture.py "$context/rootfs/fixture/tests/recovery/"
 mkdir -p "$context/rootfs/fixture/tests/billing"
-cp "$root"/tests/billing/combined_recovery.py "$root"/tests/billing/combined-seed.php "$root"/tests/billing/recovery_contract.py "$root"/tests/billing/database.php "$context/rootfs/fixture/tests/billing/"
+cp "$root"/tests/billing/combined_recovery.py "$root"/tests/billing/combined-seed.php "$root"/tests/billing/recovery_contract.py "$root"/tests/billing/database.php "$root"/tests/billing/schema-damage-test.py "$context/rootfs/fixture/tests/billing/"
 cp "$root"/tests/recovery/restore-scheduling-seed.php "$context/rootfs/fixture/tests/recovery/"
 mkdir -p "$context/rootfs/fixture/plugins" "$context/rootfs/usr/src/wordpress"
 for plugin in csf-core csf-scheduling csf-mfa csf-billing; do cp -a "$root/wp-content/plugins/$plugin" "$context/rootfs/fixture/plugins/"; done

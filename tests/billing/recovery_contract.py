@@ -15,13 +15,40 @@ COLUMNS={
 def need(ok,code):
  if not ok:raise ValueError(code)
 def digest(value):return hashlib.sha256(value.encode()).hexdigest()
+# Reviewed schema-2 physical definitions, independent of the captured database.
+# Compare complete column declarations, ordered indexes and table options. Only
+# known integer display widths and the audit sequence counter are nonsemantic.
+ASCII=' CHARACTER SET ascii COLLATE ascii_bin'
+def ascii_column(kind,nullable=False):return kind+ASCII+(' DEFAULT NULL' if nullable else ' NOT NULL')
+PHYSICAL={
+ 'guard':[('id','tinyint unsigned NOT NULL'),('schema_version','int unsigned NOT NULL')],
+ 'orders':[('id',ascii_column('char(36)')),('session_hash',ascii_column('char(64)')),('provider_order_id',ascii_column('varchar(32)',True)),('capture_id',ascii_column('varchar(32)',True)),('status','varchar(32) NOT NULL'),('document','longtext NOT NULL'),('revision','bigint unsigned NOT NULL'),('created_at','datetime NOT NULL')],
+ 'certificates':[('id',ascii_column('char(36)')),('order_id',ascii_column('char(36)')),('number_hash',ascii_column('char(64)')),('number_sealed','text NOT NULL'),('purchased','int unsigned NOT NULL'),('redeemed','int unsigned NOT NULL'),('status','varchar(32) NOT NULL'),('revision','bigint unsigned NOT NULL')],
+ 'commands':[('id',ascii_column('char(64)')),('payload_hash',ascii_column('char(64)')),('result','longtext NOT NULL'),('created_at','datetime NOT NULL')],
+ 'audit':[('id','bigint unsigned NOT NULL AUTO_INCREMENT'),('kind','varchar(64) NOT NULL'),('actor','bigint unsigned NOT NULL'),('object_id',ascii_column('char(36)')),('details','longtext NOT NULL'),('created_at','datetime NOT NULL')],
+ 'throttle':[('id',ascii_column('char(64)')),('hits','int unsigned NOT NULL'),('expires','bigint unsigned NOT NULL')]}
+INDEXES={
+ 'orders':['UNIQUE KEY `provider_order` (`provider_order_id`)','UNIQUE KEY `capture` (`capture_id`)'],
+ 'certificates':['UNIQUE KEY `one_per_order` (`order_id`)','UNIQUE KEY `certificate_number` (`number_hash`)'],
+ 'throttle':['KEY `expires` (`expires`)']}
+def physical_schema(ddl,prefix,name):
+ need(re.fullmatch(r'[A-Za-z0-9_]+',prefix) is not None,'unsafe_prefix')
+ match=re.fullmatch(r'CREATE TABLE `'+re.escape(prefix+'csf_billing_'+name)+r'` \(\n(.*)\n\) (.*)',ddl,re.S)
+ need(match is not None,'physical_ddl_shape')
+ columns=[]
+ for line in match[1].splitlines():
+  line=line.strip().removesuffix(',')
+  for kind,width in [('tinyint','3'),('int','10'),('bigint','20')]:
+   line=re.sub(r'(?<![a-z])'+kind+r'\('+width+r'\)',kind,line)
+  columns.append(line)
+ expected=['`'+col+'` '+definition for col,definition in PHYSICAL[name]]+['PRIMARY KEY (`id`)']+INDEXES.get(name,[])
+ need(columns==expected,'physical_column_or_index_contract')
+ options=match[2]
+ if name=='audit':options=re.sub(r' AUTO_INCREMENT=[1-9][0-9]*','',options)
+ need(options=='ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci','physical_table_options')
 def rows(snapshot,prefix,name):
  item=snapshot[prefix+'csf_billing_'+name]
- need('ENGINE=InnoDB' in item['ddl'],'nontransactional_table')
- need(set(re.findall(r'^\s*`([^`]+)`\s',item['ddl'],re.M))==set(COLUMNS[name].split()),'physical_column_set')
- need('PRIMARY KEY (`id`)' in item['ddl'],'primary_key')
- for key,column in {'orders':{'provider_order':'provider_order_id','capture':'capture_id'},'certificates':{'one_per_order':'order_id','certificate_number':'number_hash'}}.get(name,{}).items():
-  need(f'UNIQUE KEY `{key}` (`{column}`)' in item['ddl'],'unique_binding_index')
+ physical_schema(item['ddl'],prefix,name)
  data=[json.loads(v) for v in item['rows']]
  for row in data:need(set(row)==set(COLUMNS[name].split()),'unknown_or_missing_columns')
  need(len({r['id'] for r in data})==len(data),'duplicate_primary_key')
