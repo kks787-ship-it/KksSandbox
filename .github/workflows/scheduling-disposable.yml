@@ -1,0 +1,43 @@
+name: Disposable scheduling validation
+on:
+  pull_request:
+    branches: [codex/takeover-audit]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+concurrency:
+  group: scheduling-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  database:
+    if: github.repository == 'kks787-ship-it/KksSandbox'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        php: ['8.1', '8.3']
+        database: ['mariadb:10.6', 'mysql:8.0']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install locked development dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Prepare unmodified disposable WordPress sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .wp-local/scheduling-core
+          curl --fail --show-error --location --retry 2 https://wordpress.org/wordpress-6.8.3.tar.gz -o .wp-local/wordpress.tar.gz
+          echo 'fd56bcdc15f1877e45dce67942ea75949ed650e8  .wp-local/wordpress.tar.gz' | sha1sum --check -
+          tar -xzf .wp-local/wordpress.tar.gz --strip-components=1 -C .wp-local/scheduling-core
+          curl --fail --show-error --location --retry 2 https://github.com/wp-cli/wp-cli/releases/download/v2.12.0/wp-cli-2.12.0.phar -o .wp-local/wp-cli.phar
+          php .wp-local/wp-cli.phar --info
+      - name: Run isolated database, transaction, race and rollback tests
+        env:
+          CSF_TEST_PHP_VERSION: ${{ matrix.php }}
+          CSF_TEST_DB_IMAGE: ${{ matrix.database }}
+        run: bash tests/scheduling/run.sh

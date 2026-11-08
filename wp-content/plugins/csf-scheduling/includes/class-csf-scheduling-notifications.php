@@ -57,6 +57,12 @@ class CSF_Scheduling_Notifications {
 		return array( 'uuid' => $change['uuid'], 'kind' => $departure ? 'REMOVED_FROM_ASSIGNMENT' : $change['kind'], 'urgent' => $departure ? ! empty( $change['before_urgent'] ) : $change['urgent'], 'start' => $time['start'] ?? null, 'end' => $time['end'] ?? null, 'restricted' => $departure || ! $current_visible );
 	}
 
+	/** Navigation uses the currently authorized appointment, never the frozen display date. */
+	public static function link_date( $projected, $appointment, $timezone ) {
+		if ( ! $projected || $projected['restricted'] || ! $appointment ) { return null; }
+		return ( new DateTimeImmutable( $appointment['start_utc'], new DateTimeZone( 'UTC' ) ) )->setTimezone( new DateTimeZone( $timezone ) )->format( 'Y-m-d' );
+	}
+
 	/** Called once inside Store's non-preview transaction, before COMMIT. */
 	public static function record( $kind, $result, $command ) {
 		CSF_Scheduling_Calendar::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
@@ -95,7 +101,11 @@ class CSF_Scheduling_Notifications {
 			$departure = in_array( $change['uuid'], $d['recipient_departures'][$actor] ?? array(), true );
 			$historical = CSF_Scheduling_Access::can( 'calendar_assigned' ) && in_array( $change['uuid'], $d['recipient_assignments'][$actor] ?? array(), true );
 			$projected = self::project( $change, $departure, $a && CSF_Scheduling_Permissions::appointment_visible( $a ), $historical );
-			if ( $projected ) { $changes[] = $projected; }
+			if ( $projected ) {
+				$p = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
+				$projected['link_date'] = self::link_date( $projected, $a, $p['timezone'] );
+				$changes[] = $projected;
+			}
 		}
 		return $changes ? array( 'uuid' => $row['uuid'], 'created_at_utc' => $row['created_at_utc'], 'changes' => $changes ) : null;
 	}
@@ -159,7 +169,7 @@ class CSF_Scheduling_Notifications {
 				foreach ( $item['changes'] as $change ) {
 					$text = $change['kind'] . ' · ' . ( $change['start'] ? substr( $change['start'], 0, 16 ) . ' ' . substr( $change['start'], -6 ) : 'Event-time date unavailable in legacy notice' );
 					if ( $change['restricted'] ) { echo '<li>' . esc_html( $text . ' · historical assignment only; current private lesson details unavailable' ) . '</li>'; }
-					else { echo '<li><a href="' . esc_url( CSF_Scheduling_UX::url( 'calendar', $change['start'] ? array( 'date' => substr( $change['start'], 0, 10 ) ) : array() ) . '#csf-event-' . $change['uuid'] ) . '">' . esc_html( $text . ' · open currently permitted lesson details' ) . '</a></li>'; }
+					else { echo '<li><a href="' . esc_url( CSF_Scheduling_UX::url( 'calendar', $change['link_date'] ? array( 'date' => $change['link_date'] ) : array() ) . '#csf-event-' . $change['uuid'] ) . '">' . esc_html( $text . ' · open currently permitted lesson details' ) . '</a></li>'; }
 				}
 				echo '</ul>';
 				if ( ! $item['acknowledged'] ) {

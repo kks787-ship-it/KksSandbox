@@ -46,6 +46,12 @@ nt_check( null === CSF_Scheduling_Notifications::project( $c, true, false, false
 $historical = CSF_Scheduling_Notifications::project( $c, false, false, true ); nt_check( $historical['restricted'] && $historical['start'] === '2027-01-26T11:00-08:00', 'prior entitled notice remains historical without granting current details' );
 $old = CSF_Scheduling_Notifications::project( $c, false, true, true ); $second = $c; $second['before_time'] = $c['after_time']; $second['after_time'] = array( 'start' => '2027-02-01T12:00-08:00', 'end' => '2027-02-01T12:30-08:00' );
 $new = CSF_Scheduling_Notifications::project( $second, false, true, true ); nt_check( $old['start'] === '2027-01-26T11:00-08:00' && $new['start'] === '2027-02-01T12:00-08:00' && $old === CSF_Scheduling_Notifications::project( $c, false, true, true ), 'multiple reschedules never rewrite earlier event dates' );
+$current = array( 'start_utc' => '2027-02-02 01:00:00' );
+nt_check( '2027-02-01' === CSF_Scheduling_Notifications::link_date( $old, $current, 'America/Los_Angeles' ) && $old['start'] === '2027-01-26T11:00-08:00', 'old notice keeps event date but navigation follows current authorized local day across UTC boundary' );
+$current['start_utc'] = '2027-03-09 02:00:00';
+nt_check( '2027-03-08' === CSF_Scheduling_Notifications::link_date( $old, $current, 'America/Los_Angeles' ) && '2027-03-08' === CSF_Scheduling_Notifications::link_date( $new, $current, 'America/Los_Angeles' ), 'multiple reschedules move both historical notice destinations to current lesson' );
+nt_check( null === CSF_Scheduling_Notifications::link_date( $departure, $current, 'America/Los_Angeles' ) && null === CSF_Scheduling_Notifications::link_date( $historical, $current, 'America/Los_Angeles' ), 'departure and historical-only projections never expose current link date' );
+nt_check( null === CSF_Scheduling_Notifications::link_date( $old, null, 'America/Los_Angeles' ), 'missing appointment never fabricates a current destination' );
 unset( $c['after_time'], $c['before_time'] ); nt_check( null === CSF_Scheduling_Notifications::project( $c, false, true, false )['start'], 'legacy notices do not fabricate event dates from current appointment' );
 $s['members'][2]['overrides']['calendar_assigned'] = 'deny'; nt_check( ! isset( CSF_Scheduling_Notifications::audience( $s, array( $c ) )['items'][2] ), 'explicit assigned-view denial suppresses departure recipient' );
 echo $n . " isolated notification classification/recipient checks passed\n";

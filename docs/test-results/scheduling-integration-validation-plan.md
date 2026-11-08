@@ -109,3 +109,21 @@ Student 30/60 policy via authorized read-only inspection, then obtain exact owne
 configuration review before any policy write. Only actual owner workflow acceptance
 can close §1B/§6D. Real delivery, grants, payments, public/emergency booking and
 production remain separate holds. Do not merge the draft PR as a substitute.
+
+## Disposable CI follow-up (2026-11-08)
+
+The review branch now proposes `.github/workflows/scheduling-disposable.yml`:
+standard Ubuntu 24.04 GitHub-hosted runners, PHP 8.1/8.3 × MariaDB 10.6/MySQL 8.0,
+25-minute job bound, two concurrent jobs, read-only repository token, no persisted
+checkout credentials, secrets, caches, uploaded artifacts, farm access, or deployment.
+It invokes the existing internal Docker fixture including its PHPCS gate unchanged.
+WordPress 6.8.3 is fetched from wordpress.org and checked against its published SHA1;
+WP-CLI 2.12.0 comes from the official GitHub release. These are test fixtures, not
+installed-version acceptance. Browser/MFA and functional recovery remain separate
+pending work. A proposed workflow is not evidence that GitHub has accepted or run it.
+
+The latest notification navigation fix preserves immutable display snapshots but
+computes destinations from the currently visible appointment in the facility timezone.
+Departure/historical-only projections expose no current destination. All 34 isolated
+notification tests passed on PHP 8.1.34 and 8.3.36, including multiple later reschedules
+and UTC/local date boundaries. Database/browser acceptance is still pending.
