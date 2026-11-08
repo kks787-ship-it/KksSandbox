@@ -51,7 +51,7 @@ try:
  damage=runpy.run_path('/fixture/tests/billing/schema-damage-test.py')['schema_damage_checks']
  schema_damage_checks=damage(before,'TXGEh_')
  monetary_damage_checks=runpy.run_path('/fixture/tests/billing/recovery-value-test.py')['monetary_damage_checks'](before,'TXGEh_')
- check(monetary_damage_checks==16,'monetary corruption rejected in capture and identical restore')
+ check(monetary_damage_checks==20,'monetary corruption rejected in capture and identical restore')
  check(schema_damage_checks==279,'strict physical schema rejects damaged capture and identical damaged restore')
  check(len(before)==33,'combined exact 33 tables');plan=qualify(before,'TXGEh_');check(plan['billing_tables']==6 and plan['certificates']==2 and plan['debits']==2 and plan['corrections']==1 and all(n==1 for n in plan['reconciliation_counts'].values()),'combined billing invariants')
  old={};exec(compile(P('/fixture/docs/pilot/baseline-select-plan.py.txt').read_bytes(),'original_contract','exec'),old)

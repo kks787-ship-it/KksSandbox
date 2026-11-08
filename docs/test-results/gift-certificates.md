@@ -320,3 +320,13 @@ plugin PHPCS and JS syntax pass. New real-DB/MFA two-worker and strict monetary 
 run in draft CI; final result/commit is recorded in PR27. The combined recovery seed contains
 uncertain cash and recorded payout histories, all payment states and exact correction evidence.
 Do not substitute historical native HTTP/browser results for new schema3 acceptance.
+
+
+Schema3 validation follow-up: fresh scratch-prefix SQL probes passed on all four native cells
+(PHP8.1/8.3 × MariaDB10.6.23/MySQL8.0.46), preserving prior fixture data. Supplemental Chromium
+UI checks passed 14 assertions with mocked API responses: exact cents, required attestation,
+reservation identity, uncertain outcome and recorded payout presentation. This is UI evidence,
+not backend/MFA or provider verification. Run7 passed the first schema3 real-DB/official-MFA
+workflow and two-worker race suite, monetary recovery and unchanged qualified recovery. The
+subsequent review hardens duplicate cash audit identities and type checks; final exact-head run
+is recorded in PR27. No actual payout, external provider call or farm access occurred.

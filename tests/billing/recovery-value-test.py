@@ -10,6 +10,9 @@ def monetary_damage_checks(snapshot,prefix):
  def lose_receipt(s,kind):
   audit=[json.loads(v) for v in s[prefix+'csf_billing_audit']['rows']];event=next(a for a in audit if a['kind']==kind);d=json.loads(event['details']);key=digest('cash:'+d['command']);s[prefix+'csf_billing_commands']['rows']=[v for v in s[prefix+'csf_billing_commands']['rows'] if json.loads(v)['id']!=key]
  cases.extend([lambda s:lose_receipt(s,'cash_record_paid'),lambda s:lose_receipt(s,'cash_uncertain')])
+ def duplicate_audit(s):
+  key=prefix+'csf_billing_audit';rows=[json.loads(v) for v in s[key]['rows']];row=copy.deepcopy(next(r for r in rows if r['kind']=='cash_uncertain'));row['id']=str(max(int(r['id']) for r in rows)+1);rows.append(row);s[key]['rows']=[json.dumps(r) for r in rows]
+ cases.extend([duplicate_audit,lambda s:value_change(s,lambda v:v.update(version=True))])
  for change in cases:
   bad=copy.deepcopy(snapshot);change(bad)
   for validate in [lambda:qualify(bad,prefix),lambda:compare(bad,bad,prefix)]:

@@ -166,3 +166,8 @@ and drop only those scratch tables. They are not deployed with the plugin. `comb
 retains monetary debit/correction/uncertain cash/recorded payout histories in the recovery snapshot.
 No existing schema2 capture or database is silently upgraded; prior native/browser evidence is
 historical until a fresh schema3 run is reported.
+
+
+`node tests/billing/value-browser.cjs` runs supplemental cash-recording UI checks with fully
+mocked API responses. Use the existing isolated Chromium executable via `CSF_TEST_CHROMIUM`;
+it routes only fixture.invalid and rejects external requests. This is not real-backend/MFA proof.

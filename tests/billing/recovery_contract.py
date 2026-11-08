@@ -73,13 +73,13 @@ def qualify(snapshot,prefix='gift_fixture_'):
   need(d['product']['payment_mode']=='one_time','unsupported_payment_mode')
   if o['status'] in ['issued','capture_uncertain']:need(bool(o['provider_order_id']),'missing_provider_binding')
   if o['status']=='issued':need(sum(c['order_id']==oid for c in certs.values())==1,'missing_issued_certificate')
- debits={};corrected=set();net={cid:0 for cid in certs};issued=set();slots={cid:set() for cid in certs};cash={cid:0 for cid in certs};pending={cid:None for cid in certs};values={}
+ debits={};corrected=set();net={cid:0 for cid in certs};issued=set();slots={cid:set() for cid in certs};cash={cid:0 for cid in certs};pending={cid:None for cid in certs};values={};cash_commands=set();cash_requests=set();payout_evidence=set()
  for cid,c in certs.items():
   v=json.loads(c['value_json']);values[cid]=v;d=docs[c['order_id']];policy=v['policy'];n=int(c['purchased']);paid=v['paid_minor']
-  need(set(v)=={'version','currency','paid_minor','allocation','policy','used_slots','cash_paid_minor','pending'} and v['version']==1 and v['currency']=='USD' and type(paid) is int and paid==d['amount_minor'] and n>0 and paid>=n,'value_document')
-  need(policy==d['valuation'] and type(policy['approved']) is bool and policy['method'] in ['proportional_floor_v1','front_remainder_v1'],'value_policy')
+  need(set(v)=={'version','currency','paid_minor','allocation','policy','used_slots','cash_paid_minor','pending'} and type(v['version']) is int and v['version']==1 and v['currency']=='USD' and type(paid) is int and paid==d['amount_minor'] and 0<n<=100 and n<=paid<=100000000,'value_document')
+  need(set(policy)=={'method','version','approved'} and isinstance(policy['version'],str) and re.fullmatch(r'[A-Za-z0-9._-]{1,64}',policy['version']) and policy==d['valuation'] and type(policy['approved']) is bool and policy['method'] in ['proportional_floor_v1','front_remainder_v1'],'value_policy')
   allocation=[paid*(i+1)//n-paid*i//n if policy['method']=='proportional_floor_v1' else paid//n+(1 if i<paid%n else 0) for i in range(n)]
-  need(v['allocation']==allocation and type(v['cash_paid_minor']) is int and v['cash_paid_minor']>=0,'value_allocation')
+  need(isinstance(v['allocation'],list) and all(type(i) is int for i in v['allocation']) and isinstance(v['used_slots'],list) and all(type(i) is int for i in v['used_slots']) and (not v['used_slots'] or policy['approved']) and v['allocation']==allocation and type(v['cash_paid_minor']) is int and v['cash_paid_minor']>=0,'value_allocation')
  for a in sorted(data['audit'],key=lambda r:int(r['id'])):
   d=json.loads(a['details']);cid=a['object_id']
   if a['kind']=='certificate_issued':
@@ -95,15 +95,18 @@ def qualify(snapshot,prefix='gift_fixture_'):
    original=d['original_command'];need(original in debits and original not in corrected and debits[original]==(cid,d['rides'],d['slots'],d['value_minor']),'correction_audit')
    need(digest('reversed:'+original) in commands,'missing_correction_tombstone');corrected.add(original);net[cid]-=d['rides'];need(set(d['slots'])<=slots[cid] and pending[cid] is None,'correction_value');slots[cid].difference_update(d['slots'])
   if a['kind'].startswith('cash_'):
+   need(d['command'] not in cash_commands,'duplicate_cash_command_audit');cash_commands.add(d['command'])
    need(cid in certs and type(d['amount_minor']) is int and d['amount_minor']>0 and d['currency']=='USD','cash_audit')
-   receipt=commands.get(digest('cash:'+d['command']));need(receipt is not None,'cash_receipt');r=json.loads(receipt['result']);need(r['request']==d['request'] and r['certificate_id']==cid,'cash_receipt_binding')
+   receipt=commands.get(digest('cash:'+d['command']));need(receipt is not None,'cash_receipt');r=json.loads(receipt['result']);need(r['request']==d['request'] and r['certificate_id']==cid and r['action']==a['kind'].removeprefix('cash_') and r['payment_executed'] is False,'cash_receipt_binding')
    if a['kind']=='cash_reserve':
+    need(d['request'] not in cash_requests,'cash_request_reused');cash_requests.add(d['request'])
     need(pending[cid] is None and d['amount_minor']==values[cid]['paid_minor']-sum(values[cid]['allocation'][i] for i in slots[cid])-cash[cid] and digest('cash_request:'+d['request']) in commands,'cash_reservation')
     pending[cid]={'id':d['request'],'amount_minor':d['amount_minor'],'state':'reserved'}
    else:
     need(pending[cid] is not None and pending[cid]['id']==d['request'] and pending[cid]['amount_minor']==d['amount_minor'],'cash_transition')
     if a['kind']=='cash_uncertain':pending[cid]['state']='uncertain'
     elif a['kind']=='cash_record_paid':
+     need(d['evidence'] not in payout_evidence,'payout_evidence_reused');payout_evidence.add(d['evidence'])
      need(digest('cash_evidence:'+d['evidence']) in commands,'cash_payout_evidence');cash[cid]+=d['amount_minor'];pending[cid]=None
     elif a['kind']=='cash_cancel_unpaid':pending[cid]=None
     else:raise ValueError('unknown_cash_transition')

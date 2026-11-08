@@ -99,8 +99,8 @@
       if (data.certificate_id && data.value && data.can_manage) {
         const v = data.value; const remaining = v.paid_minor - v.used_slots.reduce((n, i) => n + v.allocation[i], 0) - v.cash_paid_minor;
         if (remaining > 0) {
-          const cash = node('form'); cash.append(node('h4', 'Cash redemption record'), node('p', 'This form does not send money or issue a PayPal refund. Reserve the balance before any separately authorized payout. Keep uncertain payouts reserved until independently reconciled.'));
-          const transition = node('select', null, {required: ''});
+          const cash = node('form', null); cash.append(node('h4', 'Cash redemption record'), node('p', 'This form does not send money or issue a PayPal refund. Reserve the balance before any separately authorized payout. Keep uncertain payouts reserved until independently reconciled.'));
+          const transition = node('select', null, {required: '', 'aria-label': 'Cash record action'});
           const choices = v.pending ? [['uncertain', 'Keep reserved: payout outcome uncertain'], ['record_paid', 'Record cash already paid in full'], ['cancel_unpaid', 'Release reservation: independently confirmed unpaid']] : [['reserve', 'Reserve full remaining value for requested cash redemption']];
           choices.forEach(([value, label]) => transition.append(node('option', label, {value}))); cash.append(transition);
           const evidence = field(cash, 'Private request / reconciliation / payout evidence reference (UUID; no personal or bank details)', 'text', {required: ''});
