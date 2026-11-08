@@ -257,3 +257,17 @@ booking wp_mail bridge test. Neither has executed yet; next CI must establish it
 Local rootless recovery prerequisites newuidmap/newgidmap/rootlesskit/slirp4netns
 and a Docker socket are also absent, despite available unprivileged namespaces.
 No original qualified interpreter was uploaded or substituted.
+
+Run42466692656 evidence: three database combinations passed, including44 horse
+correction checks and the true mapping/booking race (one commit, one rejection).
+Family drawer flow passed14 browser checks including focus/atomic save/replay/edit;
+calendar browser passed. Mail qualification passed all9 existing native runtime
+cases and12 booking wp_mail bridge assertions, with only the final fake mailer.
+Resource-hours domain passed60 checks including started split preview/rollback/
+replay/preservation. Its browser then found fixture interference: the newly retained
+series occupied the baseline arena's09:00 click-to-block slot. The test-only follow-up
+moves that series to the independent arena, preserving all split assertions, and
+adds family drawer390/768/1280 accessibility/overflow checks. Those follow-up checks
+remain pending. The remaining PHP8.3/MariaDB legacy job is still running at recording.
+MFA preparation hit release504/API403 in this run; prior candidate MFA/security
+passed. No failed check was waived, and functional recovery remains unqualified.

@@ -64,7 +64,7 @@ $d['weekly']['periods'][0]=array('weekday'=>0,'start'=>'00:00','end'=>'04:00');$
 $pattern=array('released'=>false,'recurrence'=>array('timezone'=>$p['timezone'],'from'=>'2027-03-07','until'=>'2027-03-21','weekday'=>0,'start'=>'02:30','end'=>'03:00'),'reopen_dates'=>array());$check($blocks($pattern,'2027-03-14T00:00-08:00','2027-03-14T00:15-08:00'),'Missing closure boundary conservatively protects entire date');
 $pattern['recurrence']=array('timezone'=>$p['timezone'],'from'=>'2027-10-31','until'=>'2027-11-14','weekday'=>0,'start'=>'01:30','end'=>'02:00');$check($blocks($pattern,'2027-11-07T01:30-07:00','2027-11-07T01:45-07:00')&&$blocks($pattern,'2027-11-07T01:30-08:00','2027-11-07T01:45-08:00'),'Protective weekly boundary covers both fold occurrences');
 // Started series: atomic prospective split, retained history, rollback and replay.
-$started=$closed;$started['uuid']=wp_generate_uuid4();$started['data']['start']='2026-11-02T09:00-08:00';$started['data']['end']='2026-11-02T10:00-08:00';
+$started=$closed;$started['uuid']=wp_generate_uuid4();$started['data']['target_uuid']=$otherArena;$started['data']['start']='2026-11-02T09:00-08:00';$started['data']['end']='2026-11-02T10:00-08:00';
 $check(!is_wp_error($cmd('resource_closure_added',$started)),'Started synthetic series created');
 $edit=$started;$edit['expected']=1;$edit['data']['start']='2027-02-01T11:00-08:00';$edit['data']['end']='2027-02-01T12:00-08:00';
 $before=$snapshot();$preview=CSF_Scheduling_Store::resource_preview('resource_closure_edited',$edit,$rev(),wp_generate_uuid4());$check(!is_wp_error($preview)&&$before===$snapshot(),'Started split preview rolls back both closure documents');
