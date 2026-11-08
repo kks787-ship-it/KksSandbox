@@ -33,7 +33,7 @@ try:
  server=subprocess.Popen(['/usr/sbin/mariadbd','--no-defaults','--user=mysql','--basedir=/usr','--datadir=/run/mysqld/data','--socket=/run/mysqld/mysqld.sock','--pid-file=/run/mysqld/server.pid','--skip-networking','--innodb-buffer-pool-size=64M'],stdout=subprocess.DEVNULL,stderr=(WORK/'database.log').open('wb'))
  for i in range(60):
   try:sql('SELECT 1;');break
-  except subprocess.CalledProcessError:time.sleep(.25)
+  except RuntimeError:time.sleep(.25)
  else:raise RuntimeError('Isolated database startup')
  sql('CREATE DATABASE wp_mdf4x CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;CREATE DATABASE billing_restore CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;')
  SRC.mkdir(parents=True);shutil.copytree('/usr/src/wordpress',SRC,dirs_exist_ok=True);shutil.copytree('/fixture/plugins',SRC/'wp-content/plugins',dirs_exist_ok=True)
@@ -110,7 +110,7 @@ try:
  html=request(f['action'],f['fields']);f=next(f for f in Forms(html).forms if 'authcode' in f['fields']);check(True,'official restored TOTP challenge required')
  code=evalphp(DST,"$p=Two_Factor_Totp::get_instance();echo Two_Factor_Totp::calc_totp($p->get_user_totp_key(1),floor(time()/30));")
  f['fields']['authcode']=code;request(f['action'],f['fields']);check(json.loads(request('/fixture-proof'))['verified'] is True,'real restored password TOTP and signed session proof')
- check('Online gift certificate purchases are not available yet.' in request('/?p='+evalphp(DST,"echo get_page_by_path('gifts')->ID;")) or 'Online gift certificate purchases are not available yet.' in evalphp(DST,'echo CSF_Billing_Web::render();'),'restored checkout closed')
+ check('Online gift certificate purchases are not available yet.' in request('/?p='+evalphp(DST,"echo get_page_by_path('gifts')->ID;")),'restored checkout closed')
  after=snapshot('billing_restore');check({k:v for k,v in after.items() if '_csf_' in k}=={k:v for k,v in before.items() if '_csf_' in k},'scheduling and billing rows preserved after functional checks')
  check(snapshot('wp_mdf4x')==source_current and files(SRC)==manifest,'newer source owner data and files never overwritten')
  print(json.dumps({'combined_tables':33,'checks':checks,'exact_runtime_pins':True,'candidate_only':True,'qualified_contract_changed':False,'provider_verified':False,'sales_enabled':False,'source_preserved':True,'key_and_mfa_verified':True}),flush=True)
