@@ -72,7 +72,10 @@ $ov_rev = fv_rev(); $ov_cmd = wp_generate_uuid4(); $approved = CSF_Scheduling_St
 fv_check( ! is_wp_error( $approved ), 'approved segment exception commits with booking validation' );
 $before = fv_rows(); fv_check( CSF_Scheduling_Store::calendar( 'buffer_overridden', $override, $ov_rev, $ov_cmd ) === $approved && $before === fv_rows(), 'exception exact replay cannot duplicate approvals or notices' );
 $approved_doc = json_decode( CSF_Scheduling_Calendar::find( 'details', $single['uuid'] )['body_json'], true );
-fv_check( count( $approved_doc['buffer_overrides'] ) === 1 && 0 === $approved_doc['resource_reservations'][0]['pre_minutes'] && 15 === $approved_doc['resource_reservations'][0]['post_minutes'], 'exception persisted exact reviewed segment and approval marker' );
+$approved_windows = array_column( $approved_doc['resource_reservations'], null, 'resource_uuid' );
+$target_window = $approved_windows[$override['resource_uuid']];
+fv_check( count( $approved_doc['buffer_overrides'] ) === 1 && 0 === $target_window['pre_minutes'] && 15 === $target_window['post_minutes'], 'exception persisted exact reviewed resource segment and approval marker' );
+foreach ( $approved_windows as $resource_uuid => $window ) { if ( $resource_uuid !== $override['resource_uuid'] ) { fv_check( 15 === $window['pre_minutes'] && 15 === $window['post_minutes'], 'exception leaves every other resource buffer unchanged' ); } }
 fv_check( ! is_wp_error( CSF_Scheduling_Store::permissions( 'team_member_saved', array( 'user_id' => 1, 'member' => $member, 'sensitive_confirmed' => true ), fv_rev(), wp_generate_uuid4() ) ), 'restore original disposable-fixture rights' );
 // Group holds share an exact expiry. Fixture-only clock simulation avoids sleeping.
 $held_group = array( 'uuid' => wp_generate_uuid4(), 'expected' => 0, 'same_family' => true, 'items' => array() );

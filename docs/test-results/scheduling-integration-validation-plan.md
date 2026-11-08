@@ -180,3 +180,9 @@ Independent browser steps still run after a database failure to gather evidence;
 failed steps remain failed. Functional recovery invokes the unchanged qualifier
 with exact image and Python binary pins. Missing/mismatched prerequisites are a
 failed qualification, never permission to weaken pins or use farm resources.
+
+### CI follow-up: fixture prerequisites and resource ordering
+
+Run 42459852811 passed PHP8.1/MySQL8.0, including unchanged PHPCS. Other matrix runs exposed a random-UUID-dependent family assertion: the approved buffer resource is now selected by UUID, and all other buffers are checked unchanged. No booking rule was weakened. Browser preparation verified official provider bytes, but activation correctly rejected WordPress6.8.3 for the MFA adapter's existing >=7.0 requirement. The isolated MFA site now uses the previously tested official WordPress7.1.4, pinned to published tar SHA1 b175879c4fb2d35300f9abe1153da9b543a35a2b; the independent database fixture remains6.8.3. Activation diagnostics are retained. Hours/browser fixture times now include the approved independent15+15-minute buffers. These corrections require a fresh CI run.
+
+Functional recovery qualification found both exact container image IDs available, but /usr/bin/python3.13 was absent on ubuntu24.04. The required binary hash remains889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9; no prerequisite was relaxed and no functional restore is claimed. No farm, deployment, actual account/MFA, delivery or payment change occurred.

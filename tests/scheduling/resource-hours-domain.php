@@ -17,7 +17,7 @@ $version=$rev();$command=wp_generate_uuid4();$r=$cmd('resource_hours_saved',$b,$
 $check($data($ids['arena'])['intervals']===$legacy,'Original dated intervals preserved');
 $bad=$b;$bad['data']['from']='2027-02-30';$check(is_wp_error($cmd('resource_hours_saved',$bad)),'Impossible effective date rejected');
 $check(is_wp_error($cmd('resource_hours_saved',$hourBody($ids['arena'],'inherit'),$version)),'Stale global revision rejected');
-$periods=array(array('weekday'=>1,'start'=>'08:00','end'=>'10:00'),array('weekday'=>1,'start'=>'11:00','end'=>'18:00'));
+$periods=array(array('weekday'=>1,'start'=>'08:00','end'=>'10:15'),array('weekday'=>1,'start'=>'11:00','end'=>'18:00'));
 $check(!is_wp_error($hours($ids['arena'],'custom',$periods)),'Split Monday weekly hours saved');
 $covers=static fn($d,$a,$z,$policy=null)=>CSF_Scheduling_Resource_Hours::covers($d,new DateTimeImmutable($a),new DateTimeImmutable($z),$policy??$p);
 $check($covers($data($ids['arena']),'2027-01-25T09:00-08:00','2027-01-25T10:00-08:00'),'Configured weekday covered');
