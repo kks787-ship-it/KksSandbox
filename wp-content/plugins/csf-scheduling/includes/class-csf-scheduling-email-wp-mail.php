@@ -38,7 +38,7 @@ final class CSF_Scheduling_Email_WP_Mail {
 			'to'          => array( $address ),
 			'subject'     => 'Digital Ranch: ' . ( $urgent ? 'URGENT CHANGE' : implode( ' / ', array_unique( $kinds ) ) ),
 			'message'     => implode( "\n", $lines ) . "\nSign in with MFA to review your permitted lesson details.\n" . admin_url( 'admin.php?page=csf-scheduling' ),
-			'headers'     => array( 'X-Digital-Ranch-Fixture: ' . hash( 'sha256', $job['key'] ) ),
+			'headers'     => array( 'X-Digital-Ranch-Fixture: ' . hash( 'sha256', $job['key'] ), 'From: Digital Ranch Fixture <fixture@example.invalid>' ),
 			'attachments' => array(),
 		);
 	}

@@ -99,3 +99,20 @@ binary hash or isolated restore contract. Functional execution remains pending t
 increment's CI; ABI/extension dependencies and all four phases must pass before
 claiming qualified recovery. A synthetic pass never replaces fresh target-bound
 farm backup, restore, reviewed payload, preflight or separate deployment readback.
+
+## Exact-pin functional qualification completed — run 19
+
+Draft `704646e`, GitHub run 42470469450, MFA job 128699790206 passed using
+verified official Debian u5 packages and the unchanged interpreter/image pins.
+No local runtime bundle was uploaded and no protected CI secret was changed.
+Pre-scheduling (12 tables) and full schema4 (27 tables) returned
+ISOLATED_RESTORE_VERIFIED with integrity/isolation/pages/login/cleanup true.
+Partial migration (20 tables) and damaged schema4 (26 tables) returned
+SCHEMA_STATE_REQUIRES_REVIEW with restore_verified false as required.
+All four phases verified current source owner/auth rows, clone login/logout,
+metadata, temporary credential cleanup, nonreuse and forced-deadline cleanup.
+Full additionally rejected manifest mismatch, truncated gzip and unexpected SQL
+before clone creation, terminated failed-import services and explicitly rejected
+stale-snapshot freshness. These are isolated synthetic qualification results, not
+a current farm backup, farm restore or authorization to deploy. Fresh target-bound
+backup, payload review, separate readback and every existing deployment hold remain.

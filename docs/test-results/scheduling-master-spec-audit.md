@@ -100,3 +100,22 @@ Remaining: protected owner configuration/usability acceptance, real delivery
 activation/recipient consent, and recovery/deployment qualification. Configurable
 buffers, month/drag-resize, household agreements/payments and broader role portals
 are later scope. No existing grants or deployment gates change.
+
+## Run 19 evidence and fixture corrections
+
+Draft `704646e`, run 42470469450: calendar, hours, native-mail and expanded
+family browser suites passed. Family39 includes explicit 30+30 and 120+120+60
+review/save, exact shared outer reservation envelope, automatic next-child start,
+and no irrelevant horse input. Scripted form actions were 11 and 14 respectively;
+both had zero page-scroll jumps and two panel-scroll jumps over 150px. These
+exclude login/navigation and are not owner acceptance or a legacy comparison.
+
+Dashboard passed weekly grouping, override/today display, 390/768/1280 no-overflow
+and axe checks, and per-actor acknowledgment preserving booking rows, then failed
+on reading history before navigation completed. The test now explicitly waits
+for that navigation. Database jobs reached 33 durable sink checks then failed
+before native submission. The bridge now supplies an explicit synthetic
+`fixture@example.invalid` From header instead of WordPress's localhost fallback;
+the final no-network fake mailer also verifies that sender. The strict native
+assertion includes synthetic state/error diagnostics. Neither change enables real
+mail or weakens an assertion. Corrected runtime outcomes must be recorded later.
