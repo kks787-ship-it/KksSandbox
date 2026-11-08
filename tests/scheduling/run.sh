@@ -29,6 +29,9 @@ else
  "${D[@]}" build -q --build-arg "CSF_TEST_PHP_VERSION=$CSF_PHP_VERSION" -t "$PHP_IMAGE" "$ROOT/tests/scheduling"
 fi
 "${D[@]}" run --rm --network none "$PHP_IMAGE" php -r 'echo "CALENDAR_TEST_PHP=".PHP_VERSION."\n";'
+# Keep coding standards mandatory, but collect independent database evidence even when lint fails.
+LINT_STATUS=0
+"${D[@]}" run --rm --network none -v "$ROOT:/repo:ro" "$PHP_IMAGE" php /repo/vendor/bin/phpcs --standard=/repo/phpcs.xml.dist /repo/wp-content/plugins/csf-scheduling || LINT_STATUS=$?
 "${D[@]}" network create --internal "$STAMP-net" >/dev/null
 "${D[@]}" volume create "$STAMP-site" >/dev/null
 "${D[@]}" run -d --name "$STAMP-db" --network "$STAMP-net" --network-alias fixture-db --tmpfs /var/lib/mysql -e MYSQL_ROOT_PASSWORD=fixture-only -e MYSQL_ROOT_HOST=% -e MYSQL_DATABASE=csf_fixture "${CSF_TEST_DB_IMAGE:-mariadb:10.6}" >/dev/null
@@ -71,3 +74,6 @@ fi
 
 "${D[@]}" exec "$STAMP-db" sh -c 'DB=$(command -v mariadb || command -v mysql); for name in settings resources appointments allocations commands audit riders horses availability restrictions details history slots participants authorization; do "$DB" -uroot -pfixture-only csf_fixture -e "DROP TABLE IF EXISTS fixture_csf_sched_$name"; done; "$DB" -uroot -pfixture-only csf_fixture < /tmp/before-foundation.sql'
 "${PHP[@]}" "$PHP_IMAGE" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'global $wpdb; if (DB_NAME!=="csf_fixture" || is_plugin_active("csf-scheduling/csf-scheduling.php") || $wpdb->get_var("SHOW TABLES LIKE \"fixture_csf_sched_%\"") || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_value LIKE \"%csf_schedule_%\" OR meta_value LIKE \"%csf_dr_%\"")!=0) { WP_CLI::error("Fixture restore mismatch"); } echo "LOGICAL_BACKUP_RESTORE_PASS\n";'
+
+# A successful database run never turns a failed coding-standard gate green.
+exit "$LINT_STATUS"

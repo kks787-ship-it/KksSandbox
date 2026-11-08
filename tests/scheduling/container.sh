@@ -27,7 +27,6 @@ fi
 WP=(php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root)
 [[ "${CSF_TEST_PHASE:-all}" != install ]] || exit 0
 if [[ "${CSF_TEST_PHASE:-all}" != calendar ]]; then
-php /repo/vendor/bin/phpcs --standard=/repo/phpcs.xml.dist /repo/wp-content/plugins/csf-scheduling
 find /repo/wp-content/plugins/csf-scheduling -name '*.php' -print0 | xargs -0 -n1 php -l
 "${WP[@]}" eval-file /repo/tests/scheduling/foundation.php
 
