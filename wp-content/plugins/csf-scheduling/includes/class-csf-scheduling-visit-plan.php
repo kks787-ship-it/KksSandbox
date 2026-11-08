@@ -55,7 +55,7 @@ class CSF_Scheduling_Visit_Plan {
 		}
 		$plans = array();
 		foreach ( $lessons as $lesson ) {
-			$left = null;
+			$left  = null;
 			$right = null;
 			foreach ( $lessons as $other ) {
 				if ( ! self::compatible( $lesson, $other ) ) {
@@ -73,19 +73,25 @@ class CSF_Scheduling_Visit_Plan {
 			}
 			$windows = array();
 			foreach ( $lesson['resources'] as $uuid => $resource ) {
-				$pre = max( null === $left ? $before : 0, $resource['mandatory_before'] );
-				$post = max( null === $right ? $after : 0, $resource['mandatory_after'] );
+				$pre       = max( null === $left ? $before : 0, $resource['mandatory_before'] );
+				$post      = max( null === $right ? $after : 0, $resource['mandatory_after'] );
 				$windows[] = array(
 					'resource_uuid' => $uuid,
-					'start' => $lesson['start'] - $pre * 60,
-					'end' => $lesson['end'] + $post * 60,
-					'pre_minutes' => $pre,
-					'post_minutes' => $post,
+					'start'         => $lesson['start'] - $pre * 60,
+					'end'           => $lesson['end'] + $post * 60,
+					'pre_minutes'   => $pre,
+					'post_minutes'  => $post,
 					'shared_before' => $left,
-					'shared_after' => $right,
+					'shared_after'  => $right,
 				);
 			}
-			$plans[] = array( 'uuid' => $lesson['uuid'], 'visit_uuid' => $lesson['visit_uuid'], 'teaching_start' => $lesson['start'], 'teaching_end' => $lesson['end'], 'reservations' => $windows );
+			$plans[] = array(
+				'uuid'           => $lesson['uuid'],
+				'visit_uuid'     => $lesson['visit_uuid'],
+				'teaching_start' => $lesson['start'],
+				'teaching_end'   => $lesson['end'],
+				'reservations'   => $windows,
+			);
 		}
 		$conflicts = array();
 		foreach ( $plans as $i => $a ) {
@@ -94,12 +100,19 @@ class CSF_Scheduling_Visit_Plan {
 				foreach ( $a['reservations'] as $x ) {
 					$y = $by_resource[ $x['resource_uuid'] ] ?? null;
 					if ( $y && $x['start'] < $y['end'] && $y['start'] < $x['end'] ) {
-						$conflicts[] = array( 'first' => $a['uuid'], 'second' => $b['uuid'], 'resource_uuid' => $x['resource_uuid'] );
+						$conflicts[] = array(
+							'first'         => $a['uuid'],
+							'second'        => $b['uuid'],
+							'resource_uuid' => $x['resource_uuid'],
+						);
 					}
 				}
 			}
 		}
-		return array( 'lessons' => $plans, 'conflicts' => $conflicts );
+		return array(
+			'lessons'   => $plans,
+			'conflicts' => $conflicts,
+		);
 	}
 
 	/** Same explicit visit and complete compatible staff/location footprint. */

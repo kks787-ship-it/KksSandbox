@@ -156,7 +156,8 @@ class CSF_Scheduling_Calendar {
 		if ( in_array( $kind, array( 'appointment_saved', 'appointment_canceled' ), true ) ) {
 			return self::appointment( $kind, $body, $policy, ! empty( $settings['availability_preview'] ) );
 		}
-		if ( 'horse_deleted' === $kind ) { return self::horse_delete( $body ); }
+		if ( 'horse_deleted' === $kind ) {
+			return self::horse_delete( $body ); }
 		if ( 'horse_status_saved' === $kind ) {
 			return self::horse_status( $body, $policy );
 		}
@@ -328,23 +329,59 @@ class CSF_Scheduling_Calendar {
 		global $wpdb;
 		self::require( CSF_Scheduling_Store::in_calendar_transaction() && CSF_Scheduling_Access::can( 'resource_manage' ), 'forbidden' );
 		self::keys( $body, array( 'uuid', 'expected', 'reason', 'confirm_label', 'irreversible' ) );
-		self::require( CSF_Scheduling_Audit::uuid( $body['uuid'] ) && true === $body['irreversible'] ); self::label( $body['reason'] );
-		$old = self::find( 'horses', $body['uuid'] ); self::require( $old, 'not_found' );
+		self::require( CSF_Scheduling_Audit::uuid( $body['uuid'] ) && true === $body['irreversible'] );
+		self::label( $body['reason'] );
+		$old = self::find( 'horses', $body['uuid'] );
+		self::require( $old, 'not_found' );
 		self::require( is_int( $body['expected'] ) && (int) $old['revision'] === $body['expected'], 'stale_appointment' );
-		$before = json_decode( $old['body_json'], true ); self::require( $body['confirm_label'] === $before['label'], 'invalid_transition' );
+		$before = json_decode( $old['body_json'], true );
+		self::require( $body['confirm_label'] === $before['label'], 'invalid_transition' );
 		self::require( empty( $before['archived'] ), 'horse_delete_in_use' );
-		try { self::unused_horse_mapping( $old, $before, $before ); }
-		catch ( RuntimeException $e ) { if ( 'horse_mapping_in_use' === $e->getMessage() ) { throw new RuntimeException( 'horse_delete_in_use' ); } throw $e; }
-		// Own setup-edit history is retained. Lifecycle/welfare or unknown history blocks deletion.
-		$history = self::table( 'history' );
-		$used = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$history` WHERE entity_uuid=%s AND COALESCE(JSON_UNQUOTE(JSON_EXTRACT(body_json,'$.kind')),'')<>'horse_saved' LIMIT 1", $body['uuid'] ) );
-		self::require( '' === $wpdb->last_error, 'write_failed' ); self::require( ! $used, 'horse_delete_in_use' );
-		self::require( ! self::find( 'details', $body['uuid'] ) && ! self::find( 'appointments', $body['uuid'] ), 'horse_delete_in_use' );
-		$tombstone = array( 'record_type' => 'horse_tombstone', 'label' => $before['label'], 'reason' => $body['reason'], 'deleted_revision' => $body['expected'] + 1 );
-		self::document( 'details', $body['uuid'], $body['uuid'], $tombstone, 0 );
-		self::document( 'history', wp_generate_uuid4(), $body['uuid'], array( 'kind' => 'horse_deleted', 'before' => $before, 'after' => $tombstone ), 0 );
-		self::require( 1 === $wpdb->delete( self::table( 'horses' ), array( 'id' => (int) $old['id'], 'uuid' => $body['uuid'], 'revision' => $body['expected'] ) ), 'write_failed' );
-		return array( 'uuid' => $body['uuid'], 'entity_revision' => $body['expected'] + 1, 'deleted' => true );
+		try {
+			self::unused_horse_mapping( $old, $before, $before ); } catch ( RuntimeException $e ) {
+			if ( 'horse_mapping_in_use' === $e->getMessage() ) {
+				throw new RuntimeException( 'horse_delete_in_use' );
+			} throw $e; }
+			// Own setup-edit history is retained. Lifecycle/welfare or unknown history blocks deletion.
+			$history = self::table( 'history' );
+			$used    = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$history` WHERE entity_uuid=%s AND COALESCE(JSON_UNQUOTE(JSON_EXTRACT(body_json,'$.kind')),'')<>'horse_saved' LIMIT 1", $body['uuid'] ) );
+			self::require( '' === $wpdb->last_error, 'write_failed' );
+			self::require( ! $used, 'horse_delete_in_use' );
+			self::require( ! self::find( 'details', $body['uuid'] ) && ! self::find( 'appointments', $body['uuid'] ), 'horse_delete_in_use' );
+			$tombstone = array(
+				'record_type'      => 'horse_tombstone',
+				'label'            => $before['label'],
+				'reason'           => $body['reason'],
+				'deleted_revision' => $body['expected'] + 1,
+			);
+			self::document( 'details', $body['uuid'], $body['uuid'], $tombstone, 0 );
+			self::document(
+				'history',
+				wp_generate_uuid4(),
+				$body['uuid'],
+				array(
+					'kind'   => 'horse_deleted',
+					'before' => $before,
+					'after'  => $tombstone,
+				),
+				0
+			);
+		self::require(
+			1 === $wpdb->delete(
+				self::table( 'horses' ),
+				array(
+					'id'       => (int) $old['id'],
+					'uuid'     => $body['uuid'],
+					'revision' => $body['expected'],
+				)
+			),
+			'write_failed'
+		);
+		return array(
+			'uuid'            => $body['uuid'],
+			'entity_revision' => $body['expected'] + 1,
+			'deleted'         => true,
+		);
 	}
 
 	/** Archive/restore without deleting a horse or its related history.
@@ -402,8 +439,23 @@ class CSF_Scheduling_Calendar {
 		$after             = $before;
 		$after['archived'] = $body['archived'];
 		$next              = self::document( 'horses', $body['uuid'], $body['uuid'], $after, $body['expected'] );
-		self::document( 'history', wp_generate_uuid4(), $body['uuid'], array( 'kind' => 'horse_status_saved', 'before' => $before, 'after' => $after, 'reason' => $body['reason'] ), 0 );
-		return array( 'uuid' => $body['uuid'], 'entity_revision' => $next, 'archived' => $body['archived'] );
+		self::document(
+			'history',
+			wp_generate_uuid4(),
+			$body['uuid'],
+			array(
+				'kind'   => 'horse_status_saved',
+				'before' => $before,
+				'after'  => $after,
+				'reason' => $body['reason'],
+			),
+			0
+		);
+		return array(
+			'uuid'            => $body['uuid'],
+			'entity_revision' => $next,
+			'archived'        => $body['archived'],
+		);
 	}
 
 	/** Correct only an unused booking classification; never re-key historical reservations.
@@ -517,8 +569,8 @@ class CSF_Scheduling_Calendar {
 		self::require( ! $old || 'canceled' !== $old['state'], 'invalid_transition' );
 		$previous = self::find( 'details', $b['uuid'] );
 		$before   = $previous ? json_decode( $previous['body_json'], true ) : null;
-		$visit = class_exists( 'CSF_Scheduling_Family_Visit' ) ? CSF_Scheduling_Family_Visit::context( $b['uuid'] ) : null;
-		$visit = $visit ?? ( class_exists( 'CSF_Scheduling_Buffer_Override' ) ? CSF_Scheduling_Buffer_Override::context( $b['uuid'] ) : null );
+		$visit    = class_exists( 'CSF_Scheduling_Family_Visit' ) ? CSF_Scheduling_Family_Visit::context( $b['uuid'] ) : null;
+		$visit    = $visit ?? ( class_exists( 'CSF_Scheduling_Buffer_Override' ) ? CSF_Scheduling_Buffer_Override::context( $b['uuid'] ) : null );
 		self::require( empty( $before['visit_uuid'] ) || ( $visit && $visit['visit_uuid'] === $before['visit_uuid'] ), 'visit_required' );
 		if ( 'appointment_canceled' === $kind ) {
 			self::keys( $b, array( 'uuid', 'expected', 'initiator', 'reason', 'notice', 'effective' ) );
@@ -533,7 +585,13 @@ class CSF_Scheduling_Calendar {
 				'canceled_by'         => get_current_user_id(),
 				'notice_received_utc' => CSF_Scheduling_Time::utc( $notice ),
 			);
-			$detail = array_merge( $before, array( 'state' => 'canceled', 'cancellation' => $b ) );
+			$detail = array_merge(
+				$before,
+				array(
+					'state'        => 'canceled',
+					'cancellation' => $b,
+				)
+			);
 		} else {
 			self::keys( $b, array( 'uuid', 'expected', 'title', 'service_type', 'state', 'start', 'end', 'hold_expires', 'resources', 'riders', 'rides' ) );
 			self::require( ! CSF_Scheduling_Policy::missing( $p ), 'policy_incomplete' );
@@ -675,24 +733,40 @@ class CSF_Scheduling_Calendar {
 			0
 		);
 		return array(
-			'uuid'            => $b['uuid'],
-			'entity_revision' => $next,
-			'state'           => $data['state'],
+			'uuid'                  => $b['uuid'],
+			'entity_revision'       => $next,
+			'state'                 => $data['state'],
 			'resource_reservations' => $detail['resource_reservations'] ?? array(),
-			'notice_before'   => $before ? array_intersect_key( $before, array_flip( array( 'state', 'start', 'end', 'resources' ) ) ) : null,
-			'notice_kind'     => CSF_Scheduling_Notifications::change( $before, array_merge( $detail, array( 'state' => $data['state'] ) ) ),
-			'notice_urgent'   => 'confirmed' === ( $before['state'] ?? null ) && CSF_Scheduling_Notifications::urgent( $before, $detail, time() ),
+			'notice_before'         => $before ? array_intersect_key( $before, array_flip( array( 'state', 'start', 'end', 'resources' ) ) ) : null,
+			'notice_kind'           => CSF_Scheduling_Notifications::change( $before, array_merge( $detail, array( 'state' => $data['state'] ) ) ),
+			'notice_urgent'         => 'confirmed' === ( $before['state'] ?? null ) && CSF_Scheduling_Notifications::urgent( $before, $detail, time() ),
 		);
 	}
 
 	/** New/resaved independent lessons use explicit server-derived 15+15 windows. */
 	private static function independent_windows( $b, $s, $p, $start, $end, $rows ) {
 		$resources = array();
-		$travel = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
+		$travel    = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
 		foreach ( $rows as $uuid => $r ) {
-			$resources[] = array( 'uuid' => $uuid, 'kind' => $r['kind'], 'mandatory_before' => $travel, 'mandatory_after' => $travel, 'shareable' => false );
+			$resources[] = array(
+				'uuid'             => $uuid,
+				'kind'             => $r['kind'],
+				'mandatory_before' => $travel,
+				'mandatory_after'  => $travel,
+				'shareable'        => false,
+			);
 		}
-		$plan = CSF_Scheduling_Visit_Plan::calculate( array( array( 'uuid' => $b['uuid'], 'visit_uuid' => null, 'start' => $start->getTimestamp(), 'end' => $end->getTimestamp(), 'resources' => $resources ) ) );
+		$plan = CSF_Scheduling_Visit_Plan::calculate(
+			array(
+				array(
+					'uuid'       => $b['uuid'],
+					'visit_uuid' => null,
+					'start'      => $start->getTimestamp(),
+					'end'        => $end->getTimestamp(),
+					'resources'  => $resources,
+				),
+			)
+		);
 		return $plan['lessons'][0]['reservations'];
 	}
 
@@ -709,10 +783,10 @@ class CSF_Scheduling_Calendar {
 	/** Buffer envelope must fit actual facility opening instants, including DST. */
 	private static function facility_window( $a, $z, $p ) {
 		$local = $a->setTimezone( new DateTimeZone( $p['timezone'] ) );
-		$open = false;
+		$open  = false;
 		foreach ( $p['service_hours'][ (int) $local->format( 'w' ) ] as $range ) {
 			$window = CSF_Scheduling_Resource_Hours::window( $local->format( 'Y-m-d' ), $range[0], $range[1], $p['timezone'] );
-			$open = $open || ( $window && strtotime( $window['start'] ) <= $a->getTimestamp() && strtotime( $window['end'] ) >= $z->getTimestamp() );
+			$open   = $open || ( $window && strtotime( $window['start'] ) <= $a->getTimestamp() && strtotime( $window['end'] ) >= $z->getTimestamp() );
 		}
 		self::require( $open, 'outside_hours' );
 	}
@@ -951,18 +1025,18 @@ class CSF_Scheduling_Calendar {
 				} catch ( Throwable $error ) {
 					$review = true; }
 				$result[] = array(
-					'uuid'           => $row['uuid'],
-					'title'          => $row['title'],
-					'state'          => $row['state'],
-					'start'          => $d['start'],
-					'end'            => $d['end'],
-					'revision'       => (int) $row['revision'],
-					'rider_cleared'  => $clear,
-					'welfare_review' => $review,
-					'visit_uuid'     => $d['visit_uuid'] ?? null,
+					'uuid'                  => $row['uuid'],
+					'title'                 => $row['title'],
+					'state'                 => $row['state'],
+					'start'                 => $d['start'],
+					'end'                   => $d['end'],
+					'revision'              => (int) $row['revision'],
+					'rider_cleared'         => $clear,
+					'welfare_review'        => $review,
+					'visit_uuid'            => $d['visit_uuid'] ?? null,
 					'resource_reservations' => $d['resource_reservations'] ?? array(),
-					'buffer_overrides' => $d['buffer_overrides'] ?? array(),
-					'hold_expired'   => 'held' === $row['state'] && $row['hold_expires_utc'] <= CSF_Scheduling_Audit::now(),
+					'buffer_overrides'      => $d['buffer_overrides'] ?? array(),
+					'hold_expired'          => 'held' === $row['state'] && $row['hold_expires_utc'] <= CSF_Scheduling_Audit::now(),
 				);
 			}
 			self::$reading = false;

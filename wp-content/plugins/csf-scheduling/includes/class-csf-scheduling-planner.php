@@ -227,10 +227,13 @@ class CSF_Scheduling_Planner {
 					$z      = strtotime( $row['end'] );
 					$active = 'confirmed' === $row['state'] || ( 'held' === $row['state'] && ! $row['hold_expired'] );
 					$travel = $active && ! empty( $p['services'][ $d['service_type'] ]['requires_travel'] ) ? 60 * (int) $p['travel_buffer_minutes'] : 0;
-					$left = $a - $travel; $right = $z + $travel;
+					$left   = $a - $travel;
+					$right  = $z + $travel;
 					if ( $active ) {
 						foreach ( $row['resource_reservations'] ?? array() as $window ) {
-							if ( ! $resource || $resource === $window['resource_uuid'] ) { $left = min( $left, $window['start'] ); $right = max( $right, $window['end'] ); }
+							if ( ! $resource || $resource === $window['resource_uuid'] ) {
+								$left  = min( $left, $window['start'] );
+								$right = max( $right, $window['end'] ); }
 						}
 					}
 					if ( $left < end( $ticks )['stamp'] + 900 && $right > $ticks[0]['stamp'] ) {

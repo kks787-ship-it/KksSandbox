@@ -160,7 +160,8 @@ class CSF_Scheduling_Store {
 
 	/** Reviewed optional-buffer change uses its exact writer and rolls back. */
 	public static function buffer_preview( $body, $revision, $command ) {
-		if ( ! is_array( $body ) || strlen( wp_json_encode( $body ) ) > 4096 ) { return new WP_Error( 'invalid_body', 'Bounded buffer review required.' ); }
+		if ( ! is_array( $body ) || strlen( wp_json_encode( $body ) ) > 4096 ) {
+			return new WP_Error( 'invalid_body', 'Bounded buffer review required.' ); }
 		return self::change( 'buffer_overridden', $body, $revision, $command, true );
 	}
 

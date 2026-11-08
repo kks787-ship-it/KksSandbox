@@ -137,7 +137,8 @@ class CSF_Scheduling_Admin {
 				$resource = CSF_Scheduling_Calendar::find( 'resources', $window['resource_uuid'] );
 				$impact[] = ( $resource['label'] ?? 'Assigned resource' ) . ': ' . ( 'requested' === $body['state'] ? 'planned, not reserved ' : 'reservation if saved ' ) . wp_date( 'M j, H:i P', $window['start'], new DateTimeZone( $p['timezone'] ) ) . '–' . wp_date( 'M j, H:i P', $window['end'], new DateTimeZone( $p['timezone'] ) ) . '; preparation ' . $window['pre_minutes'] . ' min / wrap-up ' . $window['post_minutes'] . ' min.';
 			}
-			if ( empty( $result['resource_reservations'] ) ) { $impact[] = 'No new resource-window snapshot returned. For an already committed command, inspect its saved calendar record.'; }
+			if ( empty( $result['resource_reservations'] ) ) {
+				$impact[] = 'No new resource-window snapshot returned. For an already committed command, inspect its saved calendar record.'; }
 
 			foreach ( $totals as $name => $minutes ) {
 				$impact[] = $name . ': ' . $minutes . ' reserved minutes, including configured travel.'; }

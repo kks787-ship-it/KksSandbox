@@ -275,11 +275,14 @@ class CSF_Scheduling_Resource_UI {
 				foreach ( $ctx['visible_appointments'] ?? array() as $booking ) {
 					if ( 'canceled' === $booking['state'] ) {
 						continue; }
-					$detail      = CSF_Scheduling_Calendar::find( 'details', $booking['uuid'] );
-					$record_body = $detail ? json_decode( $detail['body_json'], true ) : null;
-					$reserve_start = strtotime( $booking['start'] ); $reserve_end = strtotime( $booking['end'] );
+					$detail        = CSF_Scheduling_Calendar::find( 'details', $booking['uuid'] );
+					$record_body   = $detail ? json_decode( $detail['body_json'], true ) : null;
+					$reserve_start = strtotime( $booking['start'] );
+					$reserve_end   = strtotime( $booking['end'] );
 					foreach ( $booking['resource_reservations'] ?? array() as $window ) {
-						if ( $window['resource_uuid'] === $d['target_uuid'] ) { $reserve_start = min( $reserve_start, $window['start'] ); $reserve_end = max( $reserve_end, $window['end'] ); }
+						if ( $window['resource_uuid'] === $d['target_uuid'] ) {
+							$reserve_start = min( $reserve_start, $window['start'] );
+							$reserve_end   = max( $reserve_end, $window['end'] ); }
 					}
 					if ( $record_body && in_array( $d['target_uuid'], $record_body['resources'], true ) && $reserve_start < strtotime( $d['end'] ) && $reserve_end > strtotime( $d['start'] ) ) {
 						echo '<li>' . esc_html( $booking['title'] . ' · ' . CSF_Scheduling_UI::display_time( $booking['start'] ) . '–' . CSF_Scheduling_UI::display_time( $booking['end'] ) ) . '</li>'; }
@@ -391,8 +394,11 @@ class CSF_Scheduling_Resource_UI {
 					if ( strtotime( $d['start'] ) > time() ) {
 						echo '<details><summary>Edit this future closure / series</summary><p>History and reopened dates are preserved. Review all affected bookings before saving.</p>';
 						self::begin( 'resource_closure_edited', $record['uuid'], (int) $record['revision'], (int) $snapshot['revision'], $id );
-						foreach ( array( 'start' => 'Closure starts', 'end' => 'Closure ends' ) as $key => $label ) {
-							$instant = CSF_Scheduling_Time::parse( $d[$key], $p['timezone'] );
+						foreach ( array(
+							'start' => 'Closure starts',
+							'end'   => 'Closure ends',
+						) as $key => $label ) {
+							$instant = CSF_Scheduling_Time::parse( $d[ $key ], $p['timezone'] );
 							self::time( $key, $label, $instant->format( 'Y-m-d\TH:i' ), $instant->format( 'Y-m-d\TH:iP' ), $p['timezone'] );
 						}
 						echo '<label>Category <select name="category"><option value="unavailable">Unavailable / maintenance</option><option value="protected_training" ' . selected( $d['reason'], 'protected_training', false ) . '>Protected training time</option></select></label>';

@@ -276,7 +276,7 @@ class CSF_Scheduling_Resource_Hours {
 			$impact         = self::impact( $entity, $next, $p, true );
 		} elseif ( in_array( $kind, array( 'resource_closure_added', 'resource_closure_edited' ), true ) ) {
 			CSF_Scheduling_Calendar::keys( $d, array( 'target_uuid', 'start', 'end', 'category', 'note', 'repeat_until' ) );
-			$old = CSF_Scheduling_Calendar::find( 'restrictions', $body['uuid'] );
+			$old    = CSF_Scheduling_Calendar::find( 'restrictions', $body['uuid'] );
 			$before = $old ? json_decode( $old['body_json'], true ) : null;
 			if ( 'resource_closure_added' === $kind ) {
 				CSF_Scheduling_Calendar::require( 0 === $body['expected'] && ! $old, 'resource_hours_invalid' );

@@ -90,8 +90,16 @@ class CSF_Scheduling_UI {
 					'emergency_verified' => 'bool',
 				),
 			),
-			'horse_deleted'        => $common + array( 'reason' => 'text', 'confirm_label' => 'text', 'irreversible' => 'bool' ),
-			'horse_status_saved'   => $common + array( 'archived' => 'bool', 'reason' => 'text', 'confirm_label' => 'text' ),
+			'horse_deleted'        => $common + array(
+				'reason'        => 'text',
+				'confirm_label' => 'text',
+				'irreversible'  => 'bool',
+			),
+			'horse_status_saved'   => $common + array(
+				'archived'      => 'bool',
+				'reason'        => 'text',
+				'confirm_label' => 'text',
+			),
 			'horse_saved'          => $common + array(
 				'data' => array(
 					'label'             => 'text',
@@ -208,45 +216,45 @@ class CSF_Scheduling_UI {
 	public static function message( $error ) {
 		$reason   = $error->get_error_data()['reason'] ?? $error->get_error_code();
 		$messages = array(
-			'buffer_future_only' => 'Buffer exceptions must be reviewed before teaching starts; historical reservations cannot be waived retroactively.',
-			'buffer_mandatory' => 'Only optional preparation or wrap-up can be reduced. Teaching, mandatory travel, occupied time and horse welfare remain protected.',
+			'buffer_future_only'       => 'Buffer exceptions must be reviewed before teaching starts; historical reservations cannot be waived retroactively.',
+			'buffer_mandatory'         => 'Only optional preparation or wrap-up can be reduced. Teaching, mandatory travel, occupied time and horse welfare remain protected.',
 			'buffer_snapshot_required' => 'Review and save this lesson with an explicit buffer snapshot before requesting an exception.',
-			'visit_required' => 'Open the family visit to review all surviving lessons and recalculated buffers before saving or canceling.',
-			'visit_state' => 'Every active lesson in a family visit must have the same state and, when held, the same expiry. Review all lessons together.',
-			'visit_members_required' => 'Include every active lesson in this family review; cancel a lesson explicitly rather than omitting it.',
-			'resource_conflict'      => 'Already reserved. Change the horse, instructor, arena or time, then preview again.',
-			'rider_conflict'         => 'This rider already has an appointment. Choose another time.',
-			'outside_hours'          => 'This time is outside facility hours or a resource’s recorded availability. Check availability before continuing.',
-			'resource_hours_invalid' => 'Review the resource date, 15-minute weekly ranges, timezone, reason and repeat end date. Weekly ranges must not overlap; overnight ranges must be split across days.',
+			'visit_required'           => 'Open the family visit to review all surviving lessons and recalculated buffers before saving or canceling.',
+			'visit_state'              => 'Every active lesson in a family visit must have the same state and, when held, the same expiry. Review all lessons together.',
+			'visit_members_required'   => 'Include every active lesson in this family review; cancel a lesson explicitly rather than omitting it.',
+			'resource_conflict'        => 'Already reserved. Change the horse, instructor, arena or time, then preview again.',
+			'rider_conflict'           => 'This rider already has an appointment. Choose another time.',
+			'outside_hours'            => 'This time is outside facility hours or a resource’s recorded availability. Check availability before continuing.',
+			'resource_hours_invalid'   => 'Review the resource date, 15-minute weekly ranges, timezone, reason and repeat end date. Weekly ranges must not overlap; overnight ranges must be split across days.',
 			'closure_edit_future_only' => 'Only closures that have not started can be edited. Preserve prior occurrences with reviewed reopening and a new future closure.',
-			'resource_impact_limit'  => 'More than 2,000 future appointments need review. Ask the operator to narrow the resource change before saving.',
-			'service_in_use'         => 'This lesson type has protected booking history. Reconcile future bookings or choose a new lesson type before changing its rules.',
-			'horse_mapping_in_use'   => 'This horse or its old/new school resource has appointment, reservation or protective-block history. Its classification was not changed. Used-horse remapping requires a separate reviewed migration; do not delete records to bypass this protection.',
-			'horse_deleted'          => 'This horse UUID was deleted as an unused setup mistake and cannot be recreated. Its audit history is retained.',
-			'horse_delete_in_use'    => 'This horse has booking, reservation, protection or lifecycle dependencies. Delete is blocked; use Archive and retain its history.',
-			'horse_archived'         => 'This horse is archived and cannot be booked. An authorized manager must review and restore it first.',
-			'horse_future_bookings'  => 'This horse has future requests, holds or confirmed lessons. Review and reconcile those appointments before changing archive status. Nothing was canceled or reassigned.',
-			'horse_unsafe'           => 'The horse or its resource may be inactive, or suitability is missing. Review the horse’s resource, approved riders and services.',
-			'welfare_conflict'       => 'A protective block, workload limit or required horse break prevents this schedule. Review welfare and ride times.',
-			'capacity'               => 'The service capacity or training enrollment limit is exceeded. Reduce the roster or review the approved policy.',
-			'policy_incomplete'      => 'Facility policy is incomplete. Ask the pilot operator to finish approved settings before scheduling.',
-			'stale_revision'         => 'Someone changed the calendar. Your draft is retained. Review the latest calendar, then preview the draft again.',
-			'stale_appointment'      => 'This record changed. Your draft is retained; compare it with the current record before making a new edit.',
-			'commit_unknown'         => 'The save result is uncertain. Do not create another appointment. Retry the original command below to recover its result.',
-			'ambiguous_time'         => 'This time occurs twice when clocks go back. Choose the first or second occurrence.',
-			'nonexistent_time'       => 'This local time does not exist when clocks go forward. Choose another time.',
-			'booking_busy'           => 'The slot check took too long. Keep your draft and check starts again.',
-			'lesson_service'         => 'Choose an enabled lesson type with a duration in 15-minute increments.',
-			'lesson_grid'            => 'Choose a start on the 15-minute grid.',
-			'lesson_start'           => 'Choose a date and an available start slot.',
-			'lesson_rider'           => 'Choose the rider for this lesson.',
-			'lesson_horse'           => 'Choose a suitable horse, or use Advanced rotation for multiple horse turns.',
-			'lesson_resource'        => 'Choose every required instructor, arena or location before selecting a start.',
-			'hold_expiry'            => 'For a held appointment, choose its actual expiry before the lesson and within 24 hours.',
-			'service_duration'       => 'The finish must match the selected lesson type duration. Recheck the service and calculated finish.',
-			'invalid_time'           => 'Check local dates, service duration, hold expiry and cancellation notice. Times must be valid in the facility timezone.',
-			'forbidden'              => 'Your scheduling permission does not allow this action.',
-			'invalid_transition'     => 'This appointment cannot change to that state. Canceled appointments stay in history.',
+			'resource_impact_limit'    => 'More than 2,000 future appointments need review. Ask the operator to narrow the resource change before saving.',
+			'service_in_use'           => 'This lesson type has protected booking history. Reconcile future bookings or choose a new lesson type before changing its rules.',
+			'horse_mapping_in_use'     => 'This horse or its old/new school resource has appointment, reservation or protective-block history. Its classification was not changed. Used-horse remapping requires a separate reviewed migration; do not delete records to bypass this protection.',
+			'horse_deleted'            => 'This horse UUID was deleted as an unused setup mistake and cannot be recreated. Its audit history is retained.',
+			'horse_delete_in_use'      => 'This horse has booking, reservation, protection or lifecycle dependencies. Delete is blocked; use Archive and retain its history.',
+			'horse_archived'           => 'This horse is archived and cannot be booked. An authorized manager must review and restore it first.',
+			'horse_future_bookings'    => 'This horse has future requests, holds or confirmed lessons. Review and reconcile those appointments before changing archive status. Nothing was canceled or reassigned.',
+			'horse_unsafe'             => 'The horse or its resource may be inactive, or suitability is missing. Review the horse’s resource, approved riders and services.',
+			'welfare_conflict'         => 'A protective block, workload limit or required horse break prevents this schedule. Review welfare and ride times.',
+			'capacity'                 => 'The service capacity or training enrollment limit is exceeded. Reduce the roster or review the approved policy.',
+			'policy_incomplete'        => 'Facility policy is incomplete. Ask the pilot operator to finish approved settings before scheduling.',
+			'stale_revision'           => 'Someone changed the calendar. Your draft is retained. Review the latest calendar, then preview the draft again.',
+			'stale_appointment'        => 'This record changed. Your draft is retained; compare it with the current record before making a new edit.',
+			'commit_unknown'           => 'The save result is uncertain. Do not create another appointment. Retry the original command below to recover its result.',
+			'ambiguous_time'           => 'This time occurs twice when clocks go back. Choose the first or second occurrence.',
+			'nonexistent_time'         => 'This local time does not exist when clocks go forward. Choose another time.',
+			'booking_busy'             => 'The slot check took too long. Keep your draft and check starts again.',
+			'lesson_service'           => 'Choose an enabled lesson type with a duration in 15-minute increments.',
+			'lesson_grid'              => 'Choose a start on the 15-minute grid.',
+			'lesson_start'             => 'Choose a date and an available start slot.',
+			'lesson_rider'             => 'Choose the rider for this lesson.',
+			'lesson_horse'             => 'Choose a suitable horse, or use Advanced rotation for multiple horse turns.',
+			'lesson_resource'          => 'Choose every required instructor, arena or location before selecting a start.',
+			'hold_expiry'              => 'For a held appointment, choose its actual expiry before the lesson and within 24 hours.',
+			'service_duration'         => 'The finish must match the selected lesson type duration. Recheck the service and calculated finish.',
+			'invalid_time'             => 'Check local dates, service duration, hold expiry and cancellation notice. Times must be valid in the facility timezone.',
+			'forbidden'                => 'Your scheduling permission does not allow this action.',
+			'invalid_transition'       => 'This appointment cannot change to that state. Canceled appointments stay in history.',
 		);
 		$text     = $messages[ $reason ] ?? 'The command was not accepted. Review required fields and refresh before trying again.';
 		$detail   = $error->get_error_data()['detail'] ?? null;
@@ -426,7 +434,8 @@ class CSF_Scheduling_UI {
 	 * @param string $id Form identity.
 	 */
 	public static function appointment( $body, $ctx, $id = '' ) {
-		if ( ! empty( $body['buffer_overrides'] ) ) { echo '<p>Saving this lesson restores standard buffers. Any new exception needs a separate review; prior approvals remain in history.</p>'; }
+		if ( ! empty( $body['buffer_overrides'] ) ) {
+			echo '<p>Saving this lesson restores standard buffers. Any new exception needs a separate review; prior approvals remain in history.</p>'; }
 		unset( $body['resource_reservations'], $body['buffer_overrides'] ); // Saved evidence is never accepted as client authority.
 
 		if ( $body['expected'] && ! isset( $ctx['services'][ $body['service_type'] ] ) ) {
@@ -588,9 +597,9 @@ class CSF_Scheduling_UI {
 				);
 				self::select( 'resource_uuid', 'School horse availability resource (school horses only)', array( '' => 'No school resource for client-owned horse' ) + $ctx['school_resources'], $d['resource_uuid'] ); } else {
 				echo '<p>' . esc_html( ucfirst( $d['source'] ) . ' booking classification · resource-management permission required to change' ) . '</p>'; }
-			if ( $body['expected'] ) {
-				echo '<p>Correct an unused entry by reviewing its booking classification and school resource above, then saving. The horse identity and edit history are preserved. Any appointment, reservation or protective-block history blocks remapping; no existing booking or welfare record is rewritten.</p>';
-			}
+				if ( $body['expected'] ) {
+					echo '<p>Correct an unused entry by reviewing its booking classification and school resource above, then saving. The horse identity and edit history are preserved. Any appointment, reservation or protective-block history blocks remapping; no existing booking or welfare record is rewritten.</p>';
+				}
 				self::checks( 'suitable_services', 'Approved services', $ctx['all_services'] ?? $ctx['services'], $d['suitable_services'] );
 				self::checks( 'suitable_riders', 'Approved riders', $ctx['riders'], $d['suitable_riders'] );
 				self::input( 'training_enrolled', 'Enrolled in full training (counts toward facility cap)', $d['training_enrolled'], 'checkbox', ! CSF_Scheduling_Access::can( 'resource_manage' ) );
@@ -735,16 +744,37 @@ class CSF_Scheduling_UI {
 		$label   = $horse['data']['label'];
 		echo '<details><summary>' . esc_html( ( $archive ? 'Archive horse: ' : 'Restore horse: ' ) . $label ) . '</summary>';
 		echo '<p>' . esc_html( $archive ? 'Archive keeps this horse and its history, removes it from new booking choices and active training counts, and does not cancel any appointment. Future appointments must be reconciled first.' : 'Restore rechecks the resource, recorded suitability, active training cap and current protective blocks. Future bookings must still pass all normal availability and welfare checks.' ) . '</p>';
-		self::begin( 'horse_status_saved', array( 'uuid' => $horse['uuid'], 'expected' => (int) $horse['revision'], 'archived' => $archive, 'reason' => '', 'confirm_label' => '' ) );
+		self::begin(
+			'horse_status_saved',
+			array(
+				'uuid'          => $horse['uuid'],
+				'expected'      => (int) $horse['revision'],
+				'archived'      => $archive,
+				'reason'        => '',
+				'confirm_label' => '',
+			)
+		);
 		self::input( 'reason', 'Reason for this change (no medical details)' );
 		self::input( 'confirm_label', 'Type the horse name to confirm: ' . $label );
 		self::end( $archive ? 'Archive this horse' : 'Restore this horse' );
 		echo '</details>';
 		if ( $archive ) {
 			echo '<details><summary>Delete mistaken unused entry: ' . esc_html( $label ) . '</summary><p>Irreversible removal from the horse roster. All appointment, resource, protective-block and history dependencies are checked under the booking lock. Existing audit/history and a UUID tombstone remain; the associated resource is not deleted. Used horses must be archived instead.</p>';
-			self::begin( 'horse_deleted', array( 'uuid' => $horse['uuid'], 'expected' => (int) $horse['revision'], 'reason' => '', 'confirm_label' => '', 'irreversible' => false ) );
-			self::input( 'reason', 'Why this entry was a setup mistake' ); self::input( 'confirm_label', 'Type the exact horse name: ' . $label ); self::input( 'irreversible', 'I understand this unused entry will be permanently removed; it cannot be restored through Archive / Restore', false, 'checkbox' );
-			self::end( 'Permanently delete this unused entry' ); echo '</details>';
+			self::begin(
+				'horse_deleted',
+				array(
+					'uuid'          => $horse['uuid'],
+					'expected'      => (int) $horse['revision'],
+					'reason'        => '',
+					'confirm_label' => '',
+					'irreversible'  => false,
+				)
+			);
+			self::input( 'reason', 'Why this entry was a setup mistake' );
+			self::input( 'confirm_label', 'Type the exact horse name: ' . $label );
+			self::input( 'irreversible', 'I understand this unused entry will be permanently removed; it cannot be restored through Archive / Restore', false, 'checkbox' );
+			self::end( 'Permanently delete this unused entry' );
+			echo '</details>';
 		}
 	}
 
@@ -890,7 +920,8 @@ class CSF_Scheduling_UI {
 				foreach ( $d['rides'] as $ride ) {
 					echo '<li>' . esc_html( ( $ctx['riders'][ $ride['rider'] ?? '' ] ?? 'Rider details restricted' ) . ' · ' . ( $ctx['horses'][ $ride['horse'] ] ?? 'Unknown horse' ) . ' · ' . self::display_time( $ride['start'] ) . '–' . self::display_time( $ride['end'] ) ) . '</li>'; }
 				echo '</ul>';
-				if ( 'canceled' !== $row['state'] && CSF_Scheduling_Access::can( 'appointment_edit' ) ) { echo '<a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', empty( $d['visit_uuid'] ) ? array( 'from_lesson' => $row['uuid'] ) : array( 'visit' => $d['visit_uuid'] ) ) ) . '">Book another lesson for this family</a>'; }
+				if ( 'canceled' !== $row['state'] && CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
+					echo '<a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', empty( $d['visit_uuid'] ) ? array( 'from_lesson' => $row['uuid'] ) : array( 'visit' => $d['visit_uuid'] ) ) ) . '">Book another lesson for this family</a>'; }
 				if ( CSF_Scheduling_Access::can( 'appointment_edit' ) && CSF_Scheduling_Access::can( 'calendar_all' ) ) {
 					$copy                 = $d;
 					$copy['title']        = 'Copy of ' . $d['title'];
@@ -906,9 +937,10 @@ class CSF_Scheduling_UI {
 					echo '<button type="button" class="button csf-planner-duplicate" data-copy-kind="' . ( CSF_Scheduling_Booking::simple( $d ) ? 'routine' : 'advanced' ) . '" data-copy="' . esc_attr( wp_json_encode( $copy ) ) . '">Duplicate as a new requested lesson</button>';
 				}
 				if ( ! empty( $d['resource_reservations'] ) ) {
-					if ( ! empty( $d['visit_uuid'] ) ) { echo '<p><a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', array( 'visit' => $d['visit_uuid'] ) ) ) . '">Open family visit / edit or cancel together</a></p>'; }
+					if ( ! empty( $d['visit_uuid'] ) ) {
+						echo '<p><a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', array( 'visit' => $d['visit_uuid'] ) ) ) . '">Open family visit / edit or cancel together</a></p>'; }
 					foreach ( $d['resource_reservations'] ?? array() as $window ) {
-						echo '<p>' . esc_html( ( $ctx['resources'][$window['resource_uuid']] ?? 'Assigned resource' ) . ' · ' . ( 'canceled' === $row['state'] ? 'Previous reservation: ' : ( 'confirmed' === $row['state'] || ( 'held' === $row['state'] && ! $row['hold_expired'] ) ? 'Reserved: ' : 'Planned, not reserved: ' ) ) . wp_date( 'Y-m-d H:i P', $window['start'], new DateTimeZone( $p['timezone'] ) ) . '–' . wp_date( 'H:i P', $window['end'], new DateTimeZone( $p['timezone'] ) ) . ' · preparation ' . $window['pre_minutes'] . ' min / wrap-up ' . $window['post_minutes'] . ' min' ) . '</p>';
+						echo '<p>' . esc_html( ( $ctx['resources'][ $window['resource_uuid'] ] ?? 'Assigned resource' ) . ' · ' . ( 'canceled' === $row['state'] ? 'Previous reservation: ' : ( 'confirmed' === $row['state'] || ( 'held' === $row['state'] && ! $row['hold_expired'] ) ? 'Reserved: ' : 'Planned, not reserved: ' ) ) . wp_date( 'Y-m-d H:i P', $window['start'], new DateTimeZone( $p['timezone'] ) ) . '–' . wp_date( 'H:i P', $window['end'], new DateTimeZone( $p['timezone'] ) ) . ' · preparation ' . $window['pre_minutes'] . ' min / wrap-up ' . $window['post_minutes'] . ' min' ) . '</p>';
 					}
 				}
 				if ( CSF_Scheduling_Access::writer() && 'canceled' !== $row['state'] && empty( $d['visit_uuid'] ) ) {
