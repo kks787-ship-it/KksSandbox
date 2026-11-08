@@ -16,6 +16,9 @@ root=pathlib.Path(sys.argv[1]);pin='6f5a9bf51747399a309b39637a135841fe4cf2a1'
 for row in (root/'docs/test-results/scheduling-staff-files.sha256').read_text().splitlines():
  digest,path=row.split();data=subprocess.check_output(['git','-C',str(root),'show',pin+':'+path]);assert hashlib.sha256(data).hexdigest()==digest
  target=root/'.wp-local/permissions-v2-source'/path;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+source=subprocess.check_output(['git','-C',str(root),'show','22657b84d192b91bc364553794e4aba9e7ccd1f2:wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-schema.php']).decode()
+assert source.count('class CSF_Scheduling_Schema {')==1
+(root/'.wp-local/lifecycle-v3-schema.php').write_text(source.replace('class CSF_Scheduling_Schema {','class CSF_Scheduling_Schema_V3_Fixture {'))
 PYV2
 STAMP="csf-foundation-$$"
 cleanup(){ "${D[@]}" rm -f "$STAMP-web" "$STAMP-db" >/dev/null 2>&1 || true; "${D[@]}" volume rm "$STAMP-site" >/dev/null 2>&1 || true; "${D[@]}" network rm "$STAMP-net" >/dev/null 2>&1 || true; }
@@ -26,6 +29,9 @@ else
  "${D[@]}" build -q --build-arg "CSF_TEST_PHP_VERSION=$CSF_PHP_VERSION" -t "$PHP_IMAGE" "$ROOT/tests/scheduling"
 fi
 "${D[@]}" run --rm --network none "$PHP_IMAGE" php -r 'echo "CALENDAR_TEST_PHP=".PHP_VERSION."\n";'
+# Keep coding standards mandatory, but collect independent database evidence even when lint fails.
+LINT_STATUS=0
+"${D[@]}" run --rm --network none -v "$ROOT:/repo:ro" "$PHP_IMAGE" php /repo/vendor/bin/phpcs --standard=/repo/phpcs.xml.dist /repo/wp-content/plugins/csf-scheduling || LINT_STATUS=$?
 "${D[@]}" network create --internal "$STAMP-net" >/dev/null
 "${D[@]}" volume create "$STAMP-site" >/dev/null
 "${D[@]}" run -d --name "$STAMP-db" --network "$STAMP-net" --network-alias fixture-db --tmpfs /var/lib/mysql -e MYSQL_ROOT_PASSWORD=fixture-only -e MYSQL_ROOT_HOST=% -e MYSQL_DATABASE=csf_fixture "${CSF_TEST_DB_IMAGE:-mariadb:10.6}" >/dev/null
@@ -42,6 +48,7 @@ PHP=("${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=
 "${D[@]}" exec "$STAMP-db" sh -c 'DUMP=$(command -v mariadb-dump || command -v mysqldump); "$DUMP" -uroot -pfixture-only --single-transaction csf_fixture > /tmp/before-v2.sql'
 "${PHP[@]}" -e CSF_TEST_PHASE=calendar "$PHP_IMAGE" bash /repo/tests/scheduling/container.sh
 # The web fixture is bound to loopback only, never publicly served.
+BROWSER_STATUS=0
 if [[ "${CSF_TEST_BROWSER:-0}" == 1 ]]; then
  exec 9>"$ROOT/.wp-local/browser-relay.lock"
  flock 9
@@ -50,8 +57,8 @@ if [[ "${CSF_TEST_BROWSER:-0}" == 1 ]]; then
   if "${D[@]}" exec "$STAMP-web" php -r '$s=@fsockopen("127.0.0.1",8899);if(!$s){exit(1);}fclose($s);' >/dev/null 2>&1; then break; fi
   sleep .2
  done
- CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/browser.js"
- CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/permissions-browser.js"
+ CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/browser.js" || BROWSER_STATUS=$?
+ CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/permissions-browser.js" || BROWSER_STATUS=$?
  "${D[@]}" rm -f "$STAMP-web" >/dev/null
  flock -u 9
 fi
@@ -68,3 +75,7 @@ fi
 
 "${D[@]}" exec "$STAMP-db" sh -c 'DB=$(command -v mariadb || command -v mysql); for name in settings resources appointments allocations commands audit riders horses availability restrictions details history slots participants authorization; do "$DB" -uroot -pfixture-only csf_fixture -e "DROP TABLE IF EXISTS fixture_csf_sched_$name"; done; "$DB" -uroot -pfixture-only csf_fixture < /tmp/before-foundation.sql'
 "${PHP[@]}" "$PHP_IMAGE" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'global $wpdb; if (DB_NAME!=="csf_fixture" || is_plugin_active("csf-scheduling/csf-scheduling.php") || $wpdb->get_var("SHOW TABLES LIKE \"fixture_csf_sched_%\"") || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_value LIKE \"%csf_schedule_%\" OR meta_value LIKE \"%csf_dr_%\"")!=0) { WP_CLI::error("Fixture restore mismatch"); } echo "LOGICAL_BACKUP_RESTORE_PASS\n";'
+
+# A successful database run never turns a failed coding-standard gate green.
+if [[ "$LINT_STATUS" != 0 ]]; then exit "$LINT_STATUS"; fi
+exit "$BROWSER_STATUS"

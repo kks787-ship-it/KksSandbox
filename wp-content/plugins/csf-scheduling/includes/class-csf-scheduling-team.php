@@ -214,7 +214,7 @@ class CSF_Scheduling_Team {
 					echo '</fieldset></details>';
 				}$current = $spec[0];
 				echo '<details open><summary>' . esc_html( $current ) . '</summary><fieldset><legend class="screen-reader-text">' . esc_html( $current ) . ' permissions</legend>';}
-			$default  = $id === $s['master'] || in_array( $p, $s['groups'][ $member['group'] ]['permissions'], true );
+			$default  = ( 'buffer_override' !== $p && $id === $s['master'] ) || in_array( $p, $s['groups'][ $member['group'] ]['permissions'], true );
 			$override = $member['overrides'][ $p ] ?? 'inherit';
 			$yes      = 'deny' !== $override && ( 'grant' === $override || $default );
 			echo '<div class="csf-permission" data-default="' . ( $default ? '1' : '0' ) . '" data-mfa="' . ( $mfa ? '1' : '0' ) . '" data-active="' . ( ! empty( $member['active'] ) ? '1' : '0' ) . '" data-verified="' . ( ! empty( $member['verified'] ) ? '1' : '0' ) . '"><label><input type="checkbox" ' . ( $group_mode ? 'name="permissions[]" value="' . esc_attr( $p ) . '"' : 'data-effective' ) . ' ' . checked( $yes, true, false ) . ( $editable ? '' : ' disabled' ) . '> ' . esc_html( $spec[1] ) . '</label>';

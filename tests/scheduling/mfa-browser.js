@@ -29,7 +29,7 @@ async function fresh(browser,user='fixture_operator',id=1,remember=false){cli(`d
 async function backup(page,value){await page.locator('a').filter({hasText:/backup|recovery/i}).first().click();await submitTotp(page,value);}
 const snapshot=()=>cli('global$wpdb;$o=[];foreach(CSF_Scheduling_Schema::definitions()as$n=>$d){$t=CSF_Scheduling_Schema::table($n);$o[$n]=$wpdb->get_results("SELECT * FROM `$t` ORDER BY 1",ARRAY_A);}echo hash("sha256",wp_json_encode($o));');
 (async()=>{
- await new Promise(resolve=>relay.listen(8899,'127.0.0.1',resolve));const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+ await new Promise(resolve=>relay.listen(8899,'127.0.0.1',resolve));const browser=await chromium.launch({executablePath:process.env.CSF_TEST_CHROMIUM || '/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
  const createContext=browser.newContext.bind(browser);browser.newContext=async(...args)=>{const c=await createContext(...args);c.on('page',p=>{track(p);p.on('pageerror',e=>{errors.push(e.message);console.error('SCRIPT_DIAGNOSTIC',e.message);});p.on('requestfailed',r=>{if(r.failure()?.errorText!=='net::ERR_ABORTED')console.error('TRANSPORT_DIAGNOSTIC',r.failure()?.errorText,new URL(r.url()).pathname);});});await c.route('**/*',r=>new URL(r.request().url()).origin===base?r.continue():r.abort());return c;};
  try{
  const fixture=JSON.parse(cli('echo file_get_contents("/test/mfa-private.json");'));const before=snapshot();const a=await browser.newContext();const page=await a.newPage();await page.route('**/*',r=>new URL(r.request().url()).origin===base?r.continue():r.abort());

@@ -107,3 +107,24 @@ class SchedulingRecovery(unittest.TestCase):
         names={x['table'] for x in self.catalog()['columns']}
         for extra in ("SET SQL_MODE='NO_BACKSLASH_ESCAPES';",'SET @x=(SELECT 1);','INSERT INTO TXGEh_users SELECT * FROM TXGEh_users;','ALTER TABLE TXGEh_users RENAME TO TXGEh_outside;'):
             with self.assertRaises(r.Failure):r.validate_sql(b,io.StringIO(self.dump(names)+extra),names)
+
+    def test_schema_four_preserves_full_and_damaged_sets(self):
+        phase=b.schema_contract()['phase']
+        self.assertEqual('scheduling_v4',phase(self.catalog(15,4)))
+        self.assertEqual('damaged_scheduling_v4',phase(self.catalog(14,4)))
+        self.assertEqual(27,b.load_generator()(self.catalog(15,4)).count("'key_hash'"))
+        self.assertNotEqual(b.schema_digest(self.catalog(15,3)),b.schema_digest(self.catalog(15,4)))
+
+    def test_unknown_or_malformed_versions_never_qualify(self):
+        for version in (5,'4',4.0,True,None):
+            self.assertEqual('partial_migration',b.schema_contract()['phase'](self.catalog(15,version)))
+        c=self.catalog(15,4);c['scheduling']['settings_rows']=2
+        self.assertEqual('partial_migration',b.schema_contract()['phase'](c))
+
+    def test_schema_four_capture_expectation_cannot_accept_preinstall(self):
+        f=fixture.Fixture();f.setUp()
+        try:
+            f.v['expected_phase']='scheduling_v4'
+            self.assertEqual('incomplete',f.capture()['state'])
+            self.assertFalse((f.bundle()/'database.sql.gz').exists())
+        finally:f.doCleanups()

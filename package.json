@@ -7,6 +7,7 @@
     "test:e2e:screenshots": "node tests/e2e/run.js --screenshots"
   },
   "devDependencies": {
-    "axe-core": "4.10.3"
+    "axe-core": "4.10.3",
+    "playwright": "1.65.0"
   }
 }

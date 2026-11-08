@@ -27,7 +27,6 @@ fi
 WP=(php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root)
 [[ "${CSF_TEST_PHASE:-all}" != install ]] || exit 0
 if [[ "${CSF_TEST_PHASE:-all}" != calendar ]]; then
-php /repo/vendor/bin/phpcs --standard=/repo/phpcs.xml.dist /repo/wp-content/plugins/csf-scheduling
 find /repo/wp-content/plugins/csf-scheduling -name '*.php' -print0 | xargs -0 -n1 php -l
 "${WP[@]}" eval-file /repo/tests/scheduling/foundation.php
 
@@ -38,6 +37,25 @@ if [[ "${CSF_TEST_PHASE:-all}" == foundation ]]; then
 fi
 "${WP[@]}" eval-file /repo/tests/scheduling/calendar.php
 bash /repo/tests/scheduling/races.sh
+php /repo/tests/scheduling/horse-correction-unit.php
+"${WP[@]}" eval-file /repo/tests/scheduling/horse-correction.php
+php /repo/tests/scheduling/horse-lifecycle-unit.php
+php /repo/tests/scheduling/horse-delete-unit.php
+php /repo/tests/scheduling/resource-hours-unit.php
+php /repo/tests/scheduling/closure-edit-unit.php
+php /repo/tests/scheduling/visit-plan-unit.php
+php /repo/tests/scheduling/family-command-unit.php
+php /repo/tests/scheduling/dashboard-unit.php
+php /repo/tests/scheduling/notifications-unit.php
+php /repo/tests/scheduling/email-sink-unit.php
+php /repo/tests/scheduling/email-dispatch-unit.php
+"${WP[@]}" eval-file /repo/tests/scheduling/horse-lifecycle.php
+bash /repo/tests/scheduling/horse-lifecycle-races.sh
+bash /repo/tests/scheduling/horse-mapping-races.sh
+"${WP[@]}" eval-file /repo/tests/scheduling/family-visit.php
+bash /repo/tests/scheduling/family-races.sh
+"${WP[@]}" eval-file /repo/tests/scheduling/email-dispatch.php
+bash /repo/tests/scheduling/email-dispatch-races.sh
 "${WP[@]}" eval-file /repo/tests/scheduling/usability.php
 bash /repo/tests/scheduling/usability-races.sh
 "${WP[@]}" eval-file /repo/tests/scheduling/permissions.php

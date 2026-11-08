@@ -1,6 +1,7 @@
 /* Private staff forms. No dates or booking decisions are trusted to the browser. */
 'use strict';
 (() => {
+ document.querySelectorAll('select[name=visit_state]').forEach(select=>{const panel=select.form.querySelector('[data-csf-family-expiry]');if(!panel)return;const update=()=>{panel.hidden=select.value!=='held';panel.querySelectorAll('input').forEach(input=>{input.disabled=panel.hidden;});};select.addEventListener('change',update);update();});
  const config=window.CSFStaff;
  if(!config)return;
  const clone=x=>JSON.parse(JSON.stringify(x));

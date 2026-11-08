@@ -35,6 +35,7 @@ if [[ "${CSF_TEST_NATIVE_MAIL_ONLY:-0}" == 1 ]]; then
  for native_case in preview dispatch wrong_binding no_approval unexpected_sender_hook unexpected_recipient_hook wrong_sapi preview_case dispatch_case; do
   "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" -e CSF_TEST_NATIVE_CASE="$native_case" "$PHP_IMAGE" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/native-mail-runtime.php
  done
+ "${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=/repo,readonly" --mount "type=volume,src=$STAMP-site,dst=/test" "$PHP_IMAGE" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval-file /repo/tests/scheduling/email-wp-mail.php
  exit 0
 fi
 if [[ "${CSF_TEST_PROVIDER_POLICY_ONLY:-0}" == 1 ]]; then

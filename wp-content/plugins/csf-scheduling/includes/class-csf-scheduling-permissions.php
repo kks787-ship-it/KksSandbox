@@ -21,6 +21,7 @@ class CSF_Scheduling_Permissions {
 			'calendar_assigned'   => array( 'Scheduling', 'View assigned calendar appointments' ),
 			'appointment_edit'    => array( 'Scheduling', 'Create and edit requested/held appointments' ),
 			'appointment_confirm' => array( 'Scheduling', 'Confirm and edit confirmed appointments' ),
+			'buffer_override'     => array( 'Scheduling', 'Approve a reasoned optional buffer exception (separate explicit grant)' ),
 			'appointment_cancel'  => array( 'Scheduling', 'Cancel appointments, including confirmed' ),
 			'rider_view'          => array( 'Riders', 'View permitted rider records' ),
 			'rider_edit'          => array( 'Riders', 'Edit rider identity records' ),
@@ -145,7 +146,7 @@ class CSF_Scheduling_Permissions {
 		if ( ! $m || ! $m['active'] || ! $m['verified'] ) {
 			return $out; }
 		foreach ( $out as $p => $v ) {
-			$default   = $id === $s['master'] || in_array( $p, $s['groups'][ $m['group'] ]['permissions'], true );
+			$default   = ( 'buffer_override' !== $p && $id === $s['master'] ) || in_array( $p, $s['groups'][ $m['group'] ]['permissions'], true );
 			$out[ $p ] = 'deny' !== ( $m['overrides'][ $p ] ?? null ) && ( 'grant' === ( $m['overrides'][ $p ] ?? null ) || $default );
 		}
 		return $out;
@@ -212,15 +213,29 @@ class CSF_Scheduling_Permissions {
 	public static function authorize( $kind, $b ) {
 		try {
 			global $wpdb;
+			if ( 'email_sink_transition' === $kind ) {
+				return class_exists( 'CSF_Scheduling_Email_Dispatch', false ) && CSF_Scheduling_Email_Dispatch::authorize();
+			}
 			if ( in_array( $kind, CSF_Scheduling_Identity::COMMANDS, true ) ) {
 				return CSF_Scheduling_Identity::authorize( $kind, $b ); }
 			if ( in_array( $kind, CSF_Scheduling_Resource_Hours::COMMANDS, true ) ) {
 				return CSF_Scheduling_Resource_Hours::authorize( $kind, $b ); }
+			if ( 'buffer_overridden' === $kind ) {
+				return CSF_Scheduling_Buffer_Override::authorize( $b );
+			}
+			if ( 'notice_acknowledged' === $kind ) {
+				return CSF_Scheduling_Notifications::authorize( $b );
+			}
+			if ( 'family_visit_saved' === $kind ) {
+				return CSF_Scheduling_Family_Visit::authorize( $b );
+			}
 			$map = array(
 				'policy_replaced'      => 'policy_manage',
 				'resource_created'     => 'resource_manage',
 				'resource_saved'       => 'resource_manage',
 				'horse_saved'          => 'suitability_manage',
+				'horse_status_saved'   => 'resource_manage',
+				'horse_deleted'        => 'resource_manage',
 				'rider_saved'          => 'rider_edit',
 				'availability_saved'   => 'availability_manage',
 				'restriction_added'    => 'welfare_hold',

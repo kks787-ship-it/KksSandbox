@@ -1,6 +1,6 @@
 """Reviewed pure metadata-to-SELECT generator; no DB/network/capture/restore calls.
 
-Exact native12 plus reviewed schema-v3 scheduling15; partial DDL is preserved, never skipped.
+Exact native12 plus reviewed schema-v3/v4 scheduling15; partial DDL is preserved, never skipped.
 Feed approved private catalog JSON; send emitted SQL to one read-only client connection later.
 """
 import json
@@ -26,7 +26,8 @@ def phase(catalog):
     marker=catalog.get("scheduling",{})
     version=marker.get("version"); count=marker.get("settings_rows",0)
     if not present:return "pre_scheduling"
-    if version==3 and count==1:return "scheduling_v3" if len(present)==15 else "damaged_scheduling_v3"
+    if type(version) is int and version in (3,4) and type(count) is int and count==1:
+        return "scheduling_v"+str(version) if len(present)==15 else "damaged_scheduling_v"+str(version)
     return "partial_migration"
 
 

@@ -228,3 +228,91 @@ Next: separately approve a pinned scheduling-only protected pilot, then Beth/Kri
 workflow acceptance with synthetic records. Initial real policy/resources, staff IDs and MFA
 remain owner/operator decisions. Only after usability/pilot acceptance should Sprint #10
 household onboarding and versioned digital agreement work connect to existing rider UUIDs.
+
+### November 8 continuation — local 0.4.16-dev, not released
+
+The current approved native-calendar work supersedes the historical next-sprint
+paragraph above. Household onboarding/agreements remain later scope; payments,
+public/emergency booking and real messaging remain held. The continuation branch
+`codex/digital-ranch-continuation` is based on takeover-audit
+`22657b84d192b91bc364553794e4aba9e7ccd1f2`.
+
+Local increments now implement unused-horse classification correction and guarded
+archive/restore; atomic confirmed family visits with native all-item review and
+shared buffers; independent standard buffers; private weekly dashboard and durable
+in-app notices/acknowledgements; future closure editing using actual allocation
+impact; and explicitly granted optional-buffer exceptions. Recurring instructor
+and arena hours/closures already existed in the 0.4.9 baseline and were preserved.
+See [family integration](test-results/scheduling-family-visits.md),
+[dashboard/notices](test-results/scheduling-dashboard-notifications.md), and
+[latest validation](test-results/scheduling-buffer-overrides.md).
+
+A fresh read-only Gateway file read on November 8, terminal job
+`job_01M6WXJK0000A56JY95HPYZQY5`, confirms the installed scheduling entry file
+still declares 0.4.9. SHA-256:
+`bb5acf5f646e855a925c795760cd575dc6b4c2a845f9b20846c29391a78a77d5`.
+This is source identification, not a fresh full runtime/backup/MFA acceptance.
+Existing diagnostic job `job_01M6VTKKA70002713ZHP8NQEGC` reported intact source,
+ready schema and pending native master MFA authentication. No remote writes occurred.
+
+Before release: run the disposable database/WordPress/race/HTTP/browser suite and
+PHPCS, resolve publication authorization, prepare and rehearse schema-4 recovery,
+then satisfy fresh backup and every existing deployment/readback gate. The prior
+branch push was denied by automatic review as unauthorized external publication;
+it was not retried. No PR or deployment exists for these local increments.
+
+Remaining implementation/acceptance: group requested/held expiry, attaching existing
+independent lessons, complex multi-horse family editing, reopening all-canceled
+visits, further drawer/device usability, editing started closure series prospectively,
+dependency-aware used-horse correction/deletion, configurable buffer policy UI,
+and separately authorized email transport with bounded claims/retries/uncertain
+delivery handling. Held notification envelopes do not implement that transport.
+Native owner MFA/calendar acceptance and actual service configuration remain
+separate owner/operator work. Do not treat the standalone planner, these local
+increments, or their isolated tests as a completed operational release.
+
+### Follow-up continuation — local 0.4.17-dev
+
+Group requested/held states and common expiry, existing-lesson attachment, native
+multiple riders/horse turns, draft removal and scoped reuse of canceled visits are
+now implemented locally; these supersede the corresponding unfinished entries
+above. A cancellation snapshot inconsistency was fixed during integration review.
+The email adapter has 31 fixture-only sink checks, including deduplication, bounded
+retry and uncertain outcomes; a durable dispatch worker and real delivery remain
+unimplemented/held. Schema-4 public recovery source/payloads and offline fixture
+inputs are now prepared, with 283 synthetic tests passing; functional restore is
+still unqualified. Full candidate PHP isolation suite: 346 checks on each version.
+
+See [family validation](test-results/scheduling-family-visits.md), [email boundary](test-results/scheduling-email-sink.md)
+and [recovery qualification](test-results/scheduling-recovery-v4.md). Publication,
+real SQL/races, WordPress/MFA/browser acceptance and deployment gates still block
+release. Broader device/drawer refinement, prospective editing of started closure
+series, used-horse dependency-aware correction/deletion and configurable buffer
+policy remain pending; household/agreement/payment scope remains unchanged.
+
+### Master audit / independent review — local 0.4.18-dev
+
+Added guarded unused-horse deletion with retained history/tombstone, direct ordinary
+lesson-to-family handoff and combined visit span. Fixed reassignment recipients and
+mutable historical notification dates. Full source/status mapping and remaining
+implementation are in [the master audit](test-results/scheduling-master-spec-audit.md);
+[the integration plan](test-results/scheduling-integration-validation-plan.md) names
+the exact missing environment, matrix, additional race/access checks and release
+gates. Publication-only approval now permits the branch and draft PR; no merge or
+deployment follows. Freeze this review candidate after publication.
+
+### November 8 evidence reconciliation — draft publication, not deployment
+
+The historical pending entries above are superseded by draft PR26 / `4c29c66`:
+family holds/expiry/editing/drawer, safe reconciled horse mapping, unused deletion,
+prospective started-closure splitting, and durable sink claims/current recipients
+are implemented. CI run42468961364 passed all four database combinations and the
+functional browser/mail suites; MFA50/security79 passed before the separate missing
+exact-Python recovery prerequisite. Source remains undeployed and owner acceptance
+open. See the appended [master audit](test-results/scheduling-master-spec-audit.md).
+
+The next increment connects the guarded native-mail fixture to durable dispatch,
+adds dashboard/notices browser acceptance, and measures specified family workflows.
+Official Debian 3.13.5-2+deb13u5 contains the exact pinned interpreter, enabling a
+scratch-only CI preparation path without local-runtime uploads or CI-secret changes.
+Functional restore is not passed until all unchanged phases actually execute.

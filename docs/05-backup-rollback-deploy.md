@@ -1132,3 +1132,25 @@ controller's fresh native browser ceremony; no grant or staff acceptance is infe
 [execution evidence and remaining steps](test-results/scheduling-protected-rollout.md). Private
 bindings/evidence remain restricted. Never restore an older snapshot over newer authentication,
 ownership, calendar or website changes automatically.
+
+## Held local horse lifecycle candidate — schema 4 (November 8, 2026)
+
+The local 0.4.11-dev candidate requires an explicit v3→v4 compatibility-marker migration.
+No deployment or migration is authorized by this entry. The existing recovery classifier
+recognizes scheduling v3, not v4; do not bypass it or reuse its signed payload approval
+for changed bytes. Before rollout: complete MySQL/MariaDB migration and concurrency
+validation, extend and review the recovery classifier/payloads for v4, verify a fresh
+pre-migration complete backup and isolated functional restore, review the exact payload
+and transparent preflight, then perform separate integrity/runtime readback under the
+standing owner gates. No source-only rollback to old code or manual marker downgrade.
+Never overwrite newer owner data. [Candidate evidence](test-results/scheduling-horse-lifecycle.md).
+
+## November 8 local schema-4 preparation — execution still held
+
+The continuation's recovery selector, capture expectation and restore readiness
+checks now recognize schema 4; deterministic public payloads were regenerated and
+283 synthetic recovery tests pass. This does **not** establish functional recovery
+or authorize replacing any historical approved/private payload. The current
+0.4.17-dev scheduler and source/data semantics require new exact review and a
+qualified isolated restore before any deployment. See [qualification gaps and
+required next steps](test-results/scheduling-recovery-v4.md). No farm writes occurred.

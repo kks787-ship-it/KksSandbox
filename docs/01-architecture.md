@@ -1136,3 +1136,81 @@ ordinary ceremony and transfers retain their previous requirements. Shared locks
 audit, last-master protection and exact-command recovery are retained; no schema or adapter
 change is required. See [the bounded readiness package](pilot/calendar-activation-readiness.md)
 and its separate candidate inventory. This grants no actual account authority or deployment.
+
+## Local horse lifecycle candidate — schema 4 (November 8, 2026)
+
+Scheduling 0.4.11-dev adds a reviewed `horse_status_saved` command through the existing
+facility lock, idempotency ledger and audit. Archived status lives in the horse's
+versioned document; bookings reject it server-side while historical records remain.
+Restore revalidates source/resource references, suitability references, active training
+capacity and protective blocks. Status changes never silently cancel future bookings.
+
+The physical 15-table contract is unchanged, but the explicit schema marker advances
+from 3 to 4 to make old scheduler code fail closed instead of ignoring archive status.
+This is an **undeployed candidate**, not an approved migration or a completed recovery
+rehearsal. See [validation and precise limitations](test-results/scheduling-horse-lifecycle.md).
+
+## Isolated family reservation planner (November 8, 2026)
+
+The local `CSF_Scheduling_Visit_Plan` helper calculates explicitly linked, compatible
+family lesson buffers while preserving mandatory resource minima and individual
+teaching times. It is not loaded by the plugin and does not reserve or save anything.
+103 pure-domain checks pass on each of PHP 8.1 and 8.3. Atomic command integration,
+hold/cancellation handling, database races and the family editor remain outstanding;
+see [the implementation boundary and next steps](test-results/scheduling-family-visit-plan.md).
+
+## Family command/editor candidate — 0.4.12-dev (November 8, 2026)
+
+The planner is now connected to a confirmed-only `family_visit_saved` command under
+the existing Store lock/replay/audit transaction and a signed native family review
+screen. Individual lesson records remain itemized; full active membership is required
+for edits/cancellation and buffers are recalculated without shifting other teaching
+times. Calendar reads include the saved resource windows. No public route, grants,
+email or deployment was added. The pure planner is no longer an unconnected helper;
+see [actual tests, unrun DB/browser checks and limitations](test-results/scheduling-family-visits.md).
+
+## Private weekly dashboard and held notices — 0.4.13-dev
+
+The local candidate adds a weekly native dashboard using the existing scoped
+calendar reader and transactional, command-keyed in-app notices with per-user
+acknowledgement. Recipient snapshots use effective coordination rights and assigned
+instructors; reads recheck current scope. Email/push remain explicitly held with
+no sender or worker. See [actual checks and unrun acceptance](test-results/scheduling-dashboard-notifications.md).
+
+## Independent reservation buffers — 0.4.15-dev
+
+New/explicitly resaved independent lessons now use server-derived 15+15 resource
+windows and larger mandatory travel minima. Family and independent snapshots share
+`resource_reservations`; old records are not backfilled. Requested/canceled/expired
+windows are not labeled as current reservations. See [validation and rollout limits](test-results/scheduling-independent-buffers.md).
+
+## Explicit optional buffer exceptions — 0.4.16-dev
+
+A separately granted, default-off `buffer_override` right enables a signed native
+preview and atomic one-segment reduction for a future confirmed lesson. The normal
+appointment writer rechecks all constraints; reasoned approvals and exact windows
+are retained in history and shown with a red textual marker. Normal saves restore
+standard buffers. No actual grants were made. See [validation and release holds](test-results/scheduling-buffer-overrides.md).
+
+## Family state and editing continuation — 0.4.17-dev
+
+Confirmed-only grouping is superseded by whole-group requested/held/confirmed
+states with one common hold expiry. Existing occupancy predicates expire the
+entire cohort together; confirmation/renewal and membership changes always rerun
+atomic validation. Native detailed riders/turns, independent-lesson attachment
+and scoped reuse of canceled visits retain itemized history. See [validation](test-results/scheduling-family-visits.md).
+
+## Fixture-only email adapter qualification
+
+An unloaded module models versioned claims, bounded retries and uncertain outcomes
+against a final in-memory sink. It copies recipient-scoped held events without
+changing their real transport hold. No durable dispatch worker or real sender is
+enabled. See [exact test coverage and boundaries](test-results/scheduling-email-sink.md).
+
+## Audit follow-up — 0.4.18-dev
+
+Unused-horse deletion is a normal guarded Store command with immutable UUID
+tombstone and retained history; current real data is untouched. Notification events
+now retain minimal immutable times and recipient assignment provenance. Former
+instructors receive only a restricted old-time departure/historical projection,
+never current private details. See [audit and remaining gates](test-results/scheduling-master-spec-audit.md).

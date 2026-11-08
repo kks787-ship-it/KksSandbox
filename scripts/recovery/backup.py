@@ -387,7 +387,7 @@ class NativeDB:
 
 def schema_contract():
     path=BASE/'docs/pilot/baseline-select-plan.py.txt';raw=path.read_bytes()
-    require(sha(raw)=='7ca5cb62a72c87b65de934fbf9116992d6882775296bb94085bb0487f15bed8c')
+    require(sha(raw)=='a31e60e2c232d07546412198ef4c19c47ac86a54d0682551c76d4696f514bf17')
     ns={'__name__':'backup_generator'};exec(compile(raw,str(path),'exec'),ns)
     return ns
 
@@ -399,7 +399,7 @@ def load_generator():
 def bindings(value,mode):
     require(set(value)-{'expected_phase'}=={'mode','source_pin','run_token','actor_ref','approval_ref','start','end','custody','config_reviewed','wp_config_sha256','plugins_sha256','protected','db_secret'})
     require(value['mode']==mode and value['source_pin']==IMPLEMENTATION)
-    require(value.get('expected_phase','pre_scheduling') in ('pre_scheduling','scheduling_v3','partial_migration','damaged_scheduling_v3'))
+    require(value.get('expected_phase','pre_scheduling') in ('pre_scheduling','scheduling_v3','scheduling_v4','partial_migration','damaged_scheduling_v3','damaged_scheduling_v4'))
     require(re.fullmatch('[a-f0-9]{32}',value['run_token']) and all(isinstance(value[k],str) and re.fullmatch('[A-Za-z0-9_.:-]{1,128}',value[k]) for k in ('actor_ref','approval_ref')))
     start,end=utc(value['start']),utc(value['end']);require(start<=time.time()<end and 0<end-start<=1800)
     require(value['custody']=='local-only' and value['config_reviewed'] is True)

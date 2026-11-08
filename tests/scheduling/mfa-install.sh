@@ -17,5 +17,5 @@ WP=(php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root)
 "${WP[@]}" core install --url=http://localhost:8899 --title=MFAFixture --admin_user=fixture_operator --admin_password=fixture-only --admin_email=fixture@example.invalid --skip-email --quiet
 "${WP[@]}" option update show_avatars 0 --quiet
 "${WP[@]}" theme activate csf-kadence-standin --quiet
-"${WP[@]}" plugin activate csf-core csf-scheduling two-factor csf-mfa --quiet
+"${WP[@]}" plugin activate csf-core csf-scheduling two-factor csf-mfa
 "${WP[@]}" eval-file /repo/tests/scheduling/mfa-setup.php

@@ -1,0 +1,109 @@
+name: Disposable scheduling validation
+on:
+  pull_request:
+    branches: [codex/takeover-audit]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+concurrency:
+  group: scheduling-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  database:
+    if: github.repository == 'kks787-ship-it/KksSandbox'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        php: ['8.1', '8.3']
+        database: ['mariadb:10.6', 'mysql:8.0']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Install locked development dependencies
+        run: composer install --no-interaction --prefer-dist
+      - name: Prepare unmodified disposable WordPress sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .wp-local/scheduling-core
+          curl --fail --show-error --location --retry 2 https://wordpress.org/wordpress-6.8.3.tar.gz -o .wp-local/wordpress.tar.gz
+          echo 'fd56bcdc15f1877e45dce67942ea75949ed650e8  .wp-local/wordpress.tar.gz' | sha1sum --check -
+          tar -xzf .wp-local/wordpress.tar.gz --strip-components=1 -C .wp-local/scheduling-core
+          bash tests/scheduling/download-wp-cli.sh
+          php .wp-local/wp-cli.phar --info
+      - name: Prepare pinned disposable browser and official MFA provider
+        if: matrix.php == '8.3' && matrix.database == 'mariadb:10.6'
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install playwright install --with-deps chromium
+          node -e "console.log('CSF_TEST_CHROMIUM=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
+          echo 'CSF_TEST_BROWSER=1' >> "$GITHUB_ENV"
+          mkdir -p .wp-local/site
+          curl --fail --show-error --location --retry 2 https://wordpress.org/wordpress-7.1.4.tar.gz -o .wp-local/wordpress-mfa.tar.gz
+          echo 'b175879c4fb2d35300f9abe1153da9b543a35a2b  .wp-local/wordpress-mfa.tar.gz' | sha1sum --check -
+          tar -xzf .wp-local/wordpress-mfa.tar.gz --strip-components=1 -C .wp-local/site
+          bash tests/scheduling/download-mfa.sh
+      - name: Run isolated database, transaction, race and rollback tests
+        env:
+          CSF_TEST_PHP_VERSION: ${{ matrix.php }}
+          CSF_TEST_DB_IMAGE: ${{ matrix.database }}
+        run: bash tests/scheduling/run.sh
+  browser:
+    if: github.repository == 'kks787-ship-it/KksSandbox'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        suite: [mfa, calendar, hours, family, mail, dashboard]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Prepare pinned isolated WordPress and browser sources
+        run: |
+          set -euo pipefail
+          mkdir -p .wp-local/site
+          curl --fail --show-error --location --retry 2 https://wordpress.org/wordpress-7.1.4.tar.gz -o .wp-local/wordpress-mfa.tar.gz
+          echo 'b175879c4fb2d35300f9abe1153da9b543a35a2b  .wp-local/wordpress-mfa.tar.gz' | sha1sum --check -
+          tar -xzf .wp-local/wordpress-mfa.tar.gz --strip-components=1 -C .wp-local/site
+          bash tests/scheduling/download-wp-cli.sh
+          bash tests/scheduling/download-mfa.sh
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install playwright install --with-deps chromium
+          node -e "console.log('CSF_TEST_CHROMIUM=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
+          docker build --build-arg CSF_TEST_PHP_VERSION=8.3 -t csf-scheduling-php83 tests/scheduling
+      - name: Run required isolated native browser suite
+        env:
+          CSF_TEST_PHP_IMAGE: csf-scheduling-php83
+          CSF_TEST_SECURITY: '1'
+          CSF_BROWSER_SUITE: ${{ matrix.suite }}
+        run: |
+          set -euo pipefail
+          case "$CSF_BROWSER_SUITE" in
+            mfa) ;;
+            calendar) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_UX=1 ;;
+            hours) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_RESOURCE_HOURS=1 ;;
+            dashboard) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_DASHBOARD=1 ;;
+            family) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_FAMILY=1 ;;
+            mail) export CSF_TEST_NATIVE_MAIL_ONLY=1 ;;
+            *) exit 1 ;;
+          esac
+          bash tests/scheduling/mfa-run.sh
+      - name: Qualify unchanged isolated functional recovery prerequisites
+        if: ${{ !cancelled() && matrix.suite == 'mfa' }}
+        run: |
+          set -euo pipefail
+          docker pull wordpress:6.8.3-php8.1-apache
+          docker image inspect mariadb:10.6 wordpress:6.8.3-php8.1-apache --format '{{.Id}}'
+          runtime_dir="$RUNNER_TEMP/csf-recovery-python"
+          bash tests/recovery/prepare-pinned-python.sh "$runtime_dir"
+          CSF_RECOVERY_PYTHON_ROOT="$runtime_dir/root/usr" CSF_RECOVERY_PHP_VARIANT=83 bash tests/recovery/restore-local.sh

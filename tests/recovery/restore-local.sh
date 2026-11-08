@@ -2,12 +2,15 @@
 # Local-only synthetic recovery. Never run on the farm or pass protected data to it.
 set -euo pipefail
 D=(docker --host=unix:///var/run/docker.sock)
+# Optional scratch prefix changes location only; the exact interpreter hash is unchanged.
+python_root="${CSF_RECOVERY_PYTHON_ROOT:-/usr}"
+[[ "$python_root" == /* ]] || exit 1
 variant="${CSF_RECOVERY_PHP_VARIANT:-81}"
 [[ "$variant" == 81 || "$variant" == 83 ]] || exit 1
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)
 [[ $("${D[@]}" image inspect mariadb:10.6 --format '{{.Id}}') == sha256:d29a34d05b1de1afa84c88bdad35cbba6dc1d1135ad2a95a8ceb56a710819e82 ]]
 [[ $("${D[@]}" image inspect wordpress:6.8.3-php8.1-apache --format '{{.Id}}') == sha256:21ed73c19da1a0208130861a74838f3ee181ae7d77c9bdb5ff0cbec559f9a94c ]]
-[[ $(sha256sum /usr/bin/python3.13 | cut -d ' ' -f1) == 889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9 ]]
+[[ $(sha256sum "$python_root/bin/python3.13" | cut -d ' ' -f1) == 889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9 ]]
 context=$(mktemp -d /tmp/csf-restore-fixture.XXXXXXXX)
 source_container="csf-restore-software-${context##*.}"
 image="csf-restore-fixture:${context##*.}"
@@ -20,8 +23,8 @@ cleanup() {
 }
 trap cleanup EXIT
 mkdir -p "$context/rootfs/usr/bin" "$context/rootfs/usr/sbin" "$context/rootfs/usr/lib/x86_64-linux-gnu" "$context/rootfs/usr/share" "$context/rootfs/fixture/scripts/recovery" "$context/rootfs/fixture/docs/pilot" "$context/rootfs/fixture/tests/recovery"
-cp /usr/bin/python3.13 "$context/rootfs/usr/bin/python3"
-cp -a /usr/lib/python3.13 "$context/rootfs/usr/lib/"
+cp "$python_root/bin/python3.13" "$context/rootfs/usr/bin/python3"
+cp -a "$python_root/lib/python3.13" "$context/rootfs/usr/lib/"
 cp "$root"/scripts/recovery/*.py "$context/rootfs/fixture/scripts/recovery/"
 cp "$root"/docs/pilot/baseline-contract.json "$root"/docs/pilot/baseline-select-plan.py.txt "$context/rootfs/fixture/docs/pilot/"
 cp "$root"/tests/recovery/restore_fixture.py "$context/rootfs/fixture/tests/recovery/"
