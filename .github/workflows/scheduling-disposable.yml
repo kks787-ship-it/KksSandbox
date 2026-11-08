@@ -77,6 +77,14 @@ jobs:
           CSF_TEST_SECURITY_ONLY: '1'
           CSF_TEST_RESOURCE_HOURS: '1'
         run: bash tests/scheduling/mfa-run.sh
+      - name: Run isolated native family review acceptance
+        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
+        env:
+          CSF_TEST_PHP_IMAGE: csf-scheduling-php83
+          CSF_TEST_SECURITY: '1'
+          CSF_TEST_SECURITY_ONLY: '1'
+          CSF_TEST_FAMILY: '1'
+        run: bash tests/scheduling/mfa-run.sh
       - name: Qualify unchanged isolated functional recovery prerequisites
         if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
         run: |

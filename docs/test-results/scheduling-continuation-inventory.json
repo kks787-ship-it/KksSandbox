@@ -18,7 +18,7 @@
     },
     {
       "path": "wp-content/plugins/csf-scheduling/assets/resources.js",
-      "sha256": "9a68ef83b643b2396811d928e8660bca54db3232f98a17c97dbc5c734f32b3ac"
+      "sha256": "b8fc1e5681748c732fdc4a0fa74ba0976233af47b9eb97787db65ccfc00ae43a"
     },
     {
       "path": "wp-content/plugins/csf-scheduling/assets/routine.js",
@@ -46,7 +46,7 @@
     },
     {
       "path": "wp-content/plugins/csf-scheduling/assets/ux.js",
-      "sha256": "52ca5a2751341e599a59653d11fcc32e4e1b89df2fbd6d031c5fcd1cea7b1624"
+      "sha256": "d2f673c1ffa46047d652994edac41aa73cd6cf1086d069d591c30a7874118eac"
     },
     {
       "path": "wp-content/plugins/csf-scheduling/csf-scheduling.php",

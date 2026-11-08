@@ -16,7 +16,7 @@
  document.addEventListener('click',event=>{
   const newLesson=event.target.closest('.csf-new-lesson');if(newLesson){event.preventDefault();open(document.querySelector('#csf-create'),newLesson);return;}
   const blockAction=event.target.closest('.csf-block-time');if(blockAction){event.preventDefault();open(block,blockAction);return;}
-  const cell=event.target.closest('.csf-resource-slot');if(cell&&block){selectResource(cell.dataset.resource);open(block,cell);return;}
+  const cell=event.target.closest('.csf-resource-slot');if(cell&&block){if(event.defaultPrevented)return;selectResource(cell.dataset.resource);open(block,cell);return;}
   const advanced=event.target.closest('.csf-advanced-rotation summary');if(advanced&&advanced.closest('#csf-create')&&!dialog.open)open(document.querySelector('#csf-create'),advanced);
  });
  if(block&&calendar){const button=document.createElement('button');button.type='button';button.className='button csf-pick-block';button.textContent='Select a range on the calendar';resource.closest('label').after(button);button.addEventListener('click',()=>{const id=resource.value,cells=[...calendar.querySelectorAll('.csf-resource-slot')].filter(x=>x.dataset.resource===id);if(!cells.length){const url=new URL(location.href);url.searchParams.set('resource',id);url.searchParams.set('tool','block');url.searchParams.set('screen','calendar');location.assign(url);return;}close();const mode=calendar.querySelector('.csf-resource-mode');if(mode.getAttribute('aria-pressed')!=='true')mode.click();calendar.querySelector('.csf-resource-range').checked=true;cells.find(x=>x.getClientRects().length)?.focus();});

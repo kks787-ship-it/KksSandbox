@@ -48,6 +48,7 @@ PHP=("${D[@]}" run --rm --network "$STAMP-net" --mount "type=bind,src=$ROOT,dst=
 "${D[@]}" exec "$STAMP-db" sh -c 'DUMP=$(command -v mariadb-dump || command -v mysqldump); "$DUMP" -uroot -pfixture-only --single-transaction csf_fixture > /tmp/before-v2.sql'
 "${PHP[@]}" -e CSF_TEST_PHASE=calendar "$PHP_IMAGE" bash /repo/tests/scheduling/container.sh
 # The web fixture is bound to loopback only, never publicly served.
+BROWSER_STATUS=0
 if [[ "${CSF_TEST_BROWSER:-0}" == 1 ]]; then
  exec 9>"$ROOT/.wp-local/browser-relay.lock"
  flock 9
@@ -56,8 +57,8 @@ if [[ "${CSF_TEST_BROWSER:-0}" == 1 ]]; then
   if "${D[@]}" exec "$STAMP-web" php -r '$s=@fsockopen("127.0.0.1",8899);if(!$s){exit(1);}fclose($s);' >/dev/null 2>&1; then break; fi
   sleep .2
  done
- CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/browser.js"
- CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/permissions-browser.js"
+ CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/browser.js" || BROWSER_STATUS=$?
+ CSF_TEST_WEB_CONTAINER="$STAMP-web" node "$ROOT/tests/scheduling/permissions-browser.js" || BROWSER_STATUS=$?
  "${D[@]}" rm -f "$STAMP-web" >/dev/null
  flock -u 9
 fi
@@ -76,4 +77,5 @@ fi
 "${PHP[@]}" "$PHP_IMAGE" php /repo/.wp-local/wp-cli.phar --path=/test/site --allow-root eval 'global $wpdb; if (DB_NAME!=="csf_fixture" || is_plugin_active("csf-scheduling/csf-scheduling.php") || $wpdb->get_var("SHOW TABLES LIKE \"fixture_csf_sched_%\"") || $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->usermeta WHERE meta_value LIKE \"%csf_schedule_%\" OR meta_value LIKE \"%csf_dr_%\"")!=0) { WP_CLI::error("Fixture restore mismatch"); } echo "LOGICAL_BACKUP_RESTORE_PASS\n";'
 
 # A successful database run never turns a failed coding-standard gate green.
-exit "$LINT_STATUS"
+if [[ "$LINT_STATUS" != 0 ]]; then exit "$LINT_STATUS"; fi
+exit "$BROWSER_STATUS"
