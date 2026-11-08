@@ -7,6 +7,7 @@ foreach(array('proportional_floor_v1','front_remainder_v1') as $method){
  foreach(array(101,10000,100000000) as $paid){foreach(array(1,2,3,100) as $rides){$a=CSF_Billing_Value::allocation($paid,$rides,$p);check(array_sum($a)===$paid&&count($a)===$rides&&max($a)-min($a)<=1,'all paid cents allocated proportionally');}}
 }
 $p=array('method'=>'proportional_floor_v1','version'=>'synthetic','approved'=>true);
+rejected(fn()=>CSF_Billing_Value::allocation(1,3,$p),'unallocatable offer rejected before any payment');
 $moneyStore=new FixtureStore();$moneyService=new CSF_Billing_Service($moneyStore);$moneyId=wp_generate_uuid4();
 $row=array('id'=>$moneyId,'purchased'=>3,'redeemed'=>0,'status'=>'active','revision'=>1,'value_json'=>CSF_Billing_Domain::json(CSF_Billing_Value::initial(101,3,$p)));
 $moneyStore->tables['certificates'][$moneyId]=$row;

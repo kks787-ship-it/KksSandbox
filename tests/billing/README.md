@@ -158,7 +158,7 @@ This is candidate qualification, not a replacement for the qualified contract or
 recovery gates. See PR27 for final exact-head CI results and the recovery proposal for gaps.
 
 
-Schema3 monetary tests: `value.php` runs 44 additional standalone assertions after the existing
+Schema3 monetary tests: `value.php` runs 45 additional standalone assertions after the existing
 service suite on PHP8.1/8.3. `money-fixture.php` and `money-http.py` are offline-container-only
 real Store/service probes reached through the restored official TOTP session, not an MFA bypass.
 They create random scratch-prefix schema3 tables, exercise cash/ride races using two PHP workers,

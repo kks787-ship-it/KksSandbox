@@ -315,7 +315,7 @@ there is no automatic migration or speculative monetary backfill. An independent
 legacy reconciliation/migration is required for existing records. This project has no installed
 farm billing schema; previous local captures remain untouched as historical evidence.
 
-Local value suite passes 44 assertions on PHP8.1/8.3 plus existing 300 cumulative service checks;
+Local value suite passes 45 assertions on PHP8.1/8.3 plus existing 300 cumulative service checks;
 plugin PHPCS and JS syntax pass. New real-DB/MFA two-worker and strict monetary recovery probes
 run in draft CI; final result/commit is recorded in PR27. The combined recovery seed contains
 uncertain cash and recorded payout histories, all payment states and exact correction evidence.

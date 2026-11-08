@@ -40,24 +40,26 @@ final class CSF_Billing_Service {
 		CSF_Billing_Domain::uuid( $command );
 		CSF_Billing_Domain::need( is_string( $session_hash ) && preg_match( '/^[a-f0-9]{64}$/D', $session_hash ) );
 		$product = CSF_Billing_Domain::product( $product );
-		$terms   = CSF_Billing_Domain::terms( $terms );
+		CSF_Billing_Value::allocation( $product['amount_minor'], $product['rides'], $valuation );
+		$terms = CSF_Billing_Domain::terms( $terms );
 		CSF_Billing_Domain::consent( $consent, $terms );
 		$payload = array(
 			'kind'         => 'prepare',
 			'session_hash' => $session_hash,
 			'product'      => $product,
 			'terms'        => $terms,
+			'valuation'    => $valuation,
 		);
 		return $this->store->command(
 			hash( 'sha256', 'prepare:' . $command ),
 			$payload,
-			function ( $store ) use ( $session_hash, $product, $terms ) {
+			function ( $store ) use ( $session_hash, $product, $terms, $valuation ) {
 				$id       = wp_generate_uuid4();
 				$document = array(
 					'id'                 => $id,
 					'product'            => $product,
 					'terms'              => $terms,
-					'valuation'          => CSF_Billing_Value::policy(),
+					'valuation'          => $valuation,
 					'accepted_at'        => gmdate( 'Y-m-d\TH:i:s\Z' ),
 					'amount_minor'       => $product['amount_minor'],
 					'currency'           => $product['currency'],
