@@ -49,6 +49,14 @@
   function weekly(){form.querySelectorAll('fieldset').forEach(x=>x.hidden=mode.value!=='custom');}mode.addEventListener('change',weekly);weekly();
  }
  for(const f of root.querySelectorAll('[data-kind=resource_closure_added]')){const label=document.createElement('label');label.textContent='Reason ';const select=document.createElement('select');select.className='csf-block-reason';for(const[value,text]of[['','Other / enter a reason'],['maintenance','Maintenance'],['training','Protected schooling'],['closed','Unavailable']])select.add(new Option(text,value));label.append(select);f.querySelector('[name=note]').closest('label').before(label);select.addEventListener('change',()=>{f.querySelector('[name=note]').value=select.value==='maintenance'?'Resource maintenance':select.value==='training'?'Protected schooling time':select.value==='closed'?'Resource unavailable':'';f.querySelector('[name=category]').value=select.value==='training'?'protected_training':'unavailable';});}
+ for(const form of root.querySelectorAll('[data-csf-family-services]')){
+  const services=JSON.parse(form.dataset.csfFamilyServices);
+  for(const row of form.querySelectorAll('[data-csf-family-lesson]')){
+   const type=row.querySelector('select[name$="[service_type]"]'),horse=row.querySelector('[data-csf-family-horse]');
+   function update(){const service=services[type.value];horse.hidden=!!service&&!service.horse;horse.querySelector('select').disabled=horse.hidden;row.querySelector('[data-csf-family-duration]').textContent=service?service.minutes+' minutes teaching · finish and exact shared reservations checked in Review family visit.':'';}
+   type.addEventListener('change',update);update();
+  }
+ }
  const familyPanel=document.querySelector('#csf-family-panel');if(familyPanel)open(familyPanel,document.querySelector('.csf-family-open'));
  if(root.dataset.screen==='hours')root.querySelectorAll('.csf-resource-panel').forEach(x=>x.open=true);
 })();

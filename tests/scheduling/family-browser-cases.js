@@ -7,7 +7,7 @@ module.exports=async({op,cli,check,base,arena,instructor,riders})=>{
  const submit=async(action)=>Promise.all([p.waitForNavigation(),p.locator('[name=csf_family_action][value="'+action+'"]').click()]);
  async function fill(i,hour){
   const field=key=>p.locator('[name="lessons['+i+']['+key+']"]');
-  await field('service_type').selectOption('pilot_ground_60');await field('rider').selectOption(riders[0]);await field('horse').selectOption('');await field('start').fill('2027-01-26T'+hour+':00');
+  await field('service_type').selectOption('pilot_ground_60');await field('rider').selectOption(riders[0]);check(!await field('horse').isVisible(),'horse input hidden for non-riding service');await field('start').fill('2027-01-26T'+hour+':00');
   for(const id of [arena,instructor])await p.locator('[name="lessons['+i+'][resources][]"][value="'+id+'"]').check();
  }
  await p.goto(url);check(await p.locator('#csf-task-dialog').evaluate(e=>e.open)&&await p.locator('#csf-task-dialog #csf-family-panel').count()===1,'family editor opens in the calendar task drawer');await p.getByRole('button',{name:'Close panel',exact:true}).click();check(await p.locator('.csf-family-open').evaluate(e=>e===document.activeElement),'family drawer close restores focus to its calendar action');await p.locator('.csf-family-open').click();for(const width of[390,768,1280]){await p.setViewportSize({width,height:900});check(await p.locator('#csf-family-panel').isVisible(),'family drawer visible '+width);check(await p.locator('#csf-task-dialog').evaluate(e=>e.scrollWidth<=e.clientWidth+1),'family drawer has no horizontal overflow '+width);await p.addScriptTag({path:require.resolve('axe-core/axe.min.js')});const a=await p.evaluate(async()=>axe.run('#csf-task-dialog',{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));check(a.violations.length===0,'family drawer accessibility '+width+': '+a.violations.map(v=>v.id));}const before=count();await fill(0,'13');await p.locator('[name=same_family]').check();await submit('add');await fill(1,'14');await p.locator('[name=same_family]').check();const unchanged=state();await submit('review');
@@ -21,4 +21,24 @@ module.exports=async({op,cli,check,base,arena,instructor,riders})=>{
  await p.getByRole('link',{name:'Open visit / book another lesson',exact:true}).click();check(await p.locator('[name=visit_uuid]').inputValue()===review.body.uuid&&Number(await p.locator('[name=visit_expected]').inputValue())>0,'authorized visit query opens current saved revision');
  check(await p.locator('[name="lessons[1][start]"]').inputValue()==='2027-01-26T14:00','native family edit retains second lesson');
  const beforeEdit=state();await p.locator('[name="lessons[1][start]"]').fill('2027-01-26T14:15');await p.locator('[name=same_family]').check();await submit('review');check(state()===beforeEdit&&await p.locator('[name=csf_family_action][value=apply]').count()===0,'separating shared lessons by insufficient independent buffer time rejects without writes');await p.locator('[name="lessons[1][start]"]').fill('2027-01-26T14:30');await p.locator('[name=same_family]').check();await submit('review');await submit('apply');check(count()===before+2&&(await p.locator('[role=status]').allTextContents()).join(' ').includes('Family visit saved atomically'),'native family edit updates existing lessons without duplication');
+
+ for(const [day,durations]of [['2027-01-27',[30,30]],['2027-01-28',[120,120,60]]]){
+  await p.goto(url.replace('2027-01-26',day));let actions=0,pageJumps=0,panelJumps=0;const labels=[];let prior=await p.evaluate(()=>[scrollY,document.querySelector('#csf-task-dialog').scrollTop]);
+  const act=async(label,fn)=>{await fn();actions++;labels.push(label);const now=await p.evaluate(()=>[scrollY,document.querySelector('#csf-task-dialog').scrollTop]);if(Math.abs(now[0]-prior[0])>150)pageJumps++;if(Math.abs(now[1]-prior[1])>150)panelJumps++;prior=now;};
+  let minutes=0;
+  for(let i=0;i<durations.length;i++){
+   if(i)await act('Copy next lesson',()=>submit('add'));
+   const field=k=>p.locator('[name="lessons['+i+']['+k+']"]');
+   await act('Choose lesson type',()=>field('service_type').selectOption('pilot_ground_'+durations[i]));
+   await act('Choose sibling',()=>field('rider').selectOption(riders[i%riders.length]));
+   if(!i){await act('Choose start',()=>field('start').fill(day+'T10:00'));for(const id of[arena,instructor])await act('Assign resource',()=>p.locator('[name="lessons[0][resources][]"][value="'+id+'"]').check());await act('Confirm same family',()=>p.locator('[name=same_family]').check());}
+   else check(await field('start').inputValue()===day+'T'+String(10+Math.floor(minutes/60)).padStart(2,'0')+':'+String(minutes%60).padStart(2,'0'),'next child automatically starts at previous finish');
+   check(!await field('horse').isVisible(),'family no-horse service avoids irrelevant input');minutes+=durations[i];
+  }
+  await act('Review whole visit',()=>submit('review'));
+  const review=JSON.parse(await p.locator('[name=family_review]').inputValue());const windows=review.plan.lessons.flatMap(x=>x.reservations);const begin=Date.parse(day+'T10:00:00-08:00')/1000;
+  check(Math.min(...windows.map(x=>x.start))===begin-900&&Math.max(...windows.map(x=>x.end))===begin+minutes*60+900,'exact shared outer envelope for '+durations.join('+'));
+  check(review.body.items.length===durations.length,'review preserves every child');const old=count();await act('Save family visit',()=>submit('apply'));check(count()===old+durations.length,'specified family workflow commits all children');
+  console.log('FAMILY_USABILITY_METRICS='+JSON.stringify({scenario:durations.join('+'),actions,action_labels:labels,page_scroll_jumps_over_150px:pageJumps,panel_scroll_jumps_over_150px:panelJumps,teaching_minutes:minutes,method:'Scripted native form interactions; one click/fill/select per action; excludes login/navigation; includes explicit group review and save. Not human acceptance or a measured legacy-family comparison.'}));
+ }
 };

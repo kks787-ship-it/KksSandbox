@@ -70,3 +70,33 @@ The existing native wp_mail runtime harness is now a separate disposable CI suit
 with an in-memory PHPMailer override and synthetic invalid-domain recipients.
 This qualifies existing transport checks only; durable scheduling outbox claim/worker
 integration and scoped real-delivery authorization remain outstanding.
+
+## November 8 reconciliation after draft run 18
+
+The earlier unimplemented/unrun cells above are historical. Draft `4c29c66`, run
+42468961364, supersedes them: all four PHP8.1/8.3 × MariaDB10.6/MySQL8.0 jobs
+passed, including family/horse/closure transactions and races, logical restore,
+33 durable sink-dispatch assertions, 16 current-recipient checks and one-submission
+worker races. Scheduling PHPCS passed without waivers. Browser results: booking64,
+permissions39, calendar71, hours32/domain60, family23, MFA50, security79, native-mail9
+and booking-mail bridge12. These are synthetic acceptance, not owner/farm acceptance.
+
+Implemented since the original table: safe used-horse corrections after dependency
+reconciliation; unused deletion/tombstones; atomic prospective started-closure
+splits; calendar family drawer; durable versioned sink claims/retries/uncertainty and
+current recipient checks. Catalog 30/60 setup remains review-only until the owner
+applies actual farm policy. Recurring hours and closures were existing baseline work.
+
+Current follow-up adds guarded native wp_mail integration to the durable worker
+(with persisted transport binding), dedicated real-MFA dashboard/notices browser
+coverage, exact 30+30 and 120+120+60 native family cases and recorded interaction
+metrics. Family no-horse services hide irrelevant horse input without changing
+server validation. These new runtime cases are authored; record their CI outcome
+separately before claiming they passed. The former absence of family grouping in
+0.4.7 prevents an honest like-for-like legacy family benchmark; current action and
+page/panel-scroll measurements are reported without inventing a baseline.
+
+Remaining: protected owner configuration/usability acceptance, real delivery
+activation/recipient consent, and recovery/deployment qualification. Configurable
+buffers, month/drag-resize, household agreements/payments and broader role portals
+are later scope. No existing grants or deployment gates change.

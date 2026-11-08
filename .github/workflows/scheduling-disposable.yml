@@ -62,7 +62,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        suite: [mfa, calendar, hours, family, mail]
+        suite: [mfa, calendar, hours, family, mail, dashboard]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -92,6 +92,7 @@ jobs:
             mfa) ;;
             calendar) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_UX=1 ;;
             hours) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_RESOURCE_HOURS=1 ;;
+            dashboard) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_DASHBOARD=1 ;;
             family) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_FAMILY=1 ;;
             mail) export CSF_TEST_NATIVE_MAIL_ONLY=1 ;;
             *) exit 1 ;;
@@ -103,5 +104,6 @@ jobs:
           set -euo pipefail
           docker pull wordpress:6.8.3-php8.1-apache
           docker image inspect mariadb:10.6 wordpress:6.8.3-php8.1-apache --format '{{.Id}}'
-          if [[ -f /usr/bin/python3.13 ]]; then sha256sum /usr/bin/python3.13; else echo 'Pinned /usr/bin/python3.13 is unavailable on this runner.'; fi
-          CSF_RECOVERY_PHP_VARIANT=83 bash tests/recovery/restore-local.sh
+          runtime_dir="$RUNNER_TEMP/csf-recovery-python"
+          bash tests/recovery/prepare-pinned-python.sh "$runtime_dir"
+          CSF_RECOVERY_PYTHON_ROOT="$runtime_dir/root/usr" CSF_RECOVERY_PHP_VARIANT=83 bash tests/recovery/restore-local.sh

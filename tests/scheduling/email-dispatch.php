@@ -41,3 +41,21 @@ $b=$body();$claim($b);$sink=new CSF_Scheduling_Email_Sink();$deny=static fn()=>f
 $check($event['email_state']==='held_no_delivery_authorization','source event remains held');
 $b=$body();$claim($b);file_put_contents("/test/email-dispatch-race.json",wp_json_encode($b));
 echo "EMAIL_DISPATCH_DATABASE_PASS checks=$n\n";
+
+// Native WordPress API qualification shares the durable boundaries, with final fake mailer only.
+(static function(){require '/repo/tests/scheduling/email-wp-mail.php';})();
+$nativeChecks=0;$nc=static function($ok,$label)use(&$nativeChecks){if(!$ok)throw new RuntimeException($label);++$nativeChecks;};
+global $phpmailer;
+foreach([true,false,'throw']as$outcome){
+ $b=$body();$b['transport']='native_mail_fixture';$claim($b);$phpmailer=new CSF_Scheduling_Email_Fixture_Mailer(true);$phpmailer->outcome=$outcome;
+ $r=CSF_Scheduling_Email_Dispatch::run_native($b,'SyntheticStaff@example.invalid');$nc(!is_wp_error($r)&&$read($b)['state']===($outcome===true?'sink_accepted':'uncertain'),'native outcome persists conservatively');
+ $nc(count($phpmailer->messages)===1,'native path invokes only final fake mailer');
+ $nc(is_wp_error(CSF_Scheduling_Email_Dispatch::run_native($b,'SyntheticStaff@example.invalid'))&&count($phpmailer->messages)===1,'native restarted worker never resends');
+ $nc($read($b)['transport']==='native_mail_fixture','transport binding persisted');
+}
+$b=$body();$claim($b);$changed=$b;$changed['transport']='native_mail_fixture';$phpmailer=new CSF_Scheduling_Email_Fixture_Mailer(true);$r=CSF_Scheduling_Email_Dispatch::run_native($changed,'SyntheticStaff@example.invalid');$nc(is_wp_error($r)&&!$phpmailer->messages,'transport cannot switch after queue');
+$b=$body();$b['transport']='native_mail_fixture';$claim($b);$phpmailer=new CSF_Scheduling_Email_Fixture_Mailer(true);add_filter('query',$fail);$r=CSF_Scheduling_Email_Dispatch::run_native($b,'SyntheticStaff@example.invalid');remove_filter('query',$fail);$nc(is_wp_error($r)&&!$phpmailer->messages&&$read($b)['state']==='claimed','native begin rollback never invokes wp_mail');
+$count=0;add_filter('query',$fail_finish);$r=CSF_Scheduling_Email_Dispatch::run_native($b,'SyntheticStaff@example.invalid');remove_filter('query',$fail_finish);$nc(is_wp_error($r)&&count($phpmailer->messages)===1&&$read($b)['state']==='submitting','native completion failure retains uncertain boundary');
+$b=$body();$b['transport']='native_mail_fixture';$claim($b);$phpmailer=new CSF_Scheduling_Email_Fixture_Mailer(true);add_filter('csf_scheduling_mfa_enrolled',$deny,PHP_INT_MAX);$r=CSF_Scheduling_Email_Dispatch::run_native($b,'SyntheticStaff@example.invalid');remove_filter('csf_scheduling_mfa_enrolled',$deny,PHP_INT_MAX);$nc(!is_wp_error($r)&&$read($b)['state']==='suppressed'&&!$phpmailer->messages,'native recipient revoked before submit');
+foreach(['real@example.com','SyntheticStaff@example.invalid']as$address){$b=$body();$b['transport']='native_mail_fixture';$claim($b);$phpmailer=$address==='real@example.com'?new CSF_Scheduling_Email_Fixture_Mailer(true):new WP_PHPMailer(true);$r=CSF_Scheduling_Email_Dispatch::run_native($b,$address);$nc(!is_wp_error($r)&&$read($b)['state']==='uncertain','real recipient or real mailer blocked without submission');}
+echo "DURABLE_NATIVE_MAIL_PASS checks=$nativeChecks\n";

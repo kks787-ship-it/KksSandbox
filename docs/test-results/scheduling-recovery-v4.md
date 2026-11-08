@@ -73,3 +73,29 @@ previously inspected does not match the required hash. CI currently satisfies th
 container side but lacks the pinned interpreter; this workspace satisfies the
 interpreter side but not the container capability. No available authorized runner
 has both, so exact-pin functional recovery remains **not run**, not waived.
+
+## November 8 official artifact discovery — supersedes acquisition blocker
+
+The official Debian package `python3.13-minimal_3.13.5-2+deb13u5_amd64.deb`
+contains an interpreter exactly matching the approved SHA256
+`889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9`.
+This was downloaded and extracted into temporary scratch, not installed or executed.
+The earlier u4 mismatch did not establish that all official releases differ.
+Matching libpython3.13-minimal and libpython3.13-stdlib u5 packages were also obtained.
+The three exact package hashes are recorded in `tests/recovery/prepare-pinned-python.sh`.
+Official source: https://deb.debian.org/debian/pool/main/p/python3.13/ .
+
+The local interpreter build ID is `7e8d5f6d0cd6cd1e9bff2a775c11d398cecca758`;
+its build timestamp/compiler alone were insufficient to reproduce it. Upstream
+Python supplies source, not this Linux build. Debian's reproducibility status for
+u5 is reported unreproducible under its tested variations, so no speculative rebuild
+was represented as equivalent: https://tests.reproducible-builds.org/debian/rb-pkg/trixie/amd64/python3.13.html .
+Acquisition of matching official bytes is now the supported route. No local runtime
+bundle was uploaded, secrets changed, or interpreter/image pins weakened.
+
+CI preparation now downloads/hash-verifies/extracts those official packages in runner
+scratch. An explicit scratch prefix changes only the source location, not the
+binary hash or isolated restore contract. Functional execution remains pending this
+increment's CI; ABI/extension dependencies and all four phases must pass before
+claiming qualified recovery. A synthetic pass never replaces fresh target-bound
+farm backup, restore, reviewed payload, preflight or separate deployment readback.

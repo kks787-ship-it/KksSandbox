@@ -300,3 +300,19 @@ implementation are in [the master audit](test-results/scheduling-master-spec-aud
 the exact missing environment, matrix, additional race/access checks and release
 gates. Publication-only approval now permits the branch and draft PR; no merge or
 deployment follows. Freeze this review candidate after publication.
+
+### November 8 evidence reconciliation — draft publication, not deployment
+
+The historical pending entries above are superseded by draft PR26 / `4c29c66`:
+family holds/expiry/editing/drawer, safe reconciled horse mapping, unused deletion,
+prospective started-closure splitting, and durable sink claims/current recipients
+are implemented. CI run42468961364 passed all four database combinations and the
+functional browser/mail suites; MFA50/security79 passed before the separate missing
+exact-Python recovery prerequisite. Source remains undeployed and owner acceptance
+open. See the appended [master audit](test-results/scheduling-master-spec-audit.md).
+
+The next increment connects the guarded native-mail fixture to durable dispatch,
+adds dashboard/notices browser acceptance, and measures specified family workflows.
+Official Debian 3.13.5-2+deb13u5 contains the exact pinned interpreter, enabling a
+scratch-only CI preparation path without local-runtime uploads or CI-secret changes.
+Functional restore is not passed until all unchanged phases actually execute.

@@ -88,7 +88,9 @@ final class CSF_Scheduling_Email_Dispatch {
 	 */
 	public static function apply( $body ) {
 		CSF_Scheduling_Calendar::require( self::authorize() && CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
-		CSF_Scheduling_Calendar::keys( $body, array( 'event', 'recipient', 'expected', 'action', 'token', 'outcome' ) );
+		$body += array( 'transport' => 'memory_sink' );
+		CSF_Scheduling_Calendar::keys( $body, array( 'event', 'recipient', 'expected', 'action', 'token', 'outcome', 'transport' ) );
+		CSF_Scheduling_Calendar::require( in_array( $body['transport'], array( 'memory_sink', 'native_mail_fixture' ), true ) );
 		CSF_Scheduling_Calendar::require( CSF_Scheduling_Audit::uuid( $body['event'] ) && is_int( $body['recipient'] ) && $body['recipient'] > 0 && is_int( $body['expected'] ) );
 		CSF_Scheduling_Calendar::require( in_array( $body['action'], array( 'queue', 'claim', 'begin', 'finish', 'expire' ), true ) && is_string( $body['token'] ) && preg_match( '/^[a-f0-9]{32}$/D', $body['token'] ) && in_array( $body['outcome'], array( '', 'accepted', 'rejected_transient', 'rejected_permanent', 'uncertain' ), true ) );
 		$event_row = CSF_Scheduling_Calendar::find( 'details', $body['event'] );
@@ -103,10 +105,12 @@ final class CSF_Scheduling_Email_Dispatch {
 		$now = time();
 		if ( 'queue' === $body['action'] ) {
 			CSF_Scheduling_Calendar::require( ! $row, 'invalid_transition' );
-			$job = CSF_Scheduling_Email_Test_Adapter::job( $event, $body['recipient'] );
+			$job              = CSF_Scheduling_Email_Test_Adapter::job( $event, $body['recipient'] );
+			$job['transport'] = $body['transport'];
 		} else {
 			CSF_Scheduling_Calendar::require( null !== $job, 'not_found' );
 		}
+		CSF_Scheduling_Calendar::require( ( $job['transport'] ?? 'memory_sink' ) === $body['transport'], 'invalid_transition' );
 		if ( in_array( $body['action'], array( 'queue', 'claim', 'begin' ), true ) && ! in_array( $job['state'], array( 'queued', 'retry', 'claimed' ), true ) ) {
 			CSF_Scheduling_Calendar::require( false, 'invalid_transition' );
 		}
@@ -153,6 +157,28 @@ final class CSF_Scheduling_Email_Dispatch {
 	 * @param CSF_Scheduling_Email_Sink $sink Final synthetic sink, no network capability.
 	 */
 	public static function run( $body, CSF_Scheduling_Email_Sink $sink ) {
+		CSF_Scheduling_Calendar::require( ( $body['transport'] ?? 'memory_sink' ) === 'memory_sink', 'invalid_transition' );
+		return self::work( $body, $sink, null );
+	}
+
+	/** Exercise the same durable worker through guarded wp_mail, never a real mailer.
+	 *
+	 * @param array  $body Native fixture claim identifiers.
+	 * @param string $address Synthetic example.invalid address.
+	 */
+	public static function run_native( $body, $address ) {
+		CSF_Scheduling_Calendar::require( self::authorize() && ( $body['transport'] ?? null ) === 'native_mail_fixture', 'forbidden' );
+		require_once __DIR__ . '/class-csf-scheduling-email-wp-mail.php';
+		return self::work( $body, null, $address );
+	}
+
+	/** Shared durable pre-submit and completion boundary; no arbitrary transport callback.
+	 *
+	 * @param array                          $body Claim identifiers.
+	 * @param CSF_Scheduling_Email_Sink|null $sink Final memory sink or guarded native fixture.
+	 * @param string|null                    $address Synthetic native fixture address.
+	 */
+	private static function work( $body, $sink, $address ) {
 		CSF_Scheduling_Calendar::require( self::authorize(), 'forbidden' );
 		$body['action']  = 'begin';
 		$body['outcome'] = '';
@@ -164,7 +190,14 @@ final class CSF_Scheduling_Email_Dispatch {
 			return new WP_Error( 'email_claim_expired', 'Submission held; resolve the expired durable claim.' );
 		}
 		try {
-			$outcome = $sink->submit( $result['job']['message'] + array( 'idempotency_key' => $result['job']['key'] ) );
+			if ( null === $sink ) {
+				$claimed          = $result['job'];
+				$claimed['state'] = 'claimed';
+				$receipt          = CSF_Scheduling_Email_WP_Mail::attempt( $claimed, $body['token'], time(), $address );
+				$outcome          = $receipt['result'];
+			} else {
+				$outcome = $sink->submit( $result['job']['message'] + array( 'idempotency_key' => $result['job']['key'] ) );
+			}
 		} catch ( Throwable $error ) {
 			$outcome = 'uncertain';
 		}

@@ -271,3 +271,18 @@ adds family drawer390/768/1280 accessibility/overflow checks. Those follow-up ch
 remain pending. The remaining PHP8.3/MariaDB legacy job is still running at recording.
 MFA preparation hit release504/API403 in this run; prior candidate MFA/security
 passed. No failed check was waived, and functional recovery remains unqualified.
+
+## November 8 current execution status
+
+The earlier unrun matrix/PHPCS/browser statements describe the initial environment,
+not the latest draft. Run42468961364 on `4c29c66` passed the four database combinations,
+PHPCS and functional browser suites listed in the master audit. Durable dispatch
+has real database/race evidence. Dedicated dashboard/notices UI coverage and the
+specified family-duration interaction metrics are now added for the next run.
+
+Recovery can now acquire the exact binary from the official Debian u5 package:
+`prepare-pinned-python.sh` verifies three complete package hashes and the unchanged
+interpreter hash, extracting only into scratch. `restore-local.sh` accepts that
+scratch prefix while retaining its original interpreter/image pins, offline build,
+no-network phases, limits and cleanup. No host installation or secret is needed.
+A prerequisite pass alone still does not qualify pre/full/partial/damaged restore.

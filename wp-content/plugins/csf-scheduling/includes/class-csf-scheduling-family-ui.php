@@ -535,7 +535,17 @@ class CSF_Scheduling_Family_UI {
 			if ( $service['enabled'] ) {
 				$services[ $key ] = ( $service['label'] ?? $key ) . ' — ' . $service['duration_minutes'] . ' min'; }
 		}
-		echo '<form method="post">';
+		echo '<form method="post" data-csf-family-services="' . esc_attr(
+			wp_json_encode(
+				array_map(
+					static fn( $service ) => array(
+						'horse'   => 'none' !== $service['horse_source'],
+						'minutes' => $service['duration_minutes'],
+					),
+					$p['services']
+				)
+			)
+		) . '">';
 		wp_nonce_field( 'csf_family_review' );
 		self::field( 'visit_uuid', '', $draft['visit_uuid'], 'hidden' );
 		self::field( 'visit_expected', '', $draft['visit_expected'], 'hidden' );
@@ -556,12 +566,14 @@ class CSF_Scheduling_Family_UI {
 		echo '</div>';
 		foreach ( $draft['lessons'] as $i => $r ) {
 			$prefix = 'lessons[' . $i . ']';
-			echo '<fieldset><legend>Lesson ' . esc_html( $i + 1 ) . '</legend>';
+			echo '<fieldset data-csf-family-lesson><legend>Lesson ' . esc_html( $i + 1 ) . '</legend>';
 			foreach ( array( 'uuid', 'expected' ) as $key ) {
 				self::field( $prefix . '[' . $key . ']', '', $r[ $key ], 'hidden' ); }
 			self::select( $prefix . '[service_type]', 'Lesson type', $services, $r['service_type'] );
 			self::select( $prefix . '[rider]', 'Rider', $ctx['riders'], $r['rider'] );
+			echo '<span data-csf-family-horse>';
 			self::select( $prefix . '[horse]', 'Horse', $ctx['active_horses'], $r['horse'] );
+			echo '</span><p data-csf-family-duration aria-live="polite"></p>';
 			self::field( $prefix . '[start]', 'Start (' . $p['timezone'] . ')', $r['start'], 'datetime-local' );
 			echo '<details><summary>Optional title and repeated-hour choice</summary>';
 			self::field( $prefix . '[title]', 'Title', $r['title'] );
