@@ -1,6 +1,6 @@
 <?php
 /** Real SQL failure/rollback probes in a unique scratch prefix; disposable local fixture only. */
-if(ABSPATH!=='/tmp/csf-billing-fixture/site/'||DB_NAME!=='csf_gift_fixture'||wp_get_environment_type()!=='local'||!defined('WP_CLI')){throw new RuntimeException('Isolated fixture required');}
+if(!((ABSPATH==='/tmp/csf-billing-fixture/site/'&&DB_NAME==='csf_gift_fixture'&&wp_get_environment_type()==='local'&&defined('WP_CLI'))||(getenv('CSF_SYNTHETIC_RESTORE')==='container-only'&&is_file('/.dockerenv')&&ABSPATH==='/var/www/vhosts/cornerstonefarmomak.com/sandbox.cornerstonefarmomak.com/'&&DB_NAME==='wp_mdf4x'&&is_dir('/fixture')))){throw new RuntimeException('Isolated fixture required');}
 global $wpdb,$checks;$original=$wpdb->prefix;$wpdb->prefix='gift_fixture_probe_'.bin2hex(random_bytes(5)).'_';$prefix=$wpdb->prefix.'csf_billing_';$checks=0;$tables=array('guard','orders','certificates','commands','audit','throttle');$old=$wpdb->suppress_errors(true);
 function dbcheck($ok,$label){global $checks;if(!$ok){throw new RuntimeException($label);}++$checks;echo "PASS $label\n";}
 function dbreject($callback,$label){try{$callback();}catch(CSF_Billing_Failure $e){dbcheck(true,$label);return;}throw new RuntimeException('Expected rejection: '.$label);}
