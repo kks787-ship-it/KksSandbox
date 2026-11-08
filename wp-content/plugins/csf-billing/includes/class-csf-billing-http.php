@@ -11,7 +11,7 @@ final class CSF_Billing_HTTP {
 	public static function register() {
 		if ( ! CSF_Billing_Config::enabled() ) {
 			return; }
-		foreach ( array( 'session', 'prepare', 'create', 'capture', 'receipt', 'list', 'detail', 'redeem', 'correct', 'recover' ) as $action ) {
+		foreach ( array( 'session', 'prepare', 'create', 'capture', 'receipt', 'list', 'detail', 'redeem', 'correct', 'recover', 'cash' ) as $action ) {
 			register_rest_route(
 				'csf-billing/v1',
 				'/' . $action,
@@ -57,12 +57,13 @@ final class CSF_Billing_HTTP {
 	 */
 	public static function permit( $request ) {
 		try {
-			CSF_Billing_Domain::need( CSF_Billing_Config::enabled(), 'sandbox_disabled' );
+			$action  = basename( $request->get_route() );
+			$private = in_array( $action, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash' ), true );
+			CSF_Billing_Domain::need( CSF_Billing_Config::enabled() || ( $private && CSF_Billing_Config::management_enabled() ), 'sandbox_disabled' );
 			CSF_Billing_Session::origin( $request );
-			$action = basename( $request->get_route() );
-			if ( in_array( $action, array( 'list', 'detail', 'redeem', 'correct', 'recover' ), true ) ) {
+			if ( in_array( $action, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash' ), true ) ) {
 				CSF_Billing_Domain::need( wp_verify_nonce( $request->get_header( 'x-wp-nonce' ), 'wp_rest' ), 'request_forbidden' );
-				CSF_Billing_Access::require_cap( 'redeem' === $action ? 'csf_billing_redeem' : ( in_array( $action, array( 'correct', 'recover' ), true ) ? 'csf_billing_manage' : 'csf_billing_audit' ) );
+				CSF_Billing_Access::require_cap( 'redeem' === $action ? 'csf_billing_redeem' : ( in_array( $action, array( 'correct', 'recover', 'cash' ), true ) ? 'csf_billing_manage' : 'csf_billing_audit' ) );
 			} elseif ( 'session' !== $action ) {
 				CSF_Billing_Domain::need( hash_equals( CSF_Billing_Session::csrf( CSF_Billing_Session::current() ), $request->get_header( 'x-csf-csrf' ) ), 'request_forbidden' );
 			}
@@ -143,6 +144,9 @@ final class CSF_Billing_HTTP {
 						'reviews' => $store->reviews(),
 					)
 				); }
+			if ( 'cash' === $action ) {
+				return self::response( $service->cash( $body['command'] ?? '', $body['certificate_id'] ?? '', $body['revision'] ?? null, $body['transition'] ?? '', $body['request'] ?? '', $body['amount_minor'] ?? null, $body['evidence'] ?? '', $body['attested'] ?? false ) );
+			}
 			if ( 'redeem' === $action ) {
 				return self::response( $service->redeem( $body['command'] ?? '', $body['certificate_id'] ?? '', $body['rides'] ?? null, $body['revision'] ?? null, $body['ride_reference'] ?? '' ) );
 			}

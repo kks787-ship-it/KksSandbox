@@ -156,3 +156,13 @@ newer source data. Each absent billing table is rejected and the original qualif
 contract must still reject the expanded schema. Clone credentials cannot access the source DB.
 This is candidate qualification, not a replacement for the qualified contract or target-bound
 recovery gates. See PR27 for final exact-head CI results and the recovery proposal for gaps.
+
+
+Schema3 monetary tests: `value.php` runs 44 additional standalone assertions after the existing
+service suite on PHP8.1/8.3. `money-fixture.php` and `money-http.py` are offline-container-only
+real Store/service probes reached through the restored official TOTP session, not an MFA bypass.
+They create random scratch-prefix schema3 tables, exercise cash/ride races using two PHP workers,
+and drop only those scratch tables. They are not deployed with the plugin. `combined-seed.php`
+retains monetary debit/correction/uncertain cash/recorded payout histories in the recovery snapshot.
+No existing schema2 capture or database is silently upgraded; prior native/browser evidence is
+historical until a fresh schema3 run is reported.

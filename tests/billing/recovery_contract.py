@@ -8,7 +8,7 @@ TABLES=('guard','orders','certificates','commands','audit','throttle')
 COLUMNS={
  'guard':'id schema_version',
  'orders':'id session_hash provider_order_id capture_id status document revision created_at',
- 'certificates':'id order_id number_hash number_sealed purchased redeemed status revision',
+ 'certificates':'id order_id number_hash number_sealed value_json purchased redeemed status revision',
  'commands':'id payload_hash result created_at',
  'audit':'id kind actor object_id details created_at',
  'throttle':'id hits expires'}
@@ -23,7 +23,7 @@ def ascii_column(kind,nullable=False):return kind+ASCII+(' DEFAULT NULL' if null
 PHYSICAL={
  'guard':[('id','tinyint unsigned NOT NULL'),('schema_version','int unsigned NOT NULL')],
  'orders':[('id',ascii_column('char(36)')),('session_hash',ascii_column('char(64)')),('provider_order_id',ascii_column('varchar(32)',True)),('capture_id',ascii_column('varchar(32)',True)),('status','varchar(32) NOT NULL'),('document','longtext NOT NULL'),('revision','bigint unsigned NOT NULL'),('created_at','datetime NOT NULL')],
- 'certificates':[('id',ascii_column('char(36)')),('order_id',ascii_column('char(36)')),('number_hash',ascii_column('char(64)')),('number_sealed','text NOT NULL'),('purchased','int unsigned NOT NULL'),('redeemed','int unsigned NOT NULL'),('status','varchar(32) NOT NULL'),('revision','bigint unsigned NOT NULL')],
+ 'certificates':[('id',ascii_column('char(36)')),('order_id',ascii_column('char(36)')),('number_hash',ascii_column('char(64)')),('number_sealed','text NOT NULL'),('value_json','longtext NOT NULL'),('purchased','int unsigned NOT NULL'),('redeemed','int unsigned NOT NULL'),('status','varchar(32) NOT NULL'),('revision','bigint unsigned NOT NULL')],
  'commands':[('id',ascii_column('char(64)')),('payload_hash',ascii_column('char(64)')),('result','longtext NOT NULL'),('created_at','datetime NOT NULL')],
  'audit':[('id','bigint unsigned NOT NULL AUTO_INCREMENT'),('kind','varchar(64) NOT NULL'),('actor','bigint unsigned NOT NULL'),('object_id',ascii_column('char(36)')),('details','longtext NOT NULL'),('created_at','datetime NOT NULL')],
  'throttle':[('id',ascii_column('char(64)')),('hits','int unsigned NOT NULL'),('expires','bigint unsigned NOT NULL')]}
@@ -56,7 +56,7 @@ def rows(snapshot,prefix,name):
 def qualify(snapshot,prefix='gift_fixture_'):
  need(set(k for k in snapshot if k.startswith(prefix+'csf_billing_'))=={prefix+'csf_billing_'+v for v in TABLES},'billing_table_set')
  data={name:rows(snapshot,prefix,name) for name in TABLES}
- need(len(data['guard'])==1 and str(data['guard'][0]['id'])=='1' and str(data['guard'][0]['schema_version'])=='2','schema_marker')
+ need(len(data['guard'])==1 and str(data['guard'][0]['id'])=='1' and str(data['guard'][0]['schema_version'])=='3','schema_marker')
  orders={r['id']:r for r in data['orders']};certs={r['id']:r for r in data['certificates']};commands={r['id']:r for r in data['commands']}
  for field in ['provider_order_id','capture_id']:
   values=[r[field] for r in orders.values() if r[field] is not None];need(len(values)==len(set(values)),'duplicate_provider_binding')
@@ -73,7 +73,13 @@ def qualify(snapshot,prefix='gift_fixture_'):
   need(d['product']['payment_mode']=='one_time','unsupported_payment_mode')
   if o['status'] in ['issued','capture_uncertain']:need(bool(o['provider_order_id']),'missing_provider_binding')
   if o['status']=='issued':need(sum(c['order_id']==oid for c in certs.values())==1,'missing_issued_certificate')
- debits={};corrected=set();net={cid:0 for cid in certs};issued=set()
+ debits={};corrected=set();net={cid:0 for cid in certs};issued=set();slots={cid:set() for cid in certs};cash={cid:0 for cid in certs};pending={cid:None for cid in certs};values={}
+ for cid,c in certs.items():
+  v=json.loads(c['value_json']);values[cid]=v;d=docs[c['order_id']];policy=v['policy'];n=int(c['purchased']);paid=v['paid_minor']
+  need(set(v)=={'version','currency','paid_minor','allocation','policy','used_slots','cash_paid_minor','pending'} and v['version']==1 and v['currency']=='USD' and type(paid) is int and paid==d['amount_minor'] and n>0 and paid>=n,'value_document')
+  need(policy==d['valuation'] and type(policy['approved']) is bool and policy['method'] in ['proportional_floor_v1','front_remainder_v1'],'value_policy')
+  allocation=[paid*(i+1)//n-paid*i//n if policy['method']=='proportional_floor_v1' else paid//n+(1 if i<paid%n else 0) for i in range(n)]
+  need(v['allocation']==allocation and type(v['cash_paid_minor']) is int and v['cash_paid_minor']>=0,'value_allocation')
  for a in sorted(data['audit'],key=lambda r:int(r['id'])):
   d=json.loads(a['details']);cid=a['object_id']
   if a['kind']=='certificate_issued':
@@ -82,11 +88,27 @@ def qualify(snapshot,prefix='gift_fixture_'):
    need(cid in certs and d['command'] not in debits and isinstance(d['rides'],int) and d['rides']>0,'debit_audit')
    receipt=commands.get(digest('redeem:'+d['command']));need(receipt is not None,'missing_debit_receipt')
    r=json.loads(receipt['result']);need(r['certificate_id']==cid and r['rides']==d['rides'] and r['command']==d['command'],'debit_receipt_binding')
-   need(digest('ride:'+cid+':'+d['ride_reference']) in commands,'missing_ride_tombstone');debits[d['command']]=(cid,d['rides']);net[cid]+=d['rides']
+   need(digest('ride:'+cid+':'+d['ride_reference']) in commands,'missing_ride_tombstone');debits[d['command']]=(cid,d['rides'],d['slots'],d['value_minor']);net[cid]+=d['rides']
+   used=d['slots'];need(isinstance(used,list) and len(used)==d['rides'] and len(set(used))==len(used) and all(type(i) is int and 0<=i<len(values[cid]['allocation']) and i not in slots[cid] for i in used),'debit_value_slots')
+   need(d['value_minor']==sum(values[cid]['allocation'][i] for i in used) and r['slots']==used and r['value_minor']==d['value_minor'] and pending[cid] is None,'debit_value_receipt');slots[cid].update(used)
   if a['kind']=='ride_debit_corrected':
-   original=d['original_command'];need(original in debits and original not in corrected and debits[original]==(cid,d['rides']),'correction_audit')
-   need(digest('reversed:'+original) in commands,'missing_correction_tombstone');corrected.add(original);net[cid]-=d['rides']
+   original=d['original_command'];need(original in debits and original not in corrected and debits[original]==(cid,d['rides'],d['slots'],d['value_minor']),'correction_audit')
+   need(digest('reversed:'+original) in commands,'missing_correction_tombstone');corrected.add(original);net[cid]-=d['rides'];need(set(d['slots'])<=slots[cid] and pending[cid] is None,'correction_value');slots[cid].difference_update(d['slots'])
+  if a['kind'].startswith('cash_'):
+   need(cid in certs and type(d['amount_minor']) is int and d['amount_minor']>0 and d['currency']=='USD','cash_audit')
+   receipt=commands.get(digest('cash:'+d['command']));need(receipt is not None,'cash_receipt');r=json.loads(receipt['result']);need(r['request']==d['request'] and r['certificate_id']==cid,'cash_receipt_binding')
+   if a['kind']=='cash_reserve':
+    need(pending[cid] is None and d['amount_minor']==values[cid]['paid_minor']-sum(values[cid]['allocation'][i] for i in slots[cid])-cash[cid] and digest('cash_request:'+d['request']) in commands,'cash_reservation')
+    pending[cid]={'id':d['request'],'amount_minor':d['amount_minor'],'state':'reserved'}
+   else:
+    need(pending[cid] is not None and pending[cid]['id']==d['request'] and pending[cid]['amount_minor']==d['amount_minor'],'cash_transition')
+    if a['kind']=='cash_uncertain':pending[cid]['state']='uncertain'
+    elif a['kind']=='cash_record_paid':
+     need(digest('cash_evidence:'+d['evidence']) in commands,'cash_payout_evidence');cash[cid]+=d['amount_minor'];pending[cid]=None
+    elif a['kind']=='cash_cancel_unpaid':pending[cid]=None
+    else:raise ValueError('unknown_cash_transition')
  for cid,c in certs.items():
+  v=values[cid];need(v['used_slots']==sorted(slots[cid]) and v['cash_paid_minor']==cash[cid] and v['pending']==pending[cid] and v['paid_minor']-sum(v['allocation'][i] for i in slots[cid])-cash[cid]>=0,'value_balance')
   need(c['order_id'] in orders,'orphan_certificate');o=orders[c['order_id']];d=docs[c['order_id']]
   need(cid in issued and int(c['purchased'])==d['product']['rides'],'purchased_rides_binding')
   need(0<=int(c['redeemed'])<=int(c['purchased']) and net[cid]==int(c['redeemed']),'redemption_balance')

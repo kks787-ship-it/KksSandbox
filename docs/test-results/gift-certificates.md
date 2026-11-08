@@ -275,3 +275,48 @@ no-overwrite equivalence and consistent capture coordination require independent
 qualification. Successful synthetic missing/wrong-key tests do not establish secure escrow,
 off-server custody or farm key/config/target bindings. No production adoption or installation
 is authorized by these tests, and no real PayPal verification is claimed.
+
+
+## Monetary ledger increment — schema3 / 0.3.0-dev
+
+This supersedes the earlier ride-only implementation gap, without approving sales or terms.
+Certificates now retain an authoritative value document: original paid USD cents, immutable
+allocation policy/version, per-ride cent allocations, consumed ride ordinals, recorded cash
+paid and one reserved/uncertain cash request. Schema3 adds required `value_json` to certificates;
+six billing tables remain. Original source order price/terms are unchanged.
+
+Two configurable proposals are implemented, neither owner/legal-approved by default:
+`proportional_floor_v1` assigns ride i `floor(P*(i+1)/N)-floor(P*i/N)` cents; `front_remainder_v1`
+assigns `floor(P/N)` plus one cent to the first `P mod N` rides. Sum is exactly paid value with
+no floating point. Correcting a debit restores its original ride slots/cents, not a recomputed
+average. Policies must be confirmed via `CSF_BILLING_VALUATION_JSON` with method/version/approved;
+purchase preparation fails until approved. These algorithm names are configuration, not terms.
+
+Private managers with current direct capability, real MFA and REST nonce may reserve the entire
+remaining value, mark the payout uncertain, record a full cash payout already made against a
+private evidence UUID, or release a reservation after independently confirming no payout.
+No workflow calls PayPal, transfers funds or creates a refund. Reservation identity and paid
+payout-evidence UUID have permanent tombstones. Command replay, singleton InnoDB lock, expected
+revision and transactional audit prevent concurrent ride/cash double use. Unknown payout remains
+reserved. A later provider freeze is not cleared by recording/canceling cash. Evidence must be
+real independently reviewed documentation; an operator attestation is not external payment proof.
+
+Remaining value is paid cents minus consumed slot cents minus recorded cash; reserved value is
+shown separately and remains owned value. Pending cash blocks ride/correction commands; cash
+exhaustion prevents spending still-listed rides. An exact mistaken-ride correction can restore
+value after a completed cash payout. The private UI shows value alongside rides and flags a
+post-ride positive balance below $5. It supports full remaining cash requests at any amount;
+it does not purport to decide legal entitlement or automate payment. Partial cash payouts and
+correction of a falsely attested payout are intentionally blocked pending a reviewed workflow.
+
+Private management has a separate default-off `CSF_BILLING_MANAGEMENT_ENABLED` gate; this never
+enables public checkout. No farm constant/grant was set. Existing schema2 ledgers fail closed;
+there is no automatic migration or speculative monetary backfill. An independently reviewed
+legacy reconciliation/migration is required for existing records. This project has no installed
+farm billing schema; previous local captures remain untouched as historical evidence.
+
+Local value suite passes 44 assertions on PHP8.1/8.3 plus existing 300 cumulative service checks;
+plugin PHPCS and JS syntax pass. New real-DB/MFA two-worker and strict monetary recovery probes
+run in draft CI; final result/commit is recorded in PR27. The combined recovery seed contains
+uncertain cash and recorded payout histories, all payment states and exact correction evidence.
+Do not substitute historical native HTTP/browser results for new schema3 acceptance.

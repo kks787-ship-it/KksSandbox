@@ -2,6 +2,7 @@
 /** Synthetic provider/store contract tests, not MySQL or PayPal qualification. */
 require __DIR__ . '/domain.php';
 require __DIR__ . '/../../wp-content/plugins/csf-billing/includes/class-csf-billing-paypal.php';
+define('CSF_BILLING_VALUATION_JSON','{"method":"proportional_floor_v1","version":"synthetic","approved":true}');
 define( 'CSF_BILLING_SANDBOX_ENABLED', true );
 define( 'CSF_BILLING_CATALOG_JSON', json_encode( array( 'products' => array( $product ), 'terms' => $terms ) ) );
 define( 'CSF_PAYPAL_SANDBOX_CLIENT_ID', 'synthetic-client-only' );

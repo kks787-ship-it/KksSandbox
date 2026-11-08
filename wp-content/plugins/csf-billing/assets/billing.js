@@ -45,6 +45,7 @@
       content.append(node('p', `Reference: ${data.order_id}`), node('p', `Status: ${data.status}`), node('p', data.package));
       if (data.certificate_number) {
         content.append(node('p', `Certificate: ${data.certificate_number}`), node('p', `Purchased rides: ${data.purchased}; redeemed: ${data.redeemed}; remaining: ${data.purchased - data.redeemed}.`));
+        if (data.value) { const v = data.value; const spent = v.used_slots.reduce((n, i) => n + v.allocation[i], 0); const remaining = v.paid_minor - spent - v.cash_paid_minor; content.append(node('p', `Paid value: $${(v.paid_minor / 100).toFixed(2)} USD; ride value used: $${(spent / 100).toFixed(2)}; cash paid (recorded): $${(v.cash_paid_minor / 100).toFixed(2)}; remaining value: $${(remaining / 100).toFixed(2)}.`)); if (v.pending) content.append(node('p', `Cash request ${v.pending.id}: ${v.pending.state}. Value is reserved, not yet recorded as paid. Rides and corrections are held.`)); if (!v.policy.approved) content.append(node('p', 'Ride valuation awaits approval. Paid value remains preserved.')); }
         if (!admin) content.append(button('Print or save this test certificate', async () => window.print()));
       }
       content.append(node('h4', `Accepted terms — ${data.terms.version}`), node('p', `Accepted: ${data.accepted_at}`), node('pre', data.terms.text, {class: 'csf-gift-terms'}));
@@ -94,6 +95,21 @@
           await api('correct', {command: correctionCommand, certificate_id: data.certificate_id, redemption_command: original.value.trim(), revision: data.revision, reason: reason.value});
           receipt(await api('detail', {order_id: data.order_id}), true);
         }); }); if (data.can_manage && original.options.length) content.append(correction);
+      }
+      if (data.certificate_id && data.value && data.can_manage) {
+        const v = data.value; const remaining = v.paid_minor - v.used_slots.reduce((n, i) => n + v.allocation[i], 0) - v.cash_paid_minor;
+        if (remaining > 0) {
+          const cash = node('form'); cash.append(node('h4', 'Cash redemption record'), node('p', 'This form does not send money or issue a PayPal refund. Reserve the balance before any separately authorized payout. Keep uncertain payouts reserved until independently reconciled.'));
+          const transition = node('select', null, {required: ''});
+          const choices = v.pending ? [['uncertain', 'Keep reserved: payout outcome uncertain'], ['record_paid', 'Record cash already paid in full'], ['cancel_unpaid', 'Release reservation: independently confirmed unpaid']] : [['reserve', 'Reserve full remaining value for requested cash redemption']];
+          choices.forEach(([value, label]) => transition.append(node('option', label, {value}))); cash.append(transition);
+          const evidence = field(cash, 'Private request / reconciliation / payout evidence reference (UUID; no personal or bank details)', 'text', {required: ''});
+          const attested = field(cash, ' I checked the history and confirm the selected outcome and full amount against independent evidence.', 'checkbox', {required: ''});
+          const amount = v.pending ? v.pending.amount_minor : remaining; cash.append(node('p', `Exact amount: $${(amount / 100).toFixed(2)} USD.`));
+          if (data.redeemed > 0 && remaining < 500) cash.append(node('p', 'Remaining value after a ride purchase is below $5. Review the bearer’s cash request promptly. This flag does not execute payment.'));
+          cash.append(node('button', 'Save cash-redemption record', {type: 'submit'})); const command = uuid(); const request = v.pending ? v.pending.id : uuid();
+          cash.addEventListener('submit', event => { event.preventDefault(); if (!attested.checked) return; run(async () => { await api('cash', {command, certificate_id: data.certificate_id, revision: data.revision, transition: transition.value, request, amount_minor: amount, evidence: evidence.value.trim(), attested: true}); receipt(await api('detail', {order_id: data.order_id}), true); }); }); content.append(cash);
+        }
       }
       if (data.status === 'create_uncertain' && data.can_manage) {
         const recovery = node('form', null);

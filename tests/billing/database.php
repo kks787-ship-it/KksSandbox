@@ -12,7 +12,7 @@ try{
  $wpdb->query("ALTER TABLE {$prefix}orders ADD UNIQUE KEY provider_order(provider_order_id)");
  $wpdb->query("ALTER TABLE {$prefix}audit ENGINE=MyISAM");dbreject(fn()=>$store->ready(),'nontransactional audit fails closed');$wpdb->query("ALTER TABLE {$prefix}audit ENGINE=InnoDB");
  $wpdb->query("RENAME TABLE {$prefix}throttle TO {$prefix}missing");dbreject(fn()=>$store->ready(),'missing table fails closed');$wpdb->query("RENAME TABLE {$prefix}missing TO {$prefix}throttle");
- $wpdb->query("UPDATE {$prefix}guard SET schema_version=1");dbreject(fn()=>$store->snapshot(fn()=>true),'wrong schema version fails closed');$wpdb->query("UPDATE {$prefix}guard SET schema_version=2");
+ $wpdb->query("UPDATE {$prefix}guard SET schema_version=1");dbreject(fn()=>$store->snapshot(fn()=>true),'wrong schema version fails closed');$wpdb->query("UPDATE {$prefix}guard SET schema_version=3");
  $id=wp_generate_uuid4();$command=hash('sha256','synthetic-sql-command');
  $write=static function($store)use($id){$store->audit('synthetic_probe',0,$id,array('test'=>true));return array('id'=>$id);};
  $fault=static fn($sql)=>$sql==='COMMIT'?'SELECT * FROM nonexistent_synthetic_commit_fault':$sql;

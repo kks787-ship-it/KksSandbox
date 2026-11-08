@@ -1,7 +1,7 @@
 """Unqualified combined-schema candidate on exact pinned runtime; offline synthetic container only.
 Does not modify or invoke a broadened version of the qualified source contract.
 """
-import runpy
+import runpy,signal
 import base64,copy,hashlib,http.cookiejar,json,os,pathlib,pwd,re,secrets,shutil,subprocess,sys,tarfile,time,urllib.parse,urllib.request
 from html.parser import HTMLParser
 sys.path.insert(0,'/fixture/tests/billing')
@@ -50,7 +50,9 @@ try:
  before=snapshot('wp_mdf4x');manifest=files(SRC)
  damage=runpy.run_path('/fixture/tests/billing/schema-damage-test.py')['schema_damage_checks']
  schema_damage_checks=damage(before,'TXGEh_')
- check(schema_damage_checks==273,'strict physical schema rejects damaged capture and identical damaged restore')
+ monetary_damage_checks=runpy.run_path('/fixture/tests/billing/recovery-value-test.py')['monetary_damage_checks'](before,'TXGEh_')
+ check(monetary_damage_checks==16,'monetary corruption rejected in capture and identical restore')
+ check(schema_damage_checks==279,'strict physical schema rejects damaged capture and identical damaged restore')
  check(len(before)==33,'combined exact 33 tables');plan=qualify(before,'TXGEh_');check(plan['billing_tables']==6 and plan['certificates']==2 and plan['debits']==2 and plan['corrections']==1 and all(n==1 for n in plan['reconciliation_counts'].values()),'combined billing invariants')
  old={};exec(compile(P('/fixture/docs/pilot/baseline-select-plan.py.txt').read_bytes(),'original_contract','exec'),old)
  try:old['table_set'](before)
@@ -86,7 +88,7 @@ try:
  clone_config=config.replace("'wp_mdf4x'","'billing_restore'").replace("define('DB_USER','root')","define('DB_USER','billing_clone')").replace("define('DB_PASSWORD','')","define('DB_PASSWORD','"+clone_password+"')")
  (DST/'wp-config.php').write_text(clone_config);(DST/'wp-config.php').chmod(0o600)
  mu=DST/'wp-content/mu-plugins';mu.mkdir(exist_ok=True)
- (mu/'offline.php').write_text("<?php add_filter('pre_wp_mail',static fn()=>false,-999999);add_filter('pre_http_request',static fn()=>new WP_Error('offline','Blocked'),-999999);add_action('init',static function(){if(($_SERVER['REQUEST_URI']??'')==='/fixture-proof'){wp_send_json(array('verified'=>CSF_MFA_Session::web_verified(1)));}});")
+ (mu/'offline.php').write_text("<?php add_filter('pre_wp_mail',static fn()=>false,-999999);add_filter('pre_http_request',static fn()=>new WP_Error('offline','Blocked'),-999999);add_action('init',static function(){if(($_SERVER['REQUEST_URI']??'')==='/fixture-money'){require '/fixture/tests/billing/money-fixture.php';}if(($_SERVER['REQUEST_URI']??'')==='/fixture-proof'){wp_send_json(array('verified'=>CSF_MFA_Session::web_verified(1),'nonce'=>wp_create_nonce('wp_rest')));}});")
  verify="global $wpdb;if(CSF_Billing_Config::enabled()){throw new RuntimeException('Sales enabled');}$rows=$wpdb->get_results('SELECT * FROM TXGEh_csf_billing_certificates',ARRAY_A);foreach($rows as $r){$p=CSF_Billing_Config::open($r['number_sealed']);if(!hash_equals($r['number_hash'],hash('sha256',$p))){throw new RuntimeException('Key mismatch');}$raw=base64_decode($r['number_sealed']);$raw[28]=chr(ord($raw[28])^1);try{CSF_Billing_Config::open(base64_encode($raw));throw new RuntimeException('Tamper accepted');}catch(CSF_Billing_Failure $e){}}if(!CSF_MFA_Session::enrolled(false,1)){throw new RuntimeException('MFA lost');}echo 'KEY_AND_MFA_OK';"
  # Separate PHP processes ensure configuration constants cannot reuse a prior good key.
  sealed_probe="global $wpdb;$v=$wpdb->get_var('SELECT number_sealed FROM TXGEh_csf_billing_certificates LIMIT 1');try{CSF_Billing_Config::open($v);echo 'BAD';}catch(CSF_Billing_Failure $e){echo 'REJECTED';}"
@@ -107,7 +109,7 @@ try:
  router=WORK/'router.php';router.write_text("<?php $p=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);if(is_file('"+str(DST)+"'.$p)){return false;}require '"+str(DST)+"/index.php';")
  # Router lives with the restored web tree; private evidence directory is not exposed.
  shutil.copyfile(router,DST/'fixture-router.php');os.chown(DST/'fixture-router.php',user.pw_uid,user.pw_gid)
- web=subprocess.Popen(php+['-S','127.0.0.1:18890','-t',str(DST),str(DST/'fixture-router.php')],user=user.pw_uid,group=user.pw_gid,extra_groups=[],stdout=subprocess.DEVNULL,stderr=(WORK/'web.log').open('wb'))
+ web=subprocess.Popen(php+['-S','127.0.0.1:18890','-t',str(DST),str(DST/'fixture-router.php')],user=user.pw_uid,group=user.pw_gid,extra_groups=[],env=dict(os.environ,PHP_CLI_SERVER_WORKERS='2'),start_new_session=True,stdout=subprocess.DEVNULL,stderr=(WORK/'web.log').open('wb'))
  class Forms(HTMLParser):
   def __init__(self,text):super().__init__();self.forms=[];self.current=None;self.feed(text)
   def handle_starttag(self,tag,attrs):
@@ -127,10 +129,12 @@ try:
  code=evalphp(DST,"$p=Two_Factor_Totp::get_instance();echo Two_Factor_Totp::calc_totp($p->get_user_totp_key(1),floor(time()/30));")
  f['fields']['authcode']=code;request(f['action'],f['fields']);check(json.loads(request('/fixture-proof'))['verified'] is True,'real restored password TOTP and signed session proof')
  check('Online gift certificate purchases are not available yet.' in request('/?p='+evalphp(DST,"echo get_page_by_path('gifts')->ID;")),'restored checkout closed')
+ money_checks=runpy.run_path('/fixture/tests/billing/money-http.py')['money_checks'](opener,base,json.loads(request('/fixture-proof'))['nonce'])
+ check(money_checks==18,'real database monetary workflow and two-worker concurrency with official MFA')
  after=snapshot('billing_restore');check({k:v for k,v in after.items() if '_csf_' in k}=={k:v for k,v in before.items() if '_csf_' in k},'scheduling and billing rows preserved after functional checks')
  check(snapshot('wp_mdf4x')==source_current and files(SRC)==manifest,'newer source owner data and files never overwritten')
- print(json.dumps({'combined_tables':33,'checks':checks,'schema_damage_checks':schema_damage_checks,'exact_runtime_pins':True,'candidate_only':True,'qualified_contract_changed':False,'provider_verified':False,'sales_enabled':False,'source_preserved':True,'key_and_mfa_verified':True}),flush=True)
+ print(json.dumps({'combined_tables':33,'checks':checks,'schema_damage_checks':schema_damage_checks,'money_checks':money_checks,'monetary_damage_checks':monetary_damage_checks,'exact_runtime_pins':True,'candidate_only':True,'qualified_contract_changed':False,'provider_verified':False,'sales_enabled':False,'source_preserved':True,'key_and_mfa_verified':True}),flush=True)
 finally:
- if web:web.terminate();web.wait(timeout=15)
+ if web:os.killpg(web.pid,signal.SIGTERM);web.wait(timeout=15)
  if server:server.terminate();server.wait(timeout=30)
  # No secret fixture artifact is uploaded; container disposal is mandatory in shell trap.

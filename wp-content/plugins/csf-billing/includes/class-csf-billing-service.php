@@ -33,6 +33,8 @@ final class CSF_Billing_Service {
 		foreach ( array( 'CSF_PAYPAL_SANDBOX_CLIENT_ID', 'CSF_PAYPAL_SANDBOX_CLIENT_SECRET', 'CSF_PAYPAL_SANDBOX_MERCHANT_ID' ) as $name ) {
 			CSF_Billing_Config::secret( $name );
 		}
+		$valuation = CSF_Billing_Value::policy();
+		CSF_Billing_Domain::need( true === $valuation['approved'], 'valuation_unapproved' );
 		$catalog = CSF_Billing_Config::catalog();
 		CSF_Billing_Domain::need( in_array( $product, $catalog['products'] ?? array(), true ) && hash_equals( CSF_Billing_Domain::json( $catalog['terms'] ?? null ), CSF_Billing_Domain::json( $terms ) ), 'catalog_unapproved' );
 		CSF_Billing_Domain::uuid( $command );
@@ -55,6 +57,7 @@ final class CSF_Billing_Service {
 					'id'                 => $id,
 					'product'            => $product,
 					'terms'              => $terms,
+					'valuation'          => CSF_Billing_Value::policy(),
 					'accepted_at'        => gmdate( 'Y-m-d\TH:i:s\Z' ),
 					'amount_minor'       => $product['amount_minor'],
 					'currency'           => $product['currency'],
@@ -378,6 +381,7 @@ final class CSF_Billing_Service {
 						'number_sealed' => CSF_Billing_Config::seal( $number ),
 						'purchased'     => $document['product']['rides'],
 						'redeemed'      => 0,
+						'value_json'    => CSF_Billing_Domain::json( CSF_Billing_Value::initial( $document['amount_minor'], $document['product']['rides'], $document['valuation'] ?? array() ) ),
 						'status'        => 'active',
 						'revision'      => 1,
 					)
@@ -606,9 +610,11 @@ final class CSF_Billing_Service {
 				'ride_reference' => $ride_reference,
 			),
 			function ( $store ) use ( $id, $rides, $revision, $ride_reference, $actor, $command ) {
-				$row      = $store->row( 'certificates', $id );
-				$update   = self::redemption( $row, $rides, $revision );
-				$ride_key = hash( 'sha256', 'ride:' . $id . ':' . $ride_reference );
+				$row                  = $store->row( 'certificates', $id );
+				$update               = self::redemption( $row, $rides, $revision );
+				$value_debit          = CSF_Billing_Value::debit( $row, $rides );
+				$update['value_json'] = CSF_Billing_Domain::json( $value_debit['value'] );
+				$ride_key             = hash( 'sha256', 'ride:' . $id . ':' . $ride_reference );
 				CSF_Billing_Domain::need( ! $store->row( 'commands', $ride_key ), 'ride_already_recorded' );
 				$store->insert(
 					'commands',
@@ -628,6 +634,8 @@ final class CSF_Billing_Service {
 						'rides'          => $rides,
 						'command'        => $command,
 						'ride_reference' => $ride_reference,
+						'slots'          => $value_debit['slots'],
+						'value_minor'    => $value_debit['value_minor'],
 						'revision'       => $update['revision'],
 					)
 				);
@@ -636,6 +644,8 @@ final class CSF_Billing_Service {
 					'command'        => $command,
 					'rides'          => $rides,
 					'remaining'      => (int) $row['purchased'] - $update['redeemed'],
+					'slots'          => $value_debit['slots'],
+					'value_minor'    => $value_debit['value_minor'],
 					'revision'       => $update['revision'],
 				);
 			},
@@ -685,13 +695,15 @@ final class CSF_Billing_Service {
 						'created_at'   => gmdate( 'Y-m-d H:i:s' ),
 					)
 				);
+				$value    = CSF_Billing_Value::reverse( $row, $debit );
 				$redeemed = (int) $row['redeemed'] - $debit['rides'];
 				$store->update(
 					'certificates',
 					$id,
 					array(
-						'redeemed' => $redeemed,
-						'revision' => $revision + 1,
+						'redeemed'   => $redeemed,
+						'value_json' => CSF_Billing_Domain::json( $value ),
+						'revision'   => $revision + 1,
 					)
 				);
 				$store->audit(
@@ -700,6 +712,8 @@ final class CSF_Billing_Service {
 					$id,
 					array(
 						'original_command' => $original,
+						'value_minor'      => $debit['value_minor'],
+						'slots'            => $debit['slots'],
 						'rides'            => $debit['rides'],
 						'reason'           => $reason,
 					)
@@ -711,6 +725,105 @@ final class CSF_Billing_Service {
 				);
 			},
 			function () use ( $actor ) {
+				CSF_Billing_Domain::need( CSF_Billing_Access::require_cap( 'csf_billing_manage' ) === $actor, 'billing_access_required' );
+			}
+		);
+	}
+	/** Reserve remaining value or record an independently performed cash payment; never pays money.
+	 *
+	 * @param string $command Idempotency UUID.
+	 * @param string $id Certificate UUID.
+	 * @param int    $revision Expected revision.
+	 * @param string $action Compiled workflow transition.
+	 * @param string $request Original reservation UUID, or command for a new reservation.
+	 * @param int    $amount Exact remaining/requested cents.
+	 * @param string $evidence Private external evidence record UUID; never bank/customer details.
+	 * @param bool   $attested Explicit operator attestation.
+	 */
+	public function cash( $command, $id, $revision, $action, $request, $amount, $evidence, $attested ) {
+		$actor = CSF_Billing_Access::require_cap( 'csf_billing_manage' );
+		foreach ( array( $command, $id, $request, $evidence ) as $uuid ) {
+			CSF_Billing_Domain::uuid( $uuid );}
+		CSF_Billing_Domain::need( is_int( $revision ) && is_int( $amount ) && $amount > 0 && true === $attested && in_array( $action, array( 'reserve', 'uncertain', 'record_paid', 'cancel_unpaid' ), true ), 'invalid_request' );
+		$payload = compact( 'actor', 'id', 'revision', 'action', 'request', 'amount', 'evidence', 'attested' );
+		return $this->store->command(
+			hash( 'sha256', 'cash:' . $command ),
+			$payload,
+			function ( $store ) use ( $actor, $id, $revision, $action, $request, $amount, $evidence, $command ) {
+				$row = $store->row( 'certificates', $id );
+				CSF_Billing_Domain::need( $row && (int) $row['revision'] === $revision, 'cash_conflict' );
+				$v = CSF_Billing_Value::read( $row );
+				if ( 'reserve' === $action ) {
+					CSF_Billing_Domain::need( 'active' === $row['status'] && null === $v['pending'] && CSF_Billing_Value::remaining( $v ) === $amount, 'cash_conflict' );
+					$key = hash( 'sha256', 'cash_request:' . $request );
+					CSF_Billing_Domain::need( ! $store->row( 'commands', $key ), 'cash_request_used' );
+					$store->insert(
+						'commands',
+						array(
+							'id'           => $key,
+							'payload_hash' => hash( 'sha256', $id . ':' . $request ),
+							'result'       => '{}',
+							'created_at'   => gmdate( 'Y-m-d H:i:s' ),
+						)
+					);
+					$v['pending'] = array(
+						'id'           => $request,
+						'amount_minor' => $amount,
+						'state'        => 'reserved',
+					);
+				} else {
+					CSF_Billing_Domain::need( null !== $v['pending'] && $request === $v['pending']['id'] && $amount === $v['pending']['amount_minor'], 'cash_conflict' );
+					// A provider freeze cannot erase an actual cash payout or release the certificate.
+					if ( 'uncertain' === $action ) {
+						$v['pending']['state'] = 'uncertain';} elseif ( 'record_paid' === $action ) {
+									$key = hash( 'sha256', 'cash_evidence:' . $evidence );
+											CSF_Billing_Domain::need( ! $store->row( 'commands', $key ), 'cash_evidence_used' );
+									$store->insert(
+										'commands',
+										array(
+											'id'           => $key,
+											'payload_hash' => hash( 'sha256', $id . ':' . $request ),
+											'result'       => '{}',
+											'created_at'   => gmdate( 'Y-m-d H:i:s' ),
+										)
+									);
+									$v['cash_paid_minor'] += $amount;
+											$v['pending']  = null;
+						} else {
+							$v['pending'] = null;}
+				}
+				$store->update(
+					'certificates',
+					$id,
+					array(
+						'value_json' => CSF_Billing_Domain::json( $v ),
+						'revision'   => $revision + 1,
+					)
+				);
+				$store->audit(
+					'cash_' . $action,
+					$actor,
+					$id,
+					array(
+						'command'      => $command,
+						'request'      => $request,
+						'amount_minor' => $amount,
+						'currency'     => 'USD',
+						'evidence'     => $evidence,
+						'revision'     => $revision + 1,
+					)
+				);
+				return array(
+					'certificate_id'   => $id,
+					'revision'         => $revision + 1,
+					'action'           => $action,
+					'request'          => $request,
+					'remaining_minor'  => CSF_Billing_Value::remaining( $v ),
+					'pending'          => $v['pending'],
+					'payment_executed' => false,
+				);
+			},
+			static function () use ( $actor ) {
 				CSF_Billing_Domain::need( CSF_Billing_Access::require_cap( 'csf_billing_manage' ) === $actor, 'billing_access_required' );
 			}
 		);

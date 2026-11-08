@@ -13,6 +13,10 @@ final class CSF_Billing_Config {
 	public static function enabled() {
 		return defined( 'CSF_BILLING_SANDBOX_ENABLED' ) && true === CSF_BILLING_SANDBOX_ENABLED && in_array( wp_get_environment_type(), array( 'local', 'development' ), true );
 	}
+	/** Separate explicit private-management gate; never enables checkout. */
+	public static function management_enabled() {
+		return defined( 'CSF_BILLING_MANAGEMENT_ENABLED' ) && true === CSF_BILLING_MANAGEMENT_ENABLED;
+	}
 	/** Non-secret catalog may be reviewed in deployment config; empty by default.
 	 */
 	public static function catalog() {

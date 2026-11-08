@@ -234,3 +234,21 @@ Missing decisions: custody platform/location, named authorized custodians, reten
 access policy. No real key or backup can be provisioned by this preparation; farm access remains
 excluded. Financial value/cash-redemption schema changes must also be incorporated into the
 future physical and recovery contract before any sale or installation.
+
+
+## Schema3 monetary extension — candidate only
+
+Schema3 adds required certificate `value_json`, preserving the six-table count. The new physical
+contract includes the exact longtext declaration; schema2 is rejected, not silently upgraded.
+Recovery independently reconstructs original cent allocation from immutable order valuation,
+reconciles consumed ride slots and exact corrections, cash reservations/uncertainty, attested
+cash payments, replay receipts and tombstones, and requires nonnegative remaining value. Source
+price and policy bind the value document; current catalog prices never revalue old certificates.
+The synthetic seed includes one uncertain cash reservation and one recorded payout; no cash moves.
+New scratch-table service probes use a real restored password/TOTP session and two PHP workers,
+then remove only their scratch tables before rechecking restored ledger preservation.
+
+The original qualified 27-table contract remains unchanged and rejects this 33-table candidate.
+This increment is not protected contract adoption, escrow qualification or a migration recipe.
+Historical schema2 captures remain retained; any future upgrade needs independent backup/recovery
+qualification and legacy audit-to-value reconciliation, never inferred balances or silent defaults.

@@ -82,7 +82,7 @@ final class CSF_Billing_Store {
 			$this->check( $wpdb->query( 'START TRANSACTION' ) );
 			$this->active = true;
 			$version      = $wpdb->get_var( $wpdb->prepare( 'SELECT schema_version FROM %i WHERE id = 1 FOR UPDATE', $this->table( 'guard' ) ) );
-			CSF_Billing_Domain::need( '2' === (string) $version, 'billing_schema_unavailable' );
+			CSF_Billing_Domain::need( '3' === (string) $version, 'billing_schema_unavailable' );
 			if ( null !== $guard ) {
 				$guard();
 			}
@@ -129,7 +129,7 @@ final class CSF_Billing_Store {
 			$this->check( $wpdb->query( 'START TRANSACTION' ) );
 			$this->active = true;
 			$version      = $wpdb->get_var( $wpdb->prepare( 'SELECT schema_version FROM %i WHERE id=1 FOR UPDATE', $this->table( 'guard' ) ) );
-			CSF_Billing_Domain::need( '2' === (string) $version, 'billing_schema_unavailable' );
+			CSF_Billing_Domain::need( '3' === (string) $version, 'billing_schema_unavailable' );
 			if ( $guard ) {
 				$guard(); }
 			$result = $callback( $this );
@@ -211,6 +211,7 @@ final class CSF_Billing_Store {
 					'terms'          => $doc['terms'],
 					'accepted_at'    => $doc['accepted_at'],
 					'certificate_id' => $cert['id'] ?? null,
+					'value'          => $cert ? CSF_Billing_Value::read( $cert ) : null,
 					'number_sealed'  => $cert['number_sealed'] ?? null,
 					'purchased'      => isset( $cert['purchased'] ) ? (int) $cert['purchased'] : 0,
 					'redeemed'       => isset( $cert['redeemed'] ) ? (int) $cert['redeemed'] : 0,

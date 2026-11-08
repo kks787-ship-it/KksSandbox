@@ -191,3 +191,10 @@ review must settle package-value allocation, annual-program separation, payout h
 no-show/transfer/withdrawal terms. Also identify the PayPal sandbox merchant controller, isolated
 non-farm HTTPS target/secure secret handoff, and encrypted off-server key custodian. See doc14
 and the billing recovery proposal; no secret or personal account details should be posted here.
+
+
+Monetary implementation update: schema3 now supplies cent accounting and a recording-only cash
+workflow. Owner/legal decisions still needed: choose/version a proportional rounding policy,
+confirm operating procedure for bearer requests and independently evidenced payout reconciliation,
+and settle final terms. Proposed policies are unapproved by default. No actual payout is
+executed; no sales, deployment, legacy backfill, privilege or key-custody approval is inferred.

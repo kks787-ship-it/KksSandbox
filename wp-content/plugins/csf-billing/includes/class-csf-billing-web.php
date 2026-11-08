@@ -32,7 +32,7 @@ final class CSF_Billing_Web {
 	 * @param string $hook Optional admin screen identifier.
 	 */
 	public static function assets( $hook = '' ) {
-		if ( ! CSF_Billing_Config::enabled() || ( is_admin() && 'toplevel_page_csf-gift-certificates' !== $hook ) ) {
+		if ( ! ( CSF_Billing_Config::enabled() || ( is_admin() && CSF_Billing_Config::management_enabled() ) ) || ( is_admin() && 'toplevel_page_csf-gift-certificates' !== $hook ) ) {
 			return; }
 		$base = dirname( __DIR__ ) . '/csf-billing.php';
 		wp_enqueue_script( 'csf-gift-certificates', plugins_url( 'assets/billing.js', $base ), array(), CSF_BILLING_VERSION, true );

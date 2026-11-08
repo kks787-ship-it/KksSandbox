@@ -282,3 +282,15 @@ reviewed package-value allocation/rounding and evidence of actual payout before 
 never infer remaining value from current catalog prices. Expand recovery schema/ledger tests
 alongside that work. Annual scheduling commitments do not themselves expire paid certificate
 value; no-show forfeiture, nontransferability and withdrawal terms require tailored legal review.
+
+
+### Monetary workflow implementation follow-up (provisional)
+
+The 0.3.0-dev/schema3 candidate now implements paid-value accounting alongside rides and an
+MFA-protected full-balance cash reservation/uncertainty/attested-payment recording workflow.
+It never performs payouts/refunds. See gift-certificates test results for exact proportional
+rounding proposals and limitations. Valuation defaults unapproved; no final commercial terms
+or interpretation of no-show/annual withdrawal rights is encoded. Owner/legal approval of
+allocation and operating procedure, real sandbox verification and all deployment/recovery gates
+remain mandatory. Existing schema2 data requires a reviewed reconciliation migration; none runs
+on activation. The earlier ride-only gap above describes the previous candidate, not this code.

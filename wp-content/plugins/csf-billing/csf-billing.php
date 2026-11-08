@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Corner Stone Farm Billing
  * Description: Private gift-certificate ledger and disabled-by-default PayPal sandbox checkout.
- * Version: 0.2.1-dev
+ * Version: 0.3.0-dev
  * Requires at least: 6.4
  * Requires PHP: 8.1
  * Text Domain: csf-billing
@@ -11,8 +11,8 @@
  */
 
 defined( 'ABSPATH' ) || exit;
-define( 'CSF_BILLING_VERSION', '0.2.1-dev' );
-foreach ( array( 'failure', 'domain', 'config', 'session', 'access', 'schema', 'store', 'paypal', 'service', 'http', 'web' ) as $csf_billing_module ) {
+define( 'CSF_BILLING_VERSION', '0.3.0-dev' );
+foreach ( array( 'failure', 'domain', 'value', 'config', 'session', 'access', 'schema', 'store', 'paypal', 'service', 'http', 'web' ) as $csf_billing_module ) {
 	require_once __DIR__ . '/includes/class-csf-billing-' . $csf_billing_module . '.php';
 }
 unset( $csf_billing_module );
