@@ -1,7 +1,7 @@
 'use strict';
 // Synthetic, isolated WordPress only; caller authenticates through the real MFA provider.
 module.exports=async({op,cli,check,base,arena,instructor,riders})=>{
- const p=op.p,url=base+'/wp-admin/admin.php?page=csf-scheduling&screen=family';
+ const p=op.p,url=base+'/wp-admin/admin.php?page=csf-scheduling&screen=calendar&tool=family&date=2027-01-26';
  const state=()=>cli('global$wpdb;$rows=[];foreach(CSF_Scheduling_Schema::definitions()as$n=>$d){$t=CSF_Scheduling_Schema::table($n);$rows[$n]=$wpdb->get_results("SELECT * FROM `$t` ORDER BY 1",ARRAY_A);}echo hash("sha256",wp_json_encode($rows));');
  const count=()=>Number(cli('echo $GLOBALS["wpdb"]->get_var("SELECT COUNT(*) FROM fixture_csf_sched_appointments");'));
  const submit=async(action)=>Promise.all([p.waitForNavigation(),p.locator('[name=csf_family_action][value="'+action+'"]').click()]);
@@ -10,8 +10,8 @@ module.exports=async({op,cli,check,base,arena,instructor,riders})=>{
   await field('service_type').selectOption('pilot_ground_60');await field('rider').selectOption(riders[0]);await field('horse').selectOption('');await field('start').fill('2027-01-26T'+hour+':00');
   for(const id of [arena,instructor])await p.locator('[name="lessons['+i+'][resources][]"][value="'+id+'"]').check();
  }
- await p.goto(url);const before=count();await fill(0,'13');await p.locator('[name=same_family]').check();await submit('add');await fill(1,'14');await p.locator('[name=same_family]').check();const unchanged=state();await submit('review');
- check(state()===unchanged,'family native review writes no scheduling rows');
+ await p.goto(url);check(await p.locator('#csf-task-dialog').evaluate(e=>e.open)&&await p.locator('#csf-task-dialog #csf-family-panel').count()===1,'family editor opens in the calendar task drawer');await p.getByRole('button',{name:'Close panel',exact:true}).click();check(await p.locator('.csf-family-open').evaluate(e=>e===document.activeElement),'family drawer close restores focus to its calendar action');await p.locator('.csf-family-open').click();const before=count();await fill(0,'13');await p.locator('[name=same_family]').check();await submit('add');await fill(1,'14');await p.locator('[name=same_family]').check();const unchanged=state();await submit('review');
+ check(state()===unchanged,'family native review writes no scheduling rows');check(await p.locator('#csf-task-dialog').evaluate(e=>e.open),'family review remains in the calendar task drawer');
  const form=p.locator('form').filter({has:p.locator('[name=csf_family_action][value=apply]')});check(await form.count()===1,'family native review produces one explicit save');
  const fields=await form.evaluate(el=>Object.fromEntries(new FormData(el))),review=JSON.parse(fields.family_review);
  check(review.body.items.length===2,'signed family review contains both individual lessons');

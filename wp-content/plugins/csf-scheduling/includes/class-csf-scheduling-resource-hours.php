@@ -183,6 +183,30 @@ class CSF_Scheduling_Resource_Hours {
 	 * @return array
 	 */
 	public static function closure_windows( $d, $a, $z ) {
+		$windows = self::closure_occurrences( $d, $a, $z );
+		if ( empty( $d['superseded_at'] ) ) {
+			return $windows;
+		}
+		$out = array();
+		foreach ( $windows as $window ) {
+			if ( strtotime( $window['start'] ) >= strtotime( $d['superseded_at'] ) ) {
+				continue;
+			}
+			if ( strtotime( $window['end'] ) > strtotime( $d['superseded_at'] ) ) {
+				$window['end'] = $d['superseded_at'];
+			}
+			$out[] = $window;
+		}
+		return $out;
+	}
+	/** Expand the original definition before applying its prospective cutoff.
+	 *
+	 * @param array             $d Restriction data.
+	 * @param DateTimeImmutable $a Query start.
+	 * @param DateTimeImmutable $z Query end.
+	 * @return array
+	 */
+	private static function closure_occurrences( $d, $a, $z ) {
 		if ( ! empty( $d['released'] ) ) {
 			return array(); }
 		$r = $d['recurrence'] ?? null;
@@ -262,6 +286,7 @@ class CSF_Scheduling_Resource_Hours {
 		CSF_Scheduling_Calendar::require( is_string( $p['timezone'] ), 'policy_incomplete' );
 		$d      = $body['data'];
 		$impact = 0;
+		$split  = false;
 		if ( 'resource_hours_saved' === $kind ) {
 			self::validate( $d, $p );
 			$table          = 'availability';
@@ -281,9 +306,10 @@ class CSF_Scheduling_Resource_Hours {
 			if ( 'resource_closure_added' === $kind ) {
 				CSF_Scheduling_Calendar::require( 0 === $body['expected'] && ! $old, 'resource_hours_invalid' );
 			} else {
-				CSF_Scheduling_Calendar::require( $old && 'resource_closure' === ( $before['closure_kind'] ?? null ) && empty( $before['released'] ) && $before['target_uuid'] === $d['target_uuid'], 'invalid_transition' );
+				CSF_Scheduling_Calendar::require( $old && 'resource_closure' === ( $before['closure_kind'] ?? null ) && empty( $before['released'] ) && empty( $before['superseded_at'] ) && $before['target_uuid'] === $d['target_uuid'], 'invalid_transition' );
 				CSF_Scheduling_Calendar::require( (int) $old['revision'] === $body['expected'], 'stale_appointment' );
-				CSF_Scheduling_Calendar::require( strtotime( $before['start'] ) > time() && strtotime( $d['start'] ) > time(), 'closure_edit_future_only' );
+				CSF_Scheduling_Calendar::require( strtotime( $d['start'] ) > time(), 'closure_edit_future_only' );
+				$split = strtotime( $before['start'] ) <= time();
 			}
 			CSF_Scheduling_Calendar::require( in_array( $d['category'], array( 'unavailable', 'protected_training' ), true ) && CSF_Scheduling_Catalog::text( $d['note'], 200 ), 'resource_hours_invalid' );
 			$a = CSF_Scheduling_Time::parse( $d['start'], $p['timezone'] );
@@ -314,13 +340,24 @@ class CSF_Scheduling_Resource_Hours {
 			$table  = 'restrictions';
 			$entity = $d['target_uuid'];
 			$impact = self::impact( $entity, $next, $p, false );
+			if ( $split ) {
+				$cutoff = $a->setTime( 0, 0 );
+				CSF_Scheduling_Calendar::require( $cutoff->getTimestamp() > time(), 'closure_edit_future_only' );
+				$replacement             = wp_generate_uuid4();
+				$next['supersedes_uuid'] = $body['uuid'];
+				$replacement_data        = $next;
+				CSF_Scheduling_Calendar::document( 'restrictions', $replacement, $entity, $next, 0 );
+				$next                  = $before;
+				$next['superseded_at'] = $cutoff->format( 'Y-m-d\TH:iP' );
+				$next['superseded_by'] = $replacement;
+			}
 		} else {
 			CSF_Scheduling_Calendar::keys( $d, array( 'note', 'date' ) );
 			CSF_Scheduling_Calendar::require( CSF_Scheduling_Catalog::text( $d['note'], 200 ), 'resource_hours_invalid' );
 			$table  = 'restrictions';
 			$old    = CSF_Scheduling_Calendar::find( $table, $body['uuid'] );
 			$before = json_decode( $old['body_json'], true );
-			CSF_Scheduling_Calendar::require( empty( $before['released'] ), 'invalid_transition' );
+			CSF_Scheduling_Calendar::require( empty( $before['released'] ) && empty( $before['superseded_at'] ), 'invalid_transition' );
 			$next = $before;
 			if ( null === $d['date'] ) {
 				$next['released']       = true;
@@ -341,6 +378,10 @@ class CSF_Scheduling_Resource_Hours {
 				'before'                         => $before,
 				'after'                          => $next,
 				'reviewed_affected_appointments' => $impact,
+				'replacement'                    => $split ? array(
+					'uuid' => $replacement,
+					'data' => $replacement_data,
+				) : null,
 			),
 			0
 		);
@@ -348,6 +389,7 @@ class CSF_Scheduling_Resource_Hours {
 			'uuid'                  => $body['uuid'],
 			'entity_revision'       => $revision,
 			'affected_appointments' => $impact,
+			'replacement_uuid'      => $split ? $replacement : null,
 		);
 	}
 }

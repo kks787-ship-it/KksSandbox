@@ -64,7 +64,7 @@ hc_check( ! is_wp_error( hc_save( $uuid, 2, $client ) ), 'correct unused school 
 $bad = $client;
 $bad['resource_uuid'] = $school['resource_uuid'];
 hc_denied( $uuid, 3, $bad, 'invalid_body' );
-$inject = static fn( $query ) => str_contains( $query, 'SELECT id FROM `fixture_csf_sched_details` WHERE body_json LIKE' ) ? 'SELECT * FROM fixture_deliberately_missing' : $query;
+$inject = static fn( $query ) => str_contains( $query, 'JOIN `fixture_csf_sched_details` d ON d.uuid=a.uuid' ) ? 'SELECT * FROM fixture_deliberately_missing' : $query;
 add_filter( 'query', $inject );
 hc_denied( $uuid, 3, $school, 'write_failed' );
 remove_filter( 'query', $inject );
@@ -85,7 +85,24 @@ hc_check( ! is_wp_error( $result ), 'protect proposed resource' );
 hc_denied( $uuid, 3, $school, 'horse_mapping_in_use' );
 $result = CSF_Scheduling_Store::calendar( 'restriction_released', array( 'uuid' => $block, 'expected' => 1, 'reason' => 'Synthetic reviewed release' ), hc_revision(), wp_generate_uuid4() );
 hc_check( ! is_wp_error( $result ), 'release synthetic block while retaining history' );
-hc_denied( $uuid, 3, $school, 'horse_mapping_in_use' );
+hc_check( ! is_wp_error( hc_save( $uuid, 3, $school ) ), 'released block history does not prevent reconciled correction' );
+// Seed a synthetic canceled appointment snapshot with the real row shape. Remapping
+// must not mutate its canceled booking or detail snapshot.
+$past_horse=wp_generate_uuid4();hc_check(!is_wp_error(hc_save($past_horse,0,$client)),'Create historical-only correction horse');
+$appointments=CSF_Scheduling_Schema::table('appointments');$details=CSF_Scheduling_Schema::table('details');$histories=CSF_Scheduling_Schema::table('history');
+$sample=$wpdb->get_row("SELECT a.* FROM `$appointments` a JOIN `$details` d ON d.uuid=a.uuid WHERE JSON_LENGTH(d.body_json,'$.rides')>0 LIMIT 1",ARRAY_A);$sample_detail=$wpdb->get_row($wpdb->prepare("SELECT * FROM `$details` WHERE uuid=%s",$sample['uuid']),ARRAY_A);
+$past_uuid=wp_generate_uuid4();unset($sample['id'],$sample_detail['id']);$sample['uuid']=$past_uuid;$sample['state']='canceled';
+hc_check(1===$wpdb->insert($appointments,$sample),'Seed synthetic canceled appointment');
+$sample_detail['uuid']=$past_uuid;$sample_detail['entity_uuid']=$past_uuid;$past_data=json_decode($sample_detail['body_json'],true);$past_data['uuid']=$past_uuid;foreach($past_data['rides'] as &$turn){$turn['horse']=$past_horse;}unset($turn);$sample_detail['body_json']=wp_json_encode($past_data);
+hc_check(1===$wpdb->insert($details,$sample_detail),'Seed historical horse reference');
+$past_resource=hc_resource();$new_school=$client;$new_school['source']='school';$new_school['resource_uuid']=$past_resource;
+$preserved=$wpdb->get_results($wpdb->prepare("SELECT * FROM `$details` WHERE uuid=%s",$past_uuid),ARRAY_A);$preserved_booking=$wpdb->get_row($wpdb->prepare("SELECT * FROM `$appointments` WHERE uuid=%s",$past_uuid),ARRAY_A);
+$revision=hc_revision();$command=wp_generate_uuid4();$mapped=hc_save($past_horse,1,$new_school,$revision,$command);
+hc_check(!is_wp_error($mapped),'Canceled appointment history permits reconciled remapping');
+hc_check($preserved===$wpdb->get_results($wpdb->prepare("SELECT * FROM `$details` WHERE uuid=%s",$past_uuid),ARRAY_A)&&$preserved_booking===$wpdb->get_row($wpdb->prepare("SELECT * FROM `$appointments` WHERE uuid=%s",$past_uuid),ARRAY_A),'Remapping leaves historical booking and detail bytes intact');
+$before=hc_rows();hc_check(hc_save($past_horse,1,$new_school,$revision,$command)===$mapped&&$before===hc_rows(),'Historical correction replay is idempotent');
+$delete_used=array('uuid'=>$past_horse,'expected'=>2,'reason'=>'Synthetic rejection','confirm_label'=>$client['label'],'irreversible'=>true);
+$before=hc_rows();$deleted=CSF_Scheduling_Store::calendar('horse_deleted',$delete_used,hc_revision(),wp_generate_uuid4());hc_check(is_wp_error($deleted)&&$before===hc_rows(),'Remapped historical horse remains undeletable');
 // Ordinary edits are still supported on a used horse; only identity remapping is gated.
 $original = json_decode( $used['body_json'], true );
 hc_check( ! is_wp_error( hc_save( $used['uuid'], (int) $used['revision'], $original ) ), 'ordinary used-horse save remains available' );

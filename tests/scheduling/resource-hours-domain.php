@@ -63,6 +63,22 @@ $d['weekly']['periods'][0]=array('weekday'=>0,'start'=>'02:30','end'=>'03:30');$
 $d['weekly']['periods'][0]=array('weekday'=>0,'start'=>'00:00','end'=>'04:00');$check($covers($d,'2027-11-07T00:00-07:00','2027-11-07T04:00-08:00'),'Unambiguous boundaries cover real five-hour fold interval');
 $pattern=array('released'=>false,'recurrence'=>array('timezone'=>$p['timezone'],'from'=>'2027-03-07','until'=>'2027-03-21','weekday'=>0,'start'=>'02:30','end'=>'03:00'),'reopen_dates'=>array());$check($blocks($pattern,'2027-03-14T00:00-08:00','2027-03-14T00:15-08:00'),'Missing closure boundary conservatively protects entire date');
 $pattern['recurrence']=array('timezone'=>$p['timezone'],'from'=>'2027-10-31','until'=>'2027-11-14','weekday'=>0,'start'=>'01:30','end'=>'02:00');$check($blocks($pattern,'2027-11-07T01:30-07:00','2027-11-07T01:45-07:00')&&$blocks($pattern,'2027-11-07T01:30-08:00','2027-11-07T01:45-08:00'),'Protective weekly boundary covers both fold occurrences');
+// Started series: atomic prospective split, retained history, rollback and replay.
+$started=$closed;$started['uuid']=wp_generate_uuid4();$started['data']['start']='2026-11-02T09:00-08:00';$started['data']['end']='2026-11-02T10:00-08:00';
+$check(!is_wp_error($cmd('resource_closure_added',$started)),'Started synthetic series created');
+$edit=$started;$edit['expected']=1;$edit['data']['start']='2027-02-01T11:00-08:00';$edit['data']['end']='2027-02-01T12:00-08:00';
+$before=$snapshot();$preview=CSF_Scheduling_Store::resource_preview('resource_closure_edited',$edit,$rev(),wp_generate_uuid4());$check(!is_wp_error($preview)&&$before===$snapshot(),'Started split preview rolls back both closure documents');
+$fail=static fn($q)=>str_starts_with($q,'INSERT INTO `'.CSF_Scheduling_Schema::table('commands').'`')?'SELECT * FROM split_missing_fixture':$q;
+add_filter('query',$fail);$failure=$cmd('resource_closure_edited',$edit);remove_filter('query',$fail);$check(is_wp_error($failure)&&$before===$snapshot(),'Late ledger failure rolls back split, history and revisions');
+$version=$rev();$command=wp_generate_uuid4();$result=$cmd('resource_closure_edited',$edit,$version,$command);$check(!is_wp_error($result)&&!empty($result['replacement_uuid']),'Started series split commits linked replacement');
+$saved=$snapshot();$check($cmd('resource_closure_edited',$edit,$version,$command)===$result&&$saved===$snapshot(),'Split exact replay adds no replacement or history');
+$original=$restrictionData($started['uuid']);$replacement=$restrictionData($result['replacement_uuid']);
+$check($original['start']===$started['data']['start']&&$original['superseded_at']==='2027-02-01T00:00-08:00','Original start retained with exact prospective cutoff');
+$check($blocks($original,'2027-01-25T09:15-08:00','2027-01-25T09:30-08:00')&&!$blocks($original,'2027-02-01T09:15-08:00','2027-02-01T09:30-08:00')&&$blocks($replacement,'2027-02-01T11:15-08:00','2027-02-01T11:30-08:00'),'Past and replacement occurrence windows remain distinct');
+$check(is_wp_error($cmd('resource_closure_released',$release($started['uuid'],null))),'Retained earlier closure cannot be reopened through replacement controls');
+$check(is_wp_error($cmd('restriction_released',array('uuid'=>$started['uuid'],'expected'=>(int)$restriction($started['uuid'])['revision'],'reason'=>'Synthetic bypass attempt'))),'Generic release cannot rewrite retained earlier closure');
+$check(!is_wp_error($cmd('resource_closure_released',$release($result['replacement_uuid'],null))),'Replacement can be reopened without changing retained earlier dates');
+$check($blocks($restrictionData($started['uuid']),'2027-01-25T09:15-08:00','2027-01-25T09:30-08:00'),'Reopening replacement preserves original earlier dates');
 // Preserve original booking and clear only synthetic protections for browser cases.
 $check(!is_wp_error($cmd('restriction_released',array('uuid'=>$legacyRestriction,'expected'=>1,'reason'=>'Synthetic fixture cleanup'))),'Fixture operator releases its independent protection through original rights');
 $check(!is_wp_error($hours($ids['arena'],'inherit'))&&!is_wp_error($hours($ids['instructor'],'inherit')),'Portable arena/instructor inherited base prepared');

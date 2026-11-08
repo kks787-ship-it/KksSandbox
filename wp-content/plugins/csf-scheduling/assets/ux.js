@@ -2,7 +2,7 @@
 (() => {
  'use strict';const root=document.querySelector('.csf-calendar');if(!root)return;
  root.classList.add('csf-ux-ready');const calendar=document.querySelector('#csf-visual-planner');
- const dialog=document.createElement('dialog');dialog.id='csf-task-dialog';dialog.setAttribute('aria-label','Schedule lesson or block time');dialog.innerHTML='<button type="button" class="button csf-task-close">Close panel</button><div class="csf-task-body"></div>';root.append(dialog);
+ const dialog=document.createElement('dialog');dialog.id='csf-task-dialog';dialog.setAttribute('aria-label','Schedule lesson, family visit or block time');dialog.innerHTML='<button type="button" class="button csf-task-close">Close panel</button><div class="csf-task-body"></div>';root.append(dialog);
  let moved=null,placeholder=null,opener=null;
  function restore(){if(moved&&placeholder){placeholder.replaceWith(moved);moved=null;placeholder=null;}}
  function close(){if(dialog.open)dialog.close();restore();opener?.focus();}
@@ -14,6 +14,7 @@
  function selectResource(id){if(!block)return;if(id&&[...resource.options].some(x=>x.value===id))resource.value=id;block.querySelectorAll('.csf-resource-panel').forEach(p=>{p.hidden=p.dataset.resource!==resource.value;p.open=!p.hidden;});const review=block.querySelector('.csf-resource-review');if(review)review.hidden=review.dataset.resource!==resource.value;block.querySelectorAll('[name=calendar_resource]').forEach(x=>x.value=resource.value);}
  resource?.addEventListener('change',()=>selectResource(resource.value));if(resource)selectResource(block.querySelector('.csf-resource-review')?.dataset.resource||resource.value);
  document.addEventListener('click',event=>{
+  const familyAction=event.target.closest('.csf-family-open');if(familyAction&&document.querySelector('#csf-family-panel')){event.preventDefault();open(document.querySelector('#csf-family-panel'),familyAction);return;}
   const newLesson=event.target.closest('.csf-new-lesson');if(newLesson){event.preventDefault();open(document.querySelector('#csf-create'),newLesson);return;}
   const blockAction=event.target.closest('.csf-block-time');if(blockAction){event.preventDefault();open(block,blockAction);return;}
   const cell=event.target.closest('.csf-resource-slot');if(cell&&block){if(event.defaultPrevented)return;selectResource(cell.dataset.resource);open(block,cell);return;}
@@ -48,5 +49,6 @@
   function weekly(){form.querySelectorAll('fieldset').forEach(x=>x.hidden=mode.value!=='custom');}mode.addEventListener('change',weekly);weekly();
  }
  for(const f of root.querySelectorAll('[data-kind=resource_closure_added]')){const label=document.createElement('label');label.textContent='Reason ';const select=document.createElement('select');select.className='csf-block-reason';for(const[value,text]of[['','Other / enter a reason'],['maintenance','Maintenance'],['training','Protected schooling'],['closed','Unavailable']])select.add(new Option(text,value));label.append(select);f.querySelector('[name=note]').closest('label').before(label);select.addEventListener('change',()=>{f.querySelector('[name=note]').value=select.value==='maintenance'?'Resource maintenance':select.value==='training'?'Protected schooling time':select.value==='closed'?'Resource unavailable':'';f.querySelector('[name=category]').value=select.value==='training'?'protected_training':'unavailable';});}
+ const familyPanel=document.querySelector('#csf-family-panel');if(familyPanel)open(familyPanel,document.querySelector('.csf-family-open'));
  if(root.dataset.screen==='hours')root.querySelectorAll('.csf-resource-panel').forEach(x=>x.open=true);
 })();

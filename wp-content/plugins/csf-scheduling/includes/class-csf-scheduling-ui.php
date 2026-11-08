@@ -226,10 +226,10 @@ class CSF_Scheduling_UI {
 			'rider_conflict'           => 'This rider already has an appointment. Choose another time.',
 			'outside_hours'            => 'This time is outside facility hours or a resource’s recorded availability. Check availability before continuing.',
 			'resource_hours_invalid'   => 'Review the resource date, 15-minute weekly ranges, timezone, reason and repeat end date. Weekly ranges must not overlap; overnight ranges must be split across days.',
-			'closure_edit_future_only' => 'Only closures that have not started can be edited. Preserve prior occurrences with reviewed reopening and a new future closure.',
+			'closure_edit_future_only' => 'Choose a future start time. For a closure that has started, choose tomorrow or a later date so earlier occurrences remain unchanged.',
 			'resource_impact_limit'    => 'More than 2,000 future appointments need review. Ask the operator to narrow the resource change before saving.',
 			'service_in_use'           => 'This lesson type has protected booking history. Reconcile future bookings or choose a new lesson type before changing its rules.',
-			'horse_mapping_in_use'     => 'This horse or its old/new school resource has appointment, reservation or protective-block history. Its classification was not changed. Used-horse remapping requires a separate reviewed migration; do not delete records to bypass this protection.',
+			'horse_mapping_in_use'     => 'This horse or its old/new resource still has an ongoing or future appointment, reservation, or unreleased protective block. Reconcile those records through their normal reviewed controls before changing classification. History must not be deleted.',
 			'horse_deleted'            => 'This horse UUID was deleted as an unused setup mistake and cannot be recreated. Its audit history is retained.',
 			'horse_delete_in_use'      => 'This horse has booking, reservation, protection or lifecycle dependencies. Delete is blocked; use Archive and retain its history.',
 			'horse_archived'           => 'This horse is archived and cannot be booked. An authorized manager must review and restore it first.',
@@ -598,7 +598,19 @@ class CSF_Scheduling_UI {
 				self::select( 'resource_uuid', 'School horse availability resource (school horses only)', array( '' => 'No school resource for client-owned horse' ) + $ctx['school_resources'], $d['resource_uuid'] ); } else {
 				echo '<p>' . esc_html( ucfirst( $d['source'] ) . ' booking classification · resource-management permission required to change' ) . '</p>'; }
 				if ( $body['expected'] ) {
-					echo '<p>Correct an unused entry by reviewing its booking classification and school resource above, then saving. The horse identity and edit history are preserved. Any appointment, reservation or protective-block history blocks remapping; no existing booking or welfare record is rewritten.</p>';
+					echo '<p>Review the booking classification and school resource above before saving. Past and canceled booking history remains unchanged. Ongoing/future lessons, remaining reservations and unreleased protective blocks on the horse or either resource must be reconciled first; this action never cancels or reassigns a lesson or removes a welfare restriction.</p>';
+				}
+				if ( $body['expected'] && CSF_Scheduling_Access::can( 'resource_manage' ) ) {
+					echo '<p>Ongoing/future lessons you can review (limited to the first 201 records). Other protected dependencies may also prevent a correction.</p><ul>';
+					try {
+						foreach ( CSF_Scheduling_Calendar::horse_mapping_bookings( $body['uuid'] ) as $booking ) {
+							$day = CSF_Scheduling_Resource_UI::stored_time( $booking['start'], json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true )['timezone'] )->format( 'Y-m-d' );
+							echo '<li><a href="' . esc_url( CSF_Scheduling_UX::url( 'calendar', array( 'date' => $day ) ) ) . '">' . esc_html( self::display_time( $booking['start'] ) . ' · ' . $booking['state'] ) . '</a></li>';
+						}
+					} catch ( RuntimeException $e ) {
+						echo '<li>Unable to load dependencies. Saving will recheck them under the booking lock.</li>';
+					}
+					echo '</ul>';
 				}
 				self::checks( 'suitable_services', 'Approved services', $ctx['all_services'] ?? $ctx['services'], $d['suitable_services'] );
 				self::checks( 'suitable_riders', 'Approved riders', $ctx['riders'], $d['suitable_riders'] );
@@ -907,6 +919,11 @@ class CSF_Scheduling_UI {
 		}
 		CSF_Scheduling_Planner::render( $date, $view, $filter, $rows, $details, $ctx, $p );
 		CSF_Scheduling_UX::block_panel( $ctx, $p, self::$reviewed, $date, $view, $filter, $rows );
+		if ( 'family' === filter_input( INPUT_GET, 'tool', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) && CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
+			echo '<section id="csf-family-panel">';
+			CSF_Scheduling_Family_UI::render( $ctx, $p, self::$reviewed );
+			echo '</section>';
+		}
 		echo '<details class="csf-planner-list"><summary>Appointment list and details</summary><div id="csf-calendar-list" class="appointments">';
 		if ( is_wp_error( $rows ) ) {
 			echo '<p role="alert">Calendar blocked: configure facility policies and timezone before scheduling.</p>'; } elseif ( ! $rows ) {
@@ -921,7 +938,16 @@ class CSF_Scheduling_UI {
 					echo '<li>' . esc_html( ( $ctx['riders'][ $ride['rider'] ?? '' ] ?? 'Rider details restricted' ) . ' · ' . ( $ctx['horses'][ $ride['horse'] ] ?? 'Unknown horse' ) . ' · ' . self::display_time( $ride['start'] ) . '–' . self::display_time( $ride['end'] ) ) . '</li>'; }
 				echo '</ul>';
 				if ( 'canceled' !== $row['state'] && CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
-					echo '<a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', empty( $d['visit_uuid'] ) ? array( 'from_lesson' => $row['uuid'] ) : array( 'visit' => $d['visit_uuid'] ) ) ) . '">Book another lesson for this family</a>'; }
+					echo '<a class="button" href="' . esc_url(
+						CSF_Scheduling_UX::url(
+							'calendar',
+							array(
+								'tool' => 'family',
+								'date' => $date,
+								'view' => $view,
+							) + ( empty( $d['visit_uuid'] ) ? array( 'from_lesson' => $row['uuid'] ) : array( 'visit' => $d['visit_uuid'] ) )
+						)
+					) . '">Book another lesson for this family</a>'; }
 				if ( CSF_Scheduling_Access::can( 'appointment_edit' ) && CSF_Scheduling_Access::can( 'calendar_all' ) ) {
 					$copy                 = $d;
 					$copy['title']        = 'Copy of ' . $d['title'];
@@ -938,7 +964,17 @@ class CSF_Scheduling_UI {
 				}
 				if ( ! empty( $d['resource_reservations'] ) ) {
 					if ( ! empty( $d['visit_uuid'] ) ) {
-						echo '<p><a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', array( 'visit' => $d['visit_uuid'] ) ) ) . '">Open family visit / edit or cancel together</a></p>'; }
+						echo '<p><a class="button" href="' . esc_url(
+							CSF_Scheduling_UX::url(
+								'calendar',
+								array(
+									'tool'  => 'family',
+									'visit' => $d['visit_uuid'],
+									'date'  => $date,
+									'view'  => $view,
+								)
+							)
+						) . '">Open family visit / edit or cancel together</a></p>'; }
 					foreach ( $d['resource_reservations'] ?? array() as $window ) {
 						echo '<p>' . esc_html( ( $ctx['resources'][ $window['resource_uuid'] ] ?? 'Assigned resource' ) . ' · ' . ( 'canceled' === $row['state'] ? 'Previous reservation: ' : ( 'confirmed' === $row['state'] || ( 'held' === $row['state'] && ! $row['hold_expired'] ) ? 'Reserved: ' : 'Planned, not reserved: ' ) ) . wp_date( 'Y-m-d H:i P', $window['start'], new DateTimeZone( $p['timezone'] ) ) . '–' . wp_date( 'H:i P', $window['end'], new DateTimeZone( $p['timezone'] ) ) . ' · preparation ' . $window['pre_minutes'] . ' min / wrap-up ' . $window['post_minutes'] . ' min' ) . '</p>';
 					}
@@ -1122,7 +1158,7 @@ class CSF_Scheduling_UI {
 		);
 		foreach ( CSF_Scheduling_Calendar::documents( 'restrictions' ) as $doc ) {
 			$d = $doc['data'];
-			if ( ! empty( $d['released'] ) ) {
+			if ( ! empty( $d['released'] ) || ! empty( $d['superseded_at'] ) ) {
 				continue; }
 			echo '<details><summary>Protective block: ' . esc_html( $ctx['targets'][ $d['target_uuid'] ] ?? 'Resource' ) . '</summary><p>' . esc_html( $d['reason'] . ' · ' . self::display_time( $d['start'] ) . ' – ' . self::display_time( $d['end'] ) ) . '</p>';
 			self::setup_form(

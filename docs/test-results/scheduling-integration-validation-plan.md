@@ -206,3 +206,41 @@ Run42462528383: all database cells reached successful domain/race/migration/logi
 Legacy advanced browser stopped at its hidden optional title field; it now opens More options. Source review found the visible advanced resource selects reused the routine control markup but lacked routine-only event wiring. Shared selection synchronization now covers both editors, while automatic routine preview remains restricted to the routine editor. The legacy browser now selects visible resources and verifies the exact submitted assignments. All existing tests remain required. Browser suites are split into independent disposable CI jobs to expose failure logs promptly; no assertion or recovery prerequisite was removed.
 
 Run42463735671: native calendar, family, hours and MFA/security suites passed as independent jobs; recovery failed only at the unchanged Python pin prerequisite. Three database jobs passed; PHP8.3/MariaDB completed domain/race/migration/restore and permissions39, with the advanced browser passing creation/replay/rotations/resource-selection synchronization/client-horse/welfare/move/cancel before an obsolete empty-availability label assertion. The test now expects the existing reviewed-hours wording and also checks persisted empty legacy intervals with no weekly fallback. No product change or check waiver was needed for this final fixture correction.
+
+### Forward closure splits and reconciled horse mappings
+
+The next review increment permits started closures to be split at a future local
+midnight. Original timing/recurrence/exceptions remain stored with a cutoff and a
+linked replacement; both documents and full before/replacement history use the
+existing transaction. Generic and resource release paths reject retained segments.
+The native editor explains the cutover and still requires signed impact review.
+
+Horse classification correction now permits retained historical/canceled records
+after ongoing/future lessons, future slot/allocation windows and unreleased blocks
+on the horse or either resource have been reconciled through normal controls.
+No lesson, slot or welfare history is rewritten. Current authorized affected lesson
+dates are listed in Farm Setup. Conditional deletion retains its all-history guard.
+
+Local checks: closure29 on PHP8.1/8.3; mapping46 and deletion34 on PHP8.3.
+Added DB cases cover split preview/late-ledger rollback/replay/history and historical
+horse remapping/replay/deletion rejection; those new cases await CI.
+
+Run42464329527 attempt3 recovered PHP8.1/MariaDB; five jobs still failed before
+tests on WP-CLI release HTTP504. Official release API asset487001819 returned
+WP-CLI2.12.0 with SHA256ce34ddd838f7351d6759068d09793f26755463b4a4610a5a5c0a97b68220d85c,
+matching official release metadata. CI now uses this official API endpoint as a
+fallback and verifies that exact digest on either path. No version/pin relaxation.
+Functional recovery still requires the original qualified Python plus Docker.
+No deployment, real notification, grant, MFA or other held action occurred.
+
+Family native forms now stay in the calendar task drawer through review/save, with
+focus return on close and optional fields collapsed. The dedicated screen remains
+a no-JavaScript-capable fallback. Added browser checks cover drawer placement and
+focus. The existing native-mail fake-PHPMailer harness is included as its own CI
+suite; this does not enable real transport or claim a durable scheduling worker.
+
+Recovery investigation: unprivileged user namespaces are available, but no Docker,
+Podman or rootless daemon exists. The exact local interpreter is a custom build
+(Python3.13.5/GCC14.2.0, August10 2026), not owned by a dpkg package. A different
+official package or recompilation is not evidence of the exact qualified binary.
+No system installation, runtime substitution or farm operation was attempted.

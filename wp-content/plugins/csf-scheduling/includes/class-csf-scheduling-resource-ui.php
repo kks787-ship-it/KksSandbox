@@ -274,6 +274,9 @@ class CSF_Scheduling_Resource_UI {
 				if ( 'custom' === $d['mode'] && ! $d['periods'] ) {
 					echo '<p>All custom weekdays are closed.</p>'; }
 			} elseif ( in_array( $r['kind'], array( 'resource_closure_added', 'resource_closure_edited' ), true ) ) {
+				if ( 'resource_closure_edited' === $r['kind'] ) {
+					echo '<p>If this closure has started, its earlier occurrences remain until midnight at the start of the selected future date. The replacement takes effect from that date; existing appointments are unchanged.</p>';
+				}
 				echo '<p>' . esc_html( CSF_Scheduling_UI::display_time( $d['start'] ) . ' – ' . CSF_Scheduling_UI::display_time( $d['end'] ) . ' · ' . $d['category'] . ' · ' . $d['note'] . ( $d['repeat_until'] ? ' · repeats weekly through ' . $d['repeat_until'] : ' · dated closure only' ) ) . '</p>';
 			} else {
 				echo '<p>' . esc_html( $d['date'] ? 'Reopen only ' . $d['date'] : 'Release this entire closure/series' ) . '. ' . esc_html( $d['note'] ) . '</p><p>Other closures, welfare/rest and base hours remain in force.</p>'; }
@@ -400,24 +403,25 @@ class CSF_Scheduling_Resource_UI {
 					if ( $d['recurrence'] ) {
 						$series = $d['recurrence'];
 						echo '<p>' . esc_html( $days[ $series['weekday'] ] . ' weekly ' . $series['start'] . '–' . $series['end'] . ' ' . $series['timezone'] . ' through ' . $series['until'] . '; reopened dates: ' . implode( ', ', $d['reopen_dates'] ?? array() ) ) . '</p>'; }
-					if ( strtotime( $d['start'] ) > time() ) {
-						echo '<details><summary>Edit this future closure / series</summary><p>History and reopened dates are preserved. Review all affected bookings before saving.</p>';
-						self::begin( 'resource_closure_edited', $record['uuid'], (int) $record['revision'], (int) $snapshot['revision'], $id );
-						foreach ( array(
-							'start' => 'Closure starts',
-							'end'   => 'Closure ends',
-						) as $key => $label ) {
-							$instant = self::stored_time( $d[ $key ], $p['timezone'] );
-							self::time( $key, $label, $instant->format( 'Y-m-d\TH:i' ), $instant->format( 'Y-m-d\TH:iP' ), $p['timezone'] );
-						}
-						echo '<label>Category <select name="category"><option value="unavailable">Unavailable / maintenance</option><option value="protected_training" ' . selected( $d['reason'], 'protected_training', false ) . '>Protected training time</option></select></label>';
-						self::field( 'note', 'Reason for edited closure (no private health/contact details)', $d['note'], 'text', 'maxlength="200" required' );
-						self::field( 'repeat', 'Repeat weekly', '1', 'checkbox', $d['recurrence'] ? 'checked' : '' );
-						self::field( 'repeat_until', 'Repeat through', $d['recurrence']['until'] ?? '', 'date' );
-						echo '<button class="button">Review closure edit</button></form></details>';
-					} else {
-						echo '<p>This closure has started. Edit is held to preserve its past occurrences; use reviewed reopening and a new future closure.</p>';
+					if ( ! empty( $d['superseded_at'] ) ) {
+						echo '<p>' . esc_html( 'Earlier occurrences retained until ' . CSF_Scheduling_UI::display_time( $d['superseded_at'] ) . '. Edit the replacement closure for future changes.' ) . '</p></details>';
+						continue;
 					}
+					$started = strtotime( $d['start'] ) <= time();
+					echo '<details><summary>Edit future closure dates</summary><p>For a closure that has started, choose a future date: earlier occurrences are retained until midnight at the start of that date, and a separate replacement starts at the chosen time. History and reopened dates are preserved. Review all affected bookings before saving.</p>';
+					self::begin( 'resource_closure_edited', $record['uuid'], (int) $record['revision'], (int) $snapshot['revision'], $id );
+					foreach ( array(
+						'start' => 'Closure starts',
+						'end'   => 'Closure ends',
+					) as $key => $label ) {
+						$instant = self::stored_time( $d[ $key ], $p['timezone'] );
+						self::time( $key, $label, $started ? '' : $instant->format( 'Y-m-d\TH:i' ), $started ? '' : $instant->format( 'Y-m-d\TH:iP' ), $p['timezone'] );
+					}
+					echo '<label>Category <select name="category"><option value="unavailable">Unavailable / maintenance</option><option value="protected_training" ' . selected( $d['reason'], 'protected_training', false ) . '>Protected training time</option></select></label>';
+					self::field( 'note', 'Reason for edited closure (no private health/contact details)', $d['note'], 'text', 'maxlength="200" required' );
+					self::field( 'repeat', 'Repeat weekly', '1', 'checkbox', $d['recurrence'] ? 'checked' : '' );
+					self::field( 'repeat_until', 'Repeat through', $d['recurrence']['until'] ?? '', 'date' );
+					echo '<button class="button">Review closure edit</button></form></details>';
 					self::begin( 'resource_closure_released', $record['uuid'], (int) $record['revision'], (int) $snapshot['revision'], $id );
 					self::field( 'note', 'Reason for reopening', '', 'text', 'required maxlength="200"' );
 					echo '<input type="hidden" name="only_date" value=""><button class="button">Review reopening entire closure / series</button></form>';

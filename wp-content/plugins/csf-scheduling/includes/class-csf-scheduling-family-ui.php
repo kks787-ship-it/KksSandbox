@@ -454,7 +454,16 @@ class CSF_Scheduling_Family_UI {
 				self::field( 'family_signature', '', self::signature( $r ), 'hidden' );
 				echo '<button class="button button-primary" name="csf_family_action" value="apply">Save family visit</button> <button class="button" name="csf_family_action" value="revise">Back to draft</button></form>';
 			} else {
-				echo '<a class="button" href="' . esc_url( CSF_Scheduling_UX::url( 'family', array( 'visit' => $r['body']['uuid'] ) ) ) . '">Open visit / book another lesson</a>'; }
+				echo '<a class="button" href="' . esc_url(
+					CSF_Scheduling_UX::url(
+						'calendar',
+						array(
+							'tool'  => 'family',
+							'visit' => $r['body']['uuid'],
+							'date'  => ( new DateTimeImmutable( $r['body']['items'][0]['body']['start'] ?? 'now' ) )->setTimezone( new DateTimeZone( $p['timezone'] ) )->format( 'Y-m-d' ),
+						)
+					)
+				) . '">Open visit / book another lesson</a>'; }
 			return;
 		}
 		$draft = self::$draft;
@@ -550,12 +559,14 @@ class CSF_Scheduling_Family_UI {
 			echo '<fieldset><legend>Lesson ' . esc_html( $i + 1 ) . '</legend>';
 			foreach ( array( 'uuid', 'expected' ) as $key ) {
 				self::field( $prefix . '[' . $key . ']', '', $r[ $key ], 'hidden' ); }
-			self::field( $prefix . '[title]', 'Title', $r['title'] );
 			self::select( $prefix . '[service_type]', 'Lesson type', $services, $r['service_type'] );
 			self::select( $prefix . '[rider]', 'Rider', $ctx['riders'], $r['rider'] );
 			self::select( $prefix . '[horse]', 'Horse', $ctx['active_horses'], $r['horse'] );
 			self::field( $prefix . '[start]', 'Start (' . $p['timezone'] . ')', $r['start'], 'datetime-local' );
+			echo '<details><summary>Optional title and repeated-hour choice</summary>';
+			self::field( $prefix . '[title]', 'Title', $r['title'] );
 			self::field( $prefix . '[choice]', 'UTC offset for repeated local time, if needed', $r['choice'] );
+			echo '</details>';
 			echo '<div>Instructor / arena / location: ';
 			foreach ( $ctx['resource_rows'] as $resource ) {
 				if ( ! $resource['active'] || 'horse' === $resource['kind'] ) {
@@ -584,8 +595,9 @@ class CSF_Scheduling_Family_UI {
 				echo '<button class="button" name="csf_family_action" value="remove:' . esc_attr( $i ) . '" formnovalidate>Remove unsaved lesson</button>'; }
 			echo '</fieldset>';
 		}
+		echo '<details><summary>Attach an existing independent lesson</summary>';
 		self::field( 'attach_uuid', 'Existing independent lesson ID to add for review', '' );
-		echo '<button class="button" name="csf_family_action" value="attach" formnovalidate>Load existing lesson</button>';
+		echo '<button class="button" name="csf_family_action" value="attach" formnovalidate>Load existing lesson</button></details>';
 		echo '<label><input type="checkbox" name="same_family" value="1" required ' . checked( $draft['same_family'] ?? '', '1', false ) . '>I verified these lessons belong to the same family visit.</label><p><button class="button" name="csf_family_action" value="add">Book another lesson for this family visit</button> <button class="button button-primary" name="csf_family_action" value="review">Review all lessons and buffers</button></p></form>';
 	}
 }

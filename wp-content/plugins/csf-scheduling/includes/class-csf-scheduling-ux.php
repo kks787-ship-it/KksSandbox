@@ -76,7 +76,16 @@ class CSF_Scheduling_UX {
 	public static function actions( $date, $view, $filter ) {
 		echo '<div class="csf-calendar-actions">';
 		if ( CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
-			echo '<a class="button" href="' . esc_url( self::url( 'family' ) ) . '">Book family visit</a>';
+			echo '<a class="button csf-family-open" href="' . esc_url(
+				self::url(
+					'calendar',
+					array(
+						'tool' => 'family',
+						'date' => $date,
+						'view' => $view,
+					)
+				)
+			) . '">Book family visit</a>';
 		}
 		if ( CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
 			echo '<a class="button button-primary csf-new-lesson" href="#csf-create">Schedule Lesson</a>'; }

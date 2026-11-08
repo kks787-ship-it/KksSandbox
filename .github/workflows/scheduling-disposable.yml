@@ -34,7 +34,7 @@ jobs:
           curl --fail --show-error --location --retry 2 https://wordpress.org/wordpress-6.8.3.tar.gz -o .wp-local/wordpress.tar.gz
           echo 'fd56bcdc15f1877e45dce67942ea75949ed650e8  .wp-local/wordpress.tar.gz' | sha1sum --check -
           tar -xzf .wp-local/wordpress.tar.gz --strip-components=1 -C .wp-local/scheduling-core
-          curl --fail --show-error --location --retry 2 https://github.com/wp-cli/wp-cli/releases/download/v2.12.0/wp-cli-2.12.0.phar -o .wp-local/wp-cli.phar
+          bash tests/scheduling/download-wp-cli.sh
           php .wp-local/wp-cli.phar --info
       - name: Prepare pinned disposable browser and official MFA provider
         if: matrix.php == '8.3' && matrix.database == 'mariadb:10.6'
@@ -63,7 +63,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        suite: [mfa, calendar, hours, family]
+        suite: [mfa, calendar, hours, family, mail]
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -76,7 +76,7 @@ jobs:
           curl --fail --show-error --location --retry 2 https://wordpress.org/wordpress-7.1.4.tar.gz -o .wp-local/wordpress-mfa.tar.gz
           echo 'b175879c4fb2d35300f9abe1153da9b543a35a2b  .wp-local/wordpress-mfa.tar.gz' | sha1sum --check -
           tar -xzf .wp-local/wordpress-mfa.tar.gz --strip-components=1 -C .wp-local/site
-          curl --fail --show-error --location --retry 2 https://github.com/wp-cli/wp-cli/releases/download/v2.12.0/wp-cli-2.12.0.phar -o .wp-local/wp-cli.phar
+          bash tests/scheduling/download-wp-cli.sh
           curl --fail --show-error --location --retry 2 https://github.com/WordPress/two-factor/releases/download/0.17.0/two-factor.zip -o .wp-local/two-factor.zip
           python3 tests/scheduling/verify-mfa-release.py .wp-local/two-factor.zip
           npm ci --ignore-scripts --no-audit --no-fund
@@ -95,6 +95,7 @@ jobs:
             calendar) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_UX=1 ;;
             hours) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_RESOURCE_HOURS=1 ;;
             family) export CSF_TEST_SECURITY_ONLY=1 CSF_TEST_FAMILY=1 ;;
+            mail) export CSF_TEST_NATIVE_MAIL_ONLY=1 ;;
             *) exit 1 ;;
           esac
           bash tests/scheduling/mfa-run.sh

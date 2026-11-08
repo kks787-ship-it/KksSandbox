@@ -11,6 +11,7 @@ class CSF_Scheduling_Schema {
 	public static function table( $name ) { return 'fixture_' . $name; }
 }
 class CSF_Scheduling_Audit {
+	public static function now() { return '2026-11-08 00:00:00'; }
 	public static function uuid( $value ) { return is_string( $value ) && preg_match( '/^[a-f0-9-]{36}$/D', $value ); }
 }
 class HorseCorrectionDatabase {
@@ -68,5 +69,15 @@ foreach ( array( array( $client, $school ), array( $school, $client ) ) as list(
 	if ( $wpdb->queries ) { throw new RuntimeException( 'Unlocked call touched database' ); }
 	++$checks;
 	CSF_Scheduling_Store::$active = true;
+}
+foreach ( array( array( $client, $school ), array( $school, $client ) ) as list( $before, $after ) ) {
+ $wpdb = new HorseCorrectionDatabase(); $run = static fn() => $guard->invoke( null, $horse, $before, $after, true );
+ $wpdb->dependency = 'fixture_history'; hc_expect( null, $run );
+ foreach ( array( 'fixture_details', 'fixture_restrictions', 'fixture_slots', 'fixture_allocations' ) as $table ) {
+  $wpdb = new HorseCorrectionDatabase(); $wpdb->dependency = $table; hc_expect( 'horse_mapping_in_use', $run );
+  $wpdb = new HorseCorrectionDatabase(); $wpdb->failure = $table; hc_expect( 'write_failed', $run );
+ }
+ $wpdb = new HorseCorrectionDatabase(); $run(); $queries = implode( "\n", $wpdb->queries );
+ if ( ! str_contains( $queries, "a.state<>'canceled' AND a.end_utc>" ) || ! str_contains( $queries, "$.released" ) || ! str_contains( $queries, "AND end_utc>" ) || str_contains( $queries, 'fixture_history' ) ) { throw new RuntimeException( 'history-safe mapping predicates missing' ); } ++$checks;
 }
 echo $checks . " isolated horse mapping guard checks passed\n";

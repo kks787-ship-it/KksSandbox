@@ -55,3 +55,18 @@ No merging, deployment, real mail/push, staff grants, payments, public/emergency
 booking or MFA changes are authorized by that approval. The branch will remain
 stable after publication so independent findings can be reconciled against one SHA.
 See [the exact integration plan](scheduling-integration-validation-plan.md).
+
+## Continuation after CI review
+
+The latest local increment supersedes three implementation gaps above: historical
+horse remapping is allowed only after ongoing/future bookings, remaining reservation
+windows and unreleased protective blocks are reconciled; started closures split
+prospectively at a future local midnight into retained and replacement documents;
+family forms/review/save now use the calendar task drawer with focus return.
+All use existing transaction, authorization and native signed forms. New DB/browser
+coverage is authored; CI acceptance for this increment is not yet established.
+
+The existing native wp_mail runtime harness is now a separate disposable CI suite
+with an in-memory PHPMailer override and synthetic invalid-domain recipients.
+This qualifies existing transport checks only; durable scheduling outbox claim/worker
+integration and scoped real-delivery authorization remain outstanding.

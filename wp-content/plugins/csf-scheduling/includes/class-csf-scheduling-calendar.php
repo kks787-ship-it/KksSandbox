@@ -264,7 +264,7 @@ class CSF_Scheduling_Calendar {
 			$old = self::find( 'restrictions', $body['uuid'] );
 			self::require( $old, 'not_found' );
 			$before = json_decode( $old['body_json'], true );
-			self::require( empty( $before['released'] ), 'invalid_transition' );
+			self::require( empty( $before['released'] ) && empty( $before['superseded_at'] ), 'invalid_transition' );
 			$after = $before + array(
 				'released'       => true,
 				'release_reason' => $body['reason'],
@@ -336,7 +336,7 @@ class CSF_Scheduling_Calendar {
 			if ( $existing_horse ) {
 				$identity = json_decode( $existing_horse['body_json'], true );
 				if ( $identity['source'] !== $d['source'] || $identity['resource_uuid'] !== $d['resource_uuid'] ) {
-					self::unused_horse_mapping( $existing_horse, $identity, $d );
+					self::unused_horse_mapping( $existing_horse, $identity, $d, true );
 				}
 			}
 			$table = 'horses';
@@ -522,34 +522,69 @@ class CSF_Scheduling_Calendar {
 		);
 	}
 
-	/** Correct only an unused booking classification; never re-key historical reservations.
+	/** List only currently authorized ongoing/future lessons for reconciliation.
 	 *
-	 * This deliberately conservative first increment leaves used-horse remapping for
-	 * an explicit reservation/history migration. All reads run under Store's facility
+	 * @param string $uuid Horse UUID.
+	 * @return array
+	 */
+	public static function horse_mapping_bookings( $uuid ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Access::can( 'resource_manage' ) && CSF_Scheduling_Audit::uuid( $uuid ), 'forbidden' );
+		$appointments = self::table( 'appointments' );
+		$details      = self::table( 'details' );
+		$rows         = $wpdb->get_results( $wpdb->prepare( "SELECT a.* FROM `$appointments` a JOIN `$details` d ON d.uuid=a.uuid WHERE a.state<>'canceled' AND a.end_utc>%s AND d.body_json LIKE %s ORDER BY a.start_utc LIMIT 201", CSF_Scheduling_Audit::now(), '%' . $wpdb->esc_like( $uuid ) . '%' ), ARRAY_A );
+		self::require( is_array( $rows ) && '' === $wpdb->last_error, 'write_failed' );
+		$out = array();
+		foreach ( $rows as $row ) {
+			if ( CSF_Scheduling_Permissions::appointment_visible( $row ) ) {
+				$out[] = array(
+					'uuid'  => $row['uuid'],
+					'start' => $row['start_utc'] . '+00:00',
+					'state' => $row['state'],
+				);
+			}
+		}
+		return $out;
+	}
+
+	/** Correct a reconciled classification; deletion always requires completely unused history.
+	 *
+	 * Remapping may retain historical rows only after future bookings/reservations and
+	 * unreleased protective blocks are reconciled. All reads run under Store's facility
 	 * lock, so another command cannot book the old mapping between check and save.
 	 *
 	 * @param array $horse  Existing horse row.
 	 * @param array $before Existing classification.
 	 * @param array $after  Proposed classification.
+	 * @param bool  $allow_history Preserve historical rows for a classification correction only.
 	 */
-	private static function unused_horse_mapping( $horse, $before, $after ) {
+	private static function unused_horse_mapping( $horse, $before, $after, $allow_history = false ) {
 		global $wpdb;
 		self::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
 		$details = self::table( 'details' );
 		// UUIDs are validated, immutable identifiers. Conservative matching also keeps
 		// canceled and requested appointments protected; they may have no slot rows.
-		$used = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$details` WHERE body_json LIKE %s LIMIT 1", '%' . $wpdb->esc_like( $horse['uuid'] ) . '%' ) );
+		if ( $allow_history ) {
+			$appointments = self::table( 'appointments' );
+			$used         = $wpdb->get_var( $wpdb->prepare( "SELECT a.id FROM `$appointments` a JOIN `$details` d ON d.uuid=a.uuid WHERE a.state<>'canceled' AND a.end_utc>%s AND d.body_json LIKE %s LIMIT 1", CSF_Scheduling_Audit::now(), '%' . $wpdb->esc_like( $horse['uuid'] ) . '%' ) );
+		} else {
+			$used = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$details` WHERE body_json LIKE %s LIMIT 1", '%' . $wpdb->esc_like( $horse['uuid'] ) . '%' ) );
+		}
 		self::require( '' === $wpdb->last_error, 'write_failed' );
 		self::require( ! $used, 'horse_mapping_in_use' );
-		$history = self::table( 'history' );
-		$used    = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$history` WHERE entity_uuid<>%s AND body_json LIKE %s LIMIT 1", $horse['uuid'], '%' . $wpdb->esc_like( $horse['uuid'] ) . '%' ) );
-		self::require( '' === $wpdb->last_error, 'write_failed' );
-		self::require( ! $used, 'horse_mapping_in_use' );
+		if ( ! $allow_history ) {
+			$history = self::table( 'history' );
+			$used    = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$history` WHERE entity_uuid<>%s AND body_json LIKE %s LIMIT 1", $horse['uuid'], '%' . $wpdb->esc_like( $horse['uuid'] ) . '%' ) );
+			self::require( '' === $wpdb->last_error, 'write_failed' );
+			self::require( ! $used, 'horse_mapping_in_use' );
+		}
+
 		$targets = array_unique( array_filter( array( $horse['uuid'], $before['resource_uuid'], $after['resource_uuid'] ) ) );
 		$keys    = array( 0 - (int) $horse['id'] );
 		foreach ( $targets as $uuid ) {
 			$restrictions = self::table( 'restrictions' );
-			$used         = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$restrictions` WHERE entity_uuid=%s LIMIT 1", $uuid ) );
+			$active       = $allow_history ? " AND (JSON_EXTRACT(body_json,'$.released') IS NULL OR JSON_EXTRACT(body_json,'$.released')<>true)" : '';
+			$used         = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$restrictions` WHERE entity_uuid=%s $active LIMIT 1", $uuid ) );
 			self::require( '' === $wpdb->last_error, 'write_failed' );
 			self::require( ! $used, 'horse_mapping_in_use' );
 			if ( $uuid !== $horse['uuid'] ) {
@@ -558,14 +593,15 @@ class CSF_Scheduling_Calendar {
 				$keys[] = (int) $resource['id'];
 			}
 		}
+		$future = $allow_history ? $wpdb->prepare( ' AND end_utc>%s', CSF_Scheduling_Audit::now() ) : '';
 		foreach ( array_unique( $keys ) as $key ) {
 			$slots = self::table( 'slots' );
-			$used  = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$slots` WHERE resource_id=%d LIMIT 1", $key ) );
+			$used  = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$slots` WHERE resource_id=%d $future LIMIT 1", $key ) );
 			self::require( '' === $wpdb->last_error, 'write_failed' );
 			self::require( ! $used, 'horse_mapping_in_use' );
 			if ( $key > 0 ) {
 				$allocations = self::table( 'allocations' );
-				$used        = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$allocations` WHERE resource_id=%d LIMIT 1", $key ) );
+				$used        = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$allocations` WHERE resource_id=%d $future LIMIT 1", $key ) );
 				self::require( '' === $wpdb->last_error, 'write_failed' );
 				self::require( ! $used, 'horse_mapping_in_use' );
 			}
