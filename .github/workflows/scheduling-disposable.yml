@@ -48,8 +48,7 @@ jobs:
           curl --fail --show-error --location --retry 2 https://wordpress.org/wordpress-7.1.4.tar.gz -o .wp-local/wordpress-mfa.tar.gz
           echo 'b175879c4fb2d35300f9abe1153da9b543a35a2b  .wp-local/wordpress-mfa.tar.gz' | sha1sum --check -
           tar -xzf .wp-local/wordpress-mfa.tar.gz --strip-components=1 -C .wp-local/site
-          curl --fail --show-error --location --retry 2 https://github.com/WordPress/two-factor/releases/download/0.17.0/two-factor.zip -o .wp-local/two-factor.zip
-          python3 tests/scheduling/verify-mfa-release.py .wp-local/two-factor.zip
+          bash tests/scheduling/download-mfa.sh
       - name: Run isolated database, transaction, race and rollback tests
         env:
           CSF_TEST_PHP_VERSION: ${{ matrix.php }}
@@ -77,8 +76,7 @@ jobs:
           echo 'b175879c4fb2d35300f9abe1153da9b543a35a2b  .wp-local/wordpress-mfa.tar.gz' | sha1sum --check -
           tar -xzf .wp-local/wordpress-mfa.tar.gz --strip-components=1 -C .wp-local/site
           bash tests/scheduling/download-wp-cli.sh
-          curl --fail --show-error --location --retry 2 https://github.com/WordPress/two-factor/releases/download/0.17.0/two-factor.zip -o .wp-local/two-factor.zip
-          python3 tests/scheduling/verify-mfa-release.py .wp-local/two-factor.zip
+          bash tests/scheduling/download-mfa.sh
           npm ci --ignore-scripts --no-audit --no-fund
           npx --no-install playwright install --with-deps chromium
           node -e "console.log('CSF_TEST_CHROMIUM=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"

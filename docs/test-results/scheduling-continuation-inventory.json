@@ -109,6 +109,10 @@
       "sha256": "94284895dde108fcb5fff9d689ab697850c9b1aa3badade93f9a34ceaa443f34"
     },
     {
+      "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-email-wp-mail.php",
+      "sha256": "b60f42ed484f801a3a416cde146803bc47eb0f1db8344526c1095f9e5987197b"
+    },
+    {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-family-ui.php",
       "sha256": "3cc73bfafade39c585a9bbe293f7234b33ae8d4bc1e59d2952e368944dcd2d8c"
     },

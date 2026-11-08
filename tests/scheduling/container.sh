@@ -50,6 +50,7 @@ php /repo/tests/scheduling/notifications-unit.php
 php /repo/tests/scheduling/email-sink-unit.php
 "${WP[@]}" eval-file /repo/tests/scheduling/horse-lifecycle.php
 bash /repo/tests/scheduling/horse-lifecycle-races.sh
+bash /repo/tests/scheduling/horse-mapping-races.sh
 "${WP[@]}" eval-file /repo/tests/scheduling/family-visit.php
 bash /repo/tests/scheduling/family-races.sh
 "${WP[@]}" eval-file /repo/tests/scheduling/usability.php

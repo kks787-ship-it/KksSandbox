@@ -32,3 +32,18 @@ do not prove multi-process exactly-once delivery. Real provider idempotency and
 uncertainty need separate qualification and scoped outbound consent. The existing
 transactional in-app notices and acknowledgements remain the operational candidate
 notification path, subject to the unrun WordPress/database acceptance gates.
+
+## Native WordPress bridge qualification increment
+
+An additional unloaded `CSF_Scheduling_Email_WP_Mail` bridge maps recipient-scoped
+fixture jobs to meaningful NEW/RESCHEDULED/CANCELED/URGENT subjects, minimal grouped
+text and the authenticated calendar. It refuses addresses outside example.invalid,
+unknown mail hooks, stale/expired claims and any mailer other than the final fixture
+class. It has no production sender, bootstrap loader, cron or enable switch.
+False returns and exceptions become uncertain, never automatically retryable.
+
+New real-WordPress fixture assertions exercise the API with a no-network PHPMailer
+override, claim errors, case-preserved recipients, private-field exclusion, unknown
+hooks, real-address denial and sink-only deduplication. Authored, not yet run.
+The existing nine native-mail-runtime cases also run in the independent CI mail job.
+The durable worker/CAS repository and real delivery limitations above still apply.

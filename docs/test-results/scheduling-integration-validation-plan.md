@@ -244,3 +244,16 @@ Podman or rootless daemon exists. The exact local interpreter is a custom build
 (Python3.13.5/GCC14.2.0, August10 2026), not owned by a dpkg package. A different
 official package or recompilation is not evidence of the exact qualified binary.
 No system installation, runtime substitution or farm operation was attempted.
+
+Run42466147108 completed: PHP8.1/MariaDB, PHP8.1/MySQL and PHP8.3/MySQL
+passed, including the new historical horse correction cases. MFA/security browser
+suites passed, then the unchanged Python recovery prerequisite failed. Other jobs
+failed while downloading official artifacts. The new Two-Factor API fallback asset
+594537395 was verified against the unchanged91837-byte ZIP/SHA25659d7c75f57966b93cc59657a0c14d58f247ba6f350b081c8602b3cacdc51e473
+and retains all21 file checks. No MFA implementation/enforcement change.
+
+The next increment adds a true two-process mapping/booking race and the unloaded
+booking wp_mail bridge test. Neither has executed yet; next CI must establish it.
+Local rootless recovery prerequisites newuidmap/newgidmap/rootlesskit/slirp4netns
+and a Docker socket are also absent, despite available unprivileged namespaces.
+No original qualified interpreter was uploaded or substituted.
