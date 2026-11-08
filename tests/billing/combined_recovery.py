@@ -75,7 +75,10 @@ try:
   try:qualify(bad,'TXGEh_')
   except ValueError:check(True,'partial billing rejects missing '+name)
   else:raise AssertionError('Partial billing accepted')
- (DST/'wp-config.php').write_text(config.replace("'wp_mdf4x'","'billing_restore'"));(DST/'wp-config.php').chmod(0o600)
+ clone_password=secrets.token_hex(32)
+ sql("CREATE USER 'billing_clone'@'localhost' IDENTIFIED BY '"+clone_password+"';GRANT ALL ON billing_restore.* TO 'billing_clone'@'localhost';")
+ clone_config=config.replace("'wp_mdf4x'","'billing_restore'").replace("define('DB_USER','root')","define('DB_USER','billing_clone')").replace("define('DB_PASSWORD','')","define('DB_PASSWORD','"+clone_password+"')")
+ (DST/'wp-config.php').write_text(clone_config);(DST/'wp-config.php').chmod(0o600)
  mu=DST/'wp-content/mu-plugins';mu.mkdir(exist_ok=True)
  (mu/'offline.php').write_text("<?php add_filter('pre_wp_mail',static fn()=>false,-999999);add_filter('pre_http_request',static fn()=>new WP_Error('offline','Blocked'),-999999);add_action('init',static function(){if(($_SERVER['REQUEST_URI']??'')==='/fixture-proof'){wp_send_json(array('verified'=>CSF_MFA_Session::web_verified(1)));}});")
  verify="global $wpdb;if(CSF_Billing_Config::enabled()){throw new RuntimeException('Sales enabled');}$rows=$wpdb->get_results('SELECT * FROM TXGEh_csf_billing_certificates',ARRAY_A);foreach($rows as $r){$p=CSF_Billing_Config::open($r['number_sealed']);if(!hash_equals($r['number_hash'],hash('sha256',$p))){throw new RuntimeException('Key mismatch');}$raw=base64_decode($r['number_sealed']);$raw[28]=chr(ord($raw[28])^1);try{CSF_Billing_Config::open(base64_encode($raw));throw new RuntimeException('Tamper accepted');}catch(CSF_Billing_Failure $e){}}if(!CSF_MFA_Session::enrolled(false,1)){throw new RuntimeException('MFA lost');}echo 'KEY_AND_MFA_OK';"
