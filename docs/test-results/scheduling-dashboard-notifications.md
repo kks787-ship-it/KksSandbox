@@ -117,3 +117,13 @@ fixtures cover durable transitions, exact replay, ledger rollback before submiss
 completion failure, uncertain/expired claims, backoff, enrollment revocation and two
 workers attempting the same claimed job. CI execution results will be recorded
 separately; fixture source is not evidence of a passed database test.
+
+CI run 17 (`42468435506`, draft head `fb99ec9`) passed the PHP 8.1/MariaDB
+job: **27 durable dispatch assertions**, **15 current-recipient assertions** and
+**two real worker processes, exactly one submission**. The normal transaction,
+migration and logical-restore suite also passed in that job. This is synthetic
+sink acceptance only. A follow-up tightens current scope to actual instructor
+resources and adds persisted maximum-attempt and unauthenticated-worker checks;
+its 16 current-recipient checks pass locally on both PHP 8.1 and 8.3.
+Scheduling PHPCS has zero errors/warnings; focused recovery/package tests pass
+15 + 6. The follow-up database execution is pending the next exact candidate run.

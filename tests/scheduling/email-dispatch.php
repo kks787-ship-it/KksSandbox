@@ -14,12 +14,19 @@ $check($event!==null,'real committed booking event exists');
 $body=static function()use($event,$wpdb,$t){$e=$event;$e['source_command']=wp_generate_uuid4();$wpdb->insert($t,['uuid'=>$e['source_command'],'entity_uuid'=>$e['entity_uuid'],'revision'=>1,'body_json'=>wp_json_encode($e),'created_by'=>1,'created_at_utc'=>CSF_Scheduling_Audit::now()]);return ['event'=>$e['source_command'],'recipient'=>1,'expected'=>0,'action'=>'queue','token'=>str_repeat('a',32),'outcome'=>''];};
 $read=static function($b)use($wpdb,$t){$r=$wpdb->get_row($wpdb->prepare("SELECT * FROM `$t` WHERE uuid=%s",CSF_Scheduling_Email_Dispatch::uuid($b['event'],$b['recipient'])),ARRAY_A);return $r?json_decode($r['body_json'],true)['job']:null;};
 $claim=static function(&$b)use($save,$check){$r=$save($b);$check(!is_wp_error($r)&&$r['job']['state']==='queued','queue persists');$b['expected']=$r['expected'];$b['action']='claim';$r=$save($b);$check(!is_wp_error($r)&&$r['job']['state']==='claimed','claim persists');$b['expected']=$r['expected'];return$r;};
+$b=$body();wp_set_current_user(0);$check(is_wp_error($save($b)),'unauthenticated dispatcher denied');wp_set_current_user(1);
 $b=$body();$revision=$rev();$command=wp_generate_uuid4();$r=CSF_Scheduling_Store::calendar('email_sink_transition',$b,$revision,$command);
 $check(!is_wp_error($r),'first durable queue');$check($r===CSF_Scheduling_Store::calendar('email_sink_transition',$b,$revision,$command),'queue ledger replay');$check(is_wp_error($save($b)),'second queue cannot duplicate key');
 $b=$body();$claim($b);$sink=new CSF_Scheduling_Email_Sink();$r=CSF_Scheduling_Email_Dispatch::run($b,$sink);$check(!is_wp_error($r)&&$read($b)['state']==='sink_accepted'&&count($sink->messages)===1,'worker persists accepted sink outcome');
 $check(is_wp_error(CSF_Scheduling_Email_Dispatch::run($b,$sink))&&count($sink->messages)===1,'restart with old claim never resends');
 $b=$body();$claim($b);$sink=new CSF_Scheduling_Email_Sink(['throw']);$r=CSF_Scheduling_Email_Dispatch::run($b,$sink);$check(!is_wp_error($r)&&$read($b)['state']==='uncertain','ambiguous outcome durable terminal');
 $b=$body();$claim($b);$sink=new CSF_Scheduling_Email_Sink(['rejected_transient']);$r=CSF_Scheduling_Email_Dispatch::run($b,$sink);$check(!is_wp_error($r)&&$read($b)['state']==='retry'&&$read($b)['retry_at']>time(),'explicit rejection alone schedules bounded retry');$b['expected']=$r['expected'];$b['action']='claim';$check(is_wp_error($save($b)),'retry cannot run before backoff');
+// Mature only the synthetic backoff clock and verify the persisted attempt budget.
+for($attempt=2;$attempt<=3;$attempt++){
+ $uuid=CSF_Scheduling_Email_Dispatch::uuid($b['event'],1);$row=$wpdb->get_row($wpdb->prepare("SELECT * FROM `$t` WHERE uuid=%s",$uuid),ARRAY_A);$doc=json_decode($row['body_json'],true);$doc['job']['retry_at']=time()-1;$wpdb->update($t,['body_json'=>wp_json_encode($doc)],['id'=>$row['id']]);
+ $r=$save($b);$check(!is_wp_error($r)&&$r['job']['attempts']===$attempt,'persisted retry attempt count');$b['expected']=$r['expected'];$r=CSF_Scheduling_Email_Dispatch::run($b,new CSF_Scheduling_Email_Sink(['rejected_transient']));$check(!is_wp_error($r),'retry completion persists');$b['expected']=$r['expected'];
+}
+$check($read($b)['state']==='failed'&&is_wp_error($save($b)),'third explicit rejection terminal; fourth claim denied');
 // Fail the ledger after the begin write: transaction rollback must prevent submission.
 $b=$body();$claim($b);$sink=new CSF_Scheduling_Email_Sink();$fail=static fn($q)=>str_contains($q,'INSERT INTO `fixture_csf_sched_commands`')?'SELECT * FROM fixture_dispatch_missing':$q;
 add_filter('query',$fail);$r=CSF_Scheduling_Email_Dispatch::run($b,$sink);remove_filter('query',$fail);$check(is_wp_error($r)&&!$sink->messages&&$read($b)['state']==='claimed','late begin ledger failure rolls back and never sends');

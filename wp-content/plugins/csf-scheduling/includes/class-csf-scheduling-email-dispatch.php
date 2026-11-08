@@ -50,7 +50,7 @@ final class CSF_Scheduling_Email_Dispatch {
 				continue;
 			}
 			$departure = in_array( $uuid, $event['recipient_departures'][ $recipient ] ?? array(), true );
-			$resources = $departure ? ( $changes[ $uuid ]['previous_instructors'] ?? array() ) : ( $appointments[ $uuid ]['resources'] ?? array() );
+			$resources = $departure ? ( $changes[ $uuid ]['previous_instructors'] ?? array() ) : ( $appointments[ $uuid ]['instructors'] ?? array() );
 			if ( empty( $rights['calendar_assigned'] ) || ! array_intersect( $state['members'][ $recipient ]['resources'], $resources ) ) {
 				return false;
 			}
@@ -68,7 +68,14 @@ final class CSF_Scheduling_Email_Dispatch {
 		foreach ( $event['recipient_items'][ $recipient ] ?? array() as $uuid ) {
 			$row = CSF_Scheduling_Calendar::find( 'details', $uuid );
 			if ( $row && CSF_Scheduling_Calendar::find( 'appointments', $uuid ) ) {
-				$appointments[ $uuid ] = json_decode( $row['body_json'], true );
+				$details               = json_decode( $row['body_json'], true );
+				$appointments[ $uuid ] = array( 'instructors' => array() );
+				foreach ( $details['resources'] ?? array() as $resource_uuid ) {
+					$resource = CSF_Scheduling_Calendar::find( 'resources', $resource_uuid );
+					if ( $resource && 'instructor' === $resource['kind'] ) {
+						$appointments[ $uuid ]['instructors'][] = $resource_uuid;
+					}
+				}
 			}
 		}
 		$state = CSF_Scheduling_Permissions::state();
