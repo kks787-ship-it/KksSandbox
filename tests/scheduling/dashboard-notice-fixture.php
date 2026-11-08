@@ -3,6 +3,10 @@
 if(ABSPATH!=='/test/site/'||DB_NAME!=='csf_fixture'||wp_get_environment_type()!=='local')throw new RuntimeException('Fixture required');
 ob_start();require '/repo/tests/scheduling/auto-slot-fixture.php';$ids=json_decode(ob_get_clean(),true);
 $p=json_decode(CSF_Scheduling_Schema::settings()['policy_json'],true);$p['service_hours']=array_fill(0,7,[['06:00','22:00']]);$p['services']['pilot_ground_30']=$p['services']['pilot_ground_60'];$p['services']['pilot_ground_30']['duration_minutes']=30;
+// Keep this synthetic facility at 08:xx so its genuine future-only override is
+// valid regardless of runner time. Other calendar suites cover America/Los_Angeles DST.
+$offset=8-(int)gmdate('G');if($offset < -12)$offset+=24;
+$p['timezone']=$offset===0?'Etc/GMT':'Etc/GMT'.($offset>0?'-':'+').abs($offset);
 $r=CSF_Scheduling_Store::configure($p,(int)CSF_Scheduling_Schema::settings()['revision'],wp_generate_uuid4());if(is_wp_error($r))throw new RuntimeException('Fixture policy');
 $zone=new DateTimeZone($p['timezone']);$day=(new DateTimeImmutable('now',$zone))->format('Y-m-d');
 foreach(CSF_Scheduling_Calendar::documents('availability')as$doc)$call('availability_saved',['uuid'=>$doc['uuid'],'expected'=>(int)$doc['revision'],'data'=>['resource_uuid'=>$doc['entity_uuid'],'intervals'=>[['start'=>(new DateTimeImmutable($day.' 00:00',$zone))->modify('-1 day')->format('Y-m-d\TH:iP'),'end'=>(new DateTimeImmutable($day.' 00:00',$zone))->modify('+10 days')->format('Y-m-d\TH:iP')]]]]);
