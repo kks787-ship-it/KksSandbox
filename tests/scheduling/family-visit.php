@@ -91,6 +91,9 @@ $fixture = json_decode( file_get_contents( '/test/calendar-fixture.json' ), true
 fv_check( 'forbidden' === fv_reason( fv_save( 'family_visit_saved', $body ) ), 'unprivileged staff cannot group-write' ); wp_set_current_user( 1 );
 $race = $body; $race['uuid'] = wp_generate_uuid4(); $race['items'][0]['body'] = $make( 12, 0 ); $race['items'][1]['body'] = $make( 12, 30 );
 $other = $race; $other['uuid'] = wp_generate_uuid4(); foreach ( $other['items'] as &$item ) { $item['body']['uuid'] = wp_generate_uuid4(); } unset( $item );
+// Preserve the catalog identity referenced by synthetic booking history; cleanup must obey the same guard.
+fv_check( 'service_in_use' === fv_reason( CSF_Scheduling_Store::configure( $original, fv_rev(), wp_generate_uuid4() ) ), 'cleanup cannot delete a service with booking history' );
+$original['services']['family_test'] = $p['services']['family_test'];
 file_put_contents( '/test/family-race.json', wp_json_encode( array( 'policy' => $p, 'original_policy' => $original, 'bodies' => array( $race, $other ) ) ) );
-fv_check( ! is_wp_error( CSF_Scheduling_Store::configure( $original, fv_rev(), wp_generate_uuid4() ) ), 'restore original synthetic fixture policy' );
+fv_check( ! is_wp_error( CSF_Scheduling_Store::configure( $original, fv_rev(), wp_generate_uuid4() ) ), 'restore fixture policy while retaining referenced service history' );
 WP_CLI::success( $checks . ' real database family visit checks' );
