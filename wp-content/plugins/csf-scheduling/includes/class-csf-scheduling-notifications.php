@@ -341,7 +341,7 @@ class CSF_Scheduling_Notifications {
 				$heading = $new ? 'NEW LESSON SCHEDULED' : 'LESSON CHANGED';
 				if ( array_filter( $item['changes'], static fn( $c ) => $c['urgent'] ) ) {
 					$heading = 'URGENT CHANGE'; }
-				echo '<article class="csf-booking-notice"' . ( $item['acknowledged'] ? '' : ' role="status"' ) . '><' . ( $item['acknowledged'] ? 'h3' : 'h2' ) . '>' . esc_html( $heading . ( $item['acknowledged'] ? ' · acknowledged' : '' ) ) . '</' . ( $item['acknowledged'] ? 'h3' : 'h2' ) . '><ul>';
+				echo '<article class="csf-booking-notice"' . ( $item['acknowledged'] ? '' : ' aria-live="polite" aria-atomic="true"' ) . '><' . ( $item['acknowledged'] ? 'h3' : 'h2' ) . '>' . esc_html( $heading . ( $item['acknowledged'] ? ' · acknowledged' : '' ) ) . '</' . ( $item['acknowledged'] ? 'h3' : 'h2' ) . '><ul>';
 				foreach ( $item['changes'] as $change ) {
 					$text = $change['kind'] . ' · ' . ( $change['start'] ? substr( $change['start'], 0, 16 ) . ' ' . substr( $change['start'], -6 ) : 'Event-time date unavailable in legacy notice' );
 					if ( $change['restricted'] ) {

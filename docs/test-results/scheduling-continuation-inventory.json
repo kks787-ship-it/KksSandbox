@@ -122,7 +122,7 @@
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-notifications.php",
-      "sha256": "091a1b8bf6529ce38c33a0800774ffebb9d5500443b92053285994717c90bb0d"
+      "sha256": "e4f585dad0e44422bc7fdb8597b0d95ff0d291d6da2561d57d88195b91ccbe20"
     },
     {
       "path": "wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-permissions.php",
