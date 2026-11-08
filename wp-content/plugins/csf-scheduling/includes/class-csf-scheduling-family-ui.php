@@ -3,26 +3,57 @@
  *
  * @package CSF_Scheduling
  */
+
 defined( 'ABSPATH' ) || exit;
+/** Coordinate this private scheduling operation through existing access and transaction boundaries. */
 class CSF_Scheduling_Family_UI {
-	private static $draft     = null;
-	private static $review    = null;
-	private static $notice    = '';
+	/** Native draft retained after validation failure.
+	 *
+	 * @var array|null
+	 */
+	private static $draft = null;
+	/** Exact signed proposal awaiting confirmation.
+	 *
+	 * @var array|null
+	 */
+	private static $review = null;
+	/** Current request outcome text.
+	 *
+	 * @var string
+	 */
+	private static $notice = '';
+	/** Whether this request received commit acknowledgement.
+	 *
+	 * @var bool
+	 */
 	private static $committed = false;
+	/** Read a bounded string form field.
+	 *
+	 * @param array  $a Normalized lesson or submitted field values.
+	 * @param string $key Field key.
+	 */
 	private static function value( $a, $key ) {
 		$v = $a[ $key ] ?? '';
 		CSF_Scheduling_Calendar::require( is_string( $v ) && strlen( $v ) <= 400 );
 		return $v;
 	}
+	/** Bind the exact reviewed payload to this actor and session.
+	 *
+	 * @param array $r Exact reviewed proposal.
+	 */
 	private static function signature( $r ) {
 		return hash_hmac( 'sha256', wp_json_encode( CSF_Scheduling_Store::canonical( $r ) ) . ':' . get_current_user_id() . ':' . wp_get_session_token(), wp_salt( 'nonce' ) );
 	}
-	/** Parse compact routine fields; service duration is still server-derived. */
+	/** Parse compact routine fields; service duration is still server-derived.
+	 *
+	 * @param array $input Submitted native fields.
+	 * @param array $p Facility policy.
+	 */
 	public static function parse( $input, $p ) {
 		CSF_Scheduling_Calendar::require( is_array( $input['lessons'] ?? null ) && array_is_list( $input['lessons'] ) && count( $input['lessons'] ) > 0 && count( $input['lessons'] ) <= 20 );
 		$expected = self::value( $input, 'visit_expected' );
 		CSF_Scheduling_Calendar::require( preg_match( '/^(0|[1-9][0-9]{0,9})$/D', $expected ) && '1' === self::value( $input, 'same_family' ) );
-		$state = self::value( $input, 'visit_state' ) ?: 'confirmed';
+		$state = ( '' !== self::value( $input, 'visit_state' ) ) ? self::value( $input, 'visit_state' ) : 'confirmed';
 		CSF_Scheduling_Calendar::require( in_array( $state, array( 'requested', 'held', 'confirmed' ), true ), 'visit_state' );
 		$hold = null;
 		if ( 'held' === $state ) {
@@ -95,7 +126,7 @@ class CSF_Scheduling_Family_UI {
 				'rides'        => array(),
 				'_routine'     => true,
 				'single_rider' => self::value( $r, 'rider' ),
-				'single_horse' => self::value( $r, 'horse' ) ?: null,
+				'single_horse' => ( '' !== self::value( $r, 'horse' ) ) ? self::value( $r, 'horse' ) : null,
 			);
 			if ( '1' === self::value( $r, 'advanced' ) ) {
 				$service = $p['services'][ $b['service_type'] ] ?? null;
@@ -114,7 +145,7 @@ class CSF_Scheduling_Family_UI {
 					CSF_Scheduling_Calendar::require( is_array( $turn ) );
 					$ride = array(
 						'horse' => self::value( $turn, 'horse' ),
-						'rider' => self::value( $turn, 'rider' ) ?: null,
+						'rider' => ( '' !== self::value( $turn, 'rider' ) ) ? self::value( $turn, 'rider' ) : null,
 					);
 					CSF_Scheduling_Calendar::require( CSF_Scheduling_Audit::uuid( $ride['horse'] ) && ( null === $ride['rider'] || CSF_Scheduling_Audit::uuid( $ride['rider'] ) ) );
 					foreach ( array( 'start', 'end' ) as $edge ) {
@@ -140,6 +171,7 @@ class CSF_Scheduling_Family_UI {
 		}
 		return $body;
 	}
+	/** Process the nonce-protected submitted command. */
 	public static function post() {
 		if ( ! isset( $_POST['csf_family_action'] ) ) {
 			return; }
@@ -268,6 +300,11 @@ class CSF_Scheduling_Family_UI {
 		} catch ( Throwable $e ) {
 			self::$notice = CSF_Scheduling_UI::message( new WP_Error( $e->getMessage(), 'Family review rejected.' ) ); }
 	}
+	/** Convert a saved lesson to editable native form fields.
+	 *
+	 * @param array $b Normalized lesson or submitted field values.
+	 * @param array $p Facility policy.
+	 */
 	private static function draft_row( $b, $p ) {
 		$time  = CSF_Scheduling_Time::parse( $b['start'], $p['timezone'] );
 		$turns = array();
@@ -296,7 +333,11 @@ class CSF_Scheduling_Family_UI {
 			'resources'    => $b['resources'],
 		);
 	}
-	/** Read-only handoff from an independent lesson. Both rows remain unsaved until review. */
+	/** Read-only handoff from an independent lesson. Both rows remain unsaved until review.
+	 *
+	 * @param string $uuid Stable record UUID.
+	 * @param array  $p Facility policy.
+	 */
 	public static function from_lesson( $uuid, $p ) {
 		CSF_Scheduling_Calendar::require( CSF_Scheduling_Audit::uuid( $uuid ) && CSF_Scheduling_Access::can( 'appointment_edit' ), 'forbidden' );
 		$a = CSF_Scheduling_Calendar::find( 'appointments', $uuid );
@@ -331,16 +372,35 @@ class CSF_Scheduling_Family_UI {
 		);
 	}
 
+	/** Render an escaped native input field.
+	 *
+	 * @param string $name Input name.
+	 * @param string $label Visible field label.
+	 * @param mixed  $value Field value validated or escaped by the caller and renderer.
+	 * @param string $type Native input type.
+	 */
 	private static function field( $name, $label, $value, $type = 'text' ) {
 		echo '<label>' . esc_html( $label ) . ' <input type="' . esc_attr( $type ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '"></label> ';
 	}
+	/** Render an escaped select field and its current choice.
+	 *
+	 * @param string $name Input name.
+	 * @param string $label Visible field label.
+	 * @param array  $options Allowed option values and labels.
+	 * @param mixed  $value Field value validated or escaped by the caller and renderer.
+	 */
 	private static function select( $name, $label, $options, $value ) {
 		echo '<label>' . esc_html( $label ) . ' <select name="' . esc_attr( $name ) . '"><option value="">Choose</option>';
 		foreach ( $options as $id => $text ) {
 			echo '<option value="' . esc_attr( $id ) . '" ' . selected( $id, $value, false ) . '>' . esc_html( $text ) . '</option>'; }
 		echo '</select></label> ';
 	}
-	/** Compact repeated native fields with one combined immutable final review. */
+	/** Compact repeated native fields with one combined immutable final review.
+	 *
+	 * @param array $ctx Current scoped presentation context.
+	 * @param array $p Facility policy.
+	 * @param array $snapshot Reviewed facility snapshot.
+	 */
 	public static function render( $ctx, $p, $snapshot ) {
 		if ( ! CSF_Scheduling_Access::can( 'appointment_edit' ) ) {
 			wp_die( 'Booking permission required.', '', array( 'response' => 403 ) ); }
@@ -419,7 +479,7 @@ class CSF_Scheduling_Family_UI {
 					),
 				),
 			);
-			$id    = isset( $_GET['visit'] ) && is_string( $_GET['visit'] ) ? wp_unslash( $_GET['visit'] ) : ''; // Read-only, scoped below.
+			$id    = filter_input( INPUT_GET, 'visit', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) ?? ''; // Read-only, scoped below.
 			if ( $id ) {
 				try {
 					$visit                   = CSF_Scheduling_Family_Visit::read( $id );
@@ -452,10 +512,11 @@ class CSF_Scheduling_Family_UI {
 					return; }
 			}
 		}
-		if ( ! self::$draft && empty( $_GET['visit'] ) && isset( $_GET['from_lesson'] ) ) {
+		$from_lesson = filter_input( INPUT_GET, 'from_lesson', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		if ( ! self::$draft && ! filter_input( INPUT_GET, 'visit', FILTER_SANITIZE_FULL_SPECIAL_CHARS ) && null !== $from_lesson ) {
 			try {
-				CSF_Scheduling_Calendar::require( is_string( $_GET['from_lesson'] ) );
-				$draft = self::from_lesson( wp_unslash( $_GET['from_lesson'] ), $p );
+				CSF_Scheduling_Calendar::require( is_string( $from_lesson ) );
+				$draft = self::from_lesson( $from_lesson, $p );
 				echo '<p>Existing lesson and proposed next lesson loaded. Adjust the next rider, horse or service, confirm the same family, then review. Nothing has been saved or moved.</p>'; } catch ( Throwable $e ) {
 				echo '<p>The lesson is unavailable to this session. No changes were made.</p>';
 				return; }

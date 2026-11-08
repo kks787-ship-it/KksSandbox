@@ -115,7 +115,11 @@ class CSF_Scheduling_Visit_Plan {
 		);
 	}
 
-	/** Same explicit visit and complete compatible staff/location footprint. */
+	/** Same explicit visit and complete compatible staff/location footprint.
+	 *
+	 * @param array $a Normalized lesson or submitted field values.
+	 * @param array $b Normalized lesson or submitted field values.
+	 */
 	private static function compatible( $a, $b ) {
 		if ( $a['uuid'] === $b['uuid'] || null === $a['visit_uuid'] || $a['visit_uuid'] !== $b['visit_uuid'] || array_keys( $a['resources'] ) !== array_keys( $b['resources'] ) ) {
 			return false;
@@ -132,17 +136,28 @@ class CSF_Scheduling_Visit_Plan {
 		return true;
 	}
 
-	/** Validate exact normalized shapes, without coercion. */
+	/** Validate exact normalized shapes, without coercion.
+	 *
+	 * @param mixed $value Field value validated or escaped by the caller and renderer.
+	 * @param array $keys Exact allowed field names.
+	 */
 	private static function keys( $value, $keys ) {
 		self::need( is_array( $value ) && ! array_diff( array_keys( $value ), $keys ) && ! array_diff( $keys, array_keys( $value ) ) );
 	}
 
-	/** Bounded explicit minutes. */
+	/** Bounded explicit minutes.
+	 *
+	 * @param mixed $value Field value validated or escaped by the caller and renderer.
+	 */
 	private static function minutes( $value ) {
 		self::need( is_int( $value ) && $value >= 0 && $value <= 1440 );
 	}
 
-	/** Reject malformed or ambiguous inputs. */
+	/** Reject malformed or ambiguous inputs.
+	 *
+	 * @param bool $ok Required condition.
+	 * @throws InvalidArgumentException If the input is malformed.
+	 */
 	private static function need( $ok ) {
 		if ( ! $ok ) {
 			throw new InvalidArgumentException( 'visit_plan_invalid' );

@@ -36,8 +36,49 @@ jobs:
           tar -xzf .wp-local/wordpress.tar.gz --strip-components=1 -C .wp-local/scheduling-core
           curl --fail --show-error --location --retry 2 https://github.com/wp-cli/wp-cli/releases/download/v2.12.0/wp-cli-2.12.0.phar -o .wp-local/wp-cli.phar
           php .wp-local/wp-cli.phar --info
+      - name: Prepare pinned disposable browser and official MFA provider
+        if: matrix.php == '8.3' && matrix.database == 'mariadb:10.6'
+        run: |
+          set -euo pipefail
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install playwright install --with-deps chromium
+          node -e "console.log('CSF_TEST_CHROMIUM=' + require('playwright').chromium.executablePath())" >> "$GITHUB_ENV"
+          echo 'CSF_TEST_BROWSER=1' >> "$GITHUB_ENV"
+          cp -a .wp-local/scheduling-core .wp-local/site
+          curl --fail --show-error --location --retry 2 https://github.com/WordPress/two-factor/releases/download/0.17.0/two-factor.zip -o .wp-local/two-factor.zip
+          python3 tests/scheduling/verify-mfa-release.py .wp-local/two-factor.zip
       - name: Run isolated database, transaction, race and rollback tests
         env:
           CSF_TEST_PHP_VERSION: ${{ matrix.php }}
           CSF_TEST_DB_IMAGE: ${{ matrix.database }}
         run: bash tests/scheduling/run.sh
+      - name: Run isolated real-provider MFA and security browser tests
+        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
+        env:
+          CSF_TEST_PHP_IMAGE: csf-scheduling-php83
+          CSF_TEST_SECURITY: '1'
+        run: bash tests/scheduling/mfa-run.sh
+      - name: Run isolated native calendar browser acceptance
+        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
+        env:
+          CSF_TEST_PHP_IMAGE: csf-scheduling-php83
+          CSF_TEST_SECURITY: '1'
+          CSF_TEST_SECURITY_ONLY: '1'
+          CSF_TEST_UX: '1'
+        run: bash tests/scheduling/mfa-run.sh
+      - name: Run isolated recurring hours and closure browser acceptance
+        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
+        env:
+          CSF_TEST_PHP_IMAGE: csf-scheduling-php83
+          CSF_TEST_SECURITY: '1'
+          CSF_TEST_SECURITY_ONLY: '1'
+          CSF_TEST_RESOURCE_HOURS: '1'
+        run: bash tests/scheduling/mfa-run.sh
+      - name: Qualify unchanged isolated functional recovery prerequisites
+        if: ${{ !cancelled() && matrix.php == '8.3' && matrix.database == 'mariadb:10.6' }}
+        run: |
+          set -euo pipefail
+          docker pull wordpress:6.8.3-php8.1-apache
+          docker image inspect mariadb:10.6 wordpress:6.8.3-php8.1-apache --format '{{.Id}}'
+          if [[ -f /usr/bin/python3.13 ]]; then sha256sum /usr/bin/python3.13; else echo 'Pinned /usr/bin/python3.13 is unavailable on this runner.'; fi
+          CSF_RECOVERY_PHP_VARIANT=83 bash tests/recovery/restore-local.sh

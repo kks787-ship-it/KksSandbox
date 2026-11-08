@@ -18,7 +18,7 @@ let checks=0;
 function check(ok,message){if(!ok)throw new Error(message);console.log('PASS '+message);checks++;}
 (async()=>{
  await new Promise(resolve=>relay.listen(8899,'127.0.0.1',resolve));
- const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+ const browser=await chromium.launch({executablePath:process.env.CSF_TEST_CHROMIUM || '/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
  try{
  const fixture=JSON.parse(execFileSync('docker',['--host=unix:///var/run/docker.sock','exec',webTarget,'cat','/test/calendar-fixture.json'],{encoding:'utf8'}));
  const page=await browser.newPage();const errors=[];const networkErrors=[];const expectedAbortRequests=new Set();page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>{if(!expectedAbortRequests.has(r)&&r.url().startsWith(base+'/')&&r.failure().errorText!=='net::ERR_ABORTED'){networkErrors.push(r.failure().errorText+' '+new URL(r.url()).pathname);}});

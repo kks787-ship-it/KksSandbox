@@ -3,13 +3,26 @@
  *
  * @package CSF_Scheduling
  */
+
 defined( 'ABSPATH' ) || exit;
 
+/** Coordinate this private scheduling operation through existing access and transaction boundaries. */
 class CSF_Scheduling_Family_Visit {
+	/** Context for the active transaction only.
+	 *
+	 * @var array|string|null
+	 */
 	private static $current = null;
-	private static $plans   = array();
+	/** Calculated resource windows keyed by lesson UUID.
+	 *
+	 * @var array
+	 */
+	private static $plans = array();
 
-	/** No new grants: every individual operation must be authorized. */
+	/** No new grants: every individual operation must be authorized.
+	 *
+	 * @param array $body Validated command body.
+	 */
 	public static function authorize( $body ) {
 		if ( ! is_array( $body['items'] ?? null ) || ! array_is_list( $body['items'] ) || ! count( $body['items'] ) || count( $body['items'] ) > 20 ) {
 			return false;
@@ -22,7 +35,10 @@ class CSF_Scheduling_Family_Visit {
 		return true;
 	}
 
-	/** Current transaction-only context; cannot be supplied as appointment fields. */
+	/** Current transaction-only context; cannot be supplied as appointment fields.
+	 *
+	 * @param string $uuid Stable record UUID.
+	 */
 	public static function context( $uuid ) {
 		return null !== self::$current && CSF_Scheduling_Store::in_calendar_transaction() && isset( self::$plans[ $uuid ] ) ? array(
 			'visit_uuid'            => self::$current,
@@ -30,14 +46,15 @@ class CSF_Scheduling_Family_Visit {
 		) : null;
 	}
 
-	/** Read a group only when every active child is visible to this session. */
+	/** Read a group only when every active child is visible to this session.
+	 *
+	 * @param string $uuid Stable record UUID.
+	 */
 	public static function read( $uuid ) {
 		global $wpdb;
 		CSF_Scheduling_Calendar::require( CSF_Scheduling_Audit::uuid( $uuid ) && CSF_Scheduling_Access::can( 'calendar_view' ), 'forbidden' );
-		$t   = CSF_Scheduling_Calendar::table( 'details' );
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `$t` WHERE uuid=%s", $uuid ), ARRAY_A );
-		CSF_Scheduling_Calendar::require( ! $wpdb->last_error, 'write_failed' );
-		$d = $row ? json_decode( $row['body_json'], true ) : null;
+		$row = CSF_Scheduling_Calendar::coordination_record( $uuid, 'family_visit' );
+		$d   = $row ? json_decode( $row['body_json'], true ) : null;
 		CSF_Scheduling_Calendar::require( 'family_visit' === ( $d['record_type'] ?? null ) && is_array( $d['active_members'] ) && count( $d['active_members'] ) <= 20, 'not_found' );
 		// Empty visits still require scope over their retained history before reuse.
 		if ( ! $d['active_members'] ) {
@@ -69,7 +86,11 @@ class CSF_Scheduling_Family_Visit {
 		);
 	}
 
-	/** Full active membership replacement; omitted members are never silently removed. */
+	/** Full active membership replacement; omitted members are never silently removed.
+	 *
+	 * @param array $body Validated command body.
+	 * @param array $settings Locked facility settings.
+	 */
 	public static function apply( $body, $settings ) {
 		global $wpdb;
 		CSF_Scheduling_Calendar::require( null === self::$current && CSF_Scheduling_Store::in_calendar_transaction() && self::authorize( $body ), 'forbidden' );
@@ -78,7 +99,7 @@ class CSF_Scheduling_Family_Visit {
 		$old      = CSF_Scheduling_Calendar::find( 'details', $body['uuid'] );
 		$previous = $old ? json_decode( $old['body_json'], true ) : null;
 		CSF_Scheduling_Calendar::require( ! CSF_Scheduling_Calendar::find( 'appointments', $body['uuid'] ) && ( ! $old || 'family_visit' === ( $previous['record_type'] ?? null ) ), 'invalid_transition' );
-		CSF_Scheduling_Calendar::require( is_int( $body['expected'] ) && $body['expected'] === ( $old ? (int) $old['revision'] : 0 ), 'stale_appointment' );
+		CSF_Scheduling_Calendar::require( is_int( $body['expected'] ) && ( $old ? (int) $old['revision'] : 0 ) === $body['expected'], 'stale_appointment' );
 		$p = json_decode( $settings['policy_json'], true );
 		CSF_Scheduling_Calendar::require( ! CSF_Scheduling_Policy::missing( $p ), 'policy_incomplete' );
 		// Reusing an empty visit must not bypass visibility of its historical members.
@@ -101,7 +122,7 @@ class CSF_Scheduling_Family_Visit {
 			$detail         = $d ? json_decode( $d['body_json'], true ) : null;
 			CSF_Scheduling_Calendar::require( ! $a || ( 'canceled' !== $a['state'] && ( empty( $detail['visit_uuid'] ) || ( $detail['visit_uuid'] === $body['uuid'] && in_array( $id, $previous['active_members'] ?? array(), true ) ) ) ), 'invalid_transition' );
 			CSF_Scheduling_Calendar::require( ! $d || $a, 'invalid_transition' );
-			CSF_Scheduling_Calendar::require( is_int( $b['expected'] ?? null ) && $b['expected'] === ( $a ? (int) $a['revision'] : 0 ), 'stale_appointment' );
+			CSF_Scheduling_Calendar::require( is_int( $b['expected'] ?? null ) && ( $a ? (int) $a['revision'] : 0 ) === $b['expected'], 'stale_appointment' );
 			if ( $a ) {
 				$existing[] = (int) $a['id'];
 			}
@@ -148,9 +169,7 @@ class CSF_Scheduling_Family_Visit {
 		// Clear ONLY this complete, authorized group's old reservations under Store's lock.
 		// Any later failure rolls back these deletions and all child writes together.
 		foreach ( $existing as $id ) {
-			foreach ( array( 'allocations', 'participants', 'slots' ) as $table ) {
-				CSF_Scheduling_Calendar::require( false !== $wpdb->delete( CSF_Scheduling_Calendar::table( $table ), array( 'appointment_id' => $id ) ), 'write_failed' );
-			}
+			CSF_Scheduling_Calendar::clear_reservations( $id );
 		}
 		self::$current = $body['uuid'];
 		self::$plans   = array_fill_keys( array_keys( $members ), array() );

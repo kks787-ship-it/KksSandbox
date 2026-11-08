@@ -85,6 +85,66 @@ class CSF_Scheduling_Calendar {
 		return $row;
 	}
 
+	/** Read a coordination envelope; callers must still project its child/recipient scope.
+	 *
+	 * @param string $uuid Record UUID.
+	 * @param string $record_type Explicit coordination document kind.
+	 * @return array|null
+	 */
+	public static function coordination_record( $uuid, $record_type ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Access::can( 'calendar_view' ) && CSF_Scheduling_Audit::uuid( $uuid ), 'forbidden' );
+		self::require( in_array( $record_type, array( 'family_visit', 'booking_notice' ), true ) );
+		$t   = self::table( 'details' );
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `$t` WHERE uuid=%s", $uuid ), ARRAY_A );
+		self::require( ! $wpdb->last_error, 'write_failed' );
+		return $row && ( json_decode( $row['body_json'], true )['record_type'] ?? null ) === $record_type ? $row : null;
+	}
+
+	/** Clear the authorized appointment allocations inside the singleton transaction.
+	 *
+	 * @param int $id Existing appointment database ID.
+	 */
+	public static function clear_reservations( $id ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Store::in_calendar_transaction() && is_int( $id ) && $id > 0, 'forbidden' );
+		foreach ( array( 'allocations', 'slots', 'participants' ) as $name ) {
+			self::require( false !== $wpdb->delete( self::table( $name ), array( 'appointment_id' => $id ) ), 'write_failed' );
+		}
+	}
+
+	/** Read the current actor's acknowledgement without a shared permission cache.
+	 *
+	 * @param string $uuid Event UUID.
+	 * @return bool
+	 */
+	public static function notice_is_acknowledged( $uuid ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Access::can( 'calendar_view' ) && CSF_Scheduling_Audit::uuid( $uuid ), 'forbidden' );
+		$t  = self::table( 'history' );
+		$id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$t` WHERE entity_uuid=%s AND JSON_UNQUOTE(JSON_EXTRACT(body_json,'$.kind'))='notice_acknowledged' AND created_by=%d LIMIT 1", $uuid, get_current_user_id() ) );
+		self::require( ! $wpdb->last_error, 'write_failed' );
+		return (bool) $id;
+	}
+
+	/** Fetch one bounded original-recipient page for subsequent current-scope projection.
+	 *
+	 * @param int  $before Exclusive notice ID cursor.
+	 * @param bool $history Include acknowledged events.
+	 * @return array
+	 */
+	public static function notice_rows( $before, $history ) {
+		global $wpdb;
+		self::require( CSF_Scheduling_Access::can( 'calendar_view' ), 'forbidden' );
+		self::require( is_int( $before ) && $before >= 0 && is_bool( $history ) );
+		$t      = self::table( 'details' );
+		$h      = self::table( 'history' );
+		$unread = $history ? '' : $wpdb->prepare( " AND NOT EXISTS (SELECT 1 FROM `$h` h WHERE h.entity_uuid=`$t`.uuid AND h.created_by=%d AND JSON_UNQUOTE(JSON_EXTRACT(h.body_json,'$.kind'))='notice_acknowledged')", get_current_user_id() );
+		$rows   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `$t` WHERE JSON_UNQUOTE(JSON_EXTRACT(body_json,'$.record_type'))='booking_notice' AND JSON_CONTAINS(body_json,%s,'$.recipient_ids') AND (%d=0 OR id<%d) $unread ORDER BY id DESC LIMIT 51", wp_json_encode( get_current_user_id() ), $before, $before ), ARRAY_A );
+		self::require( is_array( $rows ) && ! $wpdb->last_error, 'write_failed' );
+		return $rows;
+	}
+
 	/** Checked database write.
 	 *
 	 * @param string $name Table.
@@ -324,7 +384,11 @@ class CSF_Scheduling_Calendar {
 		);
 	}
 
-	/** Delete only a proven unused setup mistake; retain history and an immutable UUID tombstone. */
+	/** Delete only a proven unused setup mistake; retain history and an immutable UUID tombstone.
+	 *
+	 * @param array $body Validated command body.
+	 * @throws RuntimeException If any dependency or write guard fails.
+	 */
 	private static function horse_delete( $body ) {
 		global $wpdb;
 		self::require( CSF_Scheduling_Store::in_calendar_transaction() && CSF_Scheduling_Access::can( 'resource_manage' ), 'forbidden' );
@@ -673,9 +737,7 @@ class CSF_Scheduling_Calendar {
 				)
 			);
 		}
-		foreach ( array( 'allocations', 'slots', 'participants' ) as $name ) {
-			self::require( false !== $wpdb->delete( self::table( $name ), array( 'appointment_id' => $id ) ), 'write_failed' );
-		}
+		self::clear_reservations( (int) $id );
 		if ( 'appointment_saved' === $kind && 'requested' !== $b['state'] ) {
 			$buffer = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
 			foreach ( $resource_rows as $r ) {
@@ -743,7 +805,15 @@ class CSF_Scheduling_Calendar {
 		);
 	}
 
-	/** New/resaved independent lessons use explicit server-derived 15+15 windows. */
+	/** New/resaved independent lessons use explicit server-derived 15+15 windows.
+	 *
+	 * @param array             $b Normalized lesson or submitted field values.
+	 * @param array             $s Service definition.
+	 * @param array             $p Facility policy.
+	 * @param DateTimeImmutable $start Teaching boundary instant.
+	 * @param DateTimeImmutable $end Teaching boundary instant.
+	 * @param array             $rows Selected resource rows keyed by UUID.
+	 */
 	private static function independent_windows( $b, $s, $p, $start, $end, $rows ) {
 		$resources = array();
 		$travel    = $s['requires_travel'] ? $p['travel_buffer_minutes'] : 0;
@@ -770,7 +840,13 @@ class CSF_Scheduling_Calendar {
 		return $plan['lessons'][0]['reservations'];
 	}
 
-	/** Internal saved/planned reservation metadata; never accepted in wire bodies. */
+	/** Internal saved/planned reservation metadata; never accepted in wire bodies.
+	 *
+	 * @param array             $detail Saved appointment detail.
+	 * @param string            $uuid Stable record UUID.
+	 * @param DateTimeImmutable $left Default reservation start.
+	 * @param DateTimeImmutable $right Default reservation end.
+	 */
 	private static function reservation_window( $detail, $uuid, $left, $right ) {
 		foreach ( $detail['resource_reservations'] ?? array() as $window ) {
 			if ( $uuid === $window['resource_uuid'] ) {
@@ -780,7 +856,12 @@ class CSF_Scheduling_Calendar {
 		return array( $left, $right );
 	}
 
-	/** Buffer envelope must fit actual facility opening instants, including DST. */
+	/** Buffer envelope must fit actual facility opening instants, including DST.
+	 *
+	 * @param DateTimeImmutable $a Reservation boundary instant.
+	 * @param DateTimeImmutable $z Reservation boundary instant.
+	 * @param array             $p Facility policy.
+	 */
 	private static function facility_window( $a, $z, $p ) {
 		$local = $a->setTimezone( new DateTimeZone( $p['timezone'] ) );
 		$open  = false;

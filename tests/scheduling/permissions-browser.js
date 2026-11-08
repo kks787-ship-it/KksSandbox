@@ -18,7 +18,7 @@ let checks=0;
 function check(ok,message){if(!ok)throw new Error(message);console.log('PASS '+message);checks++;}
 (async()=>{
  await new Promise(resolve=>relay.listen(8899,'127.0.0.1',resolve));
- const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+ const browser=await chromium.launch({executablePath:process.env.CSF_TEST_CHROMIUM || '/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
  try{
  const fixture=JSON.parse(execFileSync('docker',['--host=unix:///var/run/docker.sock','exec',webTarget,'cat','/test/permissions-fixture.json'],{encoding:'utf8'}));
  const cli=code=>execFileSync('docker',['--host=unix:///var/run/docker.sock','exec',webTarget,'php','/repo/.wp-local/wp-cli.phar','--path=/test/site','--allow-root','--user=1','eval',code],{encoding:'utf8'}).trim();

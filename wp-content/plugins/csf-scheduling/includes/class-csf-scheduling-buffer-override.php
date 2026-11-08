@@ -3,19 +3,41 @@
  *
  * @package CSF_Scheduling
  */
+
 defined( 'ABSPATH' ) || exit;
+/** Coordinate this private scheduling operation through existing access and transaction boundaries. */
 class CSF_Scheduling_Buffer_Override {
+	/** Context for the active transaction only.
+	 *
+	 * @var array|string|null
+	 */
 	private static $current = null;
+	/** Return context available only inside the active transaction.
+	 *
+	 * @param string $uuid Stable record UUID.
+	 */
 	public static function context( $uuid ) {
 		return self::$current && self::$current['uuid'] === $uuid && CSF_Scheduling_Store::in_calendar_transaction() ? self::$current['metadata'] : null;
 	}
+	/** Check current scope and permission for the proposed command.
+	 *
+	 * @param array $body Validated command body.
+	 */
 	public static function authorize( $body ) {
 		if ( ! CSF_Scheduling_Access::can( 'buffer_override' ) || ! CSF_Scheduling_Access::can( 'appointment_confirm' ) || ! CSF_Scheduling_Audit::uuid( $body['uuid'] ?? null ) ) {
 			return false; }
 		$a = CSF_Scheduling_Calendar::find( 'appointments', $body['uuid'] );
 		return $a && CSF_Scheduling_Permissions::appointment_visible( $a );
 	}
-	/** Only reduce optional minutes; never shorten teaching or mandatory travel. */
+	/** Only reduce optional minutes; never shorten teaching or mandatory travel.
+	 *
+	 * @param array|null $before Appointment snapshot at the corresponding event boundary.
+	 * @param array      $body Validated command body.
+	 * @param int        $start Teaching boundary as a Unix timestamp.
+	 * @param int        $end Teaching boundary as a Unix timestamp.
+	 * @param int        $mandatory Mandatory travel minutes that cannot be trimmed.
+	 * @param int        $actor Approving user ID.
+	 */
 	public static function trim( $before, $body, $start, $end, $mandatory, $actor ) {
 		CSF_Scheduling_Calendar::require( in_array( $body['segment'], array( 'pre', 'post' ), true ) && is_int( $body['minutes'] ) && $body['minutes'] >= 0 && $body['minutes'] <= 1440 );
 		CSF_Scheduling_Calendar::label( $body['reason'] );
@@ -56,6 +78,11 @@ class CSF_Scheduling_Buffer_Override {
 			$metadata['visit_uuid'] = $before['visit_uuid']; }
 		return $metadata;
 	}
+	/** Apply the reviewed operation inside the existing Store transaction.
+	 *
+	 * @param array $body Validated command body.
+	 * @param array $settings Locked facility settings.
+	 */
 	public static function apply( $body, $settings ) {
 		CSF_Scheduling_Calendar::require( null === self::$current && CSF_Scheduling_Store::in_calendar_transaction() && self::authorize( $body ), 'forbidden' );
 		CSF_Scheduling_Calendar::keys( $body, array( 'uuid', 'expected', 'resource_uuid', 'segment', 'minutes', 'reason' ) );

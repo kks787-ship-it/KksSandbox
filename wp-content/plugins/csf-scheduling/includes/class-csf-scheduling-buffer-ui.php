@@ -3,17 +3,41 @@
  *
  * @package CSF_Scheduling
  */
+
 defined( 'ABSPATH' ) || exit;
+/** Coordinate this private scheduling operation through existing access and transaction boundaries. */
 class CSF_Scheduling_Buffer_UI {
-	private static $review    = null;
-	private static $notice    = '';
+	/** Exact signed proposal awaiting confirmation.
+	 *
+	 * @var array|null
+	 */
+	private static $review = null;
+	/** Current request outcome text.
+	 *
+	 * @var string
+	 */
+	private static $notice = '';
+	/** Whether this request received commit acknowledgement.
+	 *
+	 * @var bool
+	 */
 	private static $committed = false;
+	/** Bind the exact reviewed payload to this actor and session.
+	 *
+	 * @param array $r Exact reviewed proposal.
+	 */
 	private static function signature( $r ) {
 		return hash_hmac( 'sha256', wp_json_encode( CSF_Scheduling_Store::canonical( $r ) ) . ':' . get_current_user_id() . ':' . wp_get_session_token(), wp_salt( 'nonce' ) ); }
+	/** Read a bounded scalar form field.
+	 *
+	 * @param array  $input Submitted native fields.
+	 * @param string $key Field key.
+	 */
 	private static function scalar( $input, $key ) {
 		$v = $input[ $key ] ?? '';
 		CSF_Scheduling_Calendar::require( is_string( $v ) && strlen( $v ) <= 400 );
 		return $v; }
+	/** Process the nonce-protected submitted command. */
 	public static function post() {
 		if ( ! isset( $_POST['csf_buffer_action'] ) ) {
 			return; }
@@ -67,8 +91,14 @@ class CSF_Scheduling_Buffer_UI {
 		} catch ( Throwable $e ) {
 			self::$notice = CSF_Scheduling_UI::message( new WP_Error( $e->getMessage(), 'Buffer exception rejected.' ) ); }
 	}
+	/** Render an escaped hidden form field.
+	 *
+	 * @param string $key Field key.
+	 * @param mixed  $value Field value validated or escaped by the caller and renderer.
+	 */
 	private static function hidden( $key, $value ) {
 		echo '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '">'; }
+	/** Render the exact signed proposal for confirmation. */
 	public static function review() {
 		if ( ! self::$notice && ! self::$review ) {
 			return; }
@@ -96,6 +126,12 @@ class CSF_Scheduling_Buffer_UI {
 		}
 		echo '</section>';
 	}
+	/** Render the permitted buffer exception form for this appointment.
+	 *
+	 * @param array $row Stored database row.
+	 * @param array $d Saved appointment detail.
+	 * @param array $ctx Current scoped presentation context.
+	 */
 	public static function form( $row, $d, $ctx ) {
 		if ( 'confirmed' !== $row['state'] || empty( $d['resource_reservations'] ) || ! CSF_Scheduling_Access::can( 'buffer_override' ) || ! CSF_Scheduling_Access::can( 'appointment_confirm' ) ) {
 			return; }
@@ -112,6 +148,11 @@ class CSF_Scheduling_Buffer_UI {
 			echo '<option value="' . esc_attr( $w['resource_uuid'] ) . '">' . esc_html( ( $ctx['resources'][ $w['resource_uuid'] ] ?? 'Assigned resource' ) . ' · pre ' . $w['pre_minutes'] . ' / post ' . $w['post_minutes'] . ' min' ) . '</option>'; }
 		echo '</select></label> <label>Segment <select name="segment"><option value="pre">Preparation before</option><option value="post">Wrap-up after</option></select></label> <label>Remaining minutes <input type="number" name="minutes" min="0" max="1440" value="0" required></label> <label>Reason (no private health/contact details) <input name="reason" maxlength="200" required></label> <button class="button" name="csf_buffer_action" value="review">Review exception</button></form></details>';
 	}
+	/** Render approved exception markers without changing reservations.
+	 *
+	 * @param array $overrides Saved approval metadata.
+	 * @param array $ctx Current scoped presentation context.
+	 */
 	public static function marker( $overrides, $ctx ) {
 		if ( ! $overrides ) {
 			return; }

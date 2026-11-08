@@ -3,14 +3,23 @@
  *
  * @package CSF_Scheduling
  */
+
 defined( 'ABSPATH' ) || exit;
+/** Coordinate this private scheduling operation through existing access and transaction boundaries. */
 class CSF_Scheduling_Dashboard {
-	/** Facility-local Monday anchor, including weeks crossing DST/year boundaries. */
+	/** Facility-local Monday anchor, including weeks crossing DST/year boundaries.
+	 *
+	 * @param DateTimeImmutable|null $now Reference instant, or the current time.
+	 * @param string                 $timezone Facility IANA timezone.
+	 */
 	public static function monday( $now, $timezone ) {
 		$local = $now->setTimezone( new DateTimeZone( $timezone ) );
 		return $local->modify( '-' . ( (int) $local->format( 'N' ) - 1 ) . ' days' )->format( 'Y-m-d' );
 	}
-	/** Existing calendar reader is the sole appointment authority. */
+	/** Existing calendar reader is the sole appointment authority.
+	 *
+	 * @param DateTimeImmutable|null $now Reference instant, or the current time.
+	 */
 	public static function week( $now = null ) {
 		if ( ! CSF_Scheduling_Access::can() ) {
 			return new WP_Error( 'forbidden', 'Private calendar access required.' ); }
@@ -42,7 +51,10 @@ class CSF_Scheduling_Dashboard {
 			'days'     => $days,
 		);
 	}
-	/** Styles are confined to the private dashboard, with no public enqueue. */
+	/** Styles are confined to the private dashboard, with no public enqueue.
+	 *
+	 * @param string $hook Current WordPress admin page hook.
+	 */
 	public static function assets( $hook ) {
 		if ( 'index.php' === $hook && CSF_Scheduling_Access::can() ) {
 			wp_enqueue_style( 'csf-scheduling-dashboard', plugins_url( '../assets/staff.css', __FILE__ ), array(), CSF_SCHEDULING_VERSION ); }

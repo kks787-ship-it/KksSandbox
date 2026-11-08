@@ -1,6 +1,7 @@
 <?php
 /** Pure adapter and in-memory sink tests; no DB, WordPress mail or network. */
 define( 'ABSPATH', '/test/site/' );
+function esc_html( $value ) { return htmlspecialchars( $value, ENT_QUOTES, 'UTF-8' ); }
 $environment = 'local'; function wp_get_environment_type() { global $environment; return $environment; }
 require dirname( __DIR__, 2 ) . '/wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-audit.php';
 require dirname( __DIR__, 2 ) . '/wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-email-sink.php';

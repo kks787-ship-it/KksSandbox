@@ -3,9 +3,15 @@
  *
  * @package CSF_Scheduling
  */
+
 defined( 'ABSPATH' ) || exit;
+/** Coordinate this private scheduling operation through existing access and transaction boundaries. */
 class CSF_Scheduling_Notifications {
-	/** Only actual confirmed-state changes create notices; untouched siblings do not. */
+	/** Only actual confirmed-state changes create notices; untouched siblings do not.
+	 *
+	 * @param array|null $before Appointment snapshot at the corresponding event boundary.
+	 * @param array|null $after Appointment snapshot at the corresponding event boundary.
+	 */
 	public static function change( $before, $after ) {
 		if ( 'canceled' === ( $after['state'] ?? null ) ) {
 			return 'confirmed' === ( $before['state'] ?? null ) ? 'CANCELED' : null; }
@@ -20,7 +26,12 @@ class CSF_Scheduling_Notifications {
 		return null;
 	}
 
-	/** Moving an imminent lesson away still counts as an urgent change. */
+	/** Moving an imminent lesson away still counts as an urgent change.
+	 *
+	 * @param array|null $before Appointment snapshot at the corresponding event boundary.
+	 * @param array|null $after Appointment snapshot at the corresponding event boundary.
+	 * @param int        $now Current Unix timestamp.
+	 */
 	public static function urgent( $before, $after, $now ) {
 		foreach ( array( $before['start'] ?? null, $after['start'] ?? null ) as $start ) {
 			if ( is_string( $start ) && strtotime( $start ) >= $now && strtotime( $start ) <= $now + 86400 ) {
@@ -29,7 +40,11 @@ class CSF_Scheduling_Notifications {
 		return false;
 	}
 
-	/** Effective staff coordination rights or explicit instructor assignment. */
+	/** Effective staff coordination rights or explicit instructor assignment.
+	 *
+	 * @param array $state Permission registry snapshot.
+	 * @param array $changes Minimal event-time appointment changes.
+	 */
 	public static function recipients( $state, $changes ) {
 		$out = array();
 		foreach ( $state['members'] as $id => $member ) {
@@ -45,7 +60,11 @@ class CSF_Scheduling_Notifications {
 		}
 		return $out;
 	}
-	/** Record assignment provenance for a minimal historical/departure projection. */
+	/** Record assignment provenance for a minimal historical/departure projection.
+	 *
+	 * @param array $state Permission registry snapshot.
+	 * @param array $changes Minimal event-time appointment changes.
+	 */
 	public static function audience( $state, $changes ) {
 		$items      = self::recipients( $state, $changes );
 		$assigned   = array();
@@ -70,7 +89,13 @@ class CSF_Scheduling_Notifications {
 			'departures' => $departures,
 		);
 	}
-	/** Frozen event-time projection; no new private details for a former instructor. */
+	/** Frozen event-time projection; no new private details for a former instructor.
+	 *
+	 * @param array $change One immutable event-time change.
+	 * @param bool  $departure Whether this recipient left the assignment.
+	 * @param bool  $current_visible Whether current lesson details are authorized.
+	 * @param bool  $historical_allowed Whether minimal original-assignment history remains authorized.
+	 */
 	public static function project( $change, $departure, $current_visible, $historical_allowed ) {
 		if ( ! $current_visible && ! $historical_allowed ) {
 			return null; }
@@ -85,14 +110,24 @@ class CSF_Scheduling_Notifications {
 		);
 	}
 
-	/** Navigation uses the currently authorized appointment, never the frozen display date. */
+	/** Navigation uses the currently authorized appointment, never the frozen display date.
+	 *
+	 * @param array|null $projected Authorized minimal event projection.
+	 * @param array|null $appointment Currently authorized appointment row.
+	 * @param string     $timezone Facility IANA timezone.
+	 */
 	public static function link_date( $projected, $appointment, $timezone ) {
 		if ( ! $projected || $projected['restricted'] || ! $appointment ) {
 			return null; }
 		return ( new DateTimeImmutable( $appointment['start_utc'], new DateTimeZone( 'UTC' ) ) )->setTimezone( new DateTimeZone( $timezone ) )->format( 'Y-m-d' );
 	}
 
-	/** Called once inside Store's non-preview transaction, before COMMIT. */
+	/** Called once inside Store's non-preview transaction, before COMMIT.
+	 *
+	 * @param string $kind Audited command kind.
+	 * @param array  $result Committed command result.
+	 * @param string $command Idempotent command UUID.
+	 */
 	public static function record( $kind, $result, $command ) {
 		CSF_Scheduling_Calendar::require( CSF_Scheduling_Store::in_calendar_transaction(), 'forbidden' );
 		$items   = 'family_visit_saved' === $kind ? $result['items'] : array( $result );
@@ -153,7 +188,10 @@ class CSF_Scheduling_Notifications {
 			0
 		);
 	}
-	/** Current permission/scope and original recipient snapshot both apply. */
+	/** Current permission/scope and original recipient snapshot both apply.
+	 *
+	 * @param array $row Stored database row.
+	 */
 	private static function visible( $row ) {
 		if ( ! $row || ! CSF_Scheduling_Access::can() ) {
 			return null; }
@@ -181,25 +219,34 @@ class CSF_Scheduling_Notifications {
 			'changes'        => $changes,
 		) : null;
 	}
+	/** Read an event through original-recipient and current-access checks.
+	 *
+	 * @param string $uuid Stable record UUID.
+	 */
 	public static function event( $uuid ) {
 		global $wpdb;
 		if ( ! CSF_Scheduling_Audit::uuid( $uuid ) || ! CSF_Scheduling_Access::can() ) {
 			return null; }
-		$t = CSF_Scheduling_Calendar::table( 'details' );
-		$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `$t` WHERE uuid=%s", $uuid ), ARRAY_A );
-		CSF_Scheduling_Calendar::require( ! $wpdb->last_error, 'write_failed' );
+		$r = CSF_Scheduling_Calendar::coordination_record( $uuid, 'booking_notice' );
 		return self::visible( $r );
 	}
+	/** Check current scope and permission for the proposed command.
+	 *
+	 * @param array $body Validated command body.
+	 */
 	public static function authorize( $body ) {
 		return is_array( $body ) && null !== self::event( $body['uuid'] ?? null ); }
+	/** Check whether the current actor already acknowledged this notice.
+	 *
+	 * @param string $uuid Stable record UUID.
+	 */
 	private static function acknowledged( $uuid ) {
-		global $wpdb;
-		$t  = CSF_Scheduling_Calendar::table( 'history' );
-		$id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM `$t` WHERE entity_uuid=%s AND JSON_UNQUOTE(JSON_EXTRACT(body_json,'$.kind'))='notice_acknowledged' AND created_by=%d LIMIT 1", $uuid, get_current_user_id() ) );
-		CSF_Scheduling_Calendar::require( ! $wpdb->last_error, 'write_failed' );
-		return (bool) $id;
+		return CSF_Scheduling_Calendar::notice_is_acknowledged( $uuid );
 	}
-	/** An acknowledgement writes only that actor's history, never appointment state. */
+	/** An acknowledgement writes only that actor's history, never appointment state.
+	 *
+	 * @param array $body Validated command body.
+	 */
 	public static function acknowledge( $body ) {
 		CSF_Scheduling_Calendar::require( CSF_Scheduling_Store::in_calendar_transaction() && self::authorize( $body ), 'forbidden' );
 		CSF_Scheduling_Calendar::keys( $body, array( 'uuid' ) );
@@ -219,7 +266,11 @@ class CSF_Scheduling_Notifications {
 			'acknowledged' => true,
 		);
 	}
-	/** Bounded history with a stable id cursor, never a shared cache. */
+	/** Bounded history with a stable id cursor, never a shared cache.
+	 *
+	 * @param int  $before Exclusive stored notice ID cursor.
+	 * @param bool $history Include acknowledged notice history.
+	 */
 	public static function page( $before = 0, $history = false ) {
 		global $wpdb;
 		if ( ! CSF_Scheduling_Access::can() ) {
@@ -228,11 +279,7 @@ class CSF_Scheduling_Notifications {
 				'next'  => null,
 			); }
 		CSF_Scheduling_Calendar::require( is_int( $before ) && $before >= 0 && is_bool( $history ) );
-		$t      = CSF_Scheduling_Calendar::table( 'details' );
-		$h      = CSF_Scheduling_Calendar::table( 'history' );
-		$unread = $history ? '' : $wpdb->prepare( " AND NOT EXISTS (SELECT 1 FROM `$h` h WHERE h.entity_uuid=`$t`.uuid AND h.created_by=%d AND JSON_UNQUOTE(JSON_EXTRACT(h.body_json,'$.kind'))='notice_acknowledged')", get_current_user_id() );
-		$rows   = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `$t` WHERE JSON_UNQUOTE(JSON_EXTRACT(body_json,'$.record_type'))='booking_notice' AND JSON_CONTAINS(body_json,%s,'$.recipient_ids') AND (%d=0 OR id<%d) $unread ORDER BY id DESC LIMIT 51", wp_json_encode( get_current_user_id() ), $before, $before ), ARRAY_A );
-		CSF_Scheduling_Calendar::require( is_array( $rows ) && ! $wpdb->last_error, 'write_failed' );
+		$rows = CSF_Scheduling_Calendar::notice_rows( $before, $history );
 		$more = count( $rows ) > 50;
 		$rows = array_slice( $rows, 0, 50 );
 		$out  = array();
@@ -247,15 +294,16 @@ class CSF_Scheduling_Notifications {
 			'next'  => $more ? (int) end( $rows )['id'] : null,
 		);
 	}
+	/** Process the nonce-protected submitted command. */
 	public static function post() {
 		if ( ! isset( $_POST['csf_notice_ack'] ) ) {
 			return; }
 		if ( ! CSF_Scheduling_Access::can() ) {
 			wp_die( 'Private calendar permission required.', '', array( 'response' => 403 ) ); }
 		check_admin_referer( 'csf_notice_ack' );
-		$uuid     = isset( $_POST['notice_uuid'] ) && is_string( $_POST['notice_uuid'] ) ? wp_unslash( $_POST['notice_uuid'] ) : '';
-		$command  = isset( $_POST['notice_command'] ) && is_string( $_POST['notice_command'] ) ? wp_unslash( $_POST['notice_command'] ) : '';
-		$revision = isset( $_POST['notice_revision'] ) && is_string( $_POST['notice_revision'] ) ? wp_unslash( $_POST['notice_revision'] ) : '';
+		$uuid     = isset( $_POST['notice_uuid'] ) && is_string( $_POST['notice_uuid'] ) ? sanitize_text_field( wp_unslash( $_POST['notice_uuid'] ) ) : '';
+		$command  = isset( $_POST['notice_command'] ) && is_string( $_POST['notice_command'] ) ? sanitize_text_field( wp_unslash( $_POST['notice_command'] ) ) : '';
+		$revision = isset( $_POST['notice_revision'] ) && is_string( $_POST['notice_revision'] ) ? sanitize_text_field( wp_unslash( $_POST['notice_revision'] ) ) : '';
 		if ( ! preg_match( '/^(0|[1-9][0-9]{0,9})$/D', $revision ) ) {
 			return; }
 		$r = CSF_Scheduling_Store::calendar( 'notice_acknowledged', array( 'uuid' => $uuid ), (int) $revision, $command );
@@ -267,12 +315,24 @@ class CSF_Scheduling_Notifications {
 				}
 			); }
 	}
+	/** Render only the current authenticated scope. */
 	public static function render() {
 		if ( ! CSF_Scheduling_Access::can() ) {
 			return; }
 		try {
-			$cursor   = isset( $_GET['notice_before'] ) && is_string( $_GET['notice_before'] ) && preg_match( '/^[0-9]{1,12}$/D', $_GET['notice_before'] ) ? (int) $_GET['notice_before'] : 0; // Scoped read-only cursor.
-			$history  = isset( $_GET['notice_history'] ) && '1' === $_GET['notice_history'];
+			$cursor   = filter_input(
+				INPUT_GET,
+				'notice_before',
+				FILTER_VALIDATE_INT,
+				array(
+					'options' => array(
+						'min_range' => 0,
+						'max_range' => 999999999999,
+						'default'   => 0,
+					),
+				)
+			) ?? 0; // Scoped read-only cursor.
+			$history  = '1' === filter_input( INPUT_GET, 'notice_history', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
 			$page     = self::page( $cursor, $history );
 			$revision = (int) CSF_Scheduling_Schema::settings()['revision'];
 			echo '<section aria-label="Booking notices"><a href="' . esc_url( CSF_Scheduling_UX::url( 'calendar', array( 'notice_history' => $history ? '0' : '1' ) ) ) . '">' . esc_html( $history ? 'Unread booking notices' : 'Booking notice history' ) . '</a>';

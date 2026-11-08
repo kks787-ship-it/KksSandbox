@@ -158,14 +158,24 @@ class CSF_Scheduling_Store {
 		return self::change( 'appointment_saved', $body, $revision, $command, true, $availability );
 	}
 
-	/** Reviewed optional-buffer change uses its exact writer and rolls back. */
+	/** Reviewed optional-buffer change uses its exact writer and rolls back.
+	 *
+	 * @param array  $body Validated command body.
+	 * @param int    $revision Expected facility revision.
+	 * @param string $command Idempotent command UUID.
+	 */
 	public static function buffer_preview( $body, $revision, $command ) {
 		if ( ! is_array( $body ) || strlen( wp_json_encode( $body ) ) > 4096 ) {
 			return new WP_Error( 'invalid_body', 'Bounded buffer review required.' ); }
 		return self::change( 'buffer_overridden', $body, $revision, $command, true );
 	}
 
-	/** Atomic family preview runs the same writer then rolls back every item. */
+	/** Atomic family preview runs the same writer then rolls back every item.
+	 *
+	 * @param array  $body Validated command body.
+	 * @param int    $revision Expected facility revision.
+	 * @param string $command Idempotent command UUID.
+	 */
 	public static function visit_preview( $body, $revision, $command ) {
 		if ( ! is_array( $body ) || strlen( wp_json_encode( $body ) ) > 65536 ) {
 			return new WP_Error( 'invalid_body', 'Bounded family visit required.' );
