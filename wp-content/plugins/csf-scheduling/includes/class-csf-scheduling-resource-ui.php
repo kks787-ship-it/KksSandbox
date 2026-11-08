@@ -7,6 +7,15 @@
 defined( 'ABSPATH' ) || exit;
 /** Existing MFA/permission, nonce, signed review and command lock govern all writes. */
 class CSF_Scheduling_Resource_UI {
+	/** Convert a previously validated stored instant without reinterpreting its offset.
+	 *
+	 * @param string $value Stored offset-bearing date and time.
+	 * @param string $timezone Current facility timezone.
+	 * @return DateTimeImmutable
+	 */
+	public static function stored_time( $value, $timezone ) {
+		return ( new DateTimeImmutable( $value ) )->setTimezone( new DateTimeZone( $timezone ) );
+	}
 	/** Exact review retained for retry.
 	 *
 	 * @var array|null
@@ -398,7 +407,7 @@ class CSF_Scheduling_Resource_UI {
 							'start' => 'Closure starts',
 							'end'   => 'Closure ends',
 						) as $key => $label ) {
-							$instant = CSF_Scheduling_Time::parse( $d[ $key ], $p['timezone'] );
+							$instant = self::stored_time( $d[ $key ], $p['timezone'] );
 							self::time( $key, $label, $instant->format( 'Y-m-d\TH:i' ), $instant->format( 'Y-m-d\TH:iP' ), $p['timezone'] );
 						}
 						echo '<label>Category <select name="category"><option value="unavailable">Unavailable / maintenance</option><option value="protected_training" ' . selected( $d['reason'], 'protected_training', false ) . '>Protected training time</option></select></label>';

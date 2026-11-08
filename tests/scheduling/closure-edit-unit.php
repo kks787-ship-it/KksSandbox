@@ -45,4 +45,9 @@ $history = array_values( CSF_Scheduling_Calendar::$rows['history'] ); $h = json_
 cc( $h['before'] === $previous && $h['after'] === $after && $h['kind'] === 'resource_closure_edited', 'exact original closure and replacement retained in history' );
 $bad = $body; $bad['expected'] = 2; $old = CSF_Scheduling_Calendar::$rows['restrictions'][$closure]; $past = $after; $past['start'] = '2000-01-01T10:00+00:00'; CSF_Scheduling_Calendar::$rows['restrictions'][$closure]['body_json'] = json_encode( $past ); closure_reject( $bad, 'closure_edit_future_only' ); CSF_Scheduling_Calendar::$rows['restrictions'][$closure] = $old;
 CSF_Scheduling_Calendar::$rows['resources'][$resource]['kind'] = 'horse'; closure_reject( $bad, 'forbidden' );
+require dirname( __DIR__, 2 ) . '/wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-resource-ui.php';
+$stored = '2027-05-12T14:00+00:00'; $local = CSF_Scheduling_Resource_UI::stored_time( $stored, 'America/Los_Angeles' );
+cc( $local->format( 'Y-m-d\TH:iP' ) === '2027-05-12T07:00-07:00' && $local->getTimestamp() === strtotime( $stored ), 'closure editor converts stored instant after timezone change without moving it' );
+$fold = CSF_Scheduling_Resource_UI::stored_time( '2027-11-07T09:30+00:00', 'America/Los_Angeles' );
+cc( $fold->format( 'Y-m-d\TH:iP' ) === '2027-11-07T01:30-08:00', 'closure editor retains the exact repeated-hour occurrence' );
 echo $n . " isolated closure edit/impact checks passed\n";

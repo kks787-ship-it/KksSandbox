@@ -1,7 +1,7 @@
 <?php
 /** Real database checks; only the guarded disposable WordPress fixture. */
 if ( ABSPATH !== '/test/site/' || DB_NAME !== 'csf_fixture' || wp_get_environment_type() !== 'local' ) { WP_CLI::error( 'Disposable fixture required.' ); }
-global $wpdb; wp_set_current_user( 1 ); $checks = 0;
+global $wpdb, $checks; wp_set_current_user( 1 ); $checks = 0;
 function fv_check( $ok, $label ) { global $checks; if ( ! $ok ) { throw new RuntimeException( $label ); } ++$checks; WP_CLI::log( 'PASS ' . $label ); }
 function fv_rev() { return (int) CSF_Scheduling_Schema::settings()['revision']; }
 function fv_save( $kind, $body ) { return CSF_Scheduling_Store::calendar( $kind, $body, fv_rev(), wp_generate_uuid4() ); }
