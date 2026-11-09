@@ -1,7 +1,7 @@
 name: Disposable scheduling validation
 on:
   pull_request:
-    branches: [codex/takeover-audit]
+    branches: [codex/takeover-audit, codex/digital-ranch-continuation]
     types: [opened, synchronize, reopened]
 permissions:
   contents: read

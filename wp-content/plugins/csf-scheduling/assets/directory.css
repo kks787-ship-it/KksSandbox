@@ -15,7 +15,7 @@
 .csf-directory-record>summary{padding:16px!important;list-style:none;display:grid;gap:8px}.csf-directory-record>summary::-webkit-details-marker{display:none}
 .csf-record-name{font-size:1.12rem;color:#193e34}.csf-record-status{font-weight:400;color:#4d625b}.csf-record-open{font-size:.9rem;color:#1b5d70}
 .csf-record-body{padding:8px;min-width:0}.csf-directory-record[open]{grid-column:1/-1}
-.csf-directory-dialog{width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 32px);box-sizing:border-box;border:1px solid #79968c;border-radius:12px;padding:20px;color:#222;background:#fff}
+.csf-directory-dialog{overflow-wrap:anywhere;min-width:0;width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 32px);box-sizing:border-box;border:1px solid #79968c;border-radius:12px;padding:20px;color:#222;background:#fff}
 .csf-directory-dialog::backdrop{background:rgb(15 35 29 / 55%)}.csf-directory-dialog h2{margin:12px 0 4px;font-size:1.5rem}.csf-directory-dialog>.button{float:right}
 .csf-directory-draft-note{clear:both;color:#4d625b;padding:10px;background:#f2f6f3;border-radius:6px}
 .csf-calendar .csf-record-lifecycle{border-color:#af8076;margin-top:24px;background:#fff9f5}.csf-record-lifecycle>summary{color:#743222}
