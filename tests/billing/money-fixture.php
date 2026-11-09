@@ -5,12 +5,13 @@ CSF_Billing_Access::require_cap('csf_billing_manage');
 if(!wp_verify_nonce($_SERVER['HTTP_X_WP_NONCE']??'','wp_rest')){wp_send_json(array('error'=>'nonce'),403);}
 $input=json_decode(file_get_contents('php://input'),true);$token=$input['token']??'';
 if(!is_string($token)||!preg_match('/^[a-f0-9]{16}$/D',$token)){throw new RuntimeException('Fixture prefix');}
-global $wpdb;$previous=$wpdb->prefix;$wpdb->prefix='money_probe_'.$token.'_';$store=new CSF_Billing_Store();$service=new CSF_Billing_Service($store);
+global $wpdb;$previous=$wpdb->prefix;$wpdb->prefix='money_probe_'.$token.'_';$store=new CSF_Billing_Store();$service=new CSF_Billing_Service($store);$previousErrors=$wpdb->suppress_errors(true);
 try{
  $action=$input['action']??'';
  if($action==='setup'){
   foreach(CSF_Billing_Schema::statements() as $sql){if(false===$wpdb->query($sql)){throw new RuntimeException('Fresh fixture only');}}
   $wpdb->query('CREATE TABLE '.$wpdb->prefix.'test_bookings (uuid char(36) PRIMARY KEY, body_json longtext NOT NULL) ENGINE=InnoDB');
+  $wpdb->query('CREATE TABLE '.$wpdb->prefix.'test_calendar_guard (id int PRIMARY KEY) ENGINE=InnoDB');$wpdb->query('INSERT INTO '.$wpdb->prefix.'test_calendar_guard VALUES (1)');
   $ids=array();foreach(array('workflow','race','replay','fulfillment','booking') as $label){
    $id=wp_generate_uuid4();$ids[$label]=$id;
    $store->command(hash('sha256','seed:'.$id),array('synthetic'=>$id),static function($s)use($id){
@@ -31,6 +32,8 @@ try{
   $calendarFlag=new ReflectionProperty(CSF_Scheduling_Store::class,'calendar_transaction');$calendarFlag->setAccessible(true);
   $wpdb->query('START TRANSACTION');$calendarFlag->setValue(null,true);
   try{
+   // Match the real scheduler's facility-lock-before-resource/billing lock order.
+   if('1'!==(string)$wpdb->get_var('SELECT id FROM '.$wpdb->prefix.'test_calendar_guard WHERE id=1 FOR UPDATE'))throw new RuntimeException('Synthetic calendar guard unavailable');
    $body=$input['body'];$before=$wpdb->get_var($wpdb->prepare('SELECT body_json FROM '.$wpdb->prefix.'test_bookings WHERE uuid=%s FOR UPDATE',$body['uuid']));$before=$before?json_decode($before,true):null;
    $row=$store->join_calendar(static fn($s)=>$s->row('certificates',$input['id']));
    CSF_Billing_Booking::context($input['transition']==='cancel'?null:array('transition'=>$input['transition'],'number_hash'=>$row['number_hash'],'command'=>$input['command']));$detail=$body;
@@ -41,7 +44,7 @@ try{
   }catch(Throwable $e){$wpdb->query('ROLLBACK');throw $e;}finally{$calendarFlag->setValue(null,false);CSF_Billing_Booking::context(null);}
  }
  elseif($action==='state'){$result=$store->snapshot(static function($s)use($input){$row=$s->row('certificates',$input['id']);return array('order_id'=>$row['order_id'],'revision'=>(int)$row['revision'],'redeemed'=>(int)$row['redeemed'],'value'=>CSF_Billing_Value::read($row),'reserved'=>CSF_Billing_Booking::slots($s,$input['id']));});}
- elseif($action==='cleanup'){foreach(array('guard','orders','certificates','commands','audit','throttle') as $table){$wpdb->query('DROP TABLE '.$store->table($table));}$wpdb->query('DROP TABLE '.$wpdb->prefix.'test_bookings');$result=array('removed'=>true);}
+ elseif($action==='cleanup'){foreach(array('guard','orders','certificates','commands','audit','throttle') as $table){$wpdb->query('DROP TABLE '.$store->table($table));}$wpdb->query('DROP TABLE '.$wpdb->prefix.'test_bookings');$wpdb->query('DROP TABLE '.$wpdb->prefix.'test_calendar_guard');$result=array('removed'=>true);}
  else{throw new RuntimeException('Unknown fixture action');}
  wp_send_json(array('ok'=>true,'result'=>$result));
-}catch(Throwable $e){wp_send_json(array('ok'=>false,'error'=>$e instanceof CSF_Billing_Failure?$e->getMessage():'fixture_transaction_failed'),409);}finally{$wpdb->prefix=$previous;}
+}catch(Throwable $e){wp_send_json(array('ok'=>false,'error'=>$e instanceof CSF_Billing_Failure?$e->getMessage():'fixture_transaction_failed'),409);}finally{$wpdb->prefix=$previous;$wpdb->suppress_errors($previousErrors);}

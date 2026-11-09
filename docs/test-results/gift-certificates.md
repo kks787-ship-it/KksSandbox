@@ -409,3 +409,10 @@ source isolation and genuine restored MFA, then failed the real number-rotation 
 The real Store lookup allowlist omitted number_hash (the mock did not); this also blocked
 reservations. The narrow indexed field was added. The same real SQL probes must pass on the
 next exact head; no combined success is claimed for run13.
+
+Run14 on5e68616e passed the earlier gates and real PDF/rotation, rollback, reservation,
+cash-exclusion and cancellation assertions; the concurrent booking probe received a non-JSON
+response. Inspection found its synthetic outer transaction lacked the scheduler's existing
+facility coordination lock and SQL-output suppression. The fixture now mirrors that lock order
+before reading booking/billing rows and suppresses raw DB errors. This corrects the test harness;
+it does not substitute for full scheduler end-to-end qualification. A full rerun is required.
