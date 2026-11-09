@@ -10,7 +10,7 @@ define( 'CSF_PAYPAL_SANDBOX_CLIENT_SECRET', 'synthetic-secret-only' );
 define( 'CSF_PAYPAL_SANDBOX_MERCHANT_ID', 'TESTMERCHANT123' );
 define( 'CSF_PAYPAL_SANDBOX_WEBHOOK_ID', 'SYNTHETICWEBHOOK123' );
 function home_url($path='/'){return 'https://fixture.invalid'.$path;}
-function wp_get_environment_type() { return 'development'; }
+function wp_get_environment_type() { return defined('CSF_BILLING_SYNTHETIC_SINK') ? 'local' : 'development'; }
 function wp_generate_uuid4() { $b = random_bytes(16); $b[6] = chr((ord($b[6]) & 15) | 64); $b[8] = chr((ord($b[8]) & 63) | 128); $h = bin2hex($b); return substr($h,0,8).'-'.substr($h,8,4).'-'.substr($h,12,4).'-'.substr($h,16,4).'-'.substr($h,20); }
 class FixtureStore {
 	public $tables = array( 'orders'=>array(), 'certificates'=>array(), 'commands'=>array(), 'audit'=>array() );

@@ -343,3 +343,27 @@ both-gates-off absence, anonymous/bad-nonce/wrong-origin denial, and the closed 
 keys, test configuration and scratch tables are cleaned up; restored financial rows are compared
 again. This is a disposable test terminator, not a change to production proxy trust or MFA.
 Final exact-head outcome is recorded in draft PR27; implementation alone is not a passing test.
+
+## November 9 local printable fulfillment increment
+
+Local synthetic validation: PHP8.4.27 extracted from configured official Debian signed snapshot
+packages, not substituted for required PHP8.1/8.3 or exact recovery pins. Base service 300 cumulative
+assertions; 69 additional fulfillment assertions (including provider transport checks), monetary
+45 additional, schema62 cumulative, session75 cumulative, missing-key fail-closed passed. Deployment
+guards22 and mocked Plesk identity6 passed. Chromium156.0.8078.79: 10 additional assertions for
+buyer design/email submission, sandboxed real-PHP certificate rendering, pending signature, mobile
+width and generated PDF bytes; checkout API fully mocked, no real WordPress/MFA/provider proof.
+
+New issuance queues two held intents atomically. Tests cover replay, encrypted contact/signature,
+invalid inputs, payment-status rendering denial, escaping, audit-failure rollback, sink replay,
+minimal administration bundle and no plaintext code/contact in sink storage. Transparent synthetic
+PNG fixture is not Beth artwork. No mail transport, customer booking reservation, number rotation
+or stored PDF delivery is implemented. PHP8.1/8.3 CI, real database concurrency, complete WordPress
+REST/MFA and expanded recovery invariants must be rerun/extended for this increment. Previous
+passing head evidence does not qualify these changes.
+
+All 14 billing PHP files pass the unchanged WordPress/PHPCompatibility coding rules. Full
+plugin PHP syntax lint, billing JavaScript syntax and git diff whitespace checks pass. Locked
+Composer dependencies were installed without changing composer.lock. Browser test caught and
+fixed the theme selector's accessible-name issue. These are local results, not a rerun of the
+previous exact-head CI evidence.

@@ -252,3 +252,14 @@ The original qualified 27-table contract remains unchanged and rejects this 33-t
 This increment is not protected contract adoption, escrow qualification or a migration recipe.
 Historical schema2 captures remain retained; any future upgrade needs independent backup/recovery
 qualification and legacy audit-to-value reconciliation, never inferred balances or silent defaults.
+
+### Fulfillment candidate follow-up — not recovery-qualified
+
+The November9 increment retains physical schema3 but adds immutable encrypted contact/signature
+snapshots in order documents and buyer/admin held intents plus encrypted synthetic sink records
+in commands. Existing protected recovery scripts/pins are unchanged. Exact restore comparison
+alone is insufficient: extend candidate invariant validation and damaged-capture tests to bind
+each intent to its issued certificate/order/audience and verify ciphertext/key recoverability,
+snapshot hashes, duplicates, sink records and missing intents. Do not adopt farm recovery or
+deploy this increment based on the previous schema3 CI run. Future booking reservations and
+number rotations will require a separately reviewed schema/ledger contract and failure matrix.

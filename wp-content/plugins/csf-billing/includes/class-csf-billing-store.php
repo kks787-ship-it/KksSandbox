@@ -206,6 +206,7 @@ final class CSF_Billing_Store {
 					'status'         => $row['status'],
 					'order_revision' => (int) $row['revision'],
 					'package'        => $doc['product']['label'],
+					'presentation'   => isset( $doc['fulfillment'] ) ? array_diff_key( $doc['fulfillment'], array( 'contact_sealed' => true ) ) : null,
 					'amount_minor'   => $doc['amount_minor'],
 					'currency'       => $doc['currency'],
 					'terms'          => $doc['terms'],

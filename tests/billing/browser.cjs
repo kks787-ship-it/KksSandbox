@@ -42,7 +42,7 @@ async function login(page,user,password){
  const noCsrf=await raw(customer,'prepare',{});check(noCsrf.status===403,'missing CSRF denied');
  const product=sessionReply.data.products[0];const terms=sessionReply.data.terms;
  const stale=await raw(customer,'prepare',{command:crypto.randomUUID(),product_id:product.id,product_revision:product.revision,accepted:true,terms_version:terms.version,terms_hash:'0'.repeat(64)},{'X-CSF-CSRF':csrf});check(stale.status===409,'stale terms rejected server-side');
- await page.locator('input[type=checkbox]').check();await page.getByRole('button',{name:'Continue to PayPal sandbox',exact:true}).click();
+ await page.locator('input[type=email]').fill('buyer@fixture.invalid');await page.getByLabel('Certificate design',{exact:true}).selectOption('sunset-v1');await page.locator('input[type=checkbox]').check();await page.getByRole('button',{name:'Continue to PayPal sandbox',exact:true}).click();
  await page.getByRole('link',{name:'Return to gift certificates'}).waitFor({timeout:20000});await page.getByRole('link',{name:'Return to gift certificates'}).click();
  await page.getByRole('button',{name:'Complete test payment / check status',exact:true}).click();
  await page.getByRole('button',{name:'Print or save this test certificate'}).waitFor({timeout:20000});

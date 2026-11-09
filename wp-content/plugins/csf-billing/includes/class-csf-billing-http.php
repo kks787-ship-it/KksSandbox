@@ -138,6 +138,7 @@ final class CSF_Billing_HTTP {
 						'csrf'     => CSF_Billing_Session::csrf( $cookie ),
 						'products' => $products,
 						'terms'    => $terms,
+						'designs'  => CSF_Billing_Fulfillment::designs(),
 						'sandbox'  => true,
 					)
 				);
@@ -191,6 +192,8 @@ final class CSF_Billing_HTTP {
 			$result                       = $store->receipt( $id, $session );
 			$result['certificate_number'] = $result['number_sealed'] ? CSF_Billing_Config::open( $result['number_sealed'] ) : null;
 			unset( $result['number_sealed'] );
+			$result['printable_html'] = 'issued' === $result['status'] && $result['presentation'] ? CSF_Billing_Fulfillment::render( $result ) : null;
+			unset( $result['presentation'] );
 			if ( 'detail' === $action ) {
 				$result['history'] = $store->history( $id, $result['certificate_id'] );
 				foreach ( array( 'redeem', 'manage' ) as $right ) {

@@ -46,7 +46,11 @@
       if (data.certificate_number) {
         content.append(node('p', `Certificate: ${data.certificate_number}`), node('p', `Purchased rides: ${data.purchased}; redeemed: ${data.redeemed}; remaining: ${data.purchased - data.redeemed}.`));
         if (data.value) { const v = data.value; const spent = v.used_slots.reduce((n, i) => n + v.allocation[i], 0); const remaining = v.paid_minor - spent - v.cash_paid_minor; content.append(node('p', `Paid value: $${(v.paid_minor / 100).toFixed(2)} USD; ride value used: $${(spent / 100).toFixed(2)}; cash paid (recorded): $${(v.cash_paid_minor / 100).toFixed(2)}; remaining value: $${(remaining / 100).toFixed(2)}.`)); if (v.pending) content.append(node('p', `Cash request ${v.pending.id}: ${v.pending.state}. Value is reserved, not yet recorded as paid. Rides and corrections are held.`)); if (!v.policy.approved) content.append(node('p', 'Ride valuation awaits approval. Paid value remains preserved.')); }
-        if (!admin) content.append(button('Print or save this test certificate', async () => window.print()));
+        if (!admin && data.printable_html) {
+          const preview = node('iframe', null, {title: 'Printable test gift certificate', sandbox: 'allow-modals allow-same-origin', style: 'width:100%;height:650px;border:0'});
+          preview.srcdoc = data.printable_html; content.append(preview);
+          content.append(button('Print or save this test certificate', async () => { preview.contentWindow.focus(); preview.contentWindow.print(); }));
+        }
       }
       content.append(node('h4', `Accepted terms — ${data.terms.version}`), node('p', `Accepted: ${data.accepted_at}`), node('pre', data.terms.text, {class: 'csf-gift-terms'}));
       if (!admin && !['issued', 'frozen'].includes(data.status)) {
@@ -147,11 +151,15 @@
       const form = node('form', null); const label = node('label', 'Test gift package'); const select = node('select', null, {required: ''});
       for (const product of config.products) select.append(node('option', `${product.label} — ${product.rides} rides of ${product.minutes_per_ride} minutes — ${new Intl.NumberFormat('en-US', {style: 'currency', currency: product.currency}).format(product.amount_minor / 100)}`, {value: product.id}));
       label.append(select); form.append(label, node('h3', `Terms — ${config.terms.version}`), node('pre', config.terms.text, {class: 'csf-gift-terms'}));
+      const designLabel = node('label', 'Certificate design'); const design = node('select', null, {required: '', 'aria-label': 'Certificate design'});
+      for (const [value, title] of Object.entries(config.designs || {'pasture-v1': 'Pasture green'})) design.append(node('option', title, {value}));
+      designLabel.append(design); form.append(designLabel);
+      const email = field(form, 'Buyer email for certificate delivery (delivery remains held during testing)', 'email', {required: '', maxlength: '254', autocomplete: 'email'});
       const accept = field(form, ' I have read and accept these exact terms.', 'checkbox', {required: ''});
       form.append(node('button', 'Continue to PayPal sandbox', {type: 'submit'})); const command = uuid();
       form.addEventListener('submit', event => { event.preventDefault(); if (!accept.checked) return; run(async () => {
         const product = config.products.find(p => p.id === select.value);
-        const prepared = await api('prepare', {command, product_id: product.id, product_revision: product.revision, accepted: true, terms_version: config.terms.version, terms_hash: config.terms.sha256});
+        const prepared = await api('prepare', {command, design: design.value, buyer_email: email.value.trim(), product_id: product.id, product_revision: product.revision, accepted: true, terms_version: config.terms.version, terms_hash: config.terms.sha256});
         sessionStorage.setItem('csf-gift-pending', prepared.order_id);
         receipt(await api('receipt', {order_id: prepared.order_id}));
         const created = await api('create', {order_id: prepared.order_id, command: uuid()});

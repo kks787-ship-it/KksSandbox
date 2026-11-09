@@ -294,3 +294,51 @@ or interpretation of no-show/annual withdrawal rights is encoded. Owner/legal ap
 allocation and operating procedure, real sandbox verification and all deployment/recovery gates
 remain mandatory. Existing schema2 data requires a reviewed reconciliation migration; none runs
 on activation. The earlier ride-only gap above describes the previous candidate, not this code.
+
+### Printable fulfillment increment and new draft requirements (November 9)
+
+Owner requests buyer-selected themed numbered certificates bearing authorized Beth signature
+artwork, buyer certificate/receipt/terms/scheduling email, administration sale notification,
+and certificate-number payment in customer scheduling. The two newly supplied in-house PDFs
+are drafts, not blanket policy approval. Booking must reserve a lesson, not consume it.
+
+Implemented locally: three compiled versioned color themes, checkout design selection and buyer
+email, immutable presentation/instruction snapshots, authenticated encryption of buyer contact
+and signature artwork, and two distinct held delivery intents committed with verified issuance.
+The authorized receipt renders a sandbox-marked printable HTML certificate in a script-disabled
+frame. Browser print/save-as-PDF works; no production PDF artifact service exists yet. Missing
+authorized artwork is labeled pending, never replaced by a generated or typed signature.
+Private `CSF_BILLING_SIGNATURE_JSON` accepts authorized PNG bytes, SHA256 and an authorization
+reference; no upload endpoint or remote asset fetch exists. `CSF_BILLING_SCHEDULING_INSTRUCTIONS`
+is operator-supplied plain text, frozen per purchase, empty by default. Both need review before
+configuration. Old purchases without presentation snapshots are not silently reconstructed.
+
+A local-only, explicit synthetic sink bundles buyer certificate/receipt/accepted terms and
+instructions, and a distinct minimal administration receipt. It rejects non-.invalid buyer
+addresses, requires billing management/MFA authorization, encrypts payloads and deduplicates
+records. It cannot send email and never returns delivered=true. Production delivery intents
+remain held. Recipient configuration, contact verification/correction, renderer qualification,
+durable dispatch claims, outcome reconciliation and actual provider callbacks remain to build.
+Do not treat sink tests or an SMTP accepted response as confirmed customer delivery.
+
+**Booking implementation boundary:** existing billing and scheduling stores each open their own
+transaction; invoking them sequentially cannot provide all-or-nothing booking. Do not call the
+completed-ride `redeem` command during booking. The next reviewed schema/domain increment needs
+separate available/reserved/used ride and monetary balances; a reservation bound to certificate,
+booking UUID/revision, purchase valuation and idempotent command; scheduling-lock then billing-lock
+order on the same DB connection; one outer transaction for availability check, booking, reservation,
+command receipts and audits; and no network call within it. Failed/stale bookings must roll back
+every participant. Reservation must block cash/other bookings from spending its value. Completion
+moves reserved to used exactly once; release/cancellation/no-show/edit/expiry rules stay held
+until approved. Public number entry needs independent session/CSRF/rate limits, generic responses,
+no codes in URLs/logs/browser storage, service eligibility and identity/waiver policy. Current
+private scheduling authorization is not permission to open public booking or bypass MFA.
+
+Reprinting must refer to the same certificate/balance. Compromise replacement needs audited,
+atomic number rotation, invalidation of old bearer codes, preserved balance/reservations and
+delivery linkage; no second issuance/payment. This rotation is not implemented in this increment.
+Final prices/terms, valuation, annual versus gift-value rules, cancellation/no-show/release policy,
+buyer eligibility/waivers, signature artwork authorization, scheduling wording, administration
+recipients/from address, mail provider and PayPal sandbox qualification remain owner/operator
+inputs. Do not infer forfeiture, expiration, refund deadlines or installment authorization from
+the PDFs. Existing legal, sales, real-email, grants, MFA and deployment holds are unchanged.

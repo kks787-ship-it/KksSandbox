@@ -33,7 +33,9 @@ final class CSF_Billing_Service {
 		foreach ( array( 'CSF_PAYPAL_SANDBOX_CLIENT_ID', 'CSF_PAYPAL_SANDBOX_CLIENT_SECRET', 'CSF_PAYPAL_SANDBOX_MERCHANT_ID' ) as $name ) {
 			CSF_Billing_Config::secret( $name );
 		}
-		$valuation = CSF_Billing_Value::policy();
+		$selection    = CSF_Billing_Fulfillment::selection( $consent );
+		$presentation = CSF_Billing_Fulfillment::snapshot( $selection );
+		$valuation    = CSF_Billing_Value::policy();
 		CSF_Billing_Domain::need( true === $valuation['approved'], 'valuation_unapproved' );
 		$catalog = CSF_Billing_Config::catalog();
 		CSF_Billing_Domain::need( in_array( $product, $catalog['products'] ?? array(), true ) && hash_equals( CSF_Billing_Domain::json( $catalog['terms'] ?? null ), CSF_Billing_Domain::json( $terms ) ), 'catalog_unapproved' );
@@ -44,20 +46,22 @@ final class CSF_Billing_Service {
 		$terms = CSF_Billing_Domain::terms( $terms );
 		CSF_Billing_Domain::consent( $consent, $terms );
 		$payload = array(
-			'kind'         => 'prepare',
-			'session_hash' => $session_hash,
-			'product'      => $product,
-			'terms'        => $terms,
-			'valuation'    => $valuation,
+			'kind'                 => 'prepare',
+			'presentation_binding' => hash_hmac( 'sha256', CSF_Billing_Domain::json( array( $selection, CSF_Billing_Fulfillment::signature(), $presentation['instructions'] ) ), CSF_Billing_Config::key() ),
+			'session_hash'         => $session_hash,
+			'product'              => $product,
+			'terms'                => $terms,
+			'valuation'            => $valuation,
 		);
 		return $this->store->command(
 			hash( 'sha256', 'prepare:' . $command ),
 			$payload,
-			function ( $store ) use ( $session_hash, $product, $terms, $valuation ) {
+			function ( $store ) use ( $session_hash, $product, $terms, $valuation, $presentation ) {
 				$id       = wp_generate_uuid4();
 				$document = array(
 					'id'                 => $id,
 					'product'            => $product,
+					'fulfillment'        => $presentation,
 					'terms'              => $terms,
 					'valuation'          => $valuation,
 					'accepted_at'        => gmdate( 'Y-m-d\TH:i:s\Z' ),
@@ -406,6 +410,7 @@ final class CSF_Billing_Service {
 						'rides'    => $document['product']['rides'],
 					)
 				);
+				CSF_Billing_Fulfillment::queue( $store, $certificate, $document );
 				return array( 'certificate_id' => $certificate );
 			}
 		);
