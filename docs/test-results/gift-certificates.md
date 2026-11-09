@@ -441,3 +441,38 @@ network call is present.12 local MIME assertions and an independent Python email
 Recovery now seeds completed/corrected and canceled booking histories and MIME payloads;
 42 damaged fulfillment/history cases and restored MIME parser checks are pending CI. Original
 qualified recovery pins/contract are unchanged. No sales/email/deployment enabled.
+
+## Buyer consent and actual scheduler qualification candidate
+
+Default-off CSF_BILLING_CUSTOMER_BOOKING_ENABLED additionally requires the booking gate and
+explicit reviewed versioned policy. Staff prepare an immutable, encrypted exact appointment
+through the native preview. Buyer purchase session, current certificate number and explicit
+consent bind that offer; consent does not reserve resources or value. Current verified staff
+confirm through the scheduler transaction. The offer-consumed marker, reservation projection
+and appointment are one commit. Changed terms/body, rotated codes, stale availability and
+revoked access fail closed. Preview has its own rollback transaction, never nested in billing.
+
+Local supplemental evidence:17 synthetic offer assertions;15 buyer fulfillment/consent and
+12 staff offer Chromium assertions (mocked endpoints, not backend/MFA proof);125 plugin PHPCS
+files and full PHP syntax pass. New recovery fixtures include prepared, consented and consumed
+offers, encrypted body/key checks and missing/altered consent/booking-link failures. Expected
+combined counts are71 monetary/scheduler checks and54 fulfillment damage checks. These are
+expectations until the exact-head run completes; do not infer farm recovery qualification.
+
+Run18 head3d650625f2418bad88c92c479c19bee8d73dda5d has passed PHP8.1/8.3 and unchanged
+qualified recovery; expanded combined run is pending at this writing. Run17 failed scratch
+permission-mirror setup, corrected to the real effective-permission calculation. No MFA
+provider or farm grant changed. PR27 records the final exact-head evidence when available.
+
+No actual SMTP/wp_mail transport exists: MIME is serialized, encrypted and accepted by a
+strict .invalid sink only, delivered=false. Provider acceptance, verified buyer contact,
+sender/admin recipients, secure purchase-session recovery and public self-service booking
+remain unqualified. Family allocation, rescheduling, waivers and cancellation/no-show policy
+remain held. Latest commercial terms and tax classification require owner/legal/DOR review;
+no all-offerings tax exemption, expiry or forfeiture policy was introduced.
+
+Run18 subsequently passed the expanded54 damaged fulfillment cases, exact restored MIME,
+keys, isolation and genuine MFA, then failed the lost-commit test because the fixture installed
+its fault before a preliminary ledger snapshot. That snapshot uses its own COMMIT. The fault
+is now installed after certificate lookup, so it targets the scheduler commit. This is a test
+harness correction; actual scheduler success remains pending the next run.

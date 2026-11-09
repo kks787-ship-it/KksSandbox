@@ -27,6 +27,7 @@ if($action==='calendar_setup'){
  elseif($action==='calendar_offer_view')$result=CSF_Billing_Offer::view($store,$input['offer'],$order,$input['session']??str_repeat('a',64));
  else $result=CSF_Billing_Offer::accept($store,$input['command'],$input['offer'],$order,$input['session']??str_repeat('a',64),!empty($input['wrong_number'])?'CSF-'.str_repeat('B',32):CSF_Billing_Config::open($cert['number_sealed']),$input['attested']??false);
 }elseif($action==='calendar_command'||$action==='calendar_offer_confirm'){
+ $number=null;if($action==='calendar_command'&&$input['transition']!=='cancel'){$c=$store->snapshot(static fn($s)=>$s->row('certificates',$input['id']));$number=CSF_Billing_Config::open($c['number_sealed']);}
  $fault=null;$mode=$input['fault']??'';
  if($mode==='history'){$target='INSERT INTO `'.CSF_Scheduling_Schema::table('history').'`';$fault=static fn($sql)=>str_starts_with($sql,$target)?'SELECT * FROM nonexistent_synthetic_history_fault':$sql;}
  if($mode==='lost_commit'){$fault=static function($sql)use(&$fault){if($sql==='COMMIT'){remove_filter('query',$fault);global $wpdb;$wpdb->query('COMMIT');return 'SELECT * FROM nonexistent_synthetic_ack_fault';}return $sql;};}
@@ -34,7 +35,7 @@ if($action==='calendar_setup'){
  try{
   if($action==='calendar_offer_confirm'){$cert=$store->snapshot(static fn($s)=>$s->row('certificates',$input['id']));$r=CSF_Billing_Offer::confirm($store,$input['offer'],$cert['order_id'],$input['revision'],$input['command']);}
   elseif($input['transition']==='cancel')$r=CSF_Scheduling_Store::calendar('appointment_canceled',$input['body'],$input['revision'],$input['command']);
-  else{$c=$store->snapshot(static fn($s)=>$s->row('certificates',$input['id']));$number=CSF_Billing_Config::open($c['number_sealed']);$r=CSF_Billing_Booking::submit($input['body'],$input['revision'],$input['command'],$input['transition'],$number);}
+  else{$r=CSF_Billing_Booking::submit($input['body'],$input['revision'],$input['command'],$input['transition'],$number);}
   $result=is_wp_error($r)?array('committed'=>false,'reason'=>$r->get_error_data()['reason']??$r->get_error_code()):array('committed'=>true,'result'=>$r);
  }finally{if($fault)remove_filter('query',$fault);}
 }elseif($action==='calendar_state'){

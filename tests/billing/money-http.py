@@ -76,7 +76,7 @@ def money_checks(opener,base,nonce):
   def status():return call('calendar_state',booking=body['uuid'])['result']
   failed=command(body,revision,'reserve',fault='history');check(failed['ok'] and not failed['result']['committed'],'real scheduler late history failure rejected')
   state=call('state',id=id)['result'];check(status()['appointment'] is None and status()['revision']==revision and state['revision']==1 and state['reserved']==[],'failed real booking rolls back appointment and credit')
-  lost=uid();r=command(body,revision,'reserve',lost,fault='lost_commit');check(r['ok'] and r['result']['reason']=='commit_unknown','real lost commit acknowledgement stays uncertain')
+  lost=uid();r=command(body,revision,'reserve',lost,fault='lost_commit');check(r['ok'] and r['result']['reason']=='commit_unknown','real lost commit acknowledgement stays uncertain: '+str(r.get('error',r.get('result',{}).get('reason','unknown'))))
   r=command(body,revision,'reserve',lost);check(r['ok'] and r['result']['committed'],'same real scheduler command reconciles committed booking')
   check(command(body,revision,'reserve',lost)==r,'real scheduler booking replay exact')
   state=call('state',id=id)['result'];check(state['revision']==2 and len(state['reserved'])==1 and state['redeemed']==0,'reconciled booking reserves once without consuming')
