@@ -406,8 +406,9 @@ final class CSF_Billing_Service {
 					0,
 					$certificate,
 					array(
-						'order_id' => $id,
-						'rides'    => $document['product']['rides'],
+						'order_id'    => $id,
+						'rides'       => $document['product']['rides'],
+						'number_hash' => hash( 'sha256', $number ),
 					)
 				);
 				CSF_Billing_Fulfillment::queue( $store, $certificate, $document );

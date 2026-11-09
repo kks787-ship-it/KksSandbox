@@ -247,6 +247,7 @@ final class CSF_Billing_Booking {
 					array(
 						'booking_uuid' => $body['uuid'],
 						'reservation'  => $all[ $body['uuid'] ],
+						'initiator'    => 'cancel' === $transition ? $body['initiator'] : null,
 					)
 				);
 				$detail['billing_certificate_id'] = $id;

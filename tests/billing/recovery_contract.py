@@ -121,6 +121,14 @@ def qualify(snapshot,prefix='gift_fixture_'):
   need(json.loads(commands[digest('issue:'+o['capture_id'])]['result'])['certificate_id']==cid,'issuance_receipt_binding')
   if c['status']=='active':need(digest('capture_hold:'+o['capture_id']) not in commands,'active_negative_payment_hold')
  fulfillment=check_fulfillment(data,docs,certs,commands,need,digest)
+ for cid in certs:
+  record=commands.get(digest('booking_reservations:'+cid))
+  if not record:continue
+  need(prefix+'csf_sched_details' in snapshot and prefix+'csf_sched_appointments' in snapshot,'missing_reserved_scheduler')
+  details={r['uuid']:json.loads(r['body_json']) for r in map(json.loads,snapshot[prefix+'csf_sched_details']['rows'])}
+  appointments={r['uuid']:r for r in map(json.loads,snapshot[prefix+'csf_sched_appointments']['rows'])}
+  for bid,r in json.loads(record['result']).items():
+   need(bid in details and bid in appointments and details[bid].get('billing_certificate_id')==cid and details[bid].get('billing_credit_state')==r['state'] and appointments[bid]['state']==('canceled' if r['state']=='released' else 'confirmed'),'reserved_scheduler_binding')
  # Restore alone cannot justify an external write. No age-based claim reset is allowed.
  plan={s:sum(o['status']==s for o in orders.values()) for s in ['prepared','create_uncertain','awaiting_approval','approved','capture_uncertain','issued','frozen']}
  return {'fulfillment':fulfillment,'billing_tables':6,'orders':len(orders),'certificates':len(certs),'debits':len(debits),'corrections':len(corrected),'reconciliation_counts':plan,'provider_calls_permitted':False,'claim_resets_permitted':False,'automatic_unfreeze_permitted':False}

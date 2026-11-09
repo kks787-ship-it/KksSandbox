@@ -151,6 +151,7 @@ final class CSF_Billing_PDF {
 				} else {
 					$artifact = json_decode( $row['result'], true, 16, JSON_THROW_ON_ERROR );
 				}
+				CSF_Billing_Domain::need( $artifact['certificate_id'] === $cert['id'] && $artifact['number_hash'] === $cert['number_hash'], 'pdf_binding_mismatch' );
 				return array(
 					'artifact_id' => $key,
 					'sha256'      => $artifact['sha256'],

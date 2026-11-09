@@ -9,7 +9,7 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
   need(len(raw)>28,'private_envelope')
  def result(key):
   need(key in commands,'missing_fulfillment_record');return json.loads(commands[key]['result'])
- artifacts={};states={};rotation={};booking={}
+ artifacts={};states={};rotation={};booking={};retired=set();audited_retired=set();origins={}
  for oid,d in docs.items():
   if 'fulfillment' not in d:continue
   f=d['fulfillment'];need(set(f)=={'version','design','contact_sealed','signature_sealed','instructions'} and type(f['version']) is int and f['version']==1 and f['design'] in ['pasture-v1','sunset-v1','classic-v1'] and isinstance(f['instructions'],str) and len(f['instructions'].encode())<=4000,'presentation_contract')
@@ -29,6 +29,7 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
    need(re.fullmatch('[a-f0-9-]{36}',r['attempt']) and key==digest('dispatch_state:'+r['dispatch_id']),'dispatch_identity');envelope(r['message_sealed']);states[r['dispatch_id']]=r
   if 'replacement_hash' in r:
    need(set(r)=={'certificate_id','number_hash','replacement_hash','command'} and r['certificate_id'] in certs and re.fullmatch('[a-f0-9]{64}',r['number_hash']) and re.fullmatch('[a-f0-9]{64}',r['replacement_hash']) and r['number_hash']!=r['replacement_hash'] and key==digest('retired_number:'+r['number_hash']),'rotation_tombstone')
+   retired.add(r['number_hash'])
  for did,r in states.items():
   aid=digest('pdf:'+r['certificate_id']+':'+r['number_hash']);need(aid in artifacts and did==digest('dispatch:'+aid+':'+r['audience']),'dispatch_artifact_binding')
   receipt=commands.get(digest('dispatch_sink_receipt:'+did))
@@ -37,16 +38,27 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
   if r['state']=='sink_recorded':need(receipt is not None,'missing_sink_receipt')
  for event in sorted(data['audit'],key=lambda r:int(r['id'])):
   d=json.loads(event['details']);cid=event['object_id']
+  if event['kind']=='certificate_issued' and 'number_hash' in d:origins[cid]=d['number_hash']
   if event['kind']=='certificate_pdf_persisted':
    need(d['artifact_id'] in artifacts and artifacts[d['artifact_id']]['certificate_id']==cid and artifacts[d['artifact_id']]['sha256']==d['sha256'] and artifacts[d['artifact_id']]['number_hash']==d['number_hash'],'pdf_audit_binding')
   if event['kind']=='certificate_number_rotated':
-   need(cid in certs and (cid not in rotation or rotation[cid]==d['previous_hash']),'rotation_chain')
-   r=result(digest('retired_number:'+d['previous_hash']));need(r=={'certificate_id':cid,'number_hash':d['previous_hash'],'replacement_hash':d['number_hash'],'command':d['command']},'rotation_audit_binding');rotation[cid]=d['number_hash']
+   need(cid in certs and rotation.get(cid,origins.get(cid))==d['previous_hash'],'rotation_chain')
+   r=result(digest('retired_number:'+d['previous_hash']));need(r=={'certificate_id':cid,'number_hash':d['previous_hash'],'replacement_hash':d['number_hash'],'command':d['command']},'rotation_audit_binding');rotation[cid]=d['number_hash'];audited_retired.add(d['previous_hash'])
   if event['kind'].startswith('booking_credit_'):
    need(cid in certs and event['kind'] in ['booking_credit_reserve','booking_credit_cancel','booking_credit_complete','booking_credit_correct'],'booking_audit_kind')
-   booking.setdefault(cid,{})[d['booking_uuid']]=d['reservation']
+   prior=booking.setdefault(cid,{}).get(d['booking_uuid']);r=d['reservation'];kind=event['kind'].removeprefix('booking_credit_')
+   if kind=='reserve':need(prior is None and r['state']=='reserved' and r['revision']==1,'reservation_initial_state')
+   else:
+    need(prior is not None and r['revision']==prior['revision']+1 and all(r[k]==prior[k] for k in ['slots','value_minor','policy']),'reservation_history')
+    expected={'cancel':('reserved','released'),'complete':('reserved','used'),'correct':('used','reserved')}[kind];need((prior['state'],r['state'])==expected,'reservation_transition')
+    if kind=='cancel':need(d.get('initiator') in prior['policy']['release_initiators'],'reservation_release_policy')
+    if kind=='complete':need(result(digest('redeem:'+r['completion_command'])).get('booking_uuid')==d['booking_uuid'],'booking_completion_receipt')
+    if kind=='correct':need(digest('reversed:'+prior['completion_command']) in commands,'booking_correction_receipt')
+   booking[cid][d['booking_uuid']]=r
+ need(retired==audited_retired,'rotation_audit_set')
  for cid,last in rotation.items():need(certs[cid]['number_hash']==last,'rotated_current_number')
  for cid,c in certs.items():
+  if cid in origins:need(c['number_hash']==rotation.get(cid,origins[cid]),'current_bearer_history')
   row=commands.get(digest('booking_reservations:'+cid));actual=json.loads(row['result']) if row else {}
   need(actual==booking.get(cid,{}),'booking_projection_audit')
   used=json.loads(c['value_json']);reserved=[]
