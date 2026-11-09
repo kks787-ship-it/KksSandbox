@@ -1,0 +1,23 @@
+/* Scoped roster workspace: one record, one place, unchanged guarded commands. */
+#csf-farm-setup{background:#f8faf9;border:1px solid #d4dfda;border-radius:12px;padding:clamp(12px,2vw,24px);box-sizing:border-box}
+#csf-farm-setup>h2{font-size:1.65rem;margin:0 0 8px;color:#193e34}
+.csf-directory-intro{font-size:1rem;max-width:65ch}
+.csf-directory-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border-bottom:1px solid #d4dfda;padding:12px 0}
+.csf-directory-toolbar nav{display:flex;gap:6px;flex-wrap:wrap;margin:0}
+.csf-directory-toolbar button{border:1px solid #79968c;border-radius:6px;background:#fff;color:#214c40;padding:8px 14px;font-weight:600}
+.csf-directory-toolbar button[aria-pressed=true]{background:#214c40;color:#fff}
+.csf-directory-toolbar label{margin:0 0 0 auto;font-weight:600;min-width:160px}
+.csf-directory-toolbar input{display:block;margin-top:4px;width:230px}
+.csf-directory-count{width:100%;margin:0;color:#4d625b}
+.csf-directory-group{margin-top:20px!important}.csf-directory-group>h3{font-size:1.15rem;margin-bottom:4px}.csf-directory-group>p{color:#4d625b;max-width:75ch}
+.csf-directory-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px;margin-top:16px;align-items:start}
+.csf-calendar .csf-directory-record{background:#fff;border:1px solid #bccfc6;border-radius:9px;margin:0;padding:0;min-width:0;overflow-wrap:anywhere}
+.csf-directory-record>summary{padding:16px!important;list-style:none;display:grid;gap:8px}.csf-directory-record>summary::-webkit-details-marker{display:none}
+.csf-record-name{font-size:1.12rem;color:#193e34}.csf-record-status{font-weight:400;color:#4d625b}.csf-record-open{font-size:.9rem;color:#1b5d70}
+.csf-record-body{padding:8px;min-width:0}.csf-directory-record[open]{grid-column:1/-1}
+.csf-directory-dialog{width:min(760px,calc(100vw - 32px));max-height:calc(100dvh - 32px);box-sizing:border-box;border:1px solid #79968c;border-radius:12px;padding:20px;color:#222;background:#fff}
+.csf-directory-dialog::backdrop{background:rgb(15 35 29 / 55%)}.csf-directory-dialog h2{margin:12px 0 4px;font-size:1.5rem}.csf-directory-dialog>.button{float:right}
+.csf-directory-draft-note{clear:both;color:#4d625b;padding:10px;background:#f2f6f3;border-radius:6px}
+.csf-calendar .csf-record-lifecycle{border-color:#af8076;margin-top:24px;background:#fff9f5}.csf-record-lifecycle>summary{color:#743222}
+.csf-directory-empty{padding:20px;background:white;border:1px dashed #91a99d;border-radius:6px}
+@media(max-width:600px){.csf-directory-toolbar{display:block}.csf-directory-toolbar label{margin:12px 0}.csf-directory-toolbar input{width:100%}.csf-directory-toolbar nav{display:grid;grid-template-columns:1fr 1fr}.csf-directory-toolbar button{margin:0}.csf-directory-dialog{padding:12px;width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.csf-directory-grid{grid-template-columns:1fr}}

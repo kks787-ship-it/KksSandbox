@@ -1,0 +1,39 @@
+name: Disposable farm directory validation
+on:
+  pull_request:
+    branches: [codex/digital-ranch-continuation]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+concurrency:
+  group: directory-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  directory:
+    if: github.repository == 'kks787-ship-it/KksSandbox'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Record tested source
+        run: git rev-parse HEAD HEAD^{tree}
+      - name: Install locked tooling and isolated browser
+        run: |
+          set -euo pipefail
+          composer install --no-interaction --prefer-dist
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx --no-install playwright install --with-deps chromium
+      - name: Validate native presentation and unchanged safeguards
+        run: |
+          set -euo pipefail
+          php vendor/bin/phpcs wp-content/plugins/csf-scheduling/includes/class-csf-scheduling-ui.php
+          find wp-content/plugins/csf-scheduling -name '*.php' -print0 | xargs -0 -n1 php -l
+          php tests/scheduling/horse-lifecycle-unit.php
+          php tests/scheduling/horse-delete-unit.php
+          bash tests/scripts/development-guards.sh
+          bash tests/scripts/plesk-preflight.sh
+          DIRECTORY_OUTPUT="$RUNNER_TEMP/farm-directory" bash tests/directory/run.sh

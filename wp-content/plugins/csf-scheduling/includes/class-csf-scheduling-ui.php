@@ -679,6 +679,8 @@ class CSF_Scheduling_UI {
 		wp_enqueue_script( 'csf-scheduling-routine', plugins_url( '../assets/routine.js', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION, true );
 		wp_enqueue_style( 'csf-scheduling-planner', plugins_url( '../assets/planner.css', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION );
 		wp_enqueue_script( 'csf-scheduling-ux', plugins_url( '../assets/ux.js', __FILE__ ), array( 'csf-scheduling-planner', 'csf-scheduling-resources' ), CSF_SCHEDULING_VERSION, true );
+		wp_enqueue_script( 'csf-scheduling-directory', plugins_url( '../assets/directory.js', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION, true );
+		wp_enqueue_style( 'csf-scheduling-directory', plugins_url( '../assets/directory.css', __FILE__ ), array( 'csf-scheduling-staff' ), CSF_SCHEDULING_VERSION );
 		wp_enqueue_style( 'csf-scheduling-ux', plugins_url( '../assets/ux.css', __FILE__ ), array( 'csf-scheduling-planner' ), CSF_SCHEDULING_VERSION );
 		wp_enqueue_script( 'csf-scheduling-planner', plugins_url( '../assets/planner.js', __FILE__ ), array( 'csf-scheduling-routine' ), CSF_SCHEDULING_VERSION, true );
 		$p = json_decode( CSF_Scheduling_Schema::settings()['policy_json'], true );
@@ -1050,7 +1052,8 @@ class CSF_Scheduling_UI {
 	 * @param array $ctx Private labels.
 	 */
 	public static function setup( $ctx ) {
-		echo '<section id="csf-farm-setup"><h2>Farm setup and horse availability</h2><p>Use approved names and evidence only. Do not enter medical documents or contact details. Staff evidence flags are not signed agreements. Missing suitability or availability blocks booking.</p>';
+		echo '<section id="csf-farm-setup"><h2>Riders, horses &amp; resources</h2><p class="csf-directory-intro">Find a record, then choose what you need to change. Booking checks and existing history stay protected.</p><p>Use approved names and evidence only. Do not enter medical documents or contact details. Staff evidence flags are not signed agreements. Missing suitability or availability blocks booking.</p>';
+		self::directory_group( 'resources', 'Resources', 'Instructors, arenas, locations and school-horse resources. Edit a record or its dated availability together.' );
 		self::details_form(
 			'Add instructor, arena, location or school horse resource',
 			'resource_created',
@@ -1061,7 +1064,9 @@ class CSF_Scheduling_UI {
 			),
 			$ctx
 		);
+		echo '<div class="csf-directory-grid">';
 		foreach ( $ctx['resource_rows'] as $r ) {
+			self::directory_record( $r['label'], ucfirst( $r['kind'] ) . ( $r['active'] ? ' · Active' : ' · Inactive' ) );
 			self::details_form(
 				'Resource: ' . $r['label'],
 				'resource_saved',
@@ -1093,8 +1098,9 @@ class CSF_Scheduling_UI {
 				),
 				$ctx
 			);
-			echo '</details>';
+			echo '</details></div></details>';
 		}
+		echo '</div></section>';
 		foreach ( array(
 			'rider_saved' => array(
 				'label'              => '',
@@ -1112,8 +1118,10 @@ class CSF_Scheduling_UI {
 				'training_enrolled' => false,
 			),
 		) as $kind => $data ) {
+			$is_rider = 'rider_saved' === $kind;
+			self::directory_group( $is_rider ? 'riders' : 'horses', $is_rider ? 'Riders' : 'Horses', $is_rider ? 'Rider records and recorded pre-ride evidence. Evidence flags do not replace signed agreements.' : 'Classification, suitability and booking resources. Archive preserves history; it never cancels a lesson.' );
 			self::details_form(
-				'Add ' . ( 'rider_saved' === $kind ? 'rider' : 'horse' ),
+				'Add ' . ( $is_rider ? 'rider' : 'horse' ),
 				$kind,
 				array(
 					'uuid'     => wp_generate_uuid4(),
@@ -1121,17 +1129,13 @@ class CSF_Scheduling_UI {
 					'data'     => $data,
 				),
 				$ctx
-			); }
-		foreach ( array(
-			'rider_rows' => 'rider_saved',
-			'horse_rows' => 'horse_saved',
-		) as $key => $kind ) {
-			foreach ( $ctx[ $key ] as $doc ) {
-				if ( 'horse_rows' === $key ) {
-					self::horse_status_form( $doc );
-				}
+			);
+			echo '<div class="csf-directory-grid">';
+			foreach ( $ctx[ $is_rider ? 'rider_rows' : 'horse_rows' ] as $doc ) {
+				$status = $is_rider ? ( $doc['data']['adult'] ? 'Adult rider' : 'Youth rider' ) : ( empty( $doc['data']['archived'] ) ? 'Active' : 'Archived' ) . ' · ' . ( 'school' === $doc['data']['source'] ? 'School horse' : 'Client horse' );
+				self::directory_record( $doc['data']['label'], $status );
 				self::details_form(
-					( 'rider_rows' === $key ? 'Rider: ' : 'Horse: ' ) . $doc['data']['label'],
+					$is_rider ? 'Edit rider & pre-ride evidence' : 'Edit horse & suitability',
 					$kind,
 					array(
 						'uuid'     => $doc['uuid'],
@@ -1139,8 +1143,17 @@ class CSF_Scheduling_UI {
 						'data'     => $doc['data'],
 					),
 					$ctx
-				); }
+				);
+				if ( ! $is_rider && CSF_Scheduling_Access::can( 'resource_manage' ) ) {
+					echo '<details class="csf-record-lifecycle"><summary>Archive, restore or remove a mistake</summary><p>Use Archive for a horse with history. Permanent removal is only available for unused setup mistakes, after all dependency checks.</p>';
+					self::horse_status_form( $doc );
+					echo '</details>';
+				}
+				echo '</div></details>';
+			}
+			echo '</div></section>';
 		}
+		self::directory_group( 'blocks', 'Protective blocks', 'Keep a horse or resource unavailable. These protections remain independent of normal working hours and lesson buffers.' );
 		self::details_form(
 			'Add protective block / mark horse unavailable',
 			'restriction_added',
@@ -1172,7 +1185,26 @@ class CSF_Scheduling_UI {
 			);
 			echo '</details>';
 		}
-		echo '</section>';
+		echo '</section></section>';
+	}
+
+	/** Directory section; fully readable without JavaScript.
+	 *
+	 * @param string $key Section key.
+	 * @param string $title Heading.
+	 * @param string $description Help.
+	 */
+	private static function directory_group( $key, $title, $description ) {
+		echo '<section class="csf-directory-group" data-directory-group="' . esc_attr( $key ) . '" aria-labelledby="csf-directory-' . esc_attr( $key ) . '"><h3 id="csf-directory-' . esc_attr( $key ) . '">' . esc_html( $title ) . '</h3><p>' . esc_html( $description ) . '</p>';
+	}
+
+	/** One named record groups all its actions without granting new access.
+	 *
+	 * @param string $label Record label.
+	 * @param string $status Descriptive status, not riding clearance.
+	 */
+	private static function directory_record( $label, $status ) {
+		echo '<details class="csf-directory-record" data-directory-name="' . esc_attr( $label ) . '"><summary><span class="csf-record-name">' . esc_html( $label ) . '</span><span class="csf-record-status">' . esc_html( $status ) . '</span><span class="csf-record-open">Open record →</span></summary><div class="csf-record-body">';
 	}
 
 	/** Foldable setup form.
