@@ -38,3 +38,13 @@ jobs:
           bash tests/scripts/development-guards.sh
           bash tests/scripts/plesk-preflight.sh
           DIRECTORY_OUTPUT="$RUNNER_TEMP/farm-directory" bash tests/directory/run.sh
+      - name: Save synthetic review preview
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: farm-directory-synthetic-preview
+          path: |
+            ${{ runner.temp }}/farm-directory/*.png
+            ${{ runner.temp }}/farm-directory/directory-preview.html
+          retention-days: 7
+          if-no-files-found: warn

@@ -1,6 +1,7 @@
 # Farm records directory candidate — November 9, 2026
 
-Status: local UI implementation; not published, installed or owner-accepted.
+Status: published as draft PR #28; not installed or owner-accepted.
+Review: https://github.com/kks787-ship-it/KksSandbox/pull/28
 Base: deployed scheduling candidate `6883b29034b18581e81bf8cadaf52aef9c01a774`.
 Isolated branch: `codex/farm-setup-ux`. Gift-certificate worktree remains unchanged.
 
@@ -34,7 +35,7 @@ advanced: a release requires the remaining integration verification first.
 - 33 isolated horse-lifecycle checks and 34 unused-horse-deletion checks.
 - 22 deployment/backup guards and six mocked Plesk identity checks.
 
-## Browser validation blocked, not passed
+## Local browser limitation and isolated CI follow-up
 
 `tests/directory/browser.js` is prepared for 390/768/1280px search/category,
 keyboard/Enter/Escape/focus, close/reopen draft preservation, unchanged serialized
@@ -69,7 +70,7 @@ new named record first.
 - Native WordPress full-flow/permission checks and regression selector updates,
   including error/retry responses and long rosters, and actual phone acceptance.
 - Review candidate; prepare a release-specific inventory/version only afterward.
-- No merge, push, deployment, farm config changes, data changes or real actions
+- No merge, deployment, farm config changes, data changes or real actions
   have been performed. No protected recovery promise is made by these local tests.
 
 ## Approved publication and isolated browser follow-up
@@ -79,5 +80,13 @@ project test system, without installing the redesign. The new narrowly scoped
 GitHub workflow targets `codex/digital-ranch-continuation`, explicitly checks out
 the PR head and runs the synthetic presentation/browser checks plus unchanged
 local safeguards. It has read-only repository permissions and no farm credentials,
-deployment steps, artifact uploads, or real records. Passing it will establish
+deployment steps or real records. Its seven-day review artifact contains only
+synthetic fixture HTML and screenshots. Passing it will establish
 presentation-fixture results only, not native WordPress/MFA integration acceptance.
+
+The first isolated CI run passed WPCS, syntax and 67 safety unit checks but
+stopped before browser tests because ripgrep was absent. The follow-up installs
+that standard runner dependency, adds open-dialog accessibility and overflow
+checks, and activates the existing full disposable scheduler workflow for this
+PR base. Native selector migrations follow the new category/dialog controls.
+All further CI results remain pending until recorded here.
