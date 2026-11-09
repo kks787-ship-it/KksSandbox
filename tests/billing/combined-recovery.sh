@@ -30,7 +30,7 @@ cp "$root"/docs/pilot/baseline-contract.json "$root"/docs/pilot/baseline-select-
 cp "$root"/tests/recovery/restore_fixture.py "$context/rootfs/fixture/tests/recovery/"
 mkdir -p "$context/rootfs/fixture/tests/billing"
 cp "$root"/tests/billing/combined_recovery.py "$root"/tests/billing/combined-seed.php "$root"/tests/billing/recovery_contract.py "$root"/tests/billing/database.php "$root"/tests/billing/recovery-value-test.py "$root"/tests/billing/management-rest.py "$root"/tests/billing/money-fixture.php "$root"/tests/billing/money-http.py "$root"/tests/billing/candidate_archive.py "$root"/tests/billing/schema-damage-test.py "$context/rootfs/fixture/tests/billing/"
-cp "$root"/tests/billing/fulfillment_recovery.py "$root"/tests/billing/fulfillment-seed.php "$root"/tests/billing/fulfillment-key.php "$root"/tests/billing/fulfillment-damage-test.py "$root"/tests/billing/booking-rotation-seed.php "$context/rootfs/fixture/tests/billing/"
+cp "$root"/tests/billing/mime-parse.py "$root"/tests/billing/calendar-fixture.php "$root"/tests/billing/fulfillment_recovery.py "$root"/tests/billing/fulfillment-seed.php "$root"/tests/billing/fulfillment-key.php "$root"/tests/billing/fulfillment-damage-test.py "$root"/tests/billing/booking-rotation-seed.php "$context/rootfs/fixture/tests/billing/"
 cp "$root"/tests/recovery/restore-scheduling-seed.php "$context/rootfs/fixture/tests/recovery/"
 mkdir -p "$context/rootfs/fixture/plugins" "$context/rootfs/usr/src/wordpress"
 for plugin in csf-core csf-scheduling csf-mfa csf-billing; do cp -a "$root/wp-content/plugins/$plugin" "$context/rootfs/fixture/plugins/"; done

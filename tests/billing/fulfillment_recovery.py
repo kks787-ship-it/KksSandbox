@@ -9,7 +9,7 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
   need(len(raw)>28,'private_envelope')
  def result(key):
   need(key in commands,'missing_fulfillment_record');return json.loads(commands[key]['result'])
- artifacts={};states={};rotation={};booking={};retired=set();audited_retired=set();origins={}
+ artifacts={};mimes={};states={};rotation={};booking={};retired=set();audited_retired=set();origins={}
  for oid,d in docs.items():
   if 'fulfillment' not in d:continue
   f=d['fulfillment'];need(set(f)=={'version','design','contact_sealed','signature_sealed','instructions'} and type(f['version']) is int and f['version']==1 and f['design'] in ['pasture-v1','sunset-v1','classic-v1'] and isinstance(f['instructions'],str) and len(f['instructions'].encode())<=4000,'presentation_contract')
@@ -24,6 +24,8 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
   if not isinstance(r,dict):continue
   if set(r)=={'version','certificate_id','number_hash','sha256','sealed'}:
    cid=r['certificate_id'];need(cid in certs and type(r['version']) is int and r['version']==1 and re.fullmatch('[a-f0-9]{64}',r['number_hash']) and re.fullmatch('[a-f0-9]{64}',r['sha256']) and key==digest('pdf:'+cid+':'+r['number_hash']),'pdf_binding');envelope(r['sealed']);artifacts[key]=r
+  if set(r)=={'version','dispatch_id','sha256','sealed'}:
+   need(r['version']==1 and re.fullmatch('[a-f0-9]{64}',r['dispatch_id']) and re.fullmatch('[a-f0-9]{64}',r['sha256']) and key==digest('dispatch_mime:'+r['dispatch_id']),'mime_binding');envelope(r['sealed']);mimes[r['dispatch_id']]=r
   if 'message_sealed' in r:
    cid=r.get('certificate_id');need(set(r)=={'version','dispatch_id','certificate_id','number_hash','order_id','audience','state','attempt','message_sealed','delivered'} and cid in certs and r['order_id']==certs[cid]['order_id'] and r['version']==1 and r['delivered'] is False and r['audience'] in ['buyer','administration'] and r['state'] in ['claimed','uncertain','sink_recorded','superseded'],'dispatch_contract')
    need(re.fullmatch('[a-f0-9-]{36}',r['attempt']) and key==digest('dispatch_state:'+r['dispatch_id']),'dispatch_identity');envelope(r['message_sealed']);states[r['dispatch_id']]=r
@@ -34,8 +36,10 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
   aid=digest('pdf:'+r['certificate_id']+':'+r['number_hash']);need(aid in artifacts and did==digest('dispatch:'+aid+':'+r['audience']),'dispatch_artifact_binding')
   receipt=commands.get(digest('dispatch_sink_receipt:'+did))
   if receipt:
+   need(did in mimes,'missing_mime_artifact')
    need(json.loads(receipt['result'])=={'dispatch_id':did,'attempt':r['attempt'],'sink_accepted':True,'delivered':False},'sink_receipt_binding')
   if r['state']=='sink_recorded':need(receipt is not None,'missing_sink_receipt')
+ for did in mimes:need(did in states and digest('dispatch_sink_receipt:'+did) in commands,'orphan_mime_artifact')
  for event in sorted(data['audit'],key=lambda r:int(r['id'])):
   d=json.loads(event['details']);cid=event['object_id']
   if event['kind']=='certificate_issued' and 'number_hash' in d:origins[cid]=d['number_hash']

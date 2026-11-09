@@ -399,3 +399,10 @@ entry/identity/waiver authorization and multi-rider/family credit allocation are
 qualified. The private participant must not be described as a completed public booking feature.
 A browser booking workflow and full scheduler-path integration/race coverage remain required;
 the added SQL probe isolates the transaction participant using a synthetic outer transaction.
+
+Tax review input (November9, pending owner/DOR confirmation): parent supplied WA DOR guidance
+for instructional horseback riding and gift certificates. Keep issuance distinct from redemption
+and classify the underlying service; do not default every farm offering to untaxed or finalize
+tax policy. Reference https://dor.wa.gov/education/industry-guides/horse-industry/horseback-riding
+and https://dor.wa.gov/forms-publications/publications-subject/tax-topics/gift-cards-gift-certificates-and-layaway-purchases .
+No live tax configuration or final commercial terms were adopted by this engineering increment.

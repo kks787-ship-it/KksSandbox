@@ -46,6 +46,7 @@ final class CSF_Billing_Dispatch {
 					'order_id'     => $order_id,
 					'amount_minor' => $d['amount_minor'],
 					'currency'     => $d['currency'],
+					'date'         => gmdate( 'D, d M Y H:i:s' ) . ' +0000',
 				);
 				if ( 'buyer' === $audience ) {
 					$message['pdf_artifact'] = $pdf['artifact_id'];
@@ -132,11 +133,16 @@ final class CSF_Billing_Dispatch {
 				if ( ! $valid ) {
 					$state['state'] = 'superseded';
 				} elseif ( $receipt ) {
+					$stored = $locked->row( 'commands', hash( 'sha256', 'dispatch_mime:' . $id ) );
+					CSF_Billing_Domain::need( $stored, 'mime_unavailable' );
+					$mime = json_decode( $stored['result'], true, 8, JSON_THROW_ON_ERROR );
+					CSF_Billing_Domain::need( $mime['dispatch_id'] === $id && hash_equals( $mime['sha256'], hash( 'sha256', CSF_Billing_Config::open( $mime['sealed'] ) ) ), 'mime_unavailable' );
 					$state['state'] = 'sink_recorded';
 				} elseif ( $accept && 'claimed' === $state['state'] ) {
 					// Validate private message and attached bytes now, before accepting into the sink.
 					$message = json_decode( CSF_Billing_Config::open( $state['message_sealed'] ), true, 16, JSON_THROW_ON_ERROR );
 					CSF_Billing_Domain::need( str_ends_with( strtolower( $message['to'] ), '.invalid' ) && ! str_contains( $message['subject'], 'CSF-' ), 'synthetic_recipient_required' );
+					$bytes = null;
 					if ( 'buyer' === $state['audience'] ) {
 						$artifact = $locked->row( 'commands', $message['pdf_artifact'] );
 						CSF_Billing_Domain::need( $artifact, 'pdf_unavailable' );
@@ -144,6 +150,23 @@ final class CSF_Billing_Dispatch {
 						$bytes = CSF_Billing_Config::open( $a['sealed'] );
 						CSF_Billing_Domain::need( $a['number_hash'] === $cert['number_hash'] && hash_equals( $message['pdf_sha256'], hash( 'sha256', $bytes ) ), 'pdf_unavailable' );
 					}
+					$mime = CSF_Billing_Mime::build( $message, $id, $bytes );
+					$locked->insert(
+						'commands',
+						array(
+							'id'           => hash( 'sha256', 'dispatch_mime:' . $id ),
+							'payload_hash' => hash( 'sha256', $mime ),
+							'result'       => CSF_Billing_Domain::json(
+								array(
+									'version'     => 1,
+									'dispatch_id' => $id,
+									'sha256'      => hash( 'sha256', $mime ),
+									'sealed'      => CSF_Billing_Config::seal( $mime ),
+								)
+							),
+							'created_at'   => gmdate( 'Y-m-d H:i:s' ),
+						)
+					);
 					$locked->insert(
 						'commands',
 						array(

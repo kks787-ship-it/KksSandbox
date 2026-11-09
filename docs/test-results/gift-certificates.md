@@ -423,3 +423,21 @@ preventing stale balances from that outer snapshot. The combined fixture adds tw
 checks using a separate connection: prove the old view remains stale, then prove the joined
 participant sees the newer committed record. Combined SQL probe count is21; standalone billing
 without the scheduler retains19. This is pending exact-head CI, not a presumed pass.
+
+## Continued scheduler boundary and MIME candidate
+
+New guarded fixtures call the real scheduling Store (no reflected transaction marker) against
+separate synthetic scheduling/billing tables, with the restored official password/TOTP session.
+They exercise availability conflicts, late history-write rollback, lost COMMIT acknowledgement
+and exact replay, completion/correction/cancellation with late failures. Historical time is
+simulated explicitly by moving only scratch appointment rows; application clocks/MFA are not
+changed. Expected monetary/scheduler checks:58, pending CI. Customer authorization is not
+inferred from staff fixture success.
+
+A compiled MIME serializer builds only .invalid-address test messages, with a deterministic
+Message-ID, fixed safe filenames, exact PDF and accepted-terms attachments, receipt and
+instructions. Encrypted MIME bytes persist atomically with sink acceptance; no mail function or
+network call is present.12 local MIME assertions and an independent Python email parser pass.
+Recovery now seeds completed/corrected and canceled booking histories and MIME payloads;
+42 damaged fulfillment/history cases and restored MIME parser checks are pending CI. Original
+qualified recovery pins/contract are unchanged. No sales/email/deployment enabled.

@@ -69,5 +69,37 @@ def money_checks(opener,base,nonce):
    futures=[pool.submit(call,'booking_sql',id=id,body=dict(body,uuid=uid()),transition='reserve',command=uid()) for _ in range(2)];results=[f.result() for f in futures]
   check(sum(r['ok'] for r in results)==1,'actual two-worker last-slot reservation has one winner')
   state=call('state',id=id)['result'];check(len(state['reserved'])==1 and state['redeemed']==2,'actual race preserves reserved and used balances')
+
+  id=ids['calendar'];fixture=call('calendar_setup');check(fixture['ok'],'real scheduling schema and commands initialized under genuine MFA: '+str(fixture.get('error','')))
+  body=fixture['result']['body'];revision=fixture['result']['revision']
+  def command(body,revision,transition,command=None,**extra):return call('calendar_command',id=id,body=body,revision=revision,transition=transition,command=command or uid(),**extra)
+  def status():return call('calendar_state',booking=body['uuid'])['result']
+  failed=command(body,revision,'reserve',fault='history');check(failed['ok'] and not failed['result']['committed'],'real scheduler late history failure rejected')
+  state=call('state',id=id)['result'];check(status()['appointment'] is None and status()['revision']==revision and state['revision']==1 and state['reserved']==[],'failed real booking rolls back appointment and credit')
+  lost=uid();r=command(body,revision,'reserve',lost,fault='lost_commit');check(r['ok'] and r['result']['reason']=='commit_unknown','real lost commit acknowledgement stays uncertain')
+  r=command(body,revision,'reserve',lost);check(r['ok'] and r['result']['committed'],'same real scheduler command reconciles committed booking')
+  check(command(body,revision,'reserve',lost)==r,'real scheduler booking replay exact')
+  state=call('state',id=id)['result'];check(state['revision']==2 and len(state['reserved'])==1 and state['redeemed']==0,'reconciled booking reserves once without consuming')
+  conflict=command(dict(body,uuid=uid()),status()['revision'],'reserve');check(conflict['ok'] and conflict['result']['reason']=='resource_conflict','real scheduler rejects occupied lesson')
+  check(call('state',id=id)['result']==state,'availability failure leaves credit unchanged')
+  body['expected']=1;early=command(body,status()['revision'],'complete');check(early['ok'] and not early['result']['committed'],'real future lesson cannot consume credit')
+  aged=call('calendar_age',body=body);check(aged['ok'],'synthetic-only elapsed-time setup')
+  body=aged['result']['body'];revision=aged['result']['revision']
+  fail=command(body,revision,'complete',fault='history');check(fail['ok'] and not fail['result']['committed'],'real completion late failure rejected')
+  check(call('state',id=id)['result']==state,'failed completion restores reservation and used balance')
+  complete=uid();done=command(body,revision,'complete',complete);check(done['ok'] and done['result']['committed'],'real scheduler completion commits')
+  used=call('state',id=id)['result'];check(used['redeemed']==1 and used['reserved']==[],'completed booking consumes reserved ordinal once')
+  check(command(body,revision,'complete',complete)==done,'real completed command replay never debits twice')
+  body['expected']=2;revision=status()['revision'];fail=command(body,revision,'correct',fault='history');check(fail['ok'] and not fail['result']['committed'],'real correction late failure rejected')
+  check(call('state',id=id)['result']==used,'failed correction leaves prior debit intact')
+  fixed=command(body,revision,'correct');check(fixed['ok'] and fixed['result']['committed'],'real correction commits through scheduler')
+  restored=call('state',id=id)['result'];check(restored['redeemed']==0 and len(restored['reserved'])==1,'correction restores reservation instead of free-spend credit')
+  now=(datetime.datetime.now(datetime.timezone.utc)-datetime.timedelta(minutes=1)).isoformat(timespec='minutes')
+  cancel=dict(uuid=body['uuid'],expected=3,initiator='facility',reason='Synthetic facility cancellation',notice=now,effective=now);revision=status()['revision']
+  fail=command(cancel,revision,'cancel',fault='history');check(fail['ok'] and not fail['result']['committed'],'real cancellation late failure rejected')
+  check(status()['appointment']['state']=='confirmed' and call('state',id=id)['result']==restored,'failed cancellation preserves booking and reservation together')
+  cancel_id=uid();canceled=command(cancel,revision,'cancel',cancel_id);check(canceled['ok'] and canceled['result']['committed'],'real reviewed facility cancellation commits')
+  released=call('state',id=id)['result'];check(status()['appointment']['state']=='canceled' and released['redeemed']==0 and released['reserved']==[],'real cancellation leaves no stranded reserved credit')
+  check(command(cancel,revision,'cancel',cancel_id)==canceled,'real cancellation exact replay')
  finally:check(call('cleanup')['ok'],'scratch financial tables removed')
  return count
