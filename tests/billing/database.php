@@ -22,6 +22,17 @@ try{
  dbreject(fn()=>$store->command($command,array('test'=>2),$write),'changed command payload rejected');
  dbcheck((int)$wpdb->get_var("SELECT COUNT(*) FROM {$prefix}audit")===1,'exact replay never duplicates audit');
  dbcheck($wpdb->get_var("SELECT object_id FROM {$prefix}audit")===$id,'UUID audit field retains string type');
+ // The combined fixture requires these two extra checks; standalone billing has no scheduler.
+ if(class_exists('CSF_Scheduling_Store')){
+ // An outer calendar transaction may establish its read view before the billing lock.
+ $peer=new wpdb(DB_USER,DB_PASSWORD,DB_NAME,DB_HOST);$peer->suppress_errors(true);
+ $wpdb->query('START TRANSACTION');$stale=$wpdb->get_var($wpdb->prepare("SELECT result FROM {$prefix}commands WHERE id=%s",$command));
+ if(1!==$peer->update($prefix.'commands',array('result'=>'{"fresh":true}'),array('id'=>$command)))throw new RuntimeException('Synthetic peer update failed');
+ dbcheck($wpdb->get_var($wpdb->prepare("SELECT result FROM {$prefix}commands WHERE id=%s",$command))===$stale,'outer repeatable-read snapshot demonstrably stale');
+ $flag=new ReflectionProperty(CSF_Scheduling_Store::class,'calendar_transaction');$flag->setAccessible(true);$flag->setValue(null,true);
+ try{$current=$store->join_calendar(static fn($s)=>$s->row('commands',$command));dbcheck(json_decode($current['result'],true)===array('fresh'=>true),'joined participant observes latest committed row despite old outer snapshot');}
+ finally{$flag->setValue(null,false);$wpdb->query('ROLLBACK');$peer->close();}
+ }
  echo "REAL_DATABASE_PROBE_ASSERTIONS=$checks\n";
 }finally{
  remove_filter('query',$fault??static fn($v)=>$v);

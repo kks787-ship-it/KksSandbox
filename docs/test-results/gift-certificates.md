@@ -416,3 +416,10 @@ response. Inspection found its synthetic outer transaction lacked the scheduler'
 facility coordination lock and SQL-output suppression. The fixture now mirrors that lock order
 before reading booking/billing rows and suppresses raw DB errors. This corrects the test harness;
 it does not substitute for full scheduler end-to-end qualification. A full rerun is required.
+
+Further integration review identified the outer scheduler can establish a repeatable-read view
+before acquiring the billing guard. Ledger row/binding lookups now use current locking reads,
+preventing stale balances from that outer snapshot. The combined fixture adds two real SQL
+checks using a separate connection: prove the old view remains stale, then prove the joined
+participant sees the newer committed record. Combined SQL probe count is21; standalone billing
+without the scheduler retains19. This is pending exact-head CI, not a presumed pass.

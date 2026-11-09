@@ -46,7 +46,7 @@ try:
  run(php+['-r',"define('WP_INSTALLING',true);require '"+str(SRC)+"/wp-load.php';require_once ABSPATH.'wp-admin/includes/upgrade.php';wp_install('Synthetic combined recovery','synthetic_admin','synthetic@example.invalid',true,'','synthetic-only-password');update_option('home','http://127.0.0.1:18890');update_option('siteurl','http://127.0.0.1:18890');wp_insert_post(array('post_title'=>'Gifts','post_name'=>'gifts','post_status'=>'publish','post_type'=>'page','post_content'=>'[csf_gift_certificates]')); "])
  check(evalphp(SRC,"require '/fixture/tests/recovery/restore-scheduling-seed.php';").endswith('SYNTHETIC_SCHEDULING_SEEDED'),'unchanged scheduling fixture seeded')
  check(evalphp(SRC,"require '/fixture/tests/billing/combined-seed.php';").endswith('SYNTHETIC_COMBINED_33_TABLES_SEEDED'),'synthetic billing seeded with sales disabled')
- check(evalphp(SRC,"require '/fixture/tests/billing/database.php';").endswith('REAL_DATABASE_PROBE_ASSERTIONS=19'),'nineteen real SQL failure and replay probes')
+ check(evalphp(SRC,"require '/fixture/tests/billing/database.php';").endswith('REAL_DATABASE_PROBE_ASSERTIONS=21'),'twenty-one real SQL failure replay and stale-read probes')
  before=snapshot('wp_mdf4x');manifest=files(SRC)
  damage=runpy.run_path('/fixture/tests/billing/schema-damage-test.py')['schema_damage_checks']
  schema_damage_checks=damage(before,'TXGEh_')

@@ -86,7 +86,8 @@ final class CSF_Billing_Store {
 			if ( null !== $guard ) {
 				$guard();
 			}
-			$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %s', $this->table( 'commands' ), $id ), ARRAY_A );
+			// Locking reads remain current even if the outer scheduler already opened a read view.
+			$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %s FOR UPDATE', $this->table( 'commands' ), $id ), ARRAY_A );
 			CSF_Billing_Domain::need( '' === $wpdb->last_error, 'ledger_unavailable' );
 			if ( $row ) {
 				CSF_Billing_Domain::need( hash_equals( $row['payload_hash'], $hash ), 'command_conflict' );
@@ -166,7 +167,8 @@ final class CSF_Billing_Store {
 	public function row( $table, $id ) {
 		global $wpdb;
 		CSF_Billing_Domain::need( $this->active, 'transaction_required' );
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %s', $this->table( $table ), $id ), ARRAY_A );
+		// Locking reads remain current even if the outer scheduler already opened a read view.
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE id = %s FOR UPDATE', $this->table( $table ), $id ), ARRAY_A );
 		CSF_Billing_Domain::need( '' === $wpdb->last_error, 'ledger_unavailable' );
 		return $row;
 	}
@@ -180,7 +182,7 @@ final class CSF_Billing_Store {
 	public function find( $table, $field, $value ) {
 		global $wpdb;
 		CSF_Billing_Domain::need( $this->active && ( ( 'orders' === $table && 'provider_order_id' === $field ) || ( 'certificates' === $table && in_array( $field, array( 'order_id', 'number_hash' ), true ) ) ), 'transaction_required' );
-		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE %i = %s', $this->table( $table ), $field, $value ), ARRAY_A );
+		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE %i = %s FOR UPDATE', $this->table( $table ), $field, $value ), ARRAY_A );
 		CSF_Billing_Domain::need( '' === $wpdb->last_error, 'ledger_unavailable' );
 		return $row;
 	}
