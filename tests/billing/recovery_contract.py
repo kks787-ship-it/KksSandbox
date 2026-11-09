@@ -4,6 +4,7 @@ No import of or changes to the qualified farm recovery contract. Inputs are priv
 snapshots, not trusted just because they parse. Custody/target/pins are separate prerequisites.
 """
 import hashlib,json,re
+from fulfillment_recovery import check_fulfillment
 TABLES=('guard','orders','certificates','commands','audit','throttle')
 COLUMNS={
  'guard':'id schema_version',
@@ -119,9 +120,10 @@ def qualify(snapshot,prefix='gift_fixture_'):
   need(o['capture_id'] and digest('issue:'+o['capture_id']) in commands,'missing_issuance_receipt')
   need(json.loads(commands[digest('issue:'+o['capture_id'])]['result'])['certificate_id']==cid,'issuance_receipt_binding')
   if c['status']=='active':need(digest('capture_hold:'+o['capture_id']) not in commands,'active_negative_payment_hold')
+ fulfillment=check_fulfillment(data,docs,certs,commands,need,digest)
  # Restore alone cannot justify an external write. No age-based claim reset is allowed.
  plan={s:sum(o['status']==s for o in orders.values()) for s in ['prepared','create_uncertain','awaiting_approval','approved','capture_uncertain','issued','frozen']}
- return {'billing_tables':6,'orders':len(orders),'certificates':len(certs),'debits':len(debits),'corrections':len(corrected),'reconciliation_counts':plan,'provider_calls_permitted':False,'claim_resets_permitted':False,'automatic_unfreeze_permitted':False}
+ return {'fulfillment':fulfillment,'billing_tables':6,'orders':len(orders),'certificates':len(certs),'debits':len(debits),'corrections':len(corrected),'reconciliation_counts':plan,'provider_calls_permitted':False,'claim_resets_permitted':False,'automatic_unfreeze_permitted':False}
 def compare(before,after,prefix='gift_fixture_'):
  qualify(before,prefix);qualify(after,prefix)
  for name in TABLES:need(before[prefix+'csf_billing_'+name]==after[prefix+'csf_billing_'+name],'exact_billing_restore_mismatch')

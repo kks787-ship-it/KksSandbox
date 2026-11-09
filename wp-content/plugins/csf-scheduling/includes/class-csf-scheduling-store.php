@@ -131,17 +131,18 @@ class CSF_Scheduling_Store {
 
 	/** Calendar commands share the foundation transaction and command ledger.
 	 *
-	 * @param string $kind Operation.
-	 * @param array  $payload Body.
-	 * @param int    $revision Facility revision.
-	 * @param string $command UUID.
+	 * @param string     $kind Operation.
+	 * @param array      $payload Body.
+	 * @param int        $revision Facility revision.
+	 * @param string     $command UUID.
+	 * @param array|null $payment Private certificate participant.
 	 * @return array|WP_Error
 	 */
-	public static function calendar( $kind, $payload, $revision, $command ) {
+	public static function calendar( $kind, $payload, $revision, $command, $payment = null ) {
 		if ( ! in_array( $kind, CSF_Scheduling_Calendar::COMMANDS, true ) || ! is_array( $payload ) || strlen( wp_json_encode( $payload ) ) > 65536 ) {
 			return new WP_Error( 'invalid_command', 'Bounded calendar command required.' );
 		}
-		return self::change( $kind, $payload, $revision, $command );
+		return self::change( $kind, $payload, $revision, $command, false, false, $payment );
 	}
 
 	/** Preview the exact appointment path under the same lock; persist nothing.
@@ -199,16 +200,17 @@ class CSF_Scheduling_Store {
 
 	/** Internal command dispatch. Every path rechecks caller authorization.
 	 *
-	 * @param string $kind Fixed operation.
-	 * @param array  $payload Validated body.
-	 * @param int    $revision Expected singleton revision.
-	 * @param string $command UUID.
+	 * @param string     $kind Fixed operation.
+	 * @param array      $payload Validated body.
+	 * @param int        $revision Expected singleton revision.
+	 * @param string     $command UUID.
 	 * @return array|WP_Error
-	 * @param bool   $preview Roll back rather than committing.
-	 * @param bool   $availability Read-only occupied-slot checking.
+	 * @param bool       $preview Roll back rather than committing.
+	 * @param bool       $availability Read-only occupied-slot checking.
+	 * @param array|null $payment Private certificate participant.
 	 * @throws RuntimeException Caught locally to roll back all transaction participants.
 	 */
-	private static function change( $kind, $payload, $revision, $command, $preview = false, $availability = false ) {
+	private static function change( $kind, $payload, $revision, $command, $preview = false, $availability = false, $payment = null ) {
 		global $wpdb;
 		$previous_error_suppression = $wpdb->suppress_errors( true );
 		try {
@@ -223,7 +225,7 @@ class CSF_Scheduling_Store {
 			}
 			$settings = CSF_Scheduling_Schema::table( 'settings' );
 			$commands = CSF_Scheduling_Schema::table( 'commands' );
-			$hash     = hash( 'sha256', wp_json_encode( self::canonical( array( $kind, $payload, $revision ) ) ) );
+			$hash     = hash( 'sha256', wp_json_encode( self::canonical( null === $payment ? array( $kind, $payload, $revision ) : array( $kind, $payload, $revision, $payment ) ) ) );
 			if ( false === $wpdb->query( 'START TRANSACTION' ) ) {
 				return new WP_Error( 'transaction_failed', 'Cannot start transaction.' );
 			}
@@ -234,6 +236,11 @@ class CSF_Scheduling_Store {
 				}
 				if ( ! CSF_Scheduling_Permissions::authorize( $kind, $payload ) ) {
 					throw new RuntimeException( 'forbidden' );
+				}
+				if ( null !== $payment ) {
+					if ( ! class_exists( 'CSF_Billing_Booking' ) ) {
+						throw new RuntimeException( 'billing_participant_required' ); }
+					CSF_Billing_Booking::authorize( $payment );
 				}
 				$prior = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM `$commands` WHERE uuid=%s", $command ), ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 				if ( $prior ) {
@@ -270,13 +277,18 @@ class CSF_Scheduling_Store {
 						$row['availability_preview'] = true;
 					}
 					self::$calendar_transaction = true;
+					if ( class_exists( 'CSF_Billing_Booking' ) ) {
+						CSF_Billing_Booking::context( $payment ); }
 					try {
 						$result = in_array( $kind, CSF_Scheduling_Identity::COMMANDS, true ) ? CSF_Scheduling_Identity::apply( $kind, $payload, $row ) : ( in_array( $kind, CSF_Scheduling_Permissions::COMMANDS, true ) ? CSF_Scheduling_Permissions::apply( $kind, $payload ) : CSF_Scheduling_Calendar::apply( $kind, $payload, $row ) );
 						if ( ! $preview && in_array( $kind, array( 'appointment_saved', 'appointment_canceled', 'family_visit_saved', 'buffer_overridden' ), true ) ) {
 							CSF_Scheduling_Notifications::record( $kind, $result, $command );
 						}
 					} finally {
-						self::$calendar_transaction = false; }
+						self::$calendar_transaction = false;
+						if ( class_exists( 'CSF_Billing_Booking' ) ) {
+							CSF_Billing_Booking::context( null ); }
+					}
 					$entity             = $result['uuid'];
 					$result['revision'] = $revision + 1;
 				} else {

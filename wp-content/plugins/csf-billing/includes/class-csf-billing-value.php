@@ -88,11 +88,12 @@ final class CSF_Billing_Value {
 	 *
 	 * @param array $row Certificate row.
 	 * @param int   $rides Number of rides.
+	 * @param array $reserved Unavailable original ordinals.
 	 */
-	public static function debit( $row, $rides ) {
+	public static function debit( $row, $rides, $reserved = array() ) {
 		$v = self::read( $row );
 		CSF_Billing_Domain::need( true === $v['policy']['approved'] && null === $v['pending'], 'valuation_or_cash_hold' );
-		$slots = array_slice( array_values( array_diff( range( 0, (int) $row['purchased'] - 1 ), $v['used_slots'] ) ), 0, $rides );
+		$slots = array_slice( array_values( array_diff( range( 0, (int) $row['purchased'] - 1 ), array_merge( $v['used_slots'], $reserved ) ) ), 0, $rides );
 		CSF_Billing_Domain::need( count( $slots ) === $rides, 'insufficient_rides' );
 		$minor = 0;
 		foreach ( $slots as $slot ) {

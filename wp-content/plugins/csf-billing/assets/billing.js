@@ -45,6 +45,7 @@
       content.append(node('p', `Reference: ${data.order_id}`), node('p', `Status: ${data.status}`), node('p', data.package));
       if (data.certificate_number) {
         content.append(node('p', `Certificate: ${data.certificate_number}`), node('p', `Purchased rides: ${data.purchased}; redeemed: ${data.redeemed}; remaining: ${data.purchased - data.redeemed}.`));
+        if (data.reserved_rides) content.append(node('p', `Reserved rides: ${data.reserved_rides}; available rides: ${data.purchased - data.redeemed - data.reserved_rides}. Reserved value is not spent.`));
         if (data.value) { const v = data.value; const spent = v.used_slots.reduce((n, i) => n + v.allocation[i], 0); const remaining = v.paid_minor - spent - v.cash_paid_minor; content.append(node('p', `Paid value: $${(v.paid_minor / 100).toFixed(2)} USD; ride value used: $${(spent / 100).toFixed(2)}; cash paid (recorded): $${(v.cash_paid_minor / 100).toFixed(2)}; remaining value: $${(remaining / 100).toFixed(2)}.`)); if (v.pending) content.append(node('p', `Cash request ${v.pending.id}: ${v.pending.state}. Value is reserved, not yet recorded as paid. Rides and corrections are held.`)); if (!v.policy.approved) content.append(node('p', 'Ride valuation awaits approval. Paid value remains preserved.')); }
         if (!admin && data.printable_html) {
           const preview = node('iframe', null, {title: 'Printable test gift certificate', sandbox: 'allow-modals allow-same-origin', style: 'width:100%;height:650px;border:0'});
@@ -52,6 +53,14 @@
           content.append(button('Print or save this test certificate', async () => { preview.contentWindow.focus(); preview.contentWindow.print(); }));
         }
       }
+      if (data.status === 'issued' && (!admin || data.can_manage)) content.append(button('Download private test PDF', async () => {
+        const result = await api(admin ? 'private-pdf' : 'pdf', {order_id: data.order_id});
+        const bytes = Uint8Array.from(atob(result.pdf_base64), ch => ch.charCodeAt(0));
+        const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))).map(n => n.toString(16).padStart(2, '0')).join('');
+        if (digest !== result.sha256) throw new Error('Certificate file could not be verified.');
+        const url = URL.createObjectURL(new Blob([bytes], {type: 'application/pdf'}));
+        const link = node('a', 'Download', {href: url, download: 'gift-certificate-test.pdf'}); link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }));
       content.append(node('h4', `Accepted terms — ${data.terms.version}`), node('p', `Accepted: ${data.accepted_at}`), node('pre', data.terms.text, {class: 'csf-gift-terms'}));
       if (!admin && !['issued', 'frozen'].includes(data.status)) {
         if (['prepared', 'awaiting_approval', 'approved'].includes(data.status)) content.append(button('Resume PayPal sandbox approval', async () => {
@@ -99,6 +108,12 @@
           await api('correct', {command: correctionCommand, certificate_id: data.certificate_id, redemption_command: original.value.trim(), revision: data.revision, reason: reason.value});
           receipt(await api('detail', {order_id: data.order_id}), true);
         }); }); if (data.can_manage && original.options.length) content.append(correction);
+      }
+      if (data.certificate_id && data.can_manage) {
+        const rotation = node('form', null);
+        const attest = field(rotation, ' I reviewed a compromised number and need to invalidate it. The balance will stay on this certificate; replacement delivery remains held.', 'checkbox', {required: ''});
+        rotation.append(node('button', 'Replace compromised certificate number', {type: 'submit'})); const command = uuid();
+        rotation.addEventListener('submit', event => { event.preventDefault(); if (!attest.checked) return; run(async () => { await api('rotate', {command, certificate_id: data.certificate_id, revision: data.revision, attested: true}); receipt(await api('detail', {order_id: data.order_id}), true); }); }); content.append(rotation);
       }
       if (data.certificate_id && data.value && data.can_manage) {
         const v = data.value; const remaining = v.paid_minor - v.used_slots.reduce((n, i) => n + v.allocation[i], 0) - v.cash_paid_minor;

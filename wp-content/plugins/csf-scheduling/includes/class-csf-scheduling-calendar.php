@@ -820,6 +820,9 @@ class CSF_Scheduling_Calendar {
 				);
 			}
 		}
+		self::require( empty( $before['billing_certificate_id'] ) || class_exists( 'CSF_Billing_Booking' ), 'billing_participant_required' );
+		if ( class_exists( 'CSF_Billing_Booking' ) ) {
+			CSF_Billing_Booking::participate( $kind, $b, $before, $detail, $old['timezone'] ?? $p['timezone'] ); }
 		$next = self::document( 'details', $b['uuid'], $b['uuid'], $detail, $b['expected'] );
 		self::document(
 			'history',

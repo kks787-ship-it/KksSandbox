@@ -263,3 +263,12 @@ each intent to its issued certificate/order/audience and verify ciphertext/key r
 snapshot hashes, duplicates, sink records and missing intents. Do not adopt farm recovery or
 deploy this increment based on the previous schema3 CI run. Future booking reservations and
 number rotations will require a separately reviewed schema/ledger contract and failure matrix.
+
+Candidate follow-up now includes fulfillment-specific snapshot/held-intent/PDF/dispatch invariants,
+retired-number rotation chains and reservation projection checks in fulfillment_recovery.py.
+Combined synthetic seeding includes encrypted contacts, PDFs, sink receipts and uncertain
+dispatches. Damaged-capture cases run against capture alone and identical damaged pairs.
+Separate restored-key probes decrypt and validate these envelopes, reject missing/wrong keys
+and reject tampering without outputting private content. Reservation-to-real-scheduling-row
+equivalence and full rotation/booking damaged-history fixture coverage remain qualification
+gaps; the original protected contract/pins are unchanged. Do not adopt this as farm recovery.

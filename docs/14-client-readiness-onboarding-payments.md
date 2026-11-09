@@ -342,3 +342,60 @@ buyer eligibility/waivers, signature artwork authorization, scheduling wording, 
 recipients/from address, mail provider and PayPal sandbox qualification remain owner/operator
 inputs. Do not infer forfeiture, expiration, refund deadlines or installment authorization from
 the PDFs. Existing legal, sales, real-email, grants, MFA and deployment holds are unchanged.
+
+Latest editorial-source correction: In-house terms PDF `libfile_861a7ee2bb608191a746479c8d73777f`
+supersedes the previous terms draft, but is not blanket owner approval. Checkout/email PDF
+`libfile_2ce39a9d5b2081918a16b66d10afa6bc` is stale. Do not copy either into approved checkout
+configuration. Two annual late-cancellation makeups are proposed; timely/farm cancellations
+should not consume that allowance, and courtesy stacking is unresolved. Cash-on-demand wording,
+14-versus-30-day refund timing and new promises remain disputed; quarterly appendix stays held.
+Delivery outcomes must distinguish pending, failure and uncertainty; payment timeouts cannot
+assert no charge before reconciliation. Never place the certificate bearer number in email
+subjects. Partial refunds require reconciled remaining paid credit, not automatic closure or
+zeroing. Current provider refund handling freezes for review; it does not implement partial
+refund allocation or close remaining credit. These are constraints for the next increment,
+not newly approved business rules. Sales and real delivery remain disabled.
+
+### Continued local fulfillment and reservation candidate
+
+The next candidate adds a compiled one-page PDF renderer and encrypted persisted artifacts
+inside the billing ledger. Browser download is an authorized no-store POST with digest checks;
+no public uploads or bearer URLs are created. Reprints reuse the same artifact for that number
+generation. The renderer accepts bounded ASCII template text; unsupported text/overflow stays
+pending rather than silently changing it. Authorized PNG signatures require GD for PDF raster
+embedding; missing GD fails closed. Missing artwork is explicitly unsigned/pending and every
+artifact remains SANDBOX TEST, not valid for rides. Full exact UTF8 terms stay in the delivery
+bundle rather than being transliterated into the PDF. Production typography/accessibility and
+non-ASCII font support remain qualification work.
+
+A separate durable dispatch worker implements claim, synthetic acceptance, reconciliation,
+uncertain and superseded states. It is explicitly local-only and has no real mail adapter.
+Buyer bundles reference the persisted PDF and exact terms/receipt/instructions; administration
+gets a minimal sale record. Subjects omit bearer numbers. Stale/frozen number generations cannot
+be newly accepted. An uncertain attempt with no authoritative sink receipt is not retried.
+No delivered=true outcome exists. Actual provider delivery and uncertain-outcome reconciliation
+remain unqualified; do not substitute SMTP acceptance for receipt by a buyer.
+
+Private compromised-number rotation requires management/MFA, expected revision and explicit
+attestation. It retains the same certificate, paid balance, ride history and reservations,
+preserves a retired-number tombstone, audits old/new digests and invalidates stale dispatch.
+No actual refund, second sale, replenished credit or automatic external resend occurs.
+
+A default-off private booking participant now joins the scheduler's transaction after its
+facility lock and takes the billing lock on the same connection. Failed scheduler changes roll
+back reservations too. Explicit reviewed/versioned product-to-service and release-initiator
+policy is required; none is supplied by default. The first implementation supports one rider/ride
+per confirmed appointment, with exact package duration. It reserves original monetary/ride
+ordinals, excludes them from completed-ride/cash spending, completes them once after the lesson
+ends, and supports audited correction back to reservation. Cancellation releases only under
+the reservation's approved policy snapshot. No no-show forfeiture, timer-based expiration,
+quarterly, courtesy stacking or late-cancellation rule is inferred. Uncoordinated edits of
+bound appointments fail closed; the detail marker also prevents edits if billing is absent.
+Completion is recorded as billing_credit_state=used; existing scheduler appointment state stays
+confirmed (the scheduler has no separate completed state).
+
+Private POST commands and existing permissions/MFA are retained. Customer-facing certificate
+entry/identity/waiver authorization and multi-rider/family credit allocation are not enabled or
+qualified. The private participant must not be described as a completed public booking feature.
+A browser booking workflow and full scheduler-path integration/race coverage remain required;
+the added SQL probe isolates the transaction participant using a synthetic outer transaction.

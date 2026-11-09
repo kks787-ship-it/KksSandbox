@@ -11,10 +11,10 @@ final class CSF_Billing_HTTP {
 	public static function register() {
 		$actions = array();
 		if ( CSF_Billing_Config::enabled() ) {
-			$actions = array( 'session', 'prepare', 'create', 'capture', 'receipt' );
+			$actions = array( 'session', 'prepare', 'create', 'capture', 'receipt', 'pdf' );
 		}
 		if ( CSF_Billing_Config::enabled() || CSF_Billing_Config::management_enabled() ) {
-			$actions = array_merge( $actions, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash' ) );
+			$actions = array_merge( $actions, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash', 'rotate', 'private-pdf', 'booking' ) );
 		}
 		foreach ( $actions as $action ) {
 			register_rest_route(
@@ -63,12 +63,12 @@ final class CSF_Billing_HTTP {
 	public static function permit( $request ) {
 		try {
 			$action  = basename( $request->get_route() );
-			$private = in_array( $action, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash' ), true );
+			$private = in_array( $action, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash', 'rotate', 'private-pdf', 'booking' ), true );
 			CSF_Billing_Domain::need( CSF_Billing_Config::enabled() || ( $private && CSF_Billing_Config::management_enabled() ), 'sandbox_disabled' );
 			CSF_Billing_Session::origin( $request );
-			if ( in_array( $action, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash' ), true ) ) {
+			if ( in_array( $action, array( 'list', 'detail', 'redeem', 'correct', 'recover', 'cash', 'rotate', 'private-pdf', 'booking' ), true ) ) {
 				CSF_Billing_Domain::need( wp_verify_nonce( $request->get_header( 'x-wp-nonce' ), 'wp_rest' ), 'request_forbidden' );
-				CSF_Billing_Access::require_cap( 'redeem' === $action ? 'csf_billing_redeem' : ( in_array( $action, array( 'correct', 'recover', 'cash' ), true ) ? 'csf_billing_manage' : 'csf_billing_audit' ) );
+				CSF_Billing_Access::require_cap( in_array( $action, array( 'redeem', 'booking' ), true ) ? 'csf_billing_redeem' : ( in_array( $action, array( 'correct', 'recover', 'cash', 'rotate', 'private-pdf', 'booking' ), true ) ? 'csf_billing_manage' : 'csf_billing_audit' ) );
 			} elseif ( 'session' !== $action ) {
 				CSF_Billing_Domain::need( hash_equals( CSF_Billing_Session::csrf( CSF_Billing_Session::current() ), $request->get_header( 'x-csf-csrf' ) ), 'request_forbidden' );
 			}
@@ -150,6 +150,14 @@ final class CSF_Billing_HTTP {
 						'reviews' => $store->reviews(),
 					)
 				); }
+			if ( 'rotate' === $action ) {
+				return self::response( $service->rotate( $body['command'] ?? '', $body['certificate_id'] ?? '', $body['revision'] ?? null, $body['attested'] ?? false ) );
+			}
+			if ( 'booking' === $action ) {
+				$r = CSF_Billing_Booking::submit( $body['appointment'] ?? array(), $body['revision'] ?? null, $body['command'] ?? '', $body['transition'] ?? '', $body['certificate_number'] ?? '' );
+				CSF_Billing_Domain::need( ! is_wp_error( $r ), 'booking_unavailable' );
+				return self::response( $r );
+			}
 			if ( 'cash' === $action ) {
 				return self::response( $service->cash( $body['command'] ?? '', $body['certificate_id'] ?? '', $body['revision'] ?? null, $body['transition'] ?? '', $body['request'] ?? '', $body['amount_minor'] ?? null, $body['evidence'] ?? '', $body['attested'] ?? false ) );
 			}
@@ -162,7 +170,7 @@ final class CSF_Billing_HTTP {
 			if ( 'correct' === $action ) {
 				return self::response( $service->correct( $body['command'] ?? '', $body['certificate_id'] ?? '', $body['redemption_command'] ?? '', $body['revision'] ?? null, $body['reason'] ?? '' ) );
 			}
-			$session = 'detail' === $action ? null : CSF_Billing_Session::digest( CSF_Billing_Session::current() );
+			$session = in_array( $action, array( 'detail', 'private-pdf' ), true ) ? null : CSF_Billing_Session::digest( CSF_Billing_Session::current() );
 			if ( 'prepare' === $action ) {
 				$catalog  = CSF_Billing_Config::catalog();
 				$products = array_values(
@@ -177,6 +185,20 @@ final class CSF_Billing_HTTP {
 				return self::response( $service->prepare( $body['command'] ?? '', $session, $products[0], $catalog['terms'], $body ) );
 			}
 			$id = CSF_Billing_Domain::uuid( $body['order_id'] ?? '' );
+			if ( in_array( $action, array( 'pdf', 'private-pdf' ), true ) ) {
+				$artifact = CSF_Billing_PDF::document( $store, $id, $session );
+				$bytes    = CSF_Billing_Config::open( $artifact['sealed'] );
+				CSF_Billing_Domain::need( hash_equals( $artifact['sha256'], hash( 'sha256', $bytes ) ), 'pdf_unavailable' );
+				// Binary attachment encoding, never evaluated as code.
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				$encoded = base64_encode( $bytes );
+				return self::response(
+					array(
+						'pdf_base64' => $encoded,
+						'sha256'     => $artifact['sha256'],
+					)
+				);
+			}
 			if ( 'create' === $action ) {
 				$result = $service->checkout( $body['command'] ?? '', $id, $session );
 				return self::response(
@@ -188,7 +210,7 @@ final class CSF_Billing_HTTP {
 			}
 			if ( 'capture' === $action ) {
 				$service->capture( $body['command'] ?? '', $id, $session ); }
-			CSF_Billing_Domain::need( in_array( $action, array( 'capture', 'receipt', 'detail' ), true ), 'invalid_request' );
+			CSF_Billing_Domain::need( in_array( $action, array( 'capture', 'receipt', 'pdf', 'detail' ), true ), 'invalid_request' );
 			$result                       = $store->receipt( $id, $session );
 			$result['certificate_number'] = $result['number_sealed'] ? CSF_Billing_Config::open( $result['number_sealed'] ) : null;
 			unset( $result['number_sealed'] );

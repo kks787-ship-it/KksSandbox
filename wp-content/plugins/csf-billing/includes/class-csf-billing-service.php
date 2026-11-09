@@ -578,6 +578,78 @@ final class CSF_Billing_Service {
 		}
 	}
 
+	/** Invalidate a compromised bearer while preserving the certificate and every balance.
+	 *
+	 * @param string $command Idempotency UUID.
+	 * @param string $id Certificate UUID.
+	 * @param int    $revision Expected revision.
+	 * @param bool   $attested Explicit compromise review.
+	 */
+	public function rotate( $command, $id, $revision, $attested ) {
+		$actor = CSF_Billing_Access::require_cap( 'csf_billing_manage' );
+		CSF_Billing_Domain::uuid( $command );
+		CSF_Billing_Domain::uuid( $id );
+		CSF_Billing_Domain::need( is_int( $revision ) && true === $attested, 'rotation_review_required' );
+		return $this->store->command(
+			hash( 'sha256', 'rotate:' . $command ),
+			array(
+				'certificate_id' => $id,
+				'actor'          => $actor,
+				'revision'       => $revision,
+				'attested'       => true,
+			),
+			function ( $store ) use ( $id, $revision, $actor, $command ) {
+				$row = $store->row( 'certificates', $id );
+				CSF_Billing_Domain::need( $row && (int) $row['revision'] === $revision, 'rotation_conflict' );
+				$number = 'CSF-' . strtoupper( bin2hex( random_bytes( 16 ) ) );
+				$hash   = hash( 'sha256', $number );
+				CSF_Billing_Domain::need( $hash !== $row['number_hash'] && ! $store->find( 'certificates', 'number_hash', $hash ) && ! $store->row( 'commands', hash( 'sha256', 'retired_number:' . $hash ) ), 'rotation_conflict' );
+				$store->insert(
+					'commands',
+					array(
+						'id'           => hash( 'sha256', 'retired_number:' . $row['number_hash'] ),
+						'payload_hash' => hash( 'sha256', $id ),
+						'result'       => CSF_Billing_Domain::json(
+							array(
+								'certificate_id'   => $id,
+								'number_hash'      => $row['number_hash'],
+								'replacement_hash' => $hash,
+								'command'          => $command,
+							)
+						),
+						'created_at'   => gmdate( 'Y-m-d H:i:s' ),
+					)
+				);
+				$store->update(
+					'certificates',
+					$id,
+					array(
+						'number_hash'   => $hash,
+						'number_sealed' => CSF_Billing_Config::seal( $number ),
+						'revision'      => $revision + 1,
+					)
+				);
+				$store->audit(
+					'certificate_number_rotated',
+					$actor,
+					$id,
+					array(
+						'command'       => $command,
+						'previous_hash' => $row['number_hash'],
+						'number_hash'   => $hash,
+						'revision'      => $revision + 1,
+					)
+				);
+				return array(
+					'certificate_id' => $id,
+					'revision'       => $revision + 1,
+					'delivery'       => 'held',
+				);
+			},
+			static function () use ( $actor ) {
+				CSF_Billing_Domain::need( CSF_Billing_Access::require_cap( 'csf_billing_manage' ) === $actor, 'billing_access_required' ); }
+		);
+	}
 	/** Pure redemption proposal, shared by actual mutation and adversarial tests.
 	 *
 	 * @param array $row Current locked certificate row.
@@ -619,7 +691,7 @@ final class CSF_Billing_Service {
 			function ( $store ) use ( $id, $rides, $revision, $ride_reference, $actor, $command ) {
 				$row                  = $store->row( 'certificates', $id );
 				$update               = self::redemption( $row, $rides, $revision );
-				$value_debit          = CSF_Billing_Value::debit( $row, $rides );
+				$value_debit          = CSF_Billing_Value::debit( $row, $rides, CSF_Billing_Booking::slots( $store, $id ) );
 				$update['value_json'] = CSF_Billing_Domain::json( $value_debit['value'] );
 				$ride_key             = hash( 'sha256', 'ride:' . $id . ':' . $ride_reference );
 				CSF_Billing_Domain::need( ! $store->row( 'commands', $ride_key ), 'ride_already_recorded' );
@@ -690,6 +762,7 @@ final class CSF_Billing_Service {
 				$entry = $store->row( 'commands', hash( 'sha256', 'redeem:' . $original ) );
 				CSF_Billing_Domain::need( $row && $entry && (int) $row['revision'] === $revision, 'correction_conflict' );
 				$debit = json_decode( $entry['result'], true, 16, JSON_THROW_ON_ERROR );
+				CSF_Billing_Domain::need( empty( $debit['booking_uuid'] ), 'booking_correction_required' );
 				CSF_Billing_Domain::need( ( $debit['certificate_id'] ?? null ) === $id && ( $debit['command'] ?? null ) === $original && is_int( $debit['rides'] ?? null ) && $debit['rides'] > 0 && $debit['rides'] <= (int) $row['redeemed'], 'correction_conflict' );
 				$key = hash( 'sha256', 'reversed:' . $original );
 				CSF_Billing_Domain::need( ! $store->row( 'commands', $key ), 'already_corrected' );
@@ -761,6 +834,7 @@ final class CSF_Billing_Service {
 				CSF_Billing_Domain::need( $row && (int) $row['revision'] === $revision, 'cash_conflict' );
 				$v = CSF_Billing_Value::read( $row );
 				if ( 'reserve' === $action ) {
+					CSF_Billing_Domain::need( ! CSF_Billing_Booking::slots( $store, $id ), 'booking_value_reserved' );
 					CSF_Billing_Domain::need( 'active' === $row['status'] && null === $v['pending'] && CSF_Billing_Value::remaining( $v ) === $amount, 'cash_conflict' );
 					$key = hash( 'sha256', 'cash_request:' . $request );
 					CSF_Billing_Domain::need( ! $store->row( 'commands', $key ), 'cash_request_used' );

@@ -45,5 +45,29 @@ def money_checks(opener,base,nonce):
   check(call('state',id=id)['result']['revision']==2,'same command increments once')
   check(cash(id,2,'cancel_unpaid',request,101)['ok'],'confirmed unpaid release')
   check(not cash(id,3,'reserve',request,101)['ok'],'used reservation identity cannot restart')
+
+  id=ids['fulfillment'];p=call('pdf',id=id);check(p['ok'] and p['result']['valid'],'actual database persisted PDF')
+  check(call('pdf',id=id)==p,'actual database PDF stable replay')
+  command=uid();rotation=call('rotate',id=id,revision=1,command=command);check(rotation['ok'],'actual database number rotation')
+  check(call('rotate',id=id,revision=1,command=command)==rotation,'actual database rotation replay')
+  check(call('pdf',id=id)['result']['artifact_id']!=p['result']['artifact_id'],'actual replacement PDF generation')
+  check(call('state',id=id)['result']['value']['paid_minor']==101,'rotation preserves paid balance')
+  import datetime
+  start=datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(days=1);end=start+datetime.timedelta(hours=1)
+  body=dict(uuid=uid(),expected=0,title='Synthetic SQL booking',service_type='lesson',state='confirmed',start=start.isoformat(timespec='minutes'),end=end.isoformat(timespec='minutes'),hold_expires=None,resources=['synthetic'],riders=['synthetic'],rides=[{'horse':'synthetic'}])
+  id=ids['booking'];args=dict(id=id,body=body,transition='reserve',command=uid())
+  check(not call('booking_sql',**args,fail=True)['ok'],'actual outer rollback after reservation')
+  state=call('state',id=id)['result'];check(state['reserved']==[] and state['redeemed']==0 and state['revision']==1,'actual failed booking leaves credit unchanged')
+  check(call('booking_sql',**args)['ok'],'actual joined reservation')
+  state=call('state',id=id)['result'];check(len(state['reserved'])==1 and state['redeemed']==0,'actual reservation not consumption')
+  check(not cash(id,state['revision'],'reserve',uid(),101)['ok'],'actual cash cannot consume booking reservation')
+  # Spend remaining two slots, then race two bookings for a newly released last slot.
+  check(call('redeem',id=id,revision=state['revision'],rides=2,command=uid(),ride=uid())['ok'],'actual debit excludes reserved ordinal')
+  cancel=dict(uuid=body['uuid'],state='canceled',initiator='facility')
+  check(call('booking_sql',id=id,body=cancel,transition='cancel',command=uid())['ok'],'actual cancellation releases reserved value')
+  with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+   futures=[pool.submit(call,'booking_sql',id=id,body=dict(body,uuid=uid()),transition='reserve',command=uid()) for _ in range(2)];results=[f.result() for f in futures]
+  check(sum(r['ok'] for r in results)==1,'actual two-worker last-slot reservation has one winner')
+  state=call('state',id=id)['result'];check(len(state['reserved'])==1 and state['redeemed']==2,'actual race preserves reserved and used balances')
  finally:check(call('cleanup')['ok'],'scratch financial tables removed')
  return count

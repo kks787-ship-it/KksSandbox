@@ -113,6 +113,22 @@ final class CSF_Billing_Store {
 			$wpdb->suppress_errors( $previous );
 		}
 	}
+	/** Enroll under the scheduler lock using the same WordPress DB connection.
+	 *
+	 * @param callable $callback Billing transaction participant.
+	 */
+	public function join_calendar( $callback ) {
+		global $wpdb;
+		CSF_Billing_Domain::need( ! $this->active && class_exists( 'CSF_Scheduling_Store' ) && CSF_Scheduling_Store::in_calendar_transaction(), 'outer_transaction_required' );
+		$this->ready();
+		$version = $wpdb->get_var( $wpdb->prepare( 'SELECT schema_version FROM %i WHERE id=1 FOR UPDATE', $this->table( 'guard' ) ) );
+		CSF_Billing_Domain::need( '3' === (string) $version, 'billing_schema_unavailable' );
+		$this->active = true;
+		try {
+			return $callback( $this );
+		} finally {
+			$this->active = false; }
+	}
 	/** Read a consistent authorized snapshot without accumulating replay receipts.
 	 *
 	 * @param callable      $callback Bounded read callback.
@@ -214,6 +230,7 @@ final class CSF_Billing_Store {
 					'certificate_id' => $cert['id'] ?? null,
 					'value'          => $cert ? CSF_Billing_Value::read( $cert ) : null,
 					'number_sealed'  => $cert['number_sealed'] ?? null,
+					'reserved_rides' => $cert ? count( CSF_Billing_Booking::slots( $store, $cert['id'] ) ) : 0,
 					'purchased'      => isset( $cert['purchased'] ) ? (int) $cert['purchased'] : 0,
 					'redeemed'       => isset( $cert['redeemed'] ) ? (int) $cert['redeemed'] : 0,
 					'revision'       => isset( $cert['revision'] ) ? (int) $cert['revision'] : 0,

@@ -367,3 +367,17 @@ plugin PHP syntax lint, billing JavaScript syntax and git diff whitespace checks
 Composer dependencies were installed without changing composer.lock. Browser test caught and
 fixed the theme selector's accessible-name issue. These are local results, not a rerun of the
 previous exact-head CI evidence.
+
+## Continued PDF/dispatch/rotation/reservation candidate (local results)
+
+Added 21 synthetic PDF/dispatch/rotation assertions and 16 simulated-transaction booking
+participant assertions. Existing 300 service, 69 fulfillment, monetary45, browser10 and cashUI14
+regressions retained. An independent Poppler parser recognizes the generated PDF as one page,
+PDF1.4, without JavaScript/forms; a raster rendering was inspected. This is not final visual
+owner acceptance. PHP8.1/8.3 CI and new combined recovery/real-SQL probes are pending at commit.
+
+New real SQL fixture (not yet claimed passing here) uses scratch tables and genuine existing
+restored MFA/nonce, exercising persisted PDF replay, rotation replay, joined reservation rollback,
+cash exclusion and two-worker last-slot races. It sets an internal calendar transaction marker
+only within the guarded synthetic probe; it does not test the full scheduler availability or
+private/public UI path and does not bypass MFA. Public booking stays held.
