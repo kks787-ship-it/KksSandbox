@@ -269,6 +269,6 @@ retired-number rotation chains and reservation projection checks in fulfillment_
 Combined synthetic seeding includes encrypted contacts, PDFs, sink receipts and uncertain
 dispatches. Damaged-capture cases run against capture alone and identical damaged pairs.
 Separate restored-key probes decrypt and validate these envelopes, reject missing/wrong keys
-and reject tampering without outputting private content. Reservation-to-real-scheduling-row
-equivalence and full rotation/booking damaged-history fixture coverage remain qualification
-gaps; the original protected contract/pins are unchanged. Do not adopt this as farm recovery.
+and reject tampering without outputting private content. The follow-up seeds a rotation plus a reservation linked to an actual synthetic scheduling
+row and validates its current state and audit chain. Full completed/corrected/canceled booking
+history and every dispatch state still need expanded fixture coverage and independent review; the original protected contract/pins are unchanged. Do not adopt this as farm recovery.

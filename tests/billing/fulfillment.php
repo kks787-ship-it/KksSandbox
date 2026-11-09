@@ -50,7 +50,7 @@ $msg=json_decode(CSF_Billing_Config::open($sealed['sealed']),true);
 check(!isset($msg['certificate_html'])&&!str_contains(json_encode($msg),$receipt['certificate_number'])&&!str_contains(json_encode($msg),'buyer@fixture.invalid'),'administration minimizes bearer and personal data');
 check(!str_contains(json_encode($fs->tables),'buyer@fixture.invalid')&&!str_contains(json_encode($fs->tables),$receipt['certificate_number']),'no plaintext contact or certificate in stored sink');
 // Transparent one-pixel synthetic fixture, not a person's signature.
-$png='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Wl6XEYAAAAASUVORK5CYII=';
+$png='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=';
 define('CSF_BILLING_SIGNATURE_JSON',json_encode(['authorized'=>true,'authorization_ref'=>'SYNTHETIC-ONLY','png_base64'=>$png,'sha256'=>hash('sha256',base64_decode($png))]));
 $snapshot=CSF_Billing_Fulfillment::snapshot(CSF_Billing_Fulfillment::selection($choice));
 check(!str_contains(json_encode($snapshot),$png),'signature bytes encrypted at rest');

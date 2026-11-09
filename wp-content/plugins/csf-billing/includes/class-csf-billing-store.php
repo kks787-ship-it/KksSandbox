@@ -179,7 +179,7 @@ final class CSF_Billing_Store {
 	 */
 	public function find( $table, $field, $value ) {
 		global $wpdb;
-		CSF_Billing_Domain::need( $this->active && ( ( 'orders' === $table && 'provider_order_id' === $field ) || ( 'certificates' === $table && 'order_id' === $field ) ), 'transaction_required' );
+		CSF_Billing_Domain::need( $this->active && ( ( 'orders' === $table && 'provider_order_id' === $field ) || ( 'certificates' === $table && in_array( $field, array( 'order_id', 'number_hash' ), true ) ) ), 'transaction_required' );
 		$row = $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM %i WHERE %i = %s', $this->table( $table ), $field, $value ), ARRAY_A );
 		CSF_Billing_Domain::need( '' === $wpdb->last_error, 'ledger_unavailable' );
 		return $row;

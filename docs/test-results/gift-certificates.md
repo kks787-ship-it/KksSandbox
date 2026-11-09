@@ -357,8 +357,8 @@ width and generated PDF bytes; checkout API fully mocked, no real WordPress/MFA/
 New issuance queues two held intents atomically. Tests cover replay, encrypted contact/signature,
 invalid inputs, payment-status rendering denial, escaping, audit-failure rollback, sink replay,
 minimal administration bundle and no plaintext code/contact in sink storage. Transparent synthetic
-PNG fixture is not Beth artwork. No mail transport, customer booking reservation, number rotation
-or stored PDF delivery is implemented. PHP8.1/8.3 CI, real database concurrency, complete WordPress
+PNG fixture is not Beth artwork. At this historical increment, no mail transport, customer booking reservation, number rotation
+or stored PDF delivery was implemented; the subsequent increment below supersedes that status. PHP8.1/8.3 CI, real database concurrency, complete WordPress
 REST/MFA and expanded recovery invariants must be rerun/extended for this increment. Previous
 passing head evidence does not qualify these changes.
 
@@ -381,3 +381,31 @@ restored MFA/nonce, exercising persisted PDF replay, rotation replay, joined res
 cash exclusion and two-worker last-slot races. It sets an internal calendar transaction marker
 only within the guarded synthetic probe; it does not test the full scheduler availability or
 private/public UI path and does not bypass MFA. Public booking stays held.
+
+
+Recovery follow-up: draft head3d263acc/treef91df674 packages the fulfillment modules in the
+isolated image and adds a third issued certificate with a rotated number and a reservation
+linked to an actual synthetic scheduler row. Candidate qualification binds issuance/rotation
+history, retired codes, reservation transition history and scheduler detail/state; 28 damaged
+fulfillment capture/pair checks are scheduled. CI run12 on00a284c passed both PHP versions and
+unchanged qualified recovery but failed combined startup because a module was omitted from
+its image; no combined pass is claimed. Run13 is pending. Exact final outcomes belong in PR27.
+
+Local follow-up: dispatch21 and simulated-booking16 rerun passed, as did fulfillment browser10
+and cash UI14. Poppler visual inspection found proportional font substitution spacing defects;
+standard Courier fixed the inspected landscape PDF. Stored artifacts remain encrypted in the
+ledger; downloaded PDF bytes are ordinary bearer documents and must be handled privately.
+Signature raster rendering still requires GD and authorized artwork; actual Beth artwork and
+final designs are not qualified. No real sending, financial movement, farm access or deployment.
+
+Additional PDF fail-closed tests bring dispatch/rotation assertions to24: unsupported non-ASCII
+text, layout overflow, and authorized synthetic raster handling. Both GD-present and GD-absent
+paths passed on temporary official PHP8.4.27; the old synthetic PNG was corrupt and replaced
+with a generated transparent pixel. This is not testing Beth artwork or qualifying final design.
+
+Run13 on3d263acc passed both PHP jobs and unchanged recovery. Combined recovery passed all
+33-table restore, schema279/monetary20/fulfillment28 damaged capture checks, key/tamper,
+source isolation and genuine restored MFA, then failed the real number-rotation service probe.
+The real Store lookup allowlist omitted number_hash (the mock did not); this also blocked
+reservations. The narrow indexed field was added. The same real SQL probes must pass on the
+next exact head; no combined success is claimed for run13.

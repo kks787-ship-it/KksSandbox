@@ -73,7 +73,7 @@ final class CSF_Billing_PDF {
 			$stream .= "BT /F1 12 Tf 50 $y Td (" . self::literal( $line ) . ") Tj ET\n";
 			$y      -= 18;
 		}
-		$objects = array( '<< /Type /Catalog /Pages 2 0 R >>', '<< /Type /Pages /Kids [3 0 R] /Count 1 >>', '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /Font << /F1 4 0 R >>' . ( null === $image ? '' : ' /XObject << /Sig 6 0 R >>' ) . ' >> /Contents 5 0 R >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>', '<< /Length ' . strlen( $stream ) . ">>\nstream\n" . $stream . 'endstream' );
+		$objects = array( '<< /Type /Catalog /Pages 2 0 R >>', '<< /Type /Pages /Kids [3 0 R] /Count 1 >>', '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /Font << /F1 4 0 R >>' . ( null === $image ? '' : ' /XObject << /Sig 6 0 R >>' ) . ' >> /Contents 5 0 R >>', '<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>', '<< /Length ' . strlen( $stream ) . ">>\nstream\n" . $stream . 'endstream' );
 		if ( null !== $image ) {
 			$objects[] = "<< /Type /XObject /Subtype /Image /Width $width /Height $height /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length " . strlen( $image ) . ">>\nstream\n" . $image . "\nendstream";
 		}

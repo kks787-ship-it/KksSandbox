@@ -24,4 +24,16 @@ check(CSF_Billing_Dispatch::step($fs,$admin['dispatch_id'],$admin['attempt'],tru
 $newPdf=CSF_Billing_PDF::document($fs,$oid,$session);check($newPdf['artifact_id']!==$pdf['artifact_id'],'replacement artifact same balance new bearer');
 $wpdb->allow=false;rejected(fn()=>$svc->rotate($rotation,$cid,(int)$original['revision'],true),'revoked actor rotation replay');rejected(fn()=>CSF_Billing_Dispatch::claim($fs,$oid,'buyer'),'revoked actor dispatch replay');$wpdb->allow=true;
 check(!str_contains(json_encode($fs->tables),$oldNumber),'no plaintext retired bearer');
+// Printable output must fail closed rather than silently omit unsupported content.
+$plainReceipt=array_replace($receipt,['presentation'=>$doc['fulfillment'],'package'=>'Synthetic printable package']);
+rejected(fn()=>CSF_Billing_PDF::render(array_replace($plainReceipt,['package'=>'Non-ASCII café'])),'unsupported PDF text remains pending');
+$long=$plainReceipt;$long['presentation']['instructions']=str_repeat('Long synthetic instructions. ',100);
+rejected(fn()=>CSF_Billing_PDF::render($long),'PDF overflow remains pending');
+$signed=$plainReceipt;$signed['presentation']=$snapshot;
+if(!function_exists('imagecreatefromstring')||!function_exists('imagejpeg')){
+ rejected(fn()=>CSF_Billing_PDF::render($signed),'signature renderer missing fails closed');
+}else{
+ // This fixture is an authorized synthetic pixel only, never Beth artwork.
+ $signedBytes=CSF_Billing_PDF::render($signed);check(str_contains($signedBytes,'/Subtype /Image'),'authorized synthetic raster embedded');
+}
 echo 'DISPATCH_ROTATION_ASSERTIONS='.($count-$before)."\n";
