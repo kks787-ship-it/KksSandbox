@@ -3,7 +3,7 @@
 define( 'ABSPATH', __DIR__ . '/' );
 function esc_html($s) { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
 function wp_json_encode($v,$f=0) { return json_encode($v,$f); }
-foreach (array('failure','domain','value','config','access','fulfillment','pdf','mime','dispatch','booking') as $module) { require __DIR__ . '/../../wp-content/plugins/csf-billing/includes/class-csf-billing-'.$module.'.php'; }
+foreach (array('failure','domain','value','config','access','fulfillment','pdf','mime','dispatch','booking','offer') as $module) { require __DIR__ . '/../../wp-content/plugins/csf-billing/includes/class-csf-billing-'.$module.'.php'; }
 require __DIR__ . '/../../wp-content/plugins/csf-billing/includes/class-csf-billing-service.php';
 define( 'CSF_BILLING_DATA_KEY', base64_encode( str_repeat( 'x', 32 ) ) );
 $count = 0;

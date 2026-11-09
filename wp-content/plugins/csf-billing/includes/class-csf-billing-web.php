@@ -32,6 +32,24 @@ final class CSF_Billing_Web {
 	 * @param string $hook Optional admin screen identifier.
 	 */
 	public static function assets( $hook = '' ) {
+		if ( is_admin() && 'toplevel_page_csf-scheduling' === $hook && CSF_Billing_Offer::enabled() && CSF_Billing_Config::management_enabled() ) {
+			try {
+				CSF_Billing_Access::require_cap( 'csf_billing_manage' );
+				CSF_Billing_Access::require_cap( 'csf_billing_redeem' );
+				wp_enqueue_script( 'csf-billing-offers', plugins_url( '../assets/booking-offers.js', __FILE__ ), array( 'csf-scheduling-routine' ), CSF_BILLING_VERSION, true );
+				wp_add_inline_script(
+					'csf-billing-offers',
+					'window.CSFBillingOffers=' . wp_json_encode(
+						array(
+							'api'   => rest_url( 'csf-billing/v1/' ),
+							'nonce' => wp_create_nonce( 'wp_rest' ),
+						)
+					) . ';',
+					'before'
+				);
+			} catch ( CSF_Billing_Failure $error ) {
+				return; }
+		}
 		if ( ! ( CSF_Billing_Config::enabled() || ( is_admin() && CSF_Billing_Config::management_enabled() ) ) || ( is_admin() && 'toplevel_page_csf-gift-certificates' !== $hook ) ) {
 			return; }
 		$base = dirname( __DIR__ ) . '/csf-billing.php';

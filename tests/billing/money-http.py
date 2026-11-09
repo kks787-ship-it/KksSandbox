@@ -101,5 +101,20 @@ def money_checks(opener,base,nonce):
   cancel_id=uid();canceled=command(cancel,revision,'cancel',cancel_id);check(canceled['ok'] and canceled['result']['committed'],'real reviewed facility cancellation commits')
   released=call('state',id=id)['result'];check(status()['appointment']['state']=='canceled' and released['redeemed']==0 and released['reserved']==[],'real cancellation leaves no stranded reserved credit')
   check(command(cancel,revision,'cancel',cancel_id)==canceled,'real cancellation exact replay')
+
+  offered=dict(fixture['result']['body'],uuid=uid(),expected=0);offer=uid();revision=status()['revision'];credit=call('state',id=id)['result']
+  r=call('calendar_offer_create',id=id,body=offered,revision=revision,command=offer);check(r['ok'] and not r['result']['reserved'],'real reviewed offer reserves nothing')
+  check(not call('calendar_offer_view',id=id,offer=offer,session='b'*64)['ok'],'real offer rejects wrong buyer session')
+  view=call('calendar_offer_view',id=id,offer=offer);check(view['ok'] and 'riders' not in view['result'] and 'resources' not in view['result'],'real customer view excludes private scheduler identities')
+  r=call('calendar_offer_confirm',id=id,offer=offer,revision=revision,command=uid());check(r['ok'] and not r['result']['committed'],'real confirmation requires buyer consent')
+  check(not call('calendar_offer_accept',id=id,offer=offer,command=uid(),attested=True,wrong_number=True)['ok'],'real buyer certificate mismatch rejected')
+  consent=uid();r=call('calendar_offer_accept',id=id,offer=offer,command=consent,attested=True);check(r['ok'],'real buyer certificate consent accepted')
+  check(call('calendar_offer_accept',id=id,offer=offer,command=consent,attested=True)==r,'real customer consent replay exact')
+  check(call('state',id=id)['result']==credit,'real buyer consent leaves available credit unchanged')
+  r=call('calendar_offer_confirm',id=id,offer=offer,revision=revision,command=uid(),fault='history');check(r['ok'] and not r['result']['committed'],'consented real booking late failure rejected')
+  check(call('state',id=id)['result']==credit and call('calendar_offer_view',id=id,offer=offer)['result']['state']=='awaiting_staff_confirmation','late failure rolls back offer consumption and credit together')
+  confirm=uid();r=call('calendar_offer_confirm',id=id,offer=offer,revision=revision,command=confirm);check(r['ok'] and r['result']['committed'],'staff confirms exact buyer-consented lesson through real scheduler')
+  check(call('calendar_offer_confirm',id=id,offer=offer,revision=revision,command=confirm)==r,'real consented booking replay exact')
+  state=call('state',id=id)['result'];check(len(state['reserved'])==1 and state['redeemed']==0 and call('calendar_offer_view',id=id,offer=offer)['result']['state']=='reserved','customer state reconciles confirmed reservation without consumption')
  finally:check(call('cleanup')['ok'],'scratch financial tables removed')
  return count

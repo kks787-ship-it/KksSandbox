@@ -39,6 +39,24 @@
       catch (error) { status.textContent = error.message; status.setAttribute('role', 'alert'); }
       finally { busy = false; root.removeAttribute('aria-busy'); }
     };
+    const offerFlow = (data, admin) => {
+      const form = node('form', null); const offer = field(form, 'Staff lesson offer reference', 'text', {required: '', autocomplete: 'off'});
+      form.append(node('button', 'Review lesson offer', {type: 'submit'})); content.append(form);
+      const panel = node('div', null); content.append(panel);
+      form.addEventListener('submit', event => { event.preventDefault(); run(async () => {
+        const id = offer.value.trim(); const reviewed = await api(admin ? 'offer-review' : 'booking-offer', {order_id: data.order_id, offer_id: id});
+        panel.replaceChildren(node('p', `${reviewed.service}: ${reviewed.start} → ${reviewed.end}. Status: ${reviewed.state}.`));
+        if (admin && reviewed.state === 'awaiting_staff_confirmation') {
+          panel.append(button('Confirm this consented lesson', async () => { await api('offer-confirm', {order_id:data.order_id,offer_id:id,revision:reviewed.revision,command:confirmation}); panel.replaceChildren(node('p','Lesson confirmation recorded. Credit is reserved, not consumed.')); }));
+          const confirmation = uuid();
+        } else if (!admin && reviewed.consent_required) {
+          const consent = node('form', null); const number = field(consent, 'Certificate number for this lesson', 'text', {required:'',autocomplete:'off',spellcheck:'false'});
+          const agree = field(consent, ' I request use of this certificate for the exact lesson shown. Staff must confirm it; this request does not reserve a lesson or consume credit.', 'checkbox', {required:''});
+          consent.append(node('button','Request certificate-funded lesson',{type:'submit'})); panel.append(consent); const command = uuid();
+          consent.addEventListener('submit', event => { event.preventDefault(); if(!agree.checked)return; run(async()=>{const code=number.value.trim();number.value='';const result=await api('booking-consent',{order_id:data.order_id,offer_id:id,command,certificate_number:code,attested:true});panel.replaceChildren(node('p',`Status: ${result.state}. No card payment was requested. Review status before retrying.`));}); });
+        }
+      }); });
+    };
     const receipt = (data, admin = false) => {
       content.replaceChildren();
       const title = node('h3', 'Purchase record', {tabindex: '-1'}); content.append(title);
@@ -76,6 +94,7 @@
         content.append(button('Start a separate test purchase', async () => { sessionStorage.removeItem('csf-gift-pending'); await start(); }));
       }
       if (data.status === 'frozen') content.append(node('p', 'Certificate use is on hold. Contact Beth with the purchase reference.'));
+      if(data.status==='issued' && data.booking_requests_enabled && (!admin || data.can_manage)) offerFlow(data,admin);
       if (admin) adminActions(data);
       title.focus();
     };

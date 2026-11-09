@@ -12,7 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 define( 'CSF_BILLING_VERSION', '0.3.0-dev' );
-foreach ( array( 'failure', 'domain', 'value', 'config', 'session', 'access', 'schema', 'store', 'paypal', 'fulfillment', 'pdf', 'mime', 'dispatch', 'booking', 'service', 'http', 'web' ) as $csf_billing_module ) {
+foreach ( array( 'failure', 'domain', 'value', 'config', 'session', 'access', 'schema', 'store', 'paypal', 'fulfillment', 'pdf', 'mime', 'dispatch', 'booking', 'offer', 'service', 'http', 'web' ) as $csf_billing_module ) {
 	require_once __DIR__ . '/includes/class-csf-billing-' . $csf_billing_module . '.php';
 }
 unset( $csf_billing_module );

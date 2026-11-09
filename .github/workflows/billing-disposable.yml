@@ -34,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           docker build --build-arg CSF_TEST_PHP_VERSION="$BILLING_PHP" -t csf-billing-contracts tests/scheduling
-          for suite in domain service value fulfillment dispatch mime booking schema session recovery-missing-key; do
+          for suite in domain service value fulfillment dispatch mime booking offer schema session recovery-missing-key; do
             docker run --rm --network none --read-only -v "$PWD:/repo:ro" -w /repo csf-billing-contracts php "tests/billing/$suite.php"
           done
           bash tests/scripts/development-guards.sh

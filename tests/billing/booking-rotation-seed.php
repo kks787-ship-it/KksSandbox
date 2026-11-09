@@ -31,6 +31,15 @@ $store->command(hash('sha256','synthetic_lifecycle:'.$certificate),array('synthe
  $s->audit('ride_debit_corrected',0,$certificate,array('original_command'=>$completion,'rides'=>1,'slots'=>array(1),'value_minor'=>6173,'reason'=>'mistaken_ride'));
  $r['state']='reserved';$r['revision']=3;$s->audit('booking_credit_correct',0,$certificate,array('booking_uuid'=>$booking,'reservation'=>$r,'initiator'=>null));$all[$booking]=$r;$s->update('commands',$key,array('result'=>CSF_Billing_Domain::json($all)));return array('corrected'=>true);
 });
+// Three synthetic immutable offers: prepared, consented, and transactionally bound history.
+$store->command(hash('sha256','synthetic_offers:'.$certificate),array(),static function($s)use($certificate,$booking,$detail){
+ $c=$s->row('certificates',$certificate);$d=json_decode($s->row('orders',$c['order_id'])['document'],true);$body=json_decode($detail['body_json'],true);$body['uuid']=$booking;$plain=CSF_Billing_Domain::json($body);$bodyHash=hash('sha256',$plain);
+ $insert=static function($key,$r,$hash=null)use($s){$json=CSF_Billing_Domain::json($r);$s->insert('commands',array('id'=>hash('sha256',$key),'payload_hash'=>$hash??hash('sha256',$json),'result'=>$json,'created_at'=>gmdate('Y-m-d H:i:s')));};
+ for($i=0;$i<3;$i++){$id=wp_generate_uuid4();$o=array('version'=>1,'offer_id'=>$id,'order_id'=>$c['order_id'],'certificate_id'=>$certificate,'number_hash'=>$c['number_hash'],'body_sha256'=>$bodyHash,'policy_sha256'=>hash('sha256','synthetic policy'),'body_sealed'=>CSF_Billing_Config::seal($plain),'actor'=>1);$insert('booking_offer:'.$id,$o,$bodyHash);$s->audit('booking_offer_created',1,$certificate,array('offer_id'=>$id,'body_sha256'=>$bodyHash));
+ if($i>0){$consent=array('version'=>1,'offer_id'=>$id,'certificate_id'=>$certificate,'number_hash'=>$c['number_hash'],'body_sha256'=>$bodyHash,'terms_sha256'=>$d['terms']['sha256'],'accepted_at'=>gmdate('c'));$insert('booking_consent:'.$id,$consent);$s->audit('booking_offer_consented',0,$certificate,array('offer_id'=>$id,'body_sha256'=>$bodyHash));}
+ if($i===2){$r=array('offer_id'=>$id,'certificate_id'=>$certificate,'booking_uuid'=>$booking,'command'=>wp_generate_uuid4());$insert('booking_offer_consumed:'.$id,$r,$bodyHash);$s->audit('booking_offer_confirmed',1,$certificate,$r);}}
+ return array('synthetic_offers'=>3);
+});
 $rotation=wp_generate_uuid4();$newNumber='CSF-'.strtoupper(bin2hex(random_bytes(16)));
 $store->command(hash('sha256','rotate:'.$rotation),array('synthetic'=>$rotation),static function($s)use($certificate,$rotation,$newNumber){
  $r=$s->row('certificates',$certificate);$hash=hash('sha256',$newNumber);

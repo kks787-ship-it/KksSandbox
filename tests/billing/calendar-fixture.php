@@ -1,7 +1,7 @@
 <?php
 /** Real scheduler command probes, only within money-fixture's authenticated disposable scope. */
 if(getenv('CSF_SYNTHETIC_RESTORE')!=='container-only'||!is_file('/.dockerenv')||ABSPATH!=='/tmp/csf-combined-restored/'||DB_NAME!=='billing_restore'||!preg_match('/^money_probe_[a-f0-9]{16}_$/D',$wpdb->prefix)){throw new RuntimeException('Synthetic scheduler only');}
-define('CSF_BILLING_BOOKING_ENABLED',true);define('CSF_BILLING_BOOKING_POLICY_JSON',wp_json_encode(array('version'=>'synthetic-only','approved'=>true,'products'=>array('11111111-1111-4111-8111-111111111111'=>array('lesson')),'release_initiators'=>array('facility'))));
+define('CSF_BILLING_CUSTOMER_BOOKING_ENABLED',true);define('CSF_BILLING_BOOKING_ENABLED',true);define('CSF_BILLING_BOOKING_POLICY_JSON',wp_json_encode(array('version'=>'synthetic-only','approved'=>true,'products'=>array('11111111-1111-4111-8111-111111111111'=>array('lesson')),'release_initiators'=>array('facility'))));
 function calendar_probe_ok($r){if(is_wp_error($r))throw new CSF_Billing_Failure('synthetic_scheduler_'.($r->get_error_data()['reason']??$r->get_error_code()));return $r;}
 function calendar_probe_rev(){return (int)CSF_Scheduling_Schema::settings()['revision'];}
 function calendar_probe_save($kind,$data,$uuid=null){$uuid=$uuid??wp_generate_uuid4();calendar_probe_ok(CSF_Scheduling_Store::calendar($kind,array('uuid'=>$uuid,'expected'=>0,'data'=>$data),calendar_probe_rev(),wp_generate_uuid4()));return $uuid;}
@@ -10,7 +10,7 @@ if($action==='calendar_setup'){
  // Scratch registry and scratch-only mirror, not grants on the restored/farm facility.
  $s=CSF_Scheduling_Permissions::initial();$s['master']=1;$s['members'][1]=array('group'=>'read_only','overrides'=>array(),'resources'=>array(),'active'=>true,'verified'=>true);
  $wpdb->update(CSF_Scheduling_Schema::table('authorization'),array('registry_json'=>wp_json_encode($s)),array('id'=>1));
- $mirror=array();foreach(CSF_Scheduling_Permissions::registry() as $permission=>$label)$mirror['csf_dr_'.$permission]=true;
+ $mirror=array();foreach(CSF_Scheduling_Permissions::effective($s,1) as $permission=>$allowed)$mirror['csf_dr_'.$permission]=$allowed;
  add_user_meta(1,$wpdb->prefix.'capabilities',$mirror,true);
  $p=CSF_Scheduling_Policy::defaults();$p['timezone']='UTC';$p['service_hours']=array_fill(0,7,array(array('06:00','22:00')));$p['training_horse_cap']=5;$p['academy']=array('enabled'=>false);$p['workload']=array('daily_minutes'=>300,'consecutive_minutes'=>120,'break_minutes'=>15);$p['travel_buffer_minutes']=15;
  $p['services']['lesson']=array('enabled'=>true,'capacity'=>1,'duration_minutes'=>60,'horse_source'=>'school','requires_travel'=>false,'required_resources'=>array('instructor','arena','horse'));
@@ -21,13 +21,19 @@ if($action==='calendar_setup'){
  $start=gmdate('Y-m-d\T12:00+00:00',time()+86400);$end=gmdate('Y-m-d\T13:00+00:00',time()+86400);
  $body=array('uuid'=>wp_generate_uuid4(),'expected'=>0,'title'=>'Synthetic funded lesson','service_type'=>'lesson','state'=>'confirmed','start'=>$start,'end'=>$end,'hold_expires'=>null,'resources'=>array($resources['instructor'],$resources['arena']),'riders'=>array($rider),'rides'=>array(array('horse'=>$horse,'rider'=>$rider,'start'=>$start,'end'=>$end)));
  $result=array('body'=>$body,'revision'=>calendar_probe_rev());
-}elseif($action==='calendar_command'){
+}elseif(in_array($action,array('calendar_offer_create','calendar_offer_accept','calendar_offer_view'),true)){
+ $cert=$store->snapshot(static fn($s)=>$s->row('certificates',$input['id']));$order=$cert['order_id'];
+ if($action==='calendar_offer_create')$result=CSF_Billing_Offer::create($store,$input['command'],$order,$input['body'],$input['revision']);
+ elseif($action==='calendar_offer_view')$result=CSF_Billing_Offer::view($store,$input['offer'],$order,$input['session']??str_repeat('a',64));
+ else $result=CSF_Billing_Offer::accept($store,$input['command'],$input['offer'],$order,$input['session']??str_repeat('a',64),!empty($input['wrong_number'])?'CSF-'.str_repeat('B',32):CSF_Billing_Config::open($cert['number_sealed']),$input['attested']??false);
+}elseif($action==='calendar_command'||$action==='calendar_offer_confirm'){
  $fault=null;$mode=$input['fault']??'';
  if($mode==='history'){$target='INSERT INTO `'.CSF_Scheduling_Schema::table('history').'`';$fault=static fn($sql)=>str_starts_with($sql,$target)?'SELECT * FROM nonexistent_synthetic_history_fault':$sql;}
  if($mode==='lost_commit'){$fault=static function($sql)use(&$fault){if($sql==='COMMIT'){remove_filter('query',$fault);global $wpdb;$wpdb->query('COMMIT');return 'SELECT * FROM nonexistent_synthetic_ack_fault';}return $sql;};}
  if($fault)add_filter('query',$fault);
  try{
-  if($input['transition']==='cancel')$r=CSF_Scheduling_Store::calendar('appointment_canceled',$input['body'],$input['revision'],$input['command']);
+  if($action==='calendar_offer_confirm'){$cert=$store->snapshot(static fn($s)=>$s->row('certificates',$input['id']));$r=CSF_Billing_Offer::confirm($store,$input['offer'],$cert['order_id'],$input['revision'],$input['command']);}
+  elseif($input['transition']==='cancel')$r=CSF_Scheduling_Store::calendar('appointment_canceled',$input['body'],$input['revision'],$input['command']);
   else{$c=$store->snapshot(static fn($s)=>$s->row('certificates',$input['id']));$number=CSF_Billing_Config::open($c['number_sealed']);$r=CSF_Billing_Booking::submit($input['body'],$input['revision'],$input['command'],$input['transition'],$number);}
   $result=is_wp_error($r)?array('committed'=>false,'reason'=>$r->get_error_data()['reason']??$r->get_error_code()):array('committed'=>true,'result'=>$r);
  }finally{if($fault)remove_filter('query',$fault);}

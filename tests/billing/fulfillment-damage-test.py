@@ -26,6 +26,7 @@ def fulfillment_damage_checks(snapshot,prefix):
   def apply(r):d=json.loads(r['body_json']);d.pop('billing_certificate_id');r['body_json']=json.dumps(d)
   change(s,prefix+'csf_sched_details',lambda r:'billing_certificate_id' in json.loads(r['body_json']),apply)
  cases += [wrong_cancel,missing_correction,missing_scheduler_marker,lambda s:mutate_result(s,lambda r:'booking_uuid' in r and 'rides' in r,lambda r:r.update(booking_uuid='00000000-0000-4000-8000-000000000000'))]
+ cases += [lambda s:delete(s,lambda r:'body_sealed' in r),lambda s:mutate_result(s,lambda r:'body_sealed' in r,lambda r:r.update(body_sha256='0'*64)),lambda s:delete(s,lambda r:'offer_id' in r and 'accepted_at' in r),lambda s:mutate_result(s,lambda r:'offer_id' in r and 'accepted_at' in r,lambda r:r.update(terms_sha256='0'*64)),lambda s:delete(s,lambda r:set(r)=={'offer_id','certificate_id','booking_uuid','command'}),lambda s:mutate_result(s,lambda r:set(r)=={'offer_id','certificate_id','booking_uuid','command'},lambda r:r.update(booking_uuid='00000000-0000-4000-8000-000000000000'))]
  for mutate in cases:
   bad=copy.deepcopy(snapshot);mutate(bad)
   for run in [lambda:qualify(bad,prefix),lambda:compare(bad,bad,prefix)]:

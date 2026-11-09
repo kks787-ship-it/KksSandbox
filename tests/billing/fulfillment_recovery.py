@@ -9,7 +9,7 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
   need(len(raw)>28,'private_envelope')
  def result(key):
   need(key in commands,'missing_fulfillment_record');return json.loads(commands[key]['result'])
- artifacts={};mimes={};states={};rotation={};booking={};retired=set();audited_retired=set();origins={}
+ artifacts={};mimes={};states={};rotation={};booking={};retired=set();audited_retired=set();origins={};offers={};consents={};consumed={};offer_audit={};consent_audit=set();confirmed_audit=set()
  for oid,d in docs.items():
   if 'fulfillment' not in d:continue
   f=d['fulfillment'];need(set(f)=={'version','design','contact_sealed','signature_sealed','instructions'} and type(f['version']) is int and f['version']==1 and f['design'] in ['pasture-v1','sunset-v1','classic-v1'] and isinstance(f['instructions'],str) and len(f['instructions'].encode())<=4000,'presentation_contract')
@@ -26,6 +26,15 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
    cid=r['certificate_id'];need(cid in certs and type(r['version']) is int and r['version']==1 and re.fullmatch('[a-f0-9]{64}',r['number_hash']) and re.fullmatch('[a-f0-9]{64}',r['sha256']) and key==digest('pdf:'+cid+':'+r['number_hash']),'pdf_binding');envelope(r['sealed']);artifacts[key]=r
   if set(r)=={'version','dispatch_id','sha256','sealed'}:
    need(r['version']==1 and re.fullmatch('[a-f0-9]{64}',r['dispatch_id']) and re.fullmatch('[a-f0-9]{64}',r['sha256']) and key==digest('dispatch_mime:'+r['dispatch_id']),'mime_binding');envelope(r['sealed']);mimes[r['dispatch_id']]=r
+  if 'body_sealed' in r:
+   need(set(r)=={'version','offer_id','order_id','certificate_id','number_hash','body_sha256','policy_sha256','body_sealed','actor'} and r['version']==1 and type(r['actor']) is int and r['actor']>0,'offer_contract')
+   need(r['certificate_id'] in certs and r['order_id']==certs[r['certificate_id']]['order_id'] and key==digest('booking_offer:'+r['offer_id']) and row['payload_hash']==r['body_sha256'],'offer_binding')
+   for field in ['number_hash','body_sha256','policy_sha256']:need(re.fullmatch('[a-f0-9]{64}',r[field]),'offer_digest')
+   envelope(r['body_sealed']);offers[r['offer_id']]=r
+  if 'offer_id' in r and 'accepted_at' in r:
+   need(set(r)=={'version','offer_id','certificate_id','number_hash','body_sha256','terms_sha256','accepted_at'} and r['version']==1 and key==digest('booking_consent:'+r['offer_id']) and row['payload_hash']==digest(json.dumps(r,separators=(',',':'),ensure_ascii=False)),'consent_contract');consents[r['offer_id']]=r
+  if set(r)=={'offer_id','certificate_id','booking_uuid','command'}:
+   need(key==digest('booking_offer_consumed:'+r['offer_id']),'offer_consumed_key');consumed[r['offer_id']]=r
   if 'message_sealed' in r:
    cid=r.get('certificate_id');need(set(r)=={'version','dispatch_id','certificate_id','number_hash','order_id','audience','state','attempt','message_sealed','delivered'} and cid in certs and r['order_id']==certs[cid]['order_id'] and r['version']==1 and r['delivered'] is False and r['audience'] in ['buyer','administration'] and r['state'] in ['claimed','uncertain','sink_recorded','superseded'],'dispatch_contract')
    need(re.fullmatch('[a-f0-9-]{36}',r['attempt']) and key==digest('dispatch_state:'+r['dispatch_id']),'dispatch_identity');envelope(r['message_sealed']);states[r['dispatch_id']]=r
@@ -42,7 +51,13 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
  for did in mimes:need(did in states and digest('dispatch_sink_receipt:'+did) in commands,'orphan_mime_artifact')
  for event in sorted(data['audit'],key=lambda r:int(r['id'])):
   d=json.loads(event['details']);cid=event['object_id']
-  if event['kind']=='certificate_issued' and 'number_hash' in d:origins[cid]=d['number_hash']
+  if event['kind']=='booking_offer_created':
+   need(d['offer_id'] in offers and offers[d['offer_id']]['certificate_id']==cid and offers[d['offer_id']]['body_sha256']==d['body_sha256'],'offer_audit');offer_audit[d['offer_id']]=cid
+  if event['kind']=='booking_offer_consented':
+   need(d['offer_id'] in consents and consents[d['offer_id']]['certificate_id']==cid and consents[d['offer_id']]['body_sha256']==d['body_sha256'],'consent_audit');consent_audit.add(d['offer_id'])
+  if event['kind']=='booking_offer_confirmed':
+   need(d['offer_id'] in consumed and consumed[d['offer_id']]==d and d['certificate_id']==cid,'offer_confirmation_audit');confirmed_audit.add(d['offer_id'])
+  if event['kind']=='certificate_issued'  and 'number_hash' in d:origins[cid]=d['number_hash']
   if event['kind']=='certificate_pdf_persisted':
    need(d['artifact_id'] in artifacts and artifacts[d['artifact_id']]['certificate_id']==cid and artifacts[d['artifact_id']]['sha256']==d['sha256'] and artifacts[d['artifact_id']]['number_hash']==d['number_hash'],'pdf_audit_binding')
   if event['kind']=='certificate_number_rotated':
@@ -59,6 +74,12 @@ def check_fulfillment(data,docs,certs,commands,need,digest):
     if kind=='complete':need(result(digest('redeem:'+r['completion_command'])).get('booking_uuid')==d['booking_uuid'],'booking_completion_receipt')
     if kind=='correct':need(digest('reversed:'+prior['completion_command']) in commands,'booking_correction_receipt')
    booking[cid][d['booking_uuid']]=r
+ need(set(offers)==set(offer_audit) and set(consents)==consent_audit and set(consumed)==confirmed_audit,'offer_audit_sets')
+ for oid,c in consents.items():
+  need(oid in offers,'orphan_consent');o=offers[oid]
+  need(all(c[k]==o[k] for k in ['certificate_id','number_hash','body_sha256']) and c['terms_sha256']==docs[o['order_id']]['terms']['sha256'],'consent_binding')
+ for oid,r in consumed.items():
+  need(oid in consents and r['certificate_id']==offers[oid]['certificate_id'] and r['booking_uuid'] in booking.get(r['certificate_id'],{}) and commands[digest('booking_offer_consumed:'+oid)]['payload_hash']==offers[oid]['body_sha256'],'consumed_booking_binding')
  need(retired==audited_retired,'rotation_audit_set')
  for cid,last in rotation.items():need(certs[cid]['number_hash']==last,'rotated_current_number')
  for cid,c in certs.items():

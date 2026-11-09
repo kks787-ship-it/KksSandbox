@@ -53,6 +53,25 @@ final class CSF_Billing_Booking {
 		);
 		return CSF_Scheduling_Store::calendar( 'appointment_saved', $body, $revision, $command, $payment );
 	}
+	/** Staff confirmation of an immutable buyer-consented offer, never a public staff grant.
+	 *
+	 * @param array  $body Reviewed appointment.
+	 * @param int    $revision Facility revision.
+	 * @param string $command Command UUID.
+	 * @param string $hash Current certificate hash.
+	 * @param string $offer Offer UUID.
+	 * @return array|WP_Error
+	 */
+	public static function submit_offer( $body, $revision, $command, $hash, $offer ) {
+		$payment = array(
+			'transition'  => 'reserve',
+			'number_hash' => $hash,
+			'command'     => $command,
+			'offer_id'    => $offer,
+		);
+		self::authorize( $payment );
+		return CSF_Scheduling_Store::calendar( 'appointment_saved', $body, $revision, $command, $payment );
+	}
 	/** Recheck participant authorization before initial execution and exact scheduler replay.
 	 *
 	 * @param array|null $payment Scheduler participant request.
@@ -60,8 +79,12 @@ final class CSF_Billing_Booking {
 	public static function authorize( $payment ) {
 		if ( null === $payment ) {
 			return; }
-		CSF_Billing_Domain::need( defined( 'CSF_BILLING_BOOKING_ENABLED' ) && true === CSF_BILLING_BOOKING_ENABLED && is_array( $payment ) && count( $payment ) === 3 && in_array( $payment['transition'] ?? null, array( 'reserve', 'complete', 'correct' ), true ), 'booking_disabled' );
+		CSF_Billing_Domain::need( defined( 'CSF_BILLING_BOOKING_ENABLED' ) && true === CSF_BILLING_BOOKING_ENABLED && is_array( $payment ) && in_array( count( $payment ), array( 3, 4 ), true ) && in_array( $payment['transition'] ?? null, array( 'reserve', 'complete', 'correct' ), true ), 'booking_disabled' );
 		CSF_Billing_Domain::uuid( $payment['command'] ?? '' );
+		if ( 4 === count( $payment ) ) {
+			CSF_Billing_Domain::need( CSF_Billing_Offer::enabled() && 'reserve' === $payment['transition'], 'customer_booking_disabled' );
+			CSF_Billing_Domain::uuid( $payment['offer_id'] ?? '' );
+		}
 		CSF_Billing_Domain::need( 'reserve' !== $payment['transition'] || ( is_string( $payment['number_hash'] ?? null ) && preg_match( '/^[a-f0-9]{64}$/D', $payment['number_hash'] ) ), 'certificate_unavailable' );
 		self::policy();
 		CSF_Billing_Access::require_cap( 'correct' === $payment['transition'] ? 'csf_billing_manage' : 'csf_billing_redeem' );
@@ -132,7 +155,9 @@ final class CSF_Billing_Booking {
 					$start = CSF_Scheduling_Time::parse( $body['start'], $zone );
 					$end   = CSF_Scheduling_Time::parse( $body['end'], $zone );
 					CSF_Billing_Domain::need( $start->getTimestamp() > time() && $end->getTimestamp() - $start->getTimestamp() === 60 * $d['product']['minutes_per_ride'], 'certificate_service_ineligible' );
-					$debit                = CSF_Billing_Value::debit( $cert, 1, self::slots( $locked, $id ) );
+					$debit = CSF_Billing_Value::debit( $cert, 1, self::slots( $locked, $id ) );
+					if ( isset( $ctx['offer_id'] ) ) {
+						CSF_Billing_Offer::consume( $locked, $ctx['offer_id'], $cert, $body, $ctx['command'] ); }
 					$all[ $body['uuid'] ] = array(
 						'state'              => 'reserved',
 						'slots'              => $debit['slots'],
