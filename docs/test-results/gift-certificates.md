@@ -476,3 +476,16 @@ keys, isolation and genuine MFA, then failed the lost-commit test because the fi
 its fault before a preliminary ledger snapshot. That snapshot uses its own COMMIT. The fault
 is now installed after certificate lookup, so it targets the scheduler commit. This is a test
 harness correction; actual scheduler success remains pending the next run.
+
+Run19 infrastructure investigation (2026-11-09): GitHub's full jobs API (filter=all,
+per_page=100) reports total_count=2, both PHP contract jobs successful. The run's public
+Summary/Annotations reports "Internal server error. Correlation ID:
+dace787d-169b-4310-8b80-be0774210f9b". Recovery jobs appear in the graph but were never
+materialized as jobs. This is GitHub service evidence, not a test pass or a diagnosed
+application failure. Failed-job retry returned403 "This workflow run cannot be retried".
+Workflow bytes are identical between run18 and run19: contents:read, exact PR-head checkout,
+pinned actions/runtime and combined job dependent on contracts plus qualified recovery.
+Owner collaborator permission is admin; that does not prove every connector token scope.
+No permission widening or alternative credential was attempted. A fresh documentation commit
+uses the already approved PR synchronize validation route. Existing workflow/pins stay intact.
+Local environment has no Docker executable; exact-pin container recovery remains a CI gate.
