@@ -1,0 +1,189 @@
+{
+  "date": "2026-11-08",
+  "scope": "Disposable native loopback fixture only; real WordPress/official MFA, mocked PayPal",
+  "versions": {
+    "php8.1": "8.1.2-1ubuntu2.28",
+    "php8.3": "8.3.6-0ubuntu0.24.04.13",
+    "mariadb": "10.6.23-0ubuntu0.22.04.1",
+    "mysql": "8.0.46-0ubuntu0.22.04.4",
+    "wordpress": "7.1.4"
+  },
+  "cells": [
+    {
+      "database": "mariadb",
+      "php": "8.1",
+      "http_assertions": 51,
+      "sql_assertions": 19,
+      "http_log_sha256": "f5119f22725847bf0797b2180d3496a67f4e6bd1c6dde1ca1a111f300e92ee13",
+      "sql_log_sha256": "54f0a405fbee5a6925331e6bd5530cb7f51e01b7dc7826cafd56dad5b04d8456"
+    },
+    {
+      "database": "mariadb",
+      "php": "8.3",
+      "http_assertions": 51,
+      "sql_assertions": 19,
+      "http_log_sha256": "f5119f22725847bf0797b2180d3496a67f4e6bd1c6dde1ca1a111f300e92ee13",
+      "sql_log_sha256": "54f0a405fbee5a6925331e6bd5530cb7f51e01b7dc7826cafd56dad5b04d8456"
+    },
+    {
+      "database": "mysql",
+      "php": "8.1",
+      "http_assertions": 51,
+      "sql_assertions": 19,
+      "http_log_sha256": "f5119f22725847bf0797b2180d3496a67f4e6bd1c6dde1ca1a111f300e92ee13",
+      "sql_log_sha256": "54f0a405fbee5a6925331e6bd5530cb7f51e01b7dc7826cafd56dad5b04d8456"
+    },
+    {
+      "database": "mysql",
+      "php": "8.3",
+      "http_assertions": 51,
+      "sql_assertions": 19,
+      "http_log_sha256": "f5119f22725847bf0797b2180d3496a67f4e6bd1c6dde1ca1a111f300e92ee13",
+      "sql_log_sha256": "54f0a405fbee5a6925331e6bd5530cb7f51e01b7dc7826cafd56dad5b04d8456"
+    }
+  ],
+  "source": "Signed official Ubuntu jammy/noble apt metadata; packages extracted, not installed",
+  "keyring_sha256": "36de43b15853ccae0028e9a767613770c704833f82586f28eb262f0311adb8a8",
+  "packages": [
+    {
+      "distribution": "jammy",
+      "file": "libaio1_0.3.112-13build1_amd64.deb",
+      "sha256": "2dcfe0b49d7cccfbf1bd6a3f627cf44bea9f51fb32f7e0e552a0df75698e0d27"
+    },
+    {
+      "distribution": "jammy",
+      "file": "libedit2_3.1-20210910-1build1_amd64.deb",
+      "sha256": "fb8783bdf0a59aaabf4e9b29192170f6cc17aa2eb94bc672c15add37ff39525b"
+    },
+    {
+      "distribution": "jammy",
+      "file": "libicu70_70.1-2_amd64.deb",
+      "sha256": "58a154f6307289813da2276f900498ef536ae7c0522d2cf31a3c3c5cf62dfd9a"
+    },
+    {
+      "distribution": "jammy",
+      "file": "libnuma1_2.0.14-3ubuntu2_amd64.deb",
+      "sha256": "0721c89001fbbd1ada23e89da5d60e762763c1a7b3dc814a2e9a518480a8043d"
+    },
+    {
+      "distribution": "jammy",
+      "file": "libpcre2-8-0_10.39-3ubuntu0.2_amd64.deb",
+      "sha256": "30dff428411080f04c17d3146cecff946bed94f019f912ea3aa1d2630dee610f"
+    },
+    {
+      "distribution": "jammy",
+      "file": "libprotobuf-lite23_3.12.4-1ubuntu7.22.04.6_amd64.deb",
+      "sha256": "725de8c1b36170f69bd1f1e550bbaeee1424ee7ac0d436b65e7737d074700178"
+    },
+    {
+      "distribution": "jammy",
+      "file": "libssl3_3.0.2-0ubuntu1.30_amd64.deb",
+      "sha256": "d1b4636e32ac6d3b95d583ac05ac548b1aa248414bae1c51b14f54be0f8fd7bc"
+    },
+    {
+      "distribution": "jammy",
+      "file": "liburing2_2.1-2build1_amd64.deb",
+      "sha256": "f6e9bdf50c9683cd9a74ad92d51dde085f40baf0a5fcd8a56fc68425c1bd3c5f"
+    },
+    {
+      "distribution": "jammy",
+      "file": "mariadb-client-10.6_1%3a10.6.23-0ubuntu0.22.04.1_amd64.deb",
+      "sha256": "076710765b6fa251336d9f46e9864ce89e6a9ae3cd49c50d0bfb9e83504cd867"
+    },
+    {
+      "distribution": "jammy",
+      "file": "mariadb-client-core-10.6_1%3a10.6.23-0ubuntu0.22.04.1_amd64.deb",
+      "sha256": "24358ed6cdabe44f462901cb9609558f62602030c85612d0c9c2b5b6052d63bc"
+    },
+    {
+      "distribution": "jammy",
+      "file": "mariadb-server-10.6_1%3a10.6.23-0ubuntu0.22.04.1_amd64.deb",
+      "sha256": "bab3eb7c7ba71c8e3c3c2ef12d4f40701f19c7f2d2044ddf451d6304ddd7256b"
+    },
+    {
+      "distribution": "jammy",
+      "file": "mariadb-server-core-10.6_1%3a10.6.23-0ubuntu0.22.04.1_amd64.deb",
+      "sha256": "d3ecf4f18607e452c784a65c81221ac1086e7088d40ba236f2b04db98d02205a"
+    },
+    {
+      "distribution": "jammy",
+      "file": "mysql-client-core-8.0_8.0.46-0ubuntu0.22.04.4_amd64.deb",
+      "sha256": "3008e7004f0fac52f7ff64de5fdbf5c1f502059d3950931f5452f3ad513b9762"
+    },
+    {
+      "distribution": "jammy",
+      "file": "mysql-server-core-8.0_8.0.46-0ubuntu0.22.04.4_amd64.deb",
+      "sha256": "589a4fd2f846679e39e30072f712eb8f8fde2a416c29397a585a166e82005e9e"
+    },
+    {
+      "distribution": "jammy",
+      "file": "php8.1-cli_8.1.2-1ubuntu2.28_amd64.deb",
+      "sha256": "5a2277b95d8136e9c401f7c8faa962e0661993d4ff5c6044250ff4e6c4063657"
+    },
+    {
+      "distribution": "jammy",
+      "file": "php8.1-common_8.1.2-1ubuntu2.28_amd64.deb",
+      "sha256": "8e87023a5bb096f3774496451664397381ac787403f733f1e1c7df296dc96c90"
+    },
+    {
+      "distribution": "jammy",
+      "file": "php8.1-curl_8.1.2-1ubuntu2.28_amd64.deb",
+      "sha256": "90c6db80bbe7898d060a9c2de46475c4759456dc2e8c757c4952793c1a9297d5"
+    },
+    {
+      "distribution": "jammy",
+      "file": "php8.1-mbstring_8.1.2-1ubuntu2.28_amd64.deb",
+      "sha256": "3d11a055812664ead4b248b8a763c307add7266695424cb3ecb5f0634f8832ea"
+    },
+    {
+      "distribution": "jammy",
+      "file": "php8.1-mysql_8.1.2-1ubuntu2.28_amd64.deb",
+      "sha256": "994a06259845b56aa79c176a0ba8805c080ab63482fc94cba86092ae5fb2b9a6"
+    },
+    {
+      "distribution": "jammy",
+      "file": "php8.1-xml_8.1.2-1ubuntu2.28_amd64.deb",
+      "sha256": "9632ee7ce639157a8a8579085ca859742d527c022880ce4d4835b68b659881a8"
+    },
+    {
+      "distribution": "noble",
+      "file": "libicu74_74.2-1ubuntu3.1_amd64.deb",
+      "sha256": "c9a70989678660eed9a1e904c74fa043da8bec8e2036856fc16e31ced79b04f8"
+    },
+    {
+      "distribution": "noble",
+      "file": "libxml2_2.9.14+dfsg-1.3ubuntu3.10_amd64.deb",
+      "sha256": "c5a065f85c1e6f605741e365e40cad71c3ceb0e85e2791400bd35b8896e12ad1"
+    },
+    {
+      "distribution": "noble",
+      "file": "php8.3-cli_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "sha256": "6868966e46f777624f8cdfd3c38dfb2a7b6c2654bcacda57dc2049ecc9ca566b"
+    },
+    {
+      "distribution": "noble",
+      "file": "php8.3-common_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "sha256": "801cae4e842e1b9e9d60a542bf18ba831bf504b2f3070404892bf3f8fb943ea4"
+    },
+    {
+      "distribution": "noble",
+      "file": "php8.3-curl_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "sha256": "a5a9daaf2cbddb9488bf401a7020fd338d5d1c12327a774855d15e589348134b"
+    },
+    {
+      "distribution": "noble",
+      "file": "php8.3-mbstring_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "sha256": "e47acff4ca31d3eaaa9fe6203c8faee001b2eb90bf81e24e055b6416a060e2ac"
+    },
+    {
+      "distribution": "noble",
+      "file": "php8.3-mysql_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "sha256": "6e53d3593cb3f551f8859048658c9109f9ce175990ec531cda5563b304ae3d61"
+    },
+    {
+      "distribution": "noble",
+      "file": "php8.3-xml_8.3.6-0ubuntu0.24.04.13_amd64.deb",
+      "sha256": "ed4635e7ca1db6f62826fd915ea2d9ae19252c6b60bca812297d277b780b2fa1"
+    }
+  ]
+}

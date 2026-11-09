@@ -1,0 +1,82 @@
+{
+  "scope": "Supplemental disposable runtime; not protected recovery pins",
+  "source": "Official Debian trixie signed apt metadata; extracted without install scripts",
+  "packages": [
+    {
+      "file": "chromium-common_150.0.7871.181-1~deb13u1_amd64.deb",
+      "sha256": "af485fc598a556096df0f23d77d491a9f78307721d9b22aefd7d685c2c42c4ee"
+    },
+    {
+      "file": "chromium-headless-shell_150.0.7871.181-1~deb13u1_amd64.deb",
+      "sha256": "868de3f3aa0d65b07d1f1dd828872f8f01ef65bf6fddc3de7b694a210945ba7e"
+    },
+    {
+      "file": "libaio1t64_0.3.113-8+b1_amd64.deb",
+      "sha256": "490c8a2d116001a5f3b0a6d7a7aabf6a7b629366590dc5c3f75b078e931dd129"
+    },
+    {
+      "file": "libargon2-1_0~20190702+dfsg-4+b2_amd64.deb",
+      "sha256": "a54a6640be69c29c1e43b14ee464484a6f20e33fe73200c02949cfeb03228547"
+    },
+    {
+      "file": "libedit2_3.1-20250104-1_amd64.deb",
+      "sha256": "b002ea172b9c1e34a67bc497c523c67bb74c3f0a4e98113cb083990a1f1d3bfe"
+    },
+    {
+      "file": "libpcre2-8-0_10.46-1~deb13u2_amd64.deb",
+      "sha256": "1252b96a5bc44bb5db982bef8eb18e54f5047cede2aff641bce4f8e1edb91c3e"
+    },
+    {
+      "file": "liburing2_2.9-1_amd64.deb",
+      "sha256": "4b589c00c7a51172aace2cb2fb3d3ff32daf86c644023126dcfcaa840cc941ea"
+    },
+    {
+      "file": "mariadb-client-core_1%3a11.8.6-0+deb13u1_amd64.deb",
+      "sha256": "d9dc20e0769be8ec54b9bdd64667c047cf5e0933a0c873626a4ac1cb2be7c300"
+    },
+    {
+      "file": "mariadb-client_1%3a11.8.6-0+deb13u1_amd64.deb",
+      "sha256": "1ce40c794aa660d6bb57b0b6ab8903367b68a010abc766fd03202251ee836c9b"
+    },
+    {
+      "file": "mariadb-server-core_1%3a11.8.6-0+deb13u1_amd64.deb",
+      "sha256": "07a333e34773e1e1bc7c5613878c70a1224180f452481dcf786be05711148178"
+    },
+    {
+      "file": "mariadb-server_1%3a11.8.6-0+deb13u1_amd64.deb",
+      "sha256": "b62235159df3ad6dd4e82b1ff586e76a395063def855ea341252584ab61fb1b0"
+    },
+    {
+      "file": "php8.4-cli_8.4.24-1~deb13u1_amd64.deb",
+      "sha256": "8205f927545c28a03fdcc1bd1fc83c1aa9615d2ee1f7cec4cd5c86e59716782f"
+    },
+    {
+      "file": "php8.4-common_8.4.24-1~deb13u1_amd64.deb",
+      "sha256": "fe81bee8ec155ed0ba14a2d1330f52f5ad3da2e7446ab74858f61c9e36202052"
+    },
+    {
+      "file": "php8.4-curl_8.4.24-1~deb13u1_amd64.deb",
+      "sha256": "503ca03dcfa24ca69e0fda53c6c67415e9a8843da9b8dd6272bb685336150fa6"
+    },
+    {
+      "file": "php8.4-mbstring_8.4.24-1~deb13u1_amd64.deb",
+      "sha256": "d78d7b03bfa1da13bfc608edecf6027502e553b971cf0b254d89574069c36586"
+    },
+    {
+      "file": "php8.4-mysql_8.4.24-1~deb13u1_amd64.deb",
+      "sha256": "3f1a0ac997517db19f086342617a9c0f2ac73093bc93b51f9faf0f8f9c55de63"
+    },
+    {
+      "file": "php8.4-opcache_8.4.24-1~deb13u1_amd64.deb",
+      "sha256": "0ed0c6ae703c5545155cc74905f4d3aad2efadb5c234f77f90e208d5f84f2ace"
+    },
+    {
+      "file": "php8.4-readline_8.4.24-1~deb13u1_amd64.deb",
+      "sha256": "0b61ee28ce6c983c1bd3f7c851ff3f7c9124b3d3ffc52c8285a87d83c84ecc51"
+    },
+    {
+      "file": "php8.4-xml_8.4.24-1~deb13u1_amd64.deb",
+      "sha256": "39079a6a4eb0ea4491d671e2526349c4f8ab06043f545f42698fe668fb00cfbe"
+    }
+  ]
+}

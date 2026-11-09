@@ -157,3 +157,252 @@ Use transactional idempotency, private auditable revisions, direct authorization
 7. Owner/attorney/privacy/financial review and human Beth/Kris acceptance; only then consider actual signed documents, real money, public booking and production.
 
 **No GitHub issue/document, code test or planning conversation is deployment permission.** No existing protected client identity, contracts, payment provider, real invoices, MFA, scheduling plugin or production data should be changed until its separate approval.
+
+## 11. Gift certificates: November 8 sandbox-only development increment
+
+Kris has requested a public gift-certificate page, PayPal checkout, required acceptance of
+Beth's terms, and private unique certificate numbers and purchased/redeemed ride accounting.
+This selects PayPal for this gift-certificate development scope only. It does not authorize
+production deployment, live charges, other billing products, new grants, or public booking.
+The separate `csf-billing` plugin is under development on `codex/gift-certificates`; it does
+not modify scheduling. See `docs/test-results/gift-certificates.md` for exact completed work
+and the substantial unfinished integration/qualification steps. The shortcode currently
+renders a closed state; it is not an operational checkout or management feature.
+
+Prices remain provisional: two one-hour lessons $110; four one-hour lessons $210; twelve
+monthly two-hour sessions $795 upfront or four quarterly payments of $225. None are encoded
+as approved products. Confirm package definitions and currency as well as prices. Quarterly
+billing, credit vesting, installments, subscriptions and debt collection are not implemented.
+
+Historical gift-certificate draft terms included a named package, non-refundable and
+non-transferable wording, waiver/guardian signatures before riding, appointment/availability,
+safety rescheduling and barn rules. These are historical draft evidence, not published policy.
+Expiration was blank. Annual commitment/payment structure, notice/makeup policy and emergency
+exceptions need a final owner-approved text; some prior elaborations were assistant drafted.
+Do not infer that shorter packages have the annual makeup rules. A twelve-month program
+commitment must not silently become an expiration of purchased credit.
+
+Legal review is required before approved terms are supplied. Washington RCW 19.240.020 generally
+prohibits expiration/fees except specified exceptions and includes a cash-on-demand rule for
+certain remaining balances below $5. Thus absolute “no cash” and automatic forfeiture/expiry
+must not be copied into checkout. Applicability to the final service package and interaction
+with federal rules require review; this document is not a legal determination.
+Sources: https://apps.leg.wa.gov/rcw/default.aspx?cite=19.240.020,
+https://apps.leg.wa.gov/rcw/default.aspx?cite=19.240.030,
+https://www.consumerfinance.gov/rules-policy/regulations/1005/20/.
+
+The protected sandbox retains HTTP Basic Auth. Do not open a webhook exception, expose its
+private records, or substitute a mock webhook for real PayPal verification. Real provider
+callbacks need a separately reviewed public test ingress/relay or isolated test target. The
+current module registers no payment or webhook HTTP routes. Production hosting of any public
+financial endpoint is a separate security/recovery/deployment decision.
+
+### November 8 sandbox-only gift implementation update
+
+The gift scope now has a local 0.2.0-dev/schema-2 candidate: public sandbox checkout/session
+controls, private management and audited corrections, provider uncertainty recovery and
+conservative refund/dispute holds. Real disposable database, browser, official MFA and
+functional restore tests have run; actual PayPal transport remains mocked. This supersedes
+foundation-only implementation status, not the broader onboarding blueprint or its holds.
+See [current evidence and remaining gates](test-results/gift-certificates.md). No gift module
+has been published or deployed; catalog, exact terms and owner decisions remain provisional.
+
+### PayPal sandbox credential and merchant-verification handoff (prepared, not executed)
+
+No account ownership or merchant readiness is inferred from historical PayPal usage. Kris or
+the authorized merchant controller should use PayPal Developer Dashboard **Apps & Credentials**
+in **Sandbox**, select/create the gift-testing REST app and its Business sandbox seller, and
+use a separate Personal sandbox buyer. Never provide the live app secret or PayPal password
+in chat, Git, an issue, screenshots or test logs. [Official setup](https://developer.paypal.com/api/get-started/),
+[sandbox account roles](https://developer.paypal.com/sandbox-testing/accounts).
+
+Before any credential handoff, identify the approved isolated test host, responsible operator,
+merchant controller and app; confirm that no real catalog or live adapter is enabled. The
+server needs the sandbox client ID/secret and expected seller merchant ID; the seller ID is
+an independent reviewed binding, not a value accepted from a browser payment response. An
+OAuth success authenticates the app but does not alone establish farm ownership or the intended
+payee. Verify the seller account-to-app relationship in the owner's dashboard, then verify the
+expected payee merchant ID in server-fetched sandbox order/capture results. Retain only a
+redacted pass/fail/account-binding review record, never tokens or complete payment payloads.
+
+Use a scoped secret handoff: Gateway's existing secure stored-value link can receive a named
+sandbox credential without exposing its content to chat, then an authorized exact-target job
+can reference that stored value. Alternatively, the owner can provision the approved isolated
+runner's secret manager directly. Neither method has been invoked or provisioned by this work;
+no protected CI secrets or farm config were changed. Provision a separate random billing data
+key with private backup custody; credentials and encrypted certificate key are different assets.
+Keep key material outside the document root and repository, with restricted ownership/mode.
+Do not replace the data key after certificates exist.
+
+A separate approved **HTTPS port443** test listener is required for genuine signed webhooks;
+register it on the same sandbox app and securely record its webhook ID. Do not remove protected
+sandbox Basic Auth or forward owner traffic into the local fixture. Verify completed, pending,
+denied, refunded, reversed and dispute events and their replay/reordering with that app.
+PayPal's simulator does not support the postback signature-verification method used here, so
+simulator events cannot qualify this adapter. [Official webhook requirements](https://developer.paypal.com/api/rest/webhooks/rest/).
+
+Owner action needed first: confirm the merchant controller and approved isolated test target,
+then use the secure handoff after its exact scope is prepared. Credential availability does
+not approve public sales, final terms, deployment, real delivery or production transactions.
+
+
+### Verified sandbox connection procedure and remaining commercial blocker
+
+Official PayPal documentation rechecked November 8, 2026: use Developer Dashboard Apps &
+Credentials in Sandbox, bind the REST app to its Business sandbox seller, and use a separate
+Personal sandbox buyer. OAuth exchanges the sandbox app credentials at
+`https://api-m.sandbox.paypal.com/v1/oauth2/token`; OAuth success alone does not prove the
+intended merchant binding. [Setup](https://developer.paypal.com/api/get-started/),
+[authentication](https://developer.paypal.com/api/rest/authentication).
+
+No PayPal connector or merchant credentials were found/used in this task. A Gateway secure
+stored-value writer is available, but no handoff or write has been invoked. Owner action is to
+identify the controller and authorize an isolated non-farm HTTPS test target and its secret
+store. Then an operator can arrange the scoped secret-manager handoff without receiving values
+in chat. Do not add protected CI secrets, remove farm Basic Auth or register a public listener
+under the existing publication-only approval. Genuine app-associated sandbox events are needed:
+the current postback verification adapter cannot use simulator events as signature evidence.
+Register the separately approved HTTPS443 endpoint on that app, retain the webhook ID securely,
+and qualify merchant/amount/currency bindings, event retries/reordering, uncertainty and freezes.
+[Official webhook guide](https://developer.paypal.com/api/rest/webhooks/rest/).
+
+Washington RCW19.240.020 generally prohibits paid gift-certificate expiration and fees (subject
+to narrow statutory exceptions). Following a partial purchase, remaining value must be available
+as cash or certificate credit at the issuer's option; a remaining balance below $5 is redeemable
+in cash on demand. No blanket no-cash, expiration or forfeiture term is approved here.
+[Statutory text](https://app.leg.wa.gov/RCW/default.aspx?cite=19.240.020).
+
+**Implementation gap:** schema2 tracks rides and original order amount, but not an authoritative
+remaining monetary-value ledger or cash-redemption workflow. Sales must remain disabled. A
+reviewed next schema must preserve original paid value/currency, separately journal ride/value
+consumption, corrections and cash redemption atomically with idempotency, audit, permissions
+and MFA, and handle uncertain payouts without duplicate payment or erasing credit. Proposed
+cash-request/review/recorded-payment states are design only, not payment authorization. Define
+reviewed package-value allocation/rounding and evidence of actual payout before implementation;
+never infer remaining value from current catalog prices. Expand recovery schema/ledger tests
+alongside that work. Annual scheduling commitments do not themselves expire paid certificate
+value; no-show forfeiture, nontransferability and withdrawal terms require tailored legal review.
+
+
+### Monetary workflow implementation follow-up (provisional)
+
+The 0.3.0-dev/schema3 candidate now implements paid-value accounting alongside rides and an
+MFA-protected full-balance cash reservation/uncertainty/attested-payment recording workflow.
+It never performs payouts/refunds. See gift-certificates test results for exact proportional
+rounding proposals and limitations. Valuation defaults unapproved; no final commercial terms
+or interpretation of no-show/annual withdrawal rights is encoded. Owner/legal approval of
+allocation and operating procedure, real sandbox verification and all deployment/recovery gates
+remain mandatory. Existing schema2 data requires a reviewed reconciliation migration; none runs
+on activation. The earlier ride-only gap above describes the previous candidate, not this code.
+
+### Printable fulfillment increment and new draft requirements (November 9)
+
+Owner requests buyer-selected themed numbered certificates bearing authorized Beth signature
+artwork, buyer certificate/receipt/terms/scheduling email, administration sale notification,
+and certificate-number payment in customer scheduling. The two newly supplied in-house PDFs
+are drafts, not blanket policy approval. Booking must reserve a lesson, not consume it.
+
+Implemented locally: three compiled versioned color themes, checkout design selection and buyer
+email, immutable presentation/instruction snapshots, authenticated encryption of buyer contact
+and signature artwork, and two distinct held delivery intents committed with verified issuance.
+The authorized receipt renders a sandbox-marked printable HTML certificate in a script-disabled
+frame. Browser print/save-as-PDF works; no production PDF artifact service exists yet. Missing
+authorized artwork is labeled pending, never replaced by a generated or typed signature.
+Private `CSF_BILLING_SIGNATURE_JSON` accepts authorized PNG bytes, SHA256 and an authorization
+reference; no upload endpoint or remote asset fetch exists. `CSF_BILLING_SCHEDULING_INSTRUCTIONS`
+is operator-supplied plain text, frozen per purchase, empty by default. Both need review before
+configuration. Old purchases without presentation snapshots are not silently reconstructed.
+
+A local-only, explicit synthetic sink bundles buyer certificate/receipt/accepted terms and
+instructions, and a distinct minimal administration receipt. It rejects non-.invalid buyer
+addresses, requires billing management/MFA authorization, encrypts payloads and deduplicates
+records. It cannot send email and never returns delivered=true. Production delivery intents
+remain held. Recipient configuration, contact verification/correction, renderer qualification,
+durable dispatch claims, outcome reconciliation and actual provider callbacks remain to build.
+Do not treat sink tests or an SMTP accepted response as confirmed customer delivery.
+
+**Booking implementation boundary:** existing billing and scheduling stores each open their own
+transaction; invoking them sequentially cannot provide all-or-nothing booking. Do not call the
+completed-ride `redeem` command during booking. The next reviewed schema/domain increment needs
+separate available/reserved/used ride and monetary balances; a reservation bound to certificate,
+booking UUID/revision, purchase valuation and idempotent command; scheduling-lock then billing-lock
+order on the same DB connection; one outer transaction for availability check, booking, reservation,
+command receipts and audits; and no network call within it. Failed/stale bookings must roll back
+every participant. Reservation must block cash/other bookings from spending its value. Completion
+moves reserved to used exactly once; release/cancellation/no-show/edit/expiry rules stay held
+until approved. Public number entry needs independent session/CSRF/rate limits, generic responses,
+no codes in URLs/logs/browser storage, service eligibility and identity/waiver policy. Current
+private scheduling authorization is not permission to open public booking or bypass MFA.
+
+Reprinting must refer to the same certificate/balance. Compromise replacement needs audited,
+atomic number rotation, invalidation of old bearer codes, preserved balance/reservations and
+delivery linkage; no second issuance/payment. This rotation is not implemented in this increment.
+Final prices/terms, valuation, annual versus gift-value rules, cancellation/no-show/release policy,
+buyer eligibility/waivers, signature artwork authorization, scheduling wording, administration
+recipients/from address, mail provider and PayPal sandbox qualification remain owner/operator
+inputs. Do not infer forfeiture, expiration, refund deadlines or installment authorization from
+the PDFs. Existing legal, sales, real-email, grants, MFA and deployment holds are unchanged.
+
+Latest editorial-source correction: In-house terms PDF `libfile_861a7ee2bb608191a746479c8d73777f`
+supersedes the previous terms draft, but is not blanket owner approval. Checkout/email PDF
+`libfile_2ce39a9d5b2081918a16b66d10afa6bc` is stale. Do not copy either into approved checkout
+configuration. Two annual late-cancellation makeups are proposed; timely/farm cancellations
+should not consume that allowance, and courtesy stacking is unresolved. Cash-on-demand wording,
+14-versus-30-day refund timing and new promises remain disputed; quarterly appendix stays held.
+Delivery outcomes must distinguish pending, failure and uncertainty; payment timeouts cannot
+assert no charge before reconciliation. Never place the certificate bearer number in email
+subjects. Partial refunds require reconciled remaining paid credit, not automatic closure or
+zeroing. Current provider refund handling freezes for review; it does not implement partial
+refund allocation or close remaining credit. These are constraints for the next increment,
+not newly approved business rules. Sales and real delivery remain disabled.
+
+### Continued local fulfillment and reservation candidate
+
+The next candidate adds a compiled one-page PDF renderer and encrypted persisted artifacts
+inside the billing ledger. Browser download is an authorized no-store POST with digest checks;
+no public uploads or bearer URLs are created. Reprints reuse the same artifact for that number
+generation. The renderer accepts bounded ASCII template text; unsupported text/overflow stays
+pending rather than silently changing it. Authorized PNG signatures require GD for PDF raster
+embedding; missing GD fails closed. Missing artwork is explicitly unsigned/pending and every
+artifact remains SANDBOX TEST, not valid for rides. Full exact UTF8 terms stay in the delivery
+bundle rather than being transliterated into the PDF. Production typography/accessibility and
+non-ASCII font support remain qualification work.
+
+A separate durable dispatch worker implements claim, synthetic acceptance, reconciliation,
+uncertain and superseded states. It is explicitly local-only and has no real mail adapter.
+Buyer bundles reference the persisted PDF and exact terms/receipt/instructions; administration
+gets a minimal sale record. Subjects omit bearer numbers. Stale/frozen number generations cannot
+be newly accepted. An uncertain attempt with no authoritative sink receipt is not retried.
+No delivered=true outcome exists. Actual provider delivery and uncertain-outcome reconciliation
+remain unqualified; do not substitute SMTP acceptance for receipt by a buyer.
+
+Private compromised-number rotation requires management/MFA, expected revision and explicit
+attestation. It retains the same certificate, paid balance, ride history and reservations,
+preserves a retired-number tombstone, audits old/new digests and invalidates stale dispatch.
+No actual refund, second sale, replenished credit or automatic external resend occurs.
+
+A default-off private booking participant now joins the scheduler's transaction after its
+facility lock and takes the billing lock on the same connection. Failed scheduler changes roll
+back reservations too. Explicit reviewed/versioned product-to-service and release-initiator
+policy is required; none is supplied by default. The first implementation supports one rider/ride
+per confirmed appointment, with exact package duration. It reserves original monetary/ride
+ordinals, excludes them from completed-ride/cash spending, completes them once after the lesson
+ends, and supports audited correction back to reservation. Cancellation releases only under
+the reservation's approved policy snapshot. No no-show forfeiture, timer-based expiration,
+quarterly, courtesy stacking or late-cancellation rule is inferred. Uncoordinated edits of
+bound appointments fail closed; the detail marker also prevents edits if billing is absent.
+Completion is recorded as billing_credit_state=used; existing scheduler appointment state stays
+confirmed (the scheduler has no separate completed state).
+
+Private POST commands and existing permissions/MFA are retained. Customer-facing certificate
+entry/identity/waiver authorization and multi-rider/family credit allocation are not enabled or
+qualified. The private participant must not be described as a completed public booking feature.
+A browser booking workflow and full scheduler-path integration/race coverage remain required;
+the added SQL probe isolates the transaction participant using a synthetic outer transaction.
+
+Tax review input (November9, pending owner/DOR confirmation): parent supplied WA DOR guidance
+for instructional horseback riding and gift certificates. Keep issuance distinct from redemption
+and classify the underlying service; do not default every farm offering to untaxed or finalize
+tax policy. Reference https://dor.wa.gov/education/industry-guides/horse-industry/horseback-riding
+and https://dor.wa.gov/forms-publications/publications-subject/tax-topics/gift-cards-gift-certificates-and-layaway-purchases .
+No live tax configuration or final commercial terms were adopted by this engineering increment.

@@ -1,0 +1,12 @@
+.csf-gift-app {max-width: 54rem; margin: 1.5rem auto; padding: 1.25rem; border: 1px solid #6b775e; border-radius: .5rem; color: #20271b; background: #fff;}
+.csf-gift-app label {display: block; margin: 1rem 0; font-weight: 600;}
+.csf-gift-app input:not([type=checkbox]), .csf-gift-app select {display: block; width: 100%; max-width: 100%; margin-top: .4rem; padding: .6rem; box-sizing: border-box;}
+.csf-gift-app input[type=checkbox] {margin: 0 .5rem; width: 1.2rem; height: 1.2rem; vertical-align: middle;}
+.csf-gift-app button {margin: .5rem .5rem .5rem 0; padding: .7rem 1rem; min-height: 44px; cursor: pointer; background: #294124; color: #fff; border: 2px solid transparent; border-radius: .25rem;}
+.csf-gift-app button:focus-visible, .csf-gift-app input:focus-visible, .csf-gift-app select:focus-visible {outline: 3px solid #915600; outline-offset: 3px;}
+.csf-gift-app[aria-busy=true] button {opacity: .65; cursor: wait;}
+.csf-gift-app pre, .csf-gift-app li, .csf-gift-app p {white-space: pre-wrap; overflow-wrap: anywhere;}
+.csf-gift-terms {font: inherit; padding: 1rem; background: #f2f5ed; border-left: 4px solid #6b775e;}
+.csf-gift-app form {padding: .5rem 0 1.25rem; border-bottom: 1px solid #b7bdb2;}
+.csf-gift-status {min-height: 1.5em; font-weight: 600;}
+@media print { .csf-gift-app button, .csf-gift-app form, .csf-gift-status {display: none;} .csf-gift-app {border: none;} }
