@@ -39,6 +39,16 @@ class CSF_Scheduling_Calendar {
 		}
 	}
 
+	/** Match rider eligibility without changing clearance, services or welfare checks.
+	 *
+	 * @param array  $horse Horse data.
+	 * @param string $rider Rider UUID.
+	 * @return bool
+	 */
+	public static function rider_suitable( $horse, $rider ) {
+		return true === ( $horse['any_rider'] ?? false ) || in_array( $rider, $horse['suitable_riders'], true );
+	}
+
 	/** Require exact keys rather than silently discarding misspelled fields.
 	 *
 	 * @param array $body Object.
@@ -303,7 +313,10 @@ class CSF_Scheduling_Calendar {
 		} elseif ( 'horse_saved' === $kind ) {
 			$tombstone = self::find( 'details', $body['uuid'] );
 			self::require( ! $tombstone || 'horse_tombstone' !== ( json_decode( $tombstone['body_json'], true )['record_type'] ?? null ), 'horse_deleted' );
-			self::keys( $d, array( 'label', 'source', 'resource_uuid', 'suitable_services', 'suitable_riders', 'training_enrolled' ) );
+			// Legacy commands remain restricted unless this option is explicitly enabled.
+			$d += array( 'any_rider' => false );
+			self::keys( $d, array( 'label', 'source', 'resource_uuid', 'suitable_services', 'suitable_riders', 'training_enrolled', 'any_rider' ) );
+			self::require( is_bool( $d['any_rider'] ) );
 			self::label( $d['label'] );
 			self::require( in_array( $d['source'], array( 'school', 'client' ), true ) && is_array( $d['suitable_services'] ) && array_is_list( $d['suitable_services'] ) && count( $d['suitable_services'] ) <= 30 && is_bool( $d['training_enrolled'] ) );
 			self::require( is_array( $d['suitable_riders'] ) && array_is_list( $d['suitable_riders'] ) && count( $d['suitable_riders'] ) <= 100 );
@@ -957,7 +970,7 @@ class CSF_Scheduling_Calendar {
 			self::require( $h, 'horse_unsafe' );
 			$horse = json_decode( $h['body_json'], true );
 			self::require( $historical || empty( $horse['archived'] ), 'horse_archived' );
-			self::require( null === $ride['rider'] || in_array( $ride['rider'], $horse['suitable_riders'], true ), 'horse_unsafe' );
+			self::require( null === $ride['rider'] || self::rider_suitable( $horse, $ride['rider'] ), 'horse_unsafe' );
 			self::require( in_array( $b['service_type'], $horse['suitable_services'], true ) && ( 'either' === $s['horse_source'] || $horse['source'] === $s['horse_source'] ), 'horse_unsafe' );
 			$a = CSF_Scheduling_Time::parse( $ride['start'], $p['timezone'] );
 			$z = CSF_Scheduling_Time::parse( $ride['end'], $p['timezone'] );
@@ -1126,7 +1139,7 @@ class CSF_Scheduling_Calendar {
 						$h = json_decode( self::find( 'horses', $uuid )['body_json'], true );
 						foreach ( $d['rides'] as $ride ) {
 							if ( $ride['horse'] === $uuid && null !== $ride['rider'] ) {
-								self::require( in_array( $ride['rider'], $h['suitable_riders'], true ), 'horse_unsafe' ); }
+								self::require( self::rider_suitable( $h, $ride['rider'] ), 'horse_unsafe' ); }
 						}
 						if ( $h['resource_uuid'] ) {
 							self::unrestricted( $h['resource_uuid'], $a, $z, $p );
@@ -1166,3 +1179,4 @@ class CSF_Scheduling_Calendar {
 			return new WP_Error( 'calendar_unavailable', 'Set a valid facility timezone and bounded date range.' ); }
 	}
 }
+

@@ -286,6 +286,9 @@ class CSF_Scheduling_Permissions {
 			if ( 'horse_saved' === $kind ) {
 				$t   = CSF_Scheduling_Schema::table( 'horses' );
 				$old = json_decode( (string) $wpdb->get_var( $wpdb->prepare( "SELECT body_json FROM `$t` WHERE uuid=%s", $b['uuid'] ?? '' ) ), true );
+				if ( ( $b['data']['any_rider'] ?? false ) !== ( $old['any_rider'] ?? false ) && ! CSF_Scheduling_Access::can( 'suitability_manage' ) ) {
+					return false;
+				}
 				foreach ( array( 'suitable_services', 'suitable_riders' )as$key ) {
 					if ( ( $b['data'][ $key ] ?? array() ) !== ( $old[ $key ] ?? array() ) && ! CSF_Scheduling_Access::can( 'suitability_manage' ) ) {
 						return false;}
@@ -429,3 +432,4 @@ class CSF_Scheduling_Permissions {
 		);
 	}
 }
+

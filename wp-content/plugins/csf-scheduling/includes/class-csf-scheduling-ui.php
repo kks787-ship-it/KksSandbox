@@ -35,6 +35,9 @@ class CSF_Scheduling_UI {
 	 * @return bool
 	 */
 	public static function editable( $kind, $body ) {
+		if ( 'horse_saved' === $kind && isset( $body['data'] ) && is_array( $body['data'] ) ) {
+			$body['data'] += array( 'any_rider' => false );
+		}
 		if ( 'appointment_saved' === $kind && array_key_exists( '_routine', $body ) ) {
 			if ( true !== $body['_routine'] || ! array_key_exists( 'single_rider', $body ) || ! array_key_exists( 'single_horse', $body ) || ! self::shape( $body['single_rider'], 'id' ) || ! self::shape( $body['single_horse'], 'id' ) ) {
 				return false;
@@ -107,6 +110,7 @@ class CSF_Scheduling_UI {
 					'resource_uuid'     => 'id',
 					'suitable_services' => 'texts',
 					'suitable_riders'   => 'ids',
+					'any_rider'         => 'bool',
 					'training_enrolled' => 'bool',
 				),
 			),
@@ -551,6 +555,7 @@ class CSF_Scheduling_UI {
 			return; }
 
 		if ( 'horse_saved' === $kind ) {
+			$body['data'] += array( 'any_rider' => false );
 			unset( $body['data']['archived'] ); // Status changes use their own reviewed command.
 		}
 		self::begin( $kind, $body );
@@ -613,7 +618,9 @@ class CSF_Scheduling_UI {
 					echo '</ul>';
 				}
 				self::checks( 'suitable_services', 'Approved services', $ctx['all_services'] ?? $ctx['services'], $d['suitable_services'] );
-				self::checks( 'suitable_riders', 'Approved riders', $ctx['riders'], $d['suitable_riders'] );
+				self::input( 'any_rider', 'Any rider — no individual rider list required', $d['any_rider'], 'checkbox', ! CSF_Scheduling_Access::can( 'suitability_manage' ) );
+				echo '<p>Includes existing and future riders. Rider clearance, approved services, availability and horse welfare checks still apply. Turn this off to use only the selected riders below.</p>';
+				self::checks( 'suitable_riders', 'Approved riders (used when Any rider is off)', $ctx['riders'], $d['suitable_riders'] );
 				self::input( 'training_enrolled', 'Enrolled in full training (counts toward facility cap)', $d['training_enrolled'], 'checkbox', ! CSF_Scheduling_Access::can( 'resource_manage' ) );
 		}
 		if ( 'availability_saved' === $kind ) {
@@ -1115,6 +1122,7 @@ class CSF_Scheduling_UI {
 				'resource_uuid'     => null,
 				'suitable_services' => array(),
 				'suitable_riders'   => array(),
+				'any_rider'         => false,
 				'training_enrolled' => false,
 			),
 		) as $kind => $data ) {
@@ -1220,3 +1228,4 @@ class CSF_Scheduling_UI {
 		echo '</details>';
 	}
 }
+
